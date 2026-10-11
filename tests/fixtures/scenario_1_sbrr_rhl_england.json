@@ -1,0 +1,28 @@
+{
+  "party_type": "CORPORATE",
+  "occupation_period": {
+    "start_date": "2025-10-01",
+    "end_date": "2026-09-30"
+  },
+  "hereditament": {
+    "jurisdiction": "ENGLAND",
+    "scat_code": "211",
+    "rateable_value_history": [
+      {
+        "effective_from": "2023-04-01",
+        "effective_to": "2026-03-31",
+        "rateable_value": 14500.00
+      },
+      {
+        "effective_from": "2026-04-01",
+        "effective_to": null,
+        "rateable_value": 16000.00
+      }
+    ]
+  },
+  "occupancy_type": "OCCUPIED",
+  "qualifying_relief_flags": {
+    "is_small_business_sole_property": true,
+    "is_rhl_qualifying": true
+  }
+}

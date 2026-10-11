@@ -1,0 +1,22 @@
+{
+  "party_type": "INDIVIDUAL",
+  "occupation_period": {
+    "start_date": "2026-04-01",
+    "end_date": "2027-03-31"
+  },
+  "hereditament": {
+    "jurisdiction": "SCOTLAND",
+    "scat_code": "249",
+    "rateable_value_history": [
+      {
+        "effective_from": "2026-04-01",
+        "effective_to": null,
+        "rateable_value": 11500.00
+      }
+    ]
+  },
+  "occupancy_type": "OCCUPIED",
+  "qualifying_relief_flags": {
+    "is_small_business_sole_property": true
+  }
+}

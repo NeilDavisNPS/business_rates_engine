@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug Axum Server",
+      "cargo": { "args": ["build", "--bin=business_rates_engine"] },
+      "env": { "RUST_LOG": "info", "PORT": "8080" }
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug Integration Tests",
+      "cargo": { "args": ["test", "--test=integration_tests", "--", "--nocapture"] }
+    }
+  ]
+}

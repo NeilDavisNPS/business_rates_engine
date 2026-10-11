@@ -1,0 +1,29 @@
+[package]
+name = "business_rates_engine"
+version = "0.0.1"
+edition = "2021"
+description = "Business Rates Statutory Calculation Engine & Component UI Sandbox (1993-2027)"
+
+[dependencies]
+tokio = { version = "1.38", features = ["full"] }
+axum = { version = "0.7", features = ["macros"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+rust_decimal = { version = "1.35", features = ["serde-float", "maths"] }
+rust_decimal_macros = "1.35"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.8", features = ["v4", "serde"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+thiserror = "2.0.21"
+
+[features]
+default = []
+
+[dev-dependencies]
+tower = { version = "0.4", features = ["util"] }
+http-body-util = "0.1"
+
+[[bin]]
+name = "business_rates_engine"
+path = "src/main.rs"

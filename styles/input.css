@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@source "../frontend/src/**/*.{svelte,ts,html}";
+@source "../frontend/index.html";
+
+/* Accessible Date Input Styling: Ensure high-contrast text matching text-slate-800 (#1e293b) across browsers */
+input[type="date"] {
+  color: #1e293b;
+  background-color: #ffffff;
+}
+
+input[type="date"]::-webkit-datetime-edit,
+input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+input[type="date"]::-webkit-datetime-edit-text,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field {
+  color: #1e293b;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0.8;
+  cursor: pointer;
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
