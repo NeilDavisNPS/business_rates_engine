@@ -3,6 +3,7 @@ name = "business_rates_engine"
 version = "0.0.1"
 edition = "2021"
 description = "Business Rates Statutory Calculation Engine & Component UI Sandbox (1993-2027)"
+license = "MIT"
 
 [dependencies]
 tokio = { version = "1.38", features = ["full"] }
