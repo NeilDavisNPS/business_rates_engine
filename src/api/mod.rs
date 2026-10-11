@@ -5,7 +5,7 @@ use axum::{
     routing::{get, post},
     Router, middleware::from_fn,
 };
-use crate::models::auth::AppState;
+use crate::models::AppState;
 use self::handlers::{
     calculate_liability_handler, component_ui_handler, get_all_parameters_handler,
     get_multipliers_handler, get_reference_codes_handler, get_sbrr_thresholds_handler,
@@ -28,16 +28,7 @@ pub fn create_router(state: AppState) -> Router {
 
     Router::new()
         .route("/", get(component_ui_handler))
-        .route("/admin", get(component_ui_handler))
-        .route("/component-ui", get(component_ui_handler))
-        .route("/app", get(component_ui_handler))
         .route("/docs", get(scalar_ui_handler))
-        .route("/scalar", get(scalar_ui_handler))
-        .route("/api-reference", get(scalar_ui_handler))
-        .route("/swagger", get(scalar_ui_handler))
-        .route("/swagger-ui", get(scalar_ui_handler))
-        .route("/openapi.json", get(openapi_json_handler))
-        .route("/openapi.yaml", get(openapi_yaml_handler))
         .route("/assets/:filename", get(static_frontend_asset))
         .nest("/api/v1", api_routes)
         .layer(from_fn(owasp_security_headers))

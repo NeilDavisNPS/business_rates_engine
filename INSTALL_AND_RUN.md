@@ -51,7 +51,7 @@ cargo run
 ```
 
 Once running, navigate your web browser to:
-👉 **[http://localhost:8080/](http://localhost:8080/)** (or **[http://localhost:8080/admin](http://localhost:8080/admin)**)  
+👉 **[http://localhost:8080/](http://localhost:8080/)** (Interactive Calculation Sandbox)  
 👉 **[http://localhost:8080/docs](http://localhost:8080/docs)** (Interactive Scalar API Reference)
 
 ---
@@ -101,16 +101,8 @@ PORT=9090 cargo run
 | Path | Description | Access |
 | :--- | :--- | :--- |
 | `http://localhost:8080/` | Main Interactive Calculation Sandbox & Audit Interface | Public (GET) |
-| `http://localhost:8080/admin` | Direct alias to the Component Sandbox UI | Public (GET) |
-| `http://localhost:8080/component-ui` | Direct alias to the Component Sandbox UI | Public (GET) |
-| `http://localhost:8080/app` | Direct alias to the Component Sandbox UI | Public (GET) |
 | `http://localhost:8080/docs` | Interactive Scalar API Reference (zero-CDN self-hosted) | Public (GET) |
-| `http://localhost:8080/scalar` | Direct alias to the Scalar API Reference | Public (GET) |
-| `http://localhost:8080/api-reference` | Direct alias to the Scalar API Reference | Public (GET) |
-| `http://localhost:8080/swagger` | Direct alias to the Scalar API Reference | Public (GET) |
-| `http://localhost:8080/swagger-ui` | Direct alias to the Scalar API Reference | Public (GET) |
-| `http://localhost:8080/api/v1/openapi.json` | OpenAPI 3.1.0 Specification (JSON format, alias `/openapi.json`) | Public (GET) |
-| `http://localhost:8080/api/v1/openapi.yaml` | OpenAPI 3.1.0 Specification (YAML format, alias `/openapi.yaml`) | Public (GET) |
+| `http://localhost:8080/assets/:filename` | Bundled Static Frontend & Scalar Assets | Public (GET) |
 | `http://localhost:8080/api/v1/calculate-liability` | Core Statutory Calculation REST Endpoint | Public (POST) |
 | `http://localhost:8080/api/v1/reference-codes` | Statutory Reference Codes & Allowable Values Catalog | Public (GET) |
 | `http://localhost:8080/api/v1/parameters` | Aggregated Statutory Parameter Repository Catalog | Public (GET) |
@@ -118,8 +110,14 @@ PORT=9090 cargo run
 | `http://localhost:8080/api/v1/parameters/sbrr-thresholds` | SBRR / SBBS Statutory Thresholds Catalog | Public (GET) |
 | `http://localhost:8080/api/v1/parameters/sector-reliefs` | Devolved Sector Relief Schemes Catalog | Public (GET) |
 | `http://localhost:8080/api/v1/parameters/transitional-caps` | Statutory Transitional Phasing Caps Catalog | Public (GET) |
+| `http://localhost:8080/api/v1/openapi.json` | OpenAPI 3.1.0 Specification (JSON format) | Public (GET) |
+| `http://localhost:8080/api/v1/openapi.yaml` | OpenAPI 3.1.0 Specification (YAML format) | Public (GET) |
 
-> **Note on Deprecated Routes**: Legacy endpoints with the `/business-rates/` slug (such as `/api/v1/business-rates/calculate-liability` and `/api/v1/business-rates/reference-codes`) have been removed and return `404 Not Found`. Use the clean, unified `/api/v1/...` routes listed above.
+> **Note on Decommissioned Routes**: All redundant aliases have been removed and return `404 Not Found`:
+> - UI aliases (`/admin`, `/component-ui`, `/app`)
+> - Documentation aliases (`/scalar`, `/api-reference`, `/swagger`, `/swagger-ui`)
+> - Root-level OpenAPI duplicates (`/openapi.json`, `/openapi.yaml`)
+> - Deprecated service slugs (`/api/v1/business-rates/*`)
 
 ---
 

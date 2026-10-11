@@ -36,7 +36,7 @@ The calculation engine's business logic, zero-hardcoding parameter tables, and s
 ### 2.1 Architecture Overview
 
 The system operates with a decoupled modern architecture:
-- **Interactive Component-Based UI (`frontend/`)**: A modular Svelte 5 Single-Page Application (SPA) compiled with Vite 6 and TypeScript 5.7 into static assets served directly by the backend at `/`, `/admin`, `/component-ui`, and `/app`. Includes embedded statutory parameter explorers and top navbar link to API reference.
+- **Interactive Component-Based UI (`frontend/`)**: A modular Svelte 5 Single-Page Application (SPA) compiled with Vite 6 and TypeScript 5.7 into static assets served directly by the backend at `/`. Includes embedded statutory parameter explorers and top navbar link to API reference.
 - **Interactive Documentation Plane (`/docs`, `/api/v1/openapi.json`)**: Self-hosted Scalar API reference rendered via `templates/scalar.html` with zero external CDN dependencies, dynamic query parameter templating, and official OpenAPI 3.1.0 specifications.
 - **Statutory Data Plane (REST API)**: High-performance, unauthenticated Axum endpoints executing sub-millisecond statutory rating calculations, cataloging statutory reference data, and serving parameter repository tables.
 
@@ -61,11 +61,8 @@ The system operates with a decoupled modern architecture:
 │                     Axum 0.7 REST API Server                           │
 │                                                                        │
 │   GET  /                                -> Svelte 5 SPA index.html     │
-│   GET  /admin, /component-ui, /app      -> Svelte 5 SPA index.html     │
+│   GET  /docs                            -> Scalar API Reference (HTML) │
 │   GET  /assets/:filename                -> Vite Assets / scalar.js     │
-│   GET  /docs, /scalar, /api-reference   -> Scalar API Reference (HTML) │
-│   GET  /api/v1/openapi.json             -> OpenAPI 3.1.0 Spec (JSON)   │
-│   GET  /api/v1/openapi.yaml             -> OpenAPI 3.1.0 Spec (YAML)   │
 │   POST /api/v1/calculate-liability      -> Statutory Calculation API   │
 │   GET  /api/v1/reference-codes          -> Statutory Reference Codes   │
 │   GET  /api/v1/parameters               -> Aggregated Parameter Repo   │
@@ -73,6 +70,8 @@ The system operates with a decoupled modern architecture:
 │   GET  /api/v1/parameters/sbrr-thresholds                              │
 │   GET  /api/v1/parameters/sector-reliefs                               │
 │   GET  /api/v1/parameters/transitional-caps                            │
+│   GET  /api/v1/openapi.json             -> OpenAPI 3.1.0 Spec (JSON)   │
+│   GET  /api/v1/openapi.yaml             -> OpenAPI 3.1.0 Spec (YAML)   │
 │                                                                        │
 │   OWASP Security Headers Middleware (Strict CSP, Zero 'unsafe-inline') │
 └───────────────────────────────────┬────────────────────────────────────┘
@@ -104,11 +103,11 @@ The system operates with a decoupled modern architecture:
    - Liable parties can submit multiple occupancy periods (`OCCUPIED`, `UNOCCUPIED`, `PART_OCCUPIED`) in a single calculation request.
    - Automatically handles statutory occupation reset rules ($\ge 91$ days in England post-April 2024; $\ge 42$ days in Wales/Scotland) and Section 44A dual-portion apportionments.
 6. **OpenAPI 3.1.0 & Self-Hosted Scalar Reference**:
-   - Official OpenAPI 3.1.0 specification stored in [`docs/openapi.yaml`](docs/openapi.yaml) and [`docs/openapi.json`](docs/openapi.json), served at `/api/v1/openapi.json` and `/api/v1/openapi.yaml`.
-   - Built-in interactive documentation at `/docs` (with `/scalar`, `/api-reference`, `/swagger` aliases) rendered via [`templates/scalar.html`](templates/scalar.html) using self-hosted `/assets/scalar.js`. Operates 100% offline with zero external CDN dependencies and supports dynamic query parameter templating (`title`, `spec_url`, `theme`, `layout`).
+   - Official OpenAPI 3.1.0 specification stored in [`docs/openapi.yaml`](docs/openapi.yaml) and [`docs/openapi.json`](docs/openapi.json), served strictly at `/api/v1/openapi.json` and `/api/v1/openapi.yaml`.
+   - Built-in interactive documentation served at `/docs` rendered via [`templates/scalar.html`](templates/scalar.html) using self-hosted `/assets/scalar.js`. Operates 100% offline with zero external CDN dependencies and supports dynamic query parameter templating (`title`, `spec_url`, `theme`, `layout`).
 7. **Unified Single REST API Routes**:
-   - Standardized single-namespace REST endpoints directly under `/api/v1/` (`/calculate-liability`, `/reference-codes`, `/parameters/*`).
-   - Deprecated `/business-rates/` route slugs have been decommissioned; requests to `/api/v1/business-rates/*` return `404 Not Found`.
+   - Standardized single-namespace REST endpoints directly under `/api/v1/` (`/calculate-liability`, `/reference-codes`, `/parameters/*`, `/openapi.*`).
+   - All legacy route aliases (`/admin`, `/component-ui`, `/app`, `/scalar`, `/api-reference`, `/swagger`, `/swagger-ui`, `/openapi.json`, `/openapi.yaml`, and `/api/v1/business-rates/*`) have been decommissioned and return `404 Not Found`.
 
 ---
 
@@ -402,7 +401,7 @@ The test suite in [`tests/integration_tests.rs`](file:///c:/Users/mark__q2t877z/
   - `test_http_calculate_liability_unauthenticated_access`: Verifies calculation succeeds on `POST /api/v1/calculate-liability` without any `X-API-Key` or authorization headers, and confirms legacy `/api/v1/business-rates/calculate-liability` returns `404 NOT FOUND`.
   - `test_http_sso_endpoints`: Verifies removed SSO endpoints return `404 NOT FOUND`.
   - `test_http_parameters_endpoints`: Validates all 5 parameter catalog endpoints (`/api/v1/parameters`, `/api/v1/parameters/multipliers`, `/api/v1/parameters/sbrr-thresholds`, `/api/v1/parameters/sector-reliefs`, `/api/v1/parameters/transitional-caps`) return valid HTTP 200 JSON arrays.
-  - `test_openapi_and_swagger_endpoints`: Validates OpenAPI 3.1.0 specifications (`/api/v1/openapi.json`, `/openapi.json`, `/api/v1/openapi.yaml`), `/docs` Scalar HTML rendering with query parameter templating (`title`, `spec_url`, `theme`, `layout`), self-hosted zero-CDN `scalar.js`, and documentation route aliases (`/scalar`, `/api-reference`, `/swagger`, `/swagger-ui`).
+  - `test_openapi_and_swagger_endpoints`: Validates OpenAPI 3.1.0 specifications (`/api/v1/openapi.json`, `/api/v1/openapi.yaml`), `/docs` Scalar HTML rendering with query parameter templating (`title`, `spec_url`, `theme`, `layout`), self-hosted zero-CDN `scalar.js`, and confirms decommissioned aliases (`/scalar`, `/api-reference`, `/swagger`, `/swagger-ui`, `/openapi.json`, `/openapi.yaml`) return `404 NOT FOUND`.
 
 - **Suite E: Statutory Relief Extensions**:
   - `test_statutory_heat_network_exemption`: NDRA 2023 s.2 100% heat network discount.
@@ -413,9 +412,9 @@ The test suite in [`tests/integration_tests.rs`](file:///c:/Users/mark__q2t877z/
   - `test_statutory_empty_property_prior_unoccupied_days`: Calculation accounting for prior unoccupied days deducted from statutory allowance.
 
 - **Suite F: Component UI Serving & OWASP Security**:
-  - `test_component_ui_route_and_static_assets_with_owasp_headers`: Verifies `/component-ui`, `/app`, and bundled assets `/assets/*` serve with strict OWASP CSP headers.
+  - `test_root_ui_route_and_static_assets_with_owasp_headers`: Verifies `/` and bundled assets `/assets/*` serve with strict OWASP CSP headers.
   - `test_ui_html_rendering_english_default`: Verifies `/` serves the Svelte 5 single-page application mount `<div id="app">`.
-  - `test_ui_admin_route_serves_sandbox`: Verifies `/admin` directly serves the component application.
+  - `test_ui_decommissioned_alias_routes_return_404`: Verifies decommissioned aliases (`/admin`, `/component-ui`, `/app`) return `404 NOT FOUND`.
   - `test_owasp_secure_headers_on_html_ui_response`: Verifies complete suite of OWASP headers on HTML responses.
   - `test_owasp_secure_headers_on_api_json_response`: Verifies OWASP security headers on API JSON responses.
   - `test_owasp_secure_headers_on_error_and_unauthorized_responses`: Verifies OWASP security headers on 422/404 error responses.

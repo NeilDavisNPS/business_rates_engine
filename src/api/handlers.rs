@@ -5,7 +5,7 @@ use axum::{
     Json,
 };
 use serde::{Deserialize, Serialize};
-use crate::models::auth::AppState;
+use crate::models::AppState;
 use crate::models::calculation::{LiabilityCalculationRequest, LiabilityCalculationResponse};
 use crate::engine::calculator::CalculationEngine;
 use crate::db::repository::{
@@ -226,13 +226,6 @@ pub async fn scalar_ui_handler(
         [(axum::http::header::CONTENT_TYPE, "text/html; charset=utf-8")],
         rendered,
     )
-}
-
-/// Alias pointing to Scalar UI documentation
-pub async fn swagger_ui_handler(
-    query: Query<DocQueryParams>,
-) -> ([(axum::http::HeaderName, &'static str); 1], String) {
-    scalar_ui_handler(query).await
 }
 
 

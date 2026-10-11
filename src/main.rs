@@ -1,7 +1,7 @@
 use std::net::SocketAddr;
 use tracing::info;
 use business_rates_engine::db::repository::ParameterRepository;
-use business_rates_engine::models::auth::AppState;
+use business_rates_engine::models::AppState;
 use business_rates_engine::api::create_router;
 
 #[tokio::main]

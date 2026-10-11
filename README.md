@@ -13,7 +13,7 @@
 - **4-Language Native Internationalization**: Full localization across **English (`en`)**, **Welsh (`cy`)**, **Scots (`sco`)**, and **Scottish Gaelic (`gd`)** for statutory narratives, relief names, error messages, and reference codes.
 - **Modern Svelte 5 Component Framework**: Interactive web sandbox built with Svelte 5 Runes (`$state`, `$derived`), Vite 6, TypeScript 5.7, Standalone Tailwind CSS, and embedded parameter catalog explorers.
 - **Unified Unauthenticated REST API**: Clean single-namespace endpoints (`/api/v1/calculate-liability`, `/api/v1/reference-codes`, `/api/v1/parameters/...`) with sub-millisecond execution and zero authentication overhead.
-- **OpenAPI 3.1.0 & Self-Hosted Scalar Reference**: Interactive API reference at `/docs` (and `/scalar`) powered by locally hosted `scalar.js` (zero external CDN dependencies; air-gapped compliant) with templated customization and official specs at `/api/v1/openapi.json` and `/api/v1/openapi.yaml`.
+- **OpenAPI 3.1.0 & Self-Hosted Scalar Reference**: Interactive API reference at `/docs` powered by locally hosted `scalar.js` (zero external CDN dependencies; air-gapped compliant) with templated customization and official specs at `/api/v1/openapi.json` and `/api/v1/openapi.yaml`.
 - **OWASP Security Baseline**: Strict Content Security Policy (CSP) with `script-src 'self'` (zero `'unsafe-inline'` and zero CDN origins), HSTS, and comprehensive security headers.
 
 ---

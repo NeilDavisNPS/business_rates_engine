@@ -6,8 +6,7 @@ use business_rates_engine::models::calculation::*;
 use business_rates_engine::models::enums::{Jurisdiction, PartyType, OccupancyType};
 use business_rates_engine::engine::calculator::CalculationEngine;
 use business_rates_engine::db::repository::ParameterRepository;
-use business_rates_engine::api::middleware::sha256_hex;
-use business_rates_engine::models::auth::AppState;
+use business_rates_engine::models::AppState;
 use business_rates_engine::api::create_router;
 use business_rates_engine::api::handlers::resolve_language;
 use business_rates_engine::i18n::Language;
@@ -349,11 +348,11 @@ async fn test_suite_8_empty_property_exemption() {
 }
 
 #[tokio::test]
-async fn test_sha256_api_key_hashing() {
-    let raw_key = "br_live_mcc_key_12345";
-    let hash = sha256_hex(raw_key);
-    assert_eq!(hash.len(), 64);
-    assert_eq!(hash, sha256_hex(raw_key));
+async fn test_app_state_repository_access() {
+    let state = AppState {
+        repo: ParameterRepository::new_mock(),
+    };
+    assert!(!state.repo.all_reference_codes().is_empty());
 }
 
 #[tokio::test]
@@ -600,20 +599,18 @@ async fn test_ui_html_rendering_english_default() {
 }
 
 #[tokio::test]
-async fn test_ui_admin_route_serves_sandbox() {
+async fn test_ui_decommissioned_alias_routes_return_404() {
     let app = create_test_app();
-    let req = Request::builder()
-        .uri("/admin")
-        .method("GET")
-        .body(Body::empty())
-        .unwrap();
+    for path in &["/admin", "/component-ui", "/app"] {
+        let req = Request::builder()
+            .uri(*path)
+            .method("GET")
+            .body(Body::empty())
+            .unwrap();
 
-    let res = app.oneshot(req).await.unwrap();
-    assert_eq!(res.status(), StatusCode::OK);
-
-    let html = body_to_string(res.into_body()).await;
-    assert!(html.contains(r#"<div id="app"></div>"#));
-    assert!(html.contains("<title>Business Rates Engine — Admin Portal & Component Sandbox</title>"));
+        let res = app.clone().oneshot(req).await.unwrap();
+        assert_eq!(res.status(), StatusCode::NOT_FOUND, "Decommissioned route {} must return 404", path);
+    }
 }
 
 // =========================================================================
@@ -1145,28 +1142,16 @@ async fn test_statutory_empty_property_prior_unoccupied_days() {
 
 #[test]
 fn test_domain_error_status_codes_and_codes() {
-    let err_hereditament = AppError::HereditamentNotFound;
-    assert_eq!(err_hereditament.status_code(), StatusCode::NOT_FOUND);
-    assert_eq!(err_hereditament.error_code(), "HEREDITAMENT_NOT_FOUND");
-
-    let err_param = AppError::MissingParameter {
-        param_type: "MULTIPLIER".to_string(),
-        key: "2026/27".to_string(),
+    let err_period = AppError::InvalidOccupationPeriod {
+        start: NaiveDate::from_ymd_opt(2025, 4, 1).unwrap(),
+        end: NaiveDate::from_ymd_opt(2024, 3, 31).unwrap(),
     };
-    assert_eq!(err_param.status_code(), StatusCode::NOT_FOUND);
-    assert_eq!(err_param.error_code(), "MISSING_PARAMETER");
+    assert_eq!(err_period.status_code(), StatusCode::BAD_REQUEST);
+    assert_eq!(err_period.error_code(), "INVALID_OCCUPATION_PERIOD");
 
-    let err_auth = AppError::Unauthorized("Invalid key".to_string());
-    assert_eq!(err_auth.status_code(), StatusCode::UNAUTHORIZED);
-    assert_eq!(err_auth.error_code(), "UNAUTHORIZED");
-
-    let err_tmpl = AppError::TemplateRender("syntax error".to_string());
-    assert_eq!(err_tmpl.status_code(), StatusCode::INTERNAL_SERVER_ERROR);
-    assert_eq!(err_tmpl.error_code(), "TEMPLATE_RENDER_ERROR");
-
-    let err_internal = AppError::Internal("db timeout".to_string());
-    assert_eq!(err_internal.status_code(), StatusCode::INTERNAL_SERVER_ERROR);
-    assert_eq!(err_internal.error_code(), "INTERNAL_ERROR");
+    let err_payload = AppError::PayloadDeserialization("invalid json syntax".to_string());
+    assert_eq!(err_payload.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
+    assert_eq!(err_payload.error_code(), "PAYLOAD_DESERIALIZATION_ERROR");
 }
 
 // =========================================================================
@@ -1553,12 +1538,12 @@ async fn test_i18n_localized_error_messages_scots_and_gaelic() {
 }
 
 #[tokio::test]
-async fn test_component_ui_route_and_static_assets_with_owasp_headers() {
+async fn test_root_ui_route_and_static_assets_with_owasp_headers() {
     let app = create_test_app();
 
-    // 1. GET /component-ui
+    // 1. GET /
     let req = Request::builder()
-        .uri("/component-ui")
+        .uri("/")
         .method("GET")
         .body(Body::empty())
         .unwrap();
@@ -1577,16 +1562,7 @@ async fn test_component_ui_route_and_static_assets_with_owasp_headers() {
     let html = body_to_string(res.into_body()).await;
     assert!(html.contains("<div id=\"app\">"));
 
-    // 2. GET /app alias
-    let req_app = Request::builder()
-        .uri("/app")
-        .method("GET")
-        .body(Body::empty())
-        .unwrap();
-    let res_app = app.clone().oneshot(req_app).await.unwrap();
-    assert_eq!(res_app.status(), StatusCode::OK);
-
-    // 3. Test static assets under /assets/*
+    // 2. Test static assets under /assets/*
     let assets_dir = format!("{}/frontend/dist/assets", env!("CARGO_MANIFEST_DIR"));
     if let Ok(entries) = std::fs::read_dir(assets_dir) {
         for entry in entries.flatten() {
@@ -1696,14 +1672,16 @@ async fn test_openapi_and_swagger_endpoints() {
     assert!(json.get("paths").unwrap().is_object());
     assert!(json.get("components").unwrap().get("schemas").unwrap().is_object());
 
-    // 2. GET /openapi.json alias
-    let req = Request::builder()
-        .uri("/openapi.json")
-        .method("GET")
-        .body(Body::empty())
-        .unwrap();
-    let res = app.clone().oneshot(req).await.unwrap();
-    assert_eq!(res.status(), StatusCode::OK);
+    // 2. Removed root /openapi.json and /openapi.yaml return 404
+    for path in &["/openapi.json", "/openapi.yaml"] {
+        let req = Request::builder()
+            .uri(*path)
+            .method("GET")
+            .body(Body::empty())
+            .unwrap();
+        let res = app.clone().oneshot(req).await.unwrap();
+        assert_eq!(res.status(), StatusCode::NOT_FOUND, "Root {} should return 404", path);
+    }
 
     // 3. GET /api/v1/openapi.yaml
     let req = Request::builder()
@@ -1769,7 +1747,7 @@ async fn test_openapi_and_swagger_endpoints() {
         "application/javascript; charset=utf-8"
     );
 
-    // 6. GET /scalar, /api-reference, and /swagger aliases
+    // 6. Removed documentation aliases return 404
     for alias in &["/scalar", "/api-reference", "/swagger", "/swagger-ui"] {
         let req = Request::builder()
             .uri(*alias)
@@ -1777,7 +1755,7 @@ async fn test_openapi_and_swagger_endpoints() {
             .body(Body::empty())
             .unwrap();
         let res = app.clone().oneshot(req).await.unwrap();
-        assert_eq!(res.status(), StatusCode::OK);
+        assert_eq!(res.status(), StatusCode::NOT_FOUND, "Decommissioned alias {} should return 404", alias);
     }
 }
 

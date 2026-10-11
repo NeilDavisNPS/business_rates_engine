@@ -20,24 +20,6 @@ pub enum AppError {
 
     #[error("Payload Deserialization Error: {0}")]
     PayloadDeserialization(String),
-
-    #[error("Hereditament was not found")]
-    HereditamentNotFound,
-
-    #[error("Missing statutory rating parameter: {param_type} for '{key}'")]
-    MissingParameter {
-        param_type: String,
-        key: String,
-    },
-
-    #[error("Unauthorized access: {0}")]
-    Unauthorized(String),
-
-    #[error("Template rendering failed: {0}")]
-    TemplateRender(String),
-
-    #[error("Internal server error: {0}")]
-    Internal(String),
 }
 
 impl AppError {
@@ -46,11 +28,6 @@ impl AppError {
         match self {
             Self::InvalidOccupationPeriod { .. } => StatusCode::BAD_REQUEST,
             Self::PayloadDeserialization(_) => StatusCode::UNPROCESSABLE_ENTITY,
-            Self::HereditamentNotFound => StatusCode::NOT_FOUND,
-            Self::MissingParameter { .. } => StatusCode::NOT_FOUND,
-            Self::Unauthorized(_) => StatusCode::UNAUTHORIZED,
-            Self::TemplateRender(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            Self::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 
@@ -59,11 +36,6 @@ impl AppError {
         match self {
             Self::InvalidOccupationPeriod { .. } => "INVALID_OCCUPATION_PERIOD",
             Self::PayloadDeserialization(_) => "PAYLOAD_DESERIALIZATION_ERROR",
-            Self::HereditamentNotFound => "HEREDITAMENT_NOT_FOUND",
-            Self::MissingParameter { .. } => "MISSING_PARAMETER",
-            Self::Unauthorized(_) => "UNAUTHORIZED",
-            Self::TemplateRender(_) => "TEMPLATE_RENDER_ERROR",
-            Self::Internal(_) => "INTERNAL_ERROR",
         }
     }
 
@@ -78,13 +50,6 @@ impl AppError {
                 Self::PayloadDeserialization(msg) => {
                     format!("Gwall Dad-gyfresoli Llwyth Tâl: {msg}")
                 }
-                Self::HereditamentNotFound => "Ni chanfuwyd yr eiddo".to_string(),
-                Self::MissingParameter { param_type, key } => {
-                    format!("Paramedr trethu statudol ar goll: {param_type} ar gyfer '{key}'")
-                }
-                Self::Unauthorized(msg) => format!("Mynediad heb awdurdod: {msg}"),
-                Self::TemplateRender(msg) => format!("Methiant rendro templed: {msg}"),
-                Self::Internal(msg) => format!("Gwall mewnol yn y gweinydd: {msg}"),
             },
             crate::i18n::Language::Sco => match self {
                 Self::InvalidOccupationPeriod { start, end } => {
@@ -93,13 +58,6 @@ impl AppError {
                 Self::PayloadDeserialization(msg) => {
                     format!("Payload Deserialization Misgaed: {msg}")
                 }
-                Self::HereditamentNotFound => "Hereditament nae fund".to_string(),
-                Self::MissingParameter { param_type, key } => {
-                    format!("Statutary ratin parameter missin: {param_type} for '{key}'")
-                }
-                Self::Unauthorized(msg) => format!("Unauthorisit ingress: {msg}"),
-                Self::TemplateRender(msg) => format!("Template renderin misgaed: {msg}"),
-                Self::Internal(msg) => format!("Internal server error: {msg}"),
             },
             crate::i18n::Language::Gd => match self {
                 Self::InvalidOccupationPeriod { start, end } => {
@@ -108,13 +66,6 @@ impl AppError {
                 Self::PayloadDeserialization(msg) => {
                     format!("Mearachd dì-shreathachadh luchd-pàighidh: {msg}")
                 }
-                Self::HereditamentNotFound => "Cha deach an togalach a lorg".to_string(),
-                Self::MissingParameter { param_type, key } => {
-                    format!("Paramadair reachdail a dhìth: {param_type} airson '{key}'")
-                }
-                Self::Unauthorized(msg) => format!("Inntrigeadh gun chead: {msg}"),
-                Self::TemplateRender(msg) => format!("Dh'fhàillig toirt seachad teamplaid: {msg}"),
-                Self::Internal(msg) => format!("Mearachd frithealaiche a-staigh: {msg}"),
             },
         }
     }
