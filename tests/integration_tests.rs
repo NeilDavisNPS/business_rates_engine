@@ -592,9 +592,10 @@ async fn test_ui_html_rendering_english_default() {
 
     let html = body_to_string(res.into_body()).await;
 
-    // Serves component Svelte 5 UI with div id="app"
+    // Serves component Svelte 5 UI with div id="app" and matching favicon
     assert!(html.contains(r#"<div id="app"></div>"#));
-    assert!(html.contains("<title>Business Rates Engine — Admin Portal & Component Sandbox</title>"));
+    assert!(html.contains("<title>Business Rates Engine — Statutory Calculation Sandbox</title>"));
+    assert!(html.contains(r#"<link rel="icon" type="image/svg+xml""#));
     assert!(html.contains("/assets/index-") && html.contains(".css"));
 }
 
