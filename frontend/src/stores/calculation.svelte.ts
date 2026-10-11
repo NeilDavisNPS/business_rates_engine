@@ -9,6 +9,10 @@ import type {
   LiabilityCalculationRequest,
   LiabilityCalculationResponse,
   ParamReferenceCode,
+  ParamMultiplier,
+  ParamSbrrSbbsThreshold,
+  ParamSectorRelief,
+  ParamTransitionalCap,
 } from '../types';
 import { getDictionary, JURISDICTION_CONFIGS } from '../i18n';
 
@@ -61,6 +65,18 @@ class CalculationStore {
   referenceCodes = $state<ParamReferenceCode[]>([]);
   dictFilter = $state<'ALL' | 'ENGLAND' | 'WALES' | 'SCOTLAND'>('ALL');
   isDictExpanded = $state<boolean>(false);
+
+  multipliers = $state<ParamMultiplier[]>([]);
+  isMultipliersExpanded = $state<boolean>(false);
+
+  sbrrThresholds = $state<ParamSbrrSbbsThreshold[]>([]);
+  isSbrrExpanded = $state<boolean>(false);
+
+  sectorReliefs = $state<ParamSectorRelief[]>([]);
+  isSectorReliefsExpanded = $state<boolean>(false);
+
+  transitionalCaps = $state<ParamTransitionalCap[]>([]);
+  isTransitionalCapsExpanded = $state<boolean>(false);
 
   t = $derived(getDictionary(this.language));
   jurisdictionInfo = $derived(JURISDICTION_CONFIGS[this.language][this.jurisdiction]);
@@ -317,6 +333,21 @@ class CalculationStore {
       }
     } catch (e) {
       console.warn('Failed to load reference codes from API:', e);
+    }
+  }
+
+  async loadParameters() {
+    try {
+      const res = await fetch('/api/v1/parameters');
+      if (res.ok) {
+        const data = await res.json();
+        this.multipliers = data.multipliers || [];
+        this.sbrrThresholds = data.sbrr_thresholds || [];
+        this.sectorReliefs = data.sector_reliefs || [];
+        this.transitionalCaps = data.transitional_caps || [];
+      }
+    } catch (e) {
+      console.warn('Failed to load parameters from API:', e);
     }
   }
 }

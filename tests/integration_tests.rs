@@ -1604,6 +1604,66 @@ async fn test_component_ui_route_and_static_assets_with_owasp_headers() {
     }
 }
 
+#[tokio::test]
+async fn test_http_parameters_endpoints() {
+    let app = create_test_app();
+
+    // 1. GET /api/v1/parameters
+    let req = Request::builder()
+        .uri("/api/v1/parameters")
+        .method("GET")
+        .body(Body::empty())
+        .unwrap();
+    let res = app.clone().oneshot(req).await.unwrap();
+    assert_eq!(res.status(), StatusCode::OK);
+    let body = body_to_string(res.into_body()).await;
+    let json: Value = serde_json::from_str(&body).unwrap();
+    assert!(json.get("multipliers").unwrap().is_array());
+    assert!(json.get("sbrr_thresholds").unwrap().is_array());
+    assert!(json.get("sector_reliefs").unwrap().is_array());
+    assert!(json.get("transitional_caps").unwrap().is_array());
+    assert!(!json.get("multipliers").unwrap().as_array().unwrap().is_empty());
+
+    // 2. GET /api/v1/parameters/multipliers
+    let req = Request::builder()
+        .uri("/api/v1/parameters/multipliers")
+        .method("GET")
+        .body(Body::empty())
+        .unwrap();
+    let res = app.clone().oneshot(req).await.unwrap();
+    assert_eq!(res.status(), StatusCode::OK);
+    let body = body_to_string(res.into_body()).await;
+    let json: Value = serde_json::from_str(&body).unwrap();
+    assert!(json.as_array().unwrap().len() >= 40);
+
+    // 3. GET /api/v1/parameters/sbrr-thresholds
+    let req = Request::builder()
+        .uri("/api/v1/parameters/sbrr-thresholds")
+        .method("GET")
+        .body(Body::empty())
+        .unwrap();
+    let res = app.clone().oneshot(req).await.unwrap();
+    assert_eq!(res.status(), StatusCode::OK);
+
+    // 4. GET /api/v1/parameters/sector-reliefs
+    let req = Request::builder()
+        .uri("/api/v1/parameters/sector-reliefs")
+        .method("GET")
+        .body(Body::empty())
+        .unwrap();
+    let res = app.clone().oneshot(req).await.unwrap();
+    assert_eq!(res.status(), StatusCode::OK);
+
+    // 5. GET /api/v1/parameters/transitional-caps
+    let req = Request::builder()
+        .uri("/api/v1/parameters/transitional-caps")
+        .method("GET")
+        .body(Body::empty())
+        .unwrap();
+    let res = app.clone().oneshot(req).await.unwrap();
+    assert_eq!(res.status(), StatusCode::OK);
+}
+
 
 
 

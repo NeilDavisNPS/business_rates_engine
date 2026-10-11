@@ -4,11 +4,14 @@ use axum::{
     response::Response,
     Json,
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use crate::models::auth::AppState;
 use crate::models::calculation::{LiabilityCalculationRequest, LiabilityCalculationResponse};
 use crate::engine::calculator::CalculationEngine;
-use crate::db::repository::ParamReferenceCode;
+use crate::db::repository::{
+    ParamMultiplier, ParamReferenceCode, ParamSbrrSbbsThreshold, ParamSectorRelief,
+    ParamTransitionalCap,
+};
 use crate::error::AppError;
 use crate::i18n::Language;
 
@@ -85,6 +88,54 @@ pub async fn get_reference_codes_handler(
 ) -> Json<Vec<ParamReferenceCode>> {
     let lang = resolve_language(&headers, query.lang.as_deref(), None);
     Json(state.repo.all_reference_codes_localized(lang))
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct AllParametersResponse {
+    pub multipliers: Vec<ParamMultiplier>,
+    pub sbrr_thresholds: Vec<ParamSbrrSbbsThreshold>,
+    pub sector_reliefs: Vec<ParamSectorRelief>,
+    pub transitional_caps: Vec<ParamTransitionalCap>,
+}
+
+/// Returns all statutory parameters from the in-memory parameter catalog.
+pub async fn get_all_parameters_handler(
+    State(state): State<AppState>,
+) -> Json<AllParametersResponse> {
+    Json(AllParametersResponse {
+        multipliers: state.repo.all_multipliers().to_vec(),
+        sbrr_thresholds: state.repo.all_sbrr_thresholds().to_vec(),
+        sector_reliefs: state.repo.all_sector_reliefs().to_vec(),
+        transitional_caps: state.repo.all_transitional_caps().to_vec(),
+    })
+}
+
+/// Returns all statutory rating multipliers (1993–2027)
+pub async fn get_multipliers_handler(
+    State(state): State<AppState>,
+) -> Json<Vec<ParamMultiplier>> {
+    Json(state.repo.all_multipliers().to_vec())
+}
+
+/// Returns all Small Business Rate Relief / SBBS thresholds and tapers
+pub async fn get_sbrr_thresholds_handler(
+    State(state): State<AppState>,
+) -> Json<Vec<ParamSbrrSbbsThreshold>> {
+    Json(state.repo.all_sbrr_thresholds().to_vec())
+}
+
+/// Returns all devolved sector relief schemes (Retail, Hospitality & Leisure)
+pub async fn get_sector_reliefs_handler(
+    State(state): State<AppState>,
+) -> Json<Vec<ParamSectorRelief>> {
+    Json(state.repo.all_sector_reliefs().to_vec())
+}
+
+/// Returns all transitional phasing relief caps (2017 & 2023 lists)
+pub async fn get_transitional_caps_handler(
+    State(state): State<AppState>,
+) -> Json<Vec<ParamTransitionalCap>> {
+    Json(state.repo.all_transitional_caps().to_vec())
 }
 
 /// Serves the modern component-based frontend (Svelte 5 + Vite build)

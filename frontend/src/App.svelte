@@ -9,6 +9,10 @@
   import StatutoryAuditNarrative from './components/StatutoryAuditNarrative.svelte';
   import RawJsonEditor from './components/RawJsonEditor.svelte';
   import ReferenceCodeCatalog from './components/ReferenceCodeCatalog.svelte';
+  import MultipliersCatalog from './components/MultipliersCatalog.svelte';
+  import SbrrThresholdsCatalog from './components/SbrrThresholdsCatalog.svelte';
+  import SectorReliefsCatalog from './components/SectorReliefsCatalog.svelte';
+  import TransitionalCapsCatalog from './components/TransitionalCapsCatalog.svelte';
   import { calcStore } from './stores/calculation.svelte';
 </script>
 
@@ -168,8 +172,21 @@
       </div>
     </section>
 
-    <!-- Statutory Reference Code Dictionary Catalog -->
-    <ReferenceCodeCatalog />
+    <!-- Seeded Statutory Parameters & Reference Data Catalogs -->
+    <section class="space-y-4">
+      <div class="border-b border-slate-200 pb-2">
+        <h3 class="text-base font-bold text-slate-900">Statutory Parameters & Reference Catalogs</h3>
+        <p class="text-xs text-slate-500 mt-0.5">Explore in-memory seeded statutory rates, tapers, relief schemes, transitional caps, and reference code dictionaries across England, Wales, and Scotland.</p>
+      </div>
+
+      <div class="space-y-4">
+        <MultipliersCatalog />
+        <SbrrThresholdsCatalog />
+        <SectorReliefsCatalog />
+        <TransitionalCapsCatalog />
+        <ReferenceCodeCatalog />
+      </div>
+    </section>
   </main>
 </div>
 

@@ -147,3 +147,49 @@ export interface ParamReferenceCode {
   display_order?: number;
 }
 
+export interface ParamMultiplier {
+  parameter_id: string;
+  financial_year: string;
+  jurisdiction: Jurisdiction;
+  multiplier_type: string;
+  rv_threshold_min: number;
+  rv_threshold_max: number | null;
+  multiplier_rate: number;
+  effective_from: string;
+  effective_to: string;
+}
+
+export interface ParamSbrrSbbsThreshold {
+  parameter_id: string;
+  financial_year: string;
+  jurisdiction: Jurisdiction;
+  min_rv: number;
+  max_rv: number;
+  relief_percentage: number;
+  is_tapered: boolean;
+  effective_from: string;
+  effective_to: string;
+}
+
+export interface ParamSectorRelief {
+  parameter_id: string;
+  financial_year: string;
+  jurisdiction: Jurisdiction;
+  relief_code: string;
+  discount_percentage: number;
+  cash_cap_gbp: number | null;
+  effective_from: string;
+  effective_to: string;
+}
+
+export interface ParamTransitionalCap {
+  parameter_id: string;
+  revaluation_list_year: number;
+  financial_year: string;
+  jurisdiction: Jurisdiction;
+  property_tier: string;
+  rv_threshold_min: number;
+  rv_threshold_max: number | null;
+  upward_cap_percentage: number;
+}
+
