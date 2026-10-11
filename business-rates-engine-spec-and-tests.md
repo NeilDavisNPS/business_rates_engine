@@ -339,11 +339,11 @@ The repository exposes synchronous, zero-copy query methods:
 
 ```rust
 impl ParameterRepository {
-    pub fn get_multiplier(&self, jurisdiction: &str, financial_year: &str, multiplier_type: &str, rv: Decimal) -> Result<Decimal, AppError>;
-    pub fn get_sbrr_sbbs_discount(&self, jurisdiction: &str, financial_year: &str, rv: Decimal) -> Decimal;
-    pub fn get_sector_relief(&self, jurisdiction: &str, financial_year: &str, relief_code: &str) -> Option<&ParamSectorRelief>;
-    pub fn get_transitional_cap(&self, reval_year: i32, financial_year: &str, jurisdiction: &str, property_tier: &str) -> Option<Decimal>;
-    pub fn get_reference_codes(&self, category: Option<&str>, jurisdiction: Option<&str>, language: &str) -> Vec<ReferenceCodeDto>;
+    pub fn resolve_multiplier(&self, jurisdiction: Jurisdiction, financial_year: &str, rv: Decimal) -> MultiplierInfo;
+    pub fn calculate_sbrr_sbbs_discount(&self, jurisdiction: Jurisdiction, financial_year: &str, rv: Decimal) -> Decimal;
+    pub fn get_sector_relief(&self, jurisdiction: Jurisdiction, financial_year: &str, relief_code: &str) -> Option<&ParamSectorRelief>;
+    pub fn resolve_transitional_cap(&self, jurisdiction: Jurisdiction, financial_year: &str, rv: Decimal) -> Option<&ParamTransitionalCap>;
+    pub fn get_reference_codes(&self, category: &str) -> Vec<&ParamReferenceCode>;
 }
 ```
 
@@ -356,7 +356,7 @@ The in-memory parameter repository and statutory documentation are exposed direc
 - `GET /api/v1/parameters/sector-reliefs`: Devolved retail, hospitality, leisure, and special relief schemes.
 - `GET /api/v1/parameters/transitional-caps`: Statutory revaluation transitional phasing percentage caps.
 - `GET /api/v1/openapi.json` & `GET /api/v1/openapi.yaml`: Official OpenAPI 3.1.0 specifications documenting all statutory models, calculation endpoints, schemas, and parameter filters.
-- `GET /docs`: Interactive self-hosted Scalar API reference UI rendered from `templates/scalar.html` with zero external CDN dependencies, strict script CSP, and dynamic query parameter templating (`?title=...&spec_url=...&theme=...&layout=...`). Aliases: `/scalar`, `/api-reference`, `/swagger`, `/swagger-ui`.
+- `GET /docs`: Interactive self-hosted Scalar API reference UI rendered from `templates/scalar.html` with zero external CDN dependencies, strict script CSP, and dynamic query parameter templating (`?title=...&spec_url=...&theme=...&layout=...`). All redundant aliases (`/scalar`, `/api-reference`, `/swagger`, `/swagger-ui`) are decommissioned and return `404 NOT FOUND`.
 
 ---
 
@@ -393,8 +393,11 @@ The test suite in [`tests/integration_tests.rs`](file:///c:/Users/mark__q2t877z/
   - `test_language_resolution_precedence`: Verifies precedence: Body field > Query parameter > Accept-Language header > Default English.
   - `test_http_calculate_liability_multilingual_content_negotiation`: HTTP endpoint bilingual responses via headers and body flags.
   - `test_http_calculate_liability_invalid_dates_localized`: Localized error messages for invalid occupation periods.
+  - `test_http_calculate_liability_bad_payload_error`: Validates HTTP 422 `PAYLOAD_DESERIALIZATION_ERROR` response on malformed JSON payload.
+  - `test_domain_error_status_codes_and_codes`: Verifies strongly-typed `AppError` status codes and error identifiers (`InvalidOccupationPeriod` -> 400 `INVALID_OCCUPATION_PERIOD`, `PayloadDeserialization` -> 422 `PAYLOAD_DESERIALIZATION_ERROR`).
 
 - **Suite D: Reference Codes, Parameter Resolution & Unauthenticated Access**:
+  - `test_app_state_repository_access`: Validates thread-safe parameter repository access on `AppState`.
   - `test_zero_hardcoding_historical_multipliers_1993_to_2026`: Complete verification of English, Welsh, and Scottish rating multipliers from 1993 to 2026.
   - `test_preseeded_reference_codes_and_allowable_values`: Pre-seeded values for jurisdictions, party types, and reliefs.
   - `test_http_reference_codes_endpoints`: Validates unauthenticated `GET /api/v1/reference-codes` and verifies deprecated `/api/v1/business-rates/reference-codes` returns `404 NOT FOUND`.

@@ -138,26 +138,6 @@
                 }
               }
             }
-          },
-          "404": {
-            "description": "Hereditament or statutory rating parameters not found.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AppErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal engine or calculation error.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AppErrorResponse"
-                }
-              }
-            }
           }
         }
       }
@@ -329,14 +309,6 @@
     }
   },
   "components": {
-    "securitySchemes": {
-      "ApiKeyAuth": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "X-API-Key",
-        "description": "Optional tenant API key for authenticated integration tiers. Format `br_live_...` or `br_test_...`."
-      }
-    },
     "schemas": {
       "Jurisdiction": {
         "type": "string",
@@ -1174,6 +1146,10 @@
         "properties": {
           "error": {
             "type": "string",
+            "enum": [
+              "INVALID_OCCUPATION_PERIOD",
+              "PAYLOAD_DESERIALIZATION_ERROR"
+            ],
             "example": "INVALID_OCCUPATION_PERIOD",
             "description": "Machine-readable error code."
           },
