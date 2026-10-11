@@ -628,7 +628,7 @@ async fn test_http_calculate_liability_unauthenticated_access() {
 
     // 1. Missing X-API-Key header -> succeeds (unauthenticated API)
     let req_no_key = Request::builder()
-        .uri("/api/v1/business-rates/calculate-liability")
+        .uri("/api/v1/calculate-liability")
         .method("POST")
         .header(header::CONTENT_TYPE, "application/json")
         .body(Body::from(json_body.clone()))
@@ -645,15 +645,25 @@ async fn test_http_calculate_liability_unauthenticated_access() {
 
     // 2. Arbitrary X-API-Key header -> also succeeds cleanly
     let req_arbitrary_key = Request::builder()
-        .uri("/api/v1/business-rates/calculate-liability")
+        .uri("/api/v1/calculate-liability")
         .method("POST")
         .header(header::CONTENT_TYPE, "application/json")
         .header("X-API-Key", "any_random_key_or_none")
         .body(Body::from(json_body))
         .unwrap();
 
-    let res_arb = app.oneshot(req_arbitrary_key).await.unwrap();
+    let res_arb = app.clone().oneshot(req_arbitrary_key).await.unwrap();
     assert_eq!(res_arb.status(), StatusCode::OK);
+
+    // 3. Removed legacy /business-rates slug returns 404
+    let req_legacy = Request::builder()
+        .uri("/api/v1/business-rates/calculate-liability")
+        .method("POST")
+        .header(header::CONTENT_TYPE, "application/json")
+        .body(Body::from("{}"))
+        .unwrap();
+    let res_legacy = app.oneshot(req_legacy).await.unwrap();
+    assert_eq!(res_legacy.status(), StatusCode::NOT_FOUND);
 }
 
 #[tokio::test]
@@ -664,7 +674,7 @@ async fn test_http_calculate_liability_multilingual_content_negotiation() {
 
     // 1. Language via query parameter ?lang=cy
     let req_query = Request::builder()
-        .uri("/api/v1/business-rates/calculate-liability?lang=cy")
+        .uri("/api/v1/calculate-liability?lang=cy")
         .method("POST")
         .header(header::CONTENT_TYPE, "application/json")
         .header("X-API-Key", "br_live_mcc_key_12345")
@@ -680,7 +690,7 @@ async fn test_http_calculate_liability_multilingual_content_negotiation() {
 
     // 2. Language via Accept-Language header
     let req_header = Request::builder()
-        .uri("/api/v1/business-rates/calculate-liability")
+        .uri("/api/v1/calculate-liability")
         .method("POST")
         .header(header::CONTENT_TYPE, "application/json")
         .header(header::ACCEPT_LANGUAGE, "cy")
@@ -701,7 +711,7 @@ async fn test_http_calculate_liability_multilingual_content_negotiation() {
     let payload_body = serde_json::to_string(&req_payload).unwrap();
 
     let req_prop = Request::builder()
-        .uri("/api/v1/business-rates/calculate-liability")
+        .uri("/api/v1/calculate-liability")
         .method("POST")
         .header(header::CONTENT_TYPE, "application/json")
         .header("X-API-Key", "br_live_mcc_key_12345")
@@ -722,7 +732,7 @@ async fn test_http_calculate_liability_bad_payload_error() {
     let malformed_json = r#"{"party_type": "CHARITY", "occupation_period": "#;
 
     let req = Request::builder()
-        .uri("/api/v1/business-rates/calculate-liability")
+        .uri("/api/v1/calculate-liability")
         .method("POST")
         .header(header::CONTENT_TYPE, "application/json")
         .header("X-API-Key", "br_live_mcc_key_12345")
@@ -747,7 +757,7 @@ async fn test_http_calculate_liability_invalid_dates_localized() {
 
     // 1. English localized error response
     let req_en = Request::builder()
-        .uri("/api/v1/business-rates/calculate-liability")
+        .uri("/api/v1/calculate-liability")
         .method("POST")
         .header(header::CONTENT_TYPE, "application/json")
         .header("X-API-Key", "br_live_mcc_key_12345")
@@ -766,7 +776,7 @@ async fn test_http_calculate_liability_invalid_dates_localized() {
 
     // 2. Welsh localized error response (?lang=cy)
     let req_cy = Request::builder()
-        .uri("/api/v1/business-rates/calculate-liability?lang=cy")
+        .uri("/api/v1/calculate-liability?lang=cy")
         .method("POST")
         .header(header::CONTENT_TYPE, "application/json")
         .header("X-API-Key", "br_live_mcc_key_12345")
@@ -788,16 +798,7 @@ async fn test_http_calculate_liability_invalid_dates_localized() {
 async fn test_http_reference_codes_endpoints() {
     let app = create_test_app();
 
-    // 1. /api/v1/business-rates/reference-codes is now unauthenticated
-    let req_br = Request::builder()
-        .uri("/api/v1/business-rates/reference-codes")
-        .method("GET")
-        .body(Body::empty())
-        .unwrap();
-    let res_br = app.clone().oneshot(req_br).await.unwrap();
-    assert_eq!(res_br.status(), StatusCode::OK);
-
-    // 2. /api/v1/reference-codes is unauthenticated
+    // 1. /api/v1/reference-codes is unauthenticated
     let req_pub = Request::builder()
         .uri("/api/v1/reference-codes")
         .method("GET")
@@ -807,6 +808,15 @@ async fn test_http_reference_codes_endpoints() {
     assert_eq!(res_pub.status(), StatusCode::OK);
     let body_pub = body_to_string(res_pub.into_body()).await;
     assert!(body_pub.contains(r#""label":"England""#));
+
+    // 2. Removed legacy /business-rates/reference-codes returns 404
+    let req_legacy = Request::builder()
+        .uri("/api/v1/business-rates/reference-codes")
+        .method("GET")
+        .body(Body::empty())
+        .unwrap();
+    let res_legacy = app.clone().oneshot(req_legacy).await.unwrap();
+    assert_eq!(res_legacy.status(), StatusCode::NOT_FOUND);
 
     // 3. Endpoint localized in Welsh via query param
     let req_pub_cy = Request::builder()
@@ -1228,7 +1238,7 @@ async fn test_owasp_secure_headers_on_api_json_response() {
     let json_body = serde_json::to_string(&req_fixture).unwrap();
 
     let req = Request::builder()
-        .uri("/api/v1/business-rates/calculate-liability")
+        .uri("/api/v1/calculate-liability")
         .method("POST")
         .header(header::CONTENT_TYPE, "application/json")
         .header("X-API-Key", "br_live_mcc_key_12345")
@@ -1273,7 +1283,7 @@ async fn test_owasp_secure_headers_on_error_and_unauthorized_responses() {
 
     // 1. Unauthenticated API returns 422 Unprocessable Entity on empty payload with OWASP headers
     let req_err = Request::builder()
-        .uri("/api/v1/business-rates/calculate-liability")
+        .uri("/api/v1/calculate-liability")
         .method("POST")
         .header(header::CONTENT_TYPE, "application/json")
         .body(Body::from("{}"))
@@ -1434,7 +1444,7 @@ async fn test_multi_occupancy_api_endpoint_json_serialization() {
     });
 
     let req = Request::builder()
-        .uri("/api/v1/business-rates/calculate-liability")
+        .uri("/api/v1/calculate-liability")
         .method("POST")
         .header(header::CONTENT_TYPE, "application/json")
         .header("X-API-Key", "br_live_mcc_key_12345")
@@ -1663,6 +1673,114 @@ async fn test_http_parameters_endpoints() {
     let res = app.clone().oneshot(req).await.unwrap();
     assert_eq!(res.status(), StatusCode::OK);
 }
+
+#[tokio::test]
+async fn test_openapi_and_swagger_endpoints() {
+    let app = create_test_app();
+
+    // 1. GET /api/v1/openapi.json
+    let req = Request::builder()
+        .uri("/api/v1/openapi.json")
+        .method("GET")
+        .body(Body::empty())
+        .unwrap();
+    let res = app.clone().oneshot(req).await.unwrap();
+    assert_eq!(res.status(), StatusCode::OK);
+    assert_eq!(
+        res.headers().get(header::CONTENT_TYPE).unwrap(),
+        "application/json; charset=utf-8"
+    );
+    let body = body_to_string(res.into_body()).await;
+    let json: Value = serde_json::from_str(&body).unwrap();
+    assert_eq!(json.get("openapi").unwrap().as_str().unwrap(), "3.1.0");
+    assert!(json.get("paths").unwrap().is_object());
+    assert!(json.get("components").unwrap().get("schemas").unwrap().is_object());
+
+    // 2. GET /openapi.json alias
+    let req = Request::builder()
+        .uri("/openapi.json")
+        .method("GET")
+        .body(Body::empty())
+        .unwrap();
+    let res = app.clone().oneshot(req).await.unwrap();
+    assert_eq!(res.status(), StatusCode::OK);
+
+    // 3. GET /api/v1/openapi.yaml
+    let req = Request::builder()
+        .uri("/api/v1/openapi.yaml")
+        .method("GET")
+        .body(Body::empty())
+        .unwrap();
+    let res = app.clone().oneshot(req).await.unwrap();
+    assert_eq!(res.status(), StatusCode::OK);
+    assert_eq!(
+        res.headers().get(header::CONTENT_TYPE).unwrap(),
+        "text/yaml; charset=utf-8"
+    );
+    let body_yaml = body_to_string(res.into_body()).await;
+    assert!(body_yaml.contains("openapi: 3.1.0"));
+    assert!(body_yaml.contains("Business Rates Statutory Calculation Engine API"));
+
+    // 4. GET /docs (Scalar API Reference)
+    let req = Request::builder()
+        .uri("/docs")
+        .method("GET")
+        .body(Body::empty())
+        .unwrap();
+    let res = app.clone().oneshot(req).await.unwrap();
+    assert_eq!(res.status(), StatusCode::OK);
+    assert_eq!(
+        res.headers().get(header::CONTENT_TYPE).unwrap(),
+        "text/html; charset=utf-8"
+    );
+    let csp = res.headers().get(header::CONTENT_SECURITY_POLICY).unwrap().to_str().unwrap();
+    assert!(csp.contains("script-src 'self';"), "script-src must be strictly 'self' with zero unsafe-inline");
+    assert!(csp.contains("style-src 'self' 'unsafe-inline'"), "style-src permits unsafe-inline for dynamic theme styles");
+    assert!(!csp.contains("cdn.jsdelivr.net"), "CSP should have zero CDN dependencies when self-hosting scalar.js");
+    let body_html = body_to_string(res.into_body()).await;
+    assert!(body_html.contains("<title>Business Rates Statutory Engine — API Reference (Scalar)</title>"));
+    assert!(body_html.contains("data-url=\"/api/v1/openapi.json\""));
+    assert!(body_html.contains("\"theme\":\"solarized\""));
+    assert!(body_html.contains("/assets/scalar.js"));
+
+    // 4b. GET /docs with dynamic query parameters (templating verification)
+    let req = Request::builder()
+        .uri("/docs?title=Westminster%20API&theme=purple&spec_url=/custom/openapi.json")
+        .method("GET")
+        .body(Body::empty())
+        .unwrap();
+    let res = app.clone().oneshot(req).await.unwrap();
+    assert_eq!(res.status(), StatusCode::OK);
+    let body_html = body_to_string(res.into_body()).await;
+    assert!(body_html.contains("<title>Westminster API</title>"));
+    assert!(body_html.contains("data-url=\"/custom/openapi.json\""));
+    assert!(body_html.contains("\"theme\":\"purple\""));
+
+    // 5. GET /assets/scalar.js (Verify local lazy-loaded asset)
+    let req = Request::builder()
+        .uri("/assets/scalar.js")
+        .method("GET")
+        .body(Body::empty())
+        .unwrap();
+    let res = app.clone().oneshot(req).await.unwrap();
+    assert_eq!(res.status(), StatusCode::OK);
+    assert_eq!(
+        res.headers().get(header::CONTENT_TYPE).unwrap(),
+        "application/javascript; charset=utf-8"
+    );
+
+    // 6. GET /scalar, /api-reference, and /swagger aliases
+    for alias in &["/scalar", "/api-reference", "/swagger", "/swagger-ui"] {
+        let req = Request::builder()
+            .uri(*alias)
+            .method("GET")
+            .body(Body::empty())
+            .unwrap();
+        let res = app.clone().oneshot(req).await.unwrap();
+        assert_eq!(res.status(), StatusCode::OK);
+    }
+}
+
 
 
 

@@ -43,7 +43,7 @@ From the project root directory:
 # 1. Compile Tailwind styles and the Svelte 5 frontend into a single bundle
 ./build-frontend.sh
 
-# 2. Run the full automated integration test suite (43 tests)
+# 2. Run the full automated integration test suite (45 tests)
 cargo test
 
 # 3. Launch the application server
@@ -51,7 +51,8 @@ cargo run
 ```
 
 Once running, navigate your web browser to:
-👉 **[http://localhost:8080/](http://localhost:8080/)** (or **[http://localhost:8080/admin](http://localhost:8080/admin)**)
+👉 **[http://localhost:8080/](http://localhost:8080/)** (or **[http://localhost:8080/admin](http://localhost:8080/admin)**)  
+👉 **[http://localhost:8080/docs](http://localhost:8080/docs)** (Interactive Scalar API Reference)
 
 ---
 
@@ -103,9 +104,22 @@ PORT=9090 cargo run
 | `http://localhost:8080/admin` | Direct alias to the Component Sandbox UI | Public (GET) |
 | `http://localhost:8080/component-ui` | Direct alias to the Component Sandbox UI | Public (GET) |
 | `http://localhost:8080/app` | Direct alias to the Component Sandbox UI | Public (GET) |
-| `http://localhost:8080/api/v1/business-rates/calculate-liability` | Core Statutory Calculation REST Endpoint | Public (POST) |
+| `http://localhost:8080/docs` | Interactive Scalar API Reference (zero-CDN self-hosted) | Public (GET) |
+| `http://localhost:8080/scalar` | Direct alias to the Scalar API Reference | Public (GET) |
+| `http://localhost:8080/api-reference` | Direct alias to the Scalar API Reference | Public (GET) |
+| `http://localhost:8080/swagger` | Direct alias to the Scalar API Reference | Public (GET) |
+| `http://localhost:8080/swagger-ui` | Direct alias to the Scalar API Reference | Public (GET) |
+| `http://localhost:8080/api/v1/openapi.json` | OpenAPI 3.1.0 Specification (JSON format, alias `/openapi.json`) | Public (GET) |
+| `http://localhost:8080/api/v1/openapi.yaml` | OpenAPI 3.1.0 Specification (YAML format, alias `/openapi.yaml`) | Public (GET) |
+| `http://localhost:8080/api/v1/calculate-liability` | Core Statutory Calculation REST Endpoint | Public (POST) |
 | `http://localhost:8080/api/v1/reference-codes` | Statutory Reference Codes & Allowable Values Catalog | Public (GET) |
-| `http://localhost:8080/api/v1/business-rates/reference-codes` | Reference Codes Catalog Alias | Public (GET) |
+| `http://localhost:8080/api/v1/parameters` | Aggregated Statutory Parameter Repository Catalog | Public (GET) |
+| `http://localhost:8080/api/v1/parameters/multipliers` | Rating Multipliers Catalog (1993–2027) | Public (GET) |
+| `http://localhost:8080/api/v1/parameters/sbrr-thresholds` | SBRR / SBBS Statutory Thresholds Catalog | Public (GET) |
+| `http://localhost:8080/api/v1/parameters/sector-reliefs` | Devolved Sector Relief Schemes Catalog | Public (GET) |
+| `http://localhost:8080/api/v1/parameters/transitional-caps` | Statutory Transitional Phasing Caps Catalog | Public (GET) |
+
+> **Note on Deprecated Routes**: Legacy endpoints with the `/business-rates/` slug (such as `/api/v1/business-rates/calculate-liability` and `/api/v1/business-rates/reference-codes`) have been removed and return `404 Not Found`. Use the clean, unified `/api/v1/...` routes listed above.
 
 ---
 
@@ -128,10 +142,10 @@ For live code editing with instant Hot Module Replacement:
 
 ## 6. Automated Testing & Quality Verification
 
-Run the test suite verifying multi-jurisdiction calculations, multi-occupancy slicing, Section 44A apportionments, 4-language i18n, and OWASP security headers:
+Run the test suite verifying multi-jurisdiction calculations, multi-occupancy slicing, Section 44A apportionments, 4-language i18n, parameter endpoints, Scalar documentation, and OWASP security headers:
 
 ```bash
-# Run all 43 integration tests
+# Run all 45 integration tests
 cargo test
 
 # Run tests with detailed backtrace on failure
@@ -180,14 +194,18 @@ After launching the staging service, run automated smoke tests against the insta
 # 1. Health check & UI mount verification
 curl -f -s http://staging-server:8080/ | grep -q 'id="app"' && echo "UI Mount OK"
 
-# 2. OWASP Strict CSP verification (verify zero 'unsafe-inline')
+# 2. OWASP Strict CSP verification (verify zero 'unsafe-inline' on core endpoints)
 curl -s -I http://staging-server:8080/ | grep -i 'content-security-policy' | grep -v "'unsafe-inline'" && echo "Strict CSP OK"
 
-# 3. Calculation smoke test
-curl -f -s -X POST http://staging-server:8080/api/v1/business-rates/calculate-liability \
+# 3. Calculation smoke test (canonical unified route)
+curl -f -s -X POST http://staging-server:8080/api/v1/calculate-liability \
   -H "Content-Type: application/json" \
   -d @tests/fixtures/scenario_1_sbrr_rhl_england.json \
   | grep -q "calculation_id" && echo "Calculation API OK"
+
+# 4. Scalar API Reference & OpenAPI spec verification
+curl -f -s http://staging-server:8080/api/v1/openapi.json | grep -q '"openapi":"3.1.0"' && echo "OpenAPI 3.1.0 OK"
+curl -f -s http://staging-server:8080/docs | grep -q 'scalar.js' && echo "Scalar Docs OK"
 ```
 
 ---
@@ -400,7 +418,7 @@ The REST API is **100% unauthenticated**; no API keys (`X-API-Key`) or bearer to
 
 ### 1. Calculate Liability (Standard Scenario)
 ```bash
-curl -s -X POST http://localhost:8080/api/v1/business-rates/calculate-liability \
+curl -s -X POST http://localhost:8080/api/v1/calculate-liability \
   -H "Content-Type: application/json" \
   -d @tests/fixtures/scenario_1_sbrr_rhl_england.json
 ```
@@ -410,19 +428,19 @@ Request statutory narratives and relief names in any of the 4 supported language
 
 ```bash
 # Welsh (Cymraeg)
-curl -s -X POST http://localhost:8080/api/v1/business-rates/calculate-liability \
+curl -s -X POST http://localhost:8080/api/v1/calculate-liability \
   -H "Content-Type: application/json" \
   -H "Accept-Language: cy" \
   -d @tests/fixtures/scenario_1_sbrr_rhl_england.json
 
 # Scots
-curl -s -X POST http://localhost:8080/api/v1/business-rates/calculate-liability \
+curl -s -X POST http://localhost:8080/api/v1/calculate-liability \
   -H "Content-Type: application/json" \
   -H "Accept-Language: sco" \
   -d @tests/fixtures/scenario_1_sbrr_rhl_england.json
 
 # Scottish Gaelic (Gàidhlig)
-curl -s -X POST http://localhost:8080/api/v1/business-rates/calculate-liability \
+curl -s -X POST http://localhost:8080/api/v1/calculate-liability \
   -H "Content-Type: application/json" \
   -H "Accept-Language: gd" \
   -d @tests/fixtures/scenario_1_sbrr_rhl_england.json
@@ -437,15 +455,54 @@ curl -s http://localhost:8080/api/v1/reference-codes
 curl -s "http://localhost:8080/api/v1/reference-codes?lang=cy"
 ```
 
+### 4. Retrieve Statutory Parameters Catalogs
+```bash
+# Full aggregated parameter repository catalog
+curl -s http://localhost:8080/api/v1/parameters
+
+# Rating Multipliers (1993–2027)
+curl -s http://localhost:8080/api/v1/parameters/multipliers
+
+# Small Business Rate Relief (SBRR / SBBS) thresholds
+curl -s http://localhost:8080/api/v1/parameters/sbrr-thresholds
+
+# Devolved sector relief schemes
+curl -s http://localhost:8080/api/v1/parameters/sector-reliefs
+
+# Statutory transitional phasing caps
+curl -s http://localhost:8080/api/v1/parameters/transitional-caps
+```
+
+### 5. OpenAPI 3.1.0 Specification & Self-Hosted Scalar Reference
+```bash
+# Fetch OpenAPI 3.1.0 JSON specification
+curl -s http://localhost:8080/api/v1/openapi.json
+
+# Fetch OpenAPI 3.1.0 YAML specification
+curl -s http://localhost:8080/api/v1/openapi.yaml
+
+# Open Interactive Scalar Reference in browser (default solarized dark theme)
+open http://localhost:8080/docs
+
+# Open Scalar Reference with custom theme & layout query parameters
+open "http://localhost:8080/docs?theme=kepler&layout=modern"
+```
+
 ---
 
 ## 10. Project Directory Structure
 
 ```
 business_rates_engine/
+├── docs/                         # Official API Specifications
+│   ├── openapi.yaml              # OpenAPI 3.1.0 specification (YAML)
+│   └── openapi.json              # OpenAPI 3.1.0 specification (JSON)
+├── templates/                    # Server-rendered HTML templates
+│   └── scalar.html               # Configurable, offline Scalar UI template
 ├── frontend/                     # Modern Svelte 5 SPA framework
+│   ├── public/assets/            # Self-hosted static assets (scalar.js)
 │   ├── src/
-│   │   ├── components/           # UI Components (Navbar, S.44A Table, Matrix, Narrative)
+│   │   ├── components/           # UI Components (Navbar, S.44A Table, Matrix, Catalogs)
 │   │   ├── stores/               # Reactive calculation & form state ($state Runes)
 │   │   ├── i18n/                 # Dictionaries (en, cy, sco, gd)
 │   │   └── types/                # TypeScript statutory interfaces
@@ -462,7 +519,7 @@ business_rates_engine/
 │   └── main.rs                   # Server entrypoint (supports PORT env var)
 ├── tests/
 │   ├── fixtures/                 # Pre-configured test scenario JSON files (Scenarios 1-5)
-│   └── integration_tests.rs      # Complete test suite (43 passing tests)
+│   └── integration_tests.rs      # Complete test suite (45 passing tests)
 ├── build-frontend.sh             # Build script for Svelte 5 frontend
 ├── build-css.sh                  # Standalone Tailwind CSS compiler
 ├── watch-css.sh                  # Tailwind CSS watch mode

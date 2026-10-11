@@ -4,8 +4,9 @@
 > **Backend Architecture:** Axum 0.7 + Tokio 1.38 + Built-In Parameter Repository (Seeded 1993–2027)  
 > **Frontend Architecture:** Svelte 5 (Runes `$state`, `$derived`) + Vite 6 + TypeScript 5.7 + Standalone Tailwind CSS (`frontend/`)  
 > **API Access Mode:** Unauthenticated Public REST API (No API keys or SSO required)  
+> **API Documentation:** Interactive Scalar API Reference (`/docs`) with Self-Hosted `scalar.js` (Zero CDN) & OpenAPI 3.1.0 (`/api/v1/openapi.json`)  
 > **Internationalization (i18n):** Native 4-language support: English (`en`), Welsh (`cy`), Scots (`sco`), and Scottish Gaelic (`gd`) across UI, statutory narratives, relief names, error payloads, and reference codes  
-> **Security Baseline:** OWASP-compliant HTTP security headers with strict Content Security Policy (zero `'unsafe-inline'`)  
+> **Security Baseline:** OWASP-compliant HTTP security headers with strict Content Security Policy (zero `'unsafe-inline'` scripts, zero external CDNs)  
 > **Coverage Period:** 1 April 1993 – 31 March 2027 (England, Wales, and Scotland)  
 
 ---
@@ -35,14 +36,15 @@ The calculation engine's business logic, zero-hardcoding parameter tables, and s
 ### 2.1 Architecture Overview
 
 The system operates with a decoupled modern architecture:
-- **Interactive Component-Based UI (`frontend/`)**: A modular Svelte 5 Single-Page Application (SPA) compiled with Vite 6 and TypeScript 5.7 into static assets served directly by the backend at `/`, `/admin`, `/component-ui`, and `/app`.
-- **Statutory Data Plane (REST API)**: High-performance, unauthenticated Axum endpoints executing sub-millisecond statutory rating calculations and providing localized statutory reference data.
+- **Interactive Component-Based UI (`frontend/`)**: A modular Svelte 5 Single-Page Application (SPA) compiled with Vite 6 and TypeScript 5.7 into static assets served directly by the backend at `/`, `/admin`, `/component-ui`, and `/app`. Includes embedded statutory parameter explorers and top navbar link to API reference.
+- **Interactive Documentation Plane (`/docs`, `/api/v1/openapi.json`)**: Self-hosted Scalar API reference rendered via `templates/scalar.html` with zero external CDN dependencies, dynamic query parameter templating, and official OpenAPI 3.1.0 specifications.
+- **Statutory Data Plane (REST API)**: High-performance, unauthenticated Axum endpoints executing sub-millisecond statutory rating calculations, cataloging statutory reference data, and serving parameter repository tables.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
 │                   Svelte 5 Component Framework UI                      │
 │                                                                        │
-│   TopNavbar (Brand, 4-Language Switcher [EN|CY|SCO|GD], API Status)    │
+│   TopNavbar (Brand, Language [EN|CY|SCO|GD], API Reference Link)       │
 │   StatutoryCoverageBanner (Legislation Badges: NDRA, LGFWA, NDR, WSI)  │
 │   JurisdictionSelector (England, Wales, Scotland Statutory Rules)      │
 │   OccupancyEpisodesTable (Multi-Occupancy & Section 44A Apportionment) │
@@ -50,6 +52,7 @@ The system operates with a decoupled modern architecture:
 │   ReliefEligibilityMatrix (Devolved Relief Toggles & Inputs)           │
 │   AnnualBillingSegmentsTable & StatutoryAuditNarrative                 │
 │   RawJsonEditor (Bi-directional Form ↔ JSON Live Sync)                 │
+│   ParameterCatalogs (Multipliers, Thresholds, Reliefs, Caps)           │
 │   ReferenceCodeCatalog (Statutory Dictionary & Category Browser)       │
 └───────────────────────────────────┬────────────────────────────────────┘
                                     │ Unauthenticated HTTP / JSON
@@ -59,10 +62,17 @@ The system operates with a decoupled modern architecture:
 │                                                                        │
 │   GET  /                                -> Svelte 5 SPA index.html     │
 │   GET  /admin, /component-ui, /app      -> Svelte 5 SPA index.html     │
-│   GET  /assets/:filename                -> Vite Hashed JS / CSS Bundle │
-│   POST /api/v1/business-rates/calculate-liability                      │
-│   GET  /api/v1/business-rates/reference-codes                          │
-│   GET  /api/v1/reference-codes                                         │
+│   GET  /assets/:filename                -> Vite Assets / scalar.js     │
+│   GET  /docs, /scalar, /api-reference   -> Scalar API Reference (HTML) │
+│   GET  /api/v1/openapi.json             -> OpenAPI 3.1.0 Spec (JSON)   │
+│   GET  /api/v1/openapi.yaml             -> OpenAPI 3.1.0 Spec (YAML)   │
+│   POST /api/v1/calculate-liability      -> Statutory Calculation API   │
+│   GET  /api/v1/reference-codes          -> Statutory Reference Codes   │
+│   GET  /api/v1/parameters               -> Aggregated Parameter Repo   │
+│   GET  /api/v1/parameters/multipliers   -> Rating Multipliers (93-27)  │
+│   GET  /api/v1/parameters/sbrr-thresholds                              │
+│   GET  /api/v1/parameters/sector-reliefs                               │
+│   GET  /api/v1/parameters/transitional-caps                            │
 │                                                                        │
 │   OWASP Security Headers Middleware (Strict CSP, Zero 'unsafe-inline') │
 └───────────────────────────────────┬────────────────────────────────────┘
@@ -80,7 +90,7 @@ The system operates with a decoupled modern architecture:
 #### Key Technical Decisions & Choices:
 1. **Svelte 5 Component UI Architecture**:
    - Replaced server-side Askama templates with Svelte 5 Runes (`$state`, `$derived`).
-   - Clean, modular component decomposition for reactive form state, multi-episode tables, live audit narrative preview, and bidirectional Form-to-JSON editing.
+   - Clean, modular component decomposition for reactive form state, multi-episode tables, live audit narrative preview, parameter catalog accordions, and bidirectional Form-to-JSON editing.
    - Built to production dist via `./build-frontend.sh` (`frontend/dist/`).
 2. **Unauthenticated Public Access**:
    - Decommissioned multi-tenancy controls, tenant API keys (`X-API-Key`), and SSO identity providers.
@@ -91,18 +101,24 @@ The system operates with a decoupled modern architecture:
 4. **Decoupled Calculation Contract**:
    - Informational metadata fields (`liable_party_id`, `uarn`, street addresses) are decoupled from the statutory math core.
 5. **Multi-Occupancy Section 44A Support**:
-   - liabile parties can submit multiple occupancy periods (`OCCUPIED`, `UNOCCUPIED`, `PART_OCCUPIED`) in a single calculation request.
+   - Liable parties can submit multiple occupancy periods (`OCCUPIED`, `UNOCCUPIED`, `PART_OCCUPIED`) in a single calculation request.
    - Automatically handles statutory occupation reset rules ($\ge 91$ days in England post-April 2024; $\ge 42$ days in Wales/Scotland) and Section 44A dual-portion apportionments.
+6. **OpenAPI 3.1.0 & Self-Hosted Scalar Reference**:
+   - Official OpenAPI 3.1.0 specification stored in [`docs/openapi.yaml`](docs/openapi.yaml) and [`docs/openapi.json`](docs/openapi.json), served at `/api/v1/openapi.json` and `/api/v1/openapi.yaml`.
+   - Built-in interactive documentation at `/docs` (with `/scalar`, `/api-reference`, `/swagger` aliases) rendered via [`templates/scalar.html`](templates/scalar.html) using self-hosted `/assets/scalar.js`. Operates 100% offline with zero external CDN dependencies and supports dynamic query parameter templating (`title`, `spec_url`, `theme`, `layout`).
+7. **Unified Single REST API Routes**:
+   - Standardized single-namespace REST endpoints directly under `/api/v1/` (`/calculate-liability`, `/reference-codes`, `/parameters/*`).
+   - Deprecated `/business-rates/` route slugs have been decommissioned; requests to `/api/v1/business-rates/*` return `404 Not Found`.
 
 ---
 
 ### 2.2 OWASP Secure Headers Specification
 
-All HTTP responses (HTML web pages, API JSON responses, static assets, and error handlers) are protected by centralized security middleware enforcing OWASP recommended headers with zero `'unsafe-inline'`:
+All HTTP responses (HTML web pages, API JSON responses, static assets, and error handlers) are protected by centralized security middleware enforcing OWASP recommended headers:
 
 | Header | Production Value | Purpose |
 | :--- | :--- | :--- |
-| `Content-Security-Policy` | `default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self' data:; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; form-action 'self'; base-uri 'self';` | Strict XSS, script injection, and clickjacking prevention. Zero `'unsafe-inline'` compliance. |
+| `Content-Security-Policy` | `default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self' data:; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; form-action 'self'; base-uri 'self';` | Strict XSS, script injection, and clickjacking prevention. Zero `'unsafe-inline'` script compliance; zero external CDN dependencies. |
 | `X-Content-Type-Options` | `nosniff` | Prevents MIME-type sniffing. |
 | `X-Frame-Options` | `DENY` | Eliminates clickjacking by disallowing framing. |
 | `Strict-Transport-Security` | `max-age=31536000; includeSubDomains` | Enforces secure transport. |
@@ -111,6 +127,8 @@ All HTTP responses (HTML web pages, API JSON responses, static assets, and error
 | `Cross-Origin-Opener-Policy` | `same-origin` | Isolates browsing contexts against Spectre attacks. |
 | `Cross-Origin-Resource-Policy` | `same-origin` | Restricts cross-origin resource sharing. |
 | `X-Permitted-Cross-Domain-Policies` | `none` | Blocks Flash/PDF policy leaks. |
+
+> **Route-Scoped Style CSP Policy:** The `/docs` and `/scalar` reference routes scope `style-src 'self' 'unsafe-inline'` exclusively to accommodate Scalar's dynamic CSS variable theme injection, while strictly retaining `script-src 'self'` (zero `'unsafe-inline'` scripts and zero CDN origins).
 
 ---
 
@@ -132,7 +150,9 @@ The engine implements compile-time verified multi-lingual support via [`src/i18n
 
 ---
 
-### 2.4 Core Calculation Engine Contract (`POST /api/v1/business-rates/calculate-liability`)
+### 2.4 Core Calculation Engine Contract (`POST /api/v1/calculate-liability`)
+
+> **Single Canonical Calculation Route:** All liability calculations are handled exclusively by `POST /api/v1/calculate-liability`. Legacy route `/api/v1/business-rates/calculate-liability` has been decommissioned and returns `404 Not Found`.
 
 #### Multi-Occupancy Request Payload Schema
 ```json
@@ -328,13 +348,24 @@ impl ParameterRepository {
 }
 ```
 
+### 3.3 Statutory Parameter REST Endpoints & OpenAPI Documentation
+
+The in-memory parameter repository and statutory documentation are exposed directly via dedicated REST endpoints:
+- `GET /api/v1/parameters`: Aggregated JSON payload containing all temporal multipliers, SBRR/SBBS thresholds, sector reliefs, and transitional caps.
+- `GET /api/v1/parameters/multipliers`: Temporal rating multipliers array (1993–2027) disaggregated by jurisdiction.
+- `GET /api/v1/parameters/sbrr-thresholds`: SBRR / SBBS rateable value thresholds and statutory linear relief rules.
+- `GET /api/v1/parameters/sector-reliefs`: Devolved retail, hospitality, leisure, and special relief schemes.
+- `GET /api/v1/parameters/transitional-caps`: Statutory revaluation transitional phasing percentage caps.
+- `GET /api/v1/openapi.json` & `GET /api/v1/openapi.yaml`: Official OpenAPI 3.1.0 specifications documenting all statutory models, calculation endpoints, schemas, and parameter filters.
+- `GET /docs`: Interactive self-hosted Scalar API reference UI rendered from `templates/scalar.html` with zero external CDN dependencies, strict script CSP, and dynamic query parameter templating (`?title=...&spec_url=...&theme=...&layout=...`). Aliases: `/scalar`, `/api-reference`, `/swagger`, `/swagger-ui`.
+
 ---
 
 ## 4. Test Cases Specification & Scenario Fixtures
 
-### Test Suite Overview (43 Passing Integration Tests)
+### Test Suite Overview (45 Passing Integration Tests)
 
-The test suite in [`tests/integration_tests.rs`](file:///c:/Users/mark__q2t877z/OneDrive/Documents/business_rates_engine/tests/integration_tests.rs) rigorously validates statutory calculations, multi-occupancy slicing, i18n, and web security:
+The test suite in [`tests/integration_tests.rs`](file:///c:/Users/mark__q2t877z/OneDrive/Documents/business_rates_engine/tests/integration_tests.rs) rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, and web security:
 
 - **Suite A: Multi-Jurisdiction Scenario Tests**:
   - `test_scenario_1_england_sbrr_and_rhl_multi_year`: Multi-year slicing (2025/26 & 2026/27), SBRR linear taper, RHL 35% relief, and Transitional Relief caps.
@@ -367,9 +398,11 @@ The test suite in [`tests/integration_tests.rs`](file:///c:/Users/mark__q2t877z/
 - **Suite D: Reference Codes, Parameter Resolution & Unauthenticated Access**:
   - `test_zero_hardcoding_historical_multipliers_1993_to_2026`: Complete verification of English, Welsh, and Scottish rating multipliers from 1993 to 2026.
   - `test_preseeded_reference_codes_and_allowable_values`: Pre-seeded values for jurisdictions, party types, and reliefs.
-  - `test_http_reference_codes_endpoints`: REST API validation of `/reference-codes` and `/business-rates/reference-codes`.
-  - `test_http_calculate_liability_unauthenticated_access`: Verifies calculation succeeds without any `X-API-Key` or authorization headers.
+  - `test_http_reference_codes_endpoints`: Validates unauthenticated `GET /api/v1/reference-codes` and verifies deprecated `/api/v1/business-rates/reference-codes` returns `404 NOT FOUND`.
+  - `test_http_calculate_liability_unauthenticated_access`: Verifies calculation succeeds on `POST /api/v1/calculate-liability` without any `X-API-Key` or authorization headers, and confirms legacy `/api/v1/business-rates/calculate-liability` returns `404 NOT FOUND`.
   - `test_http_sso_endpoints`: Verifies removed SSO endpoints return `404 NOT FOUND`.
+  - `test_http_parameters_endpoints`: Validates all 5 parameter catalog endpoints (`/api/v1/parameters`, `/api/v1/parameters/multipliers`, `/api/v1/parameters/sbrr-thresholds`, `/api/v1/parameters/sector-reliefs`, `/api/v1/parameters/transitional-caps`) return valid HTTP 200 JSON arrays.
+  - `test_openapi_and_swagger_endpoints`: Validates OpenAPI 3.1.0 specifications (`/api/v1/openapi.json`, `/openapi.json`, `/api/v1/openapi.yaml`), `/docs` Scalar HTML rendering with query parameter templating (`title`, `spec_url`, `theme`, `layout`), self-hosted zero-CDN `scalar.js`, and documentation route aliases (`/scalar`, `/api-reference`, `/swagger`, `/swagger-ui`).
 
 - **Suite E: Statutory Relief Extensions**:
   - `test_statutory_heat_network_exemption`: NDRA 2023 s.2 100% heat network discount.
@@ -398,23 +431,29 @@ To build, verify, and run the project:
 # 1. Compile the Svelte 5 frontend component framework with Vite
 ./build-frontend.sh
 
-# 2. Run the automated test suite (43 integration tests)
+# 2. Run the automated test suite (45 integration tests)
 cargo test --test integration_tests
 
 # 3. Start the HTTP API & Single-Page Application server (default port 8080)
 cargo run --bin business_rates_engine
 
 # 4. Execute a calculation via curl (Unauthenticated — No API Key required)
-curl -s -X POST http://localhost:8080/api/v1/business-rates/calculate-liability \
+curl -s -X POST http://localhost:8080/api/v1/calculate-liability \
   -H "Content-Type: application/json" \
   -d @tests/fixtures/scenario_1_sbrr_rhl_england.json
 
 # 5. Execute with language content negotiation (e.g. Welsh, Scots, or Scottish Gaelic)
-curl -s -X POST http://localhost:8080/api/v1/business-rates/calculate-liability \
+curl -s -X POST http://localhost:8080/api/v1/calculate-liability \
   -H "Content-Type: application/json" \
   -H "Accept-Language: cy" \
   -d @tests/fixtures/scenario_1_sbrr_rhl_england.json
 
-# 6. Access the Component Framework UI in your browser
+# 6. Retrieve statutory parameters
+curl -s http://localhost:8080/api/v1/parameters
+
+# 7. Access the Component Framework UI in your browser
 open http://localhost:8080/
+
+# 8. Access the Interactive Scalar API Reference in your browser
+open http://localhost:8080/docs
 ```

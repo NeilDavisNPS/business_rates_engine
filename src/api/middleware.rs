@@ -120,15 +120,24 @@ pub async fn api_key_auth(headers: HeaderMap, req: Request, next: Next) -> Resul
 /// - Cross-Origin-Resource-Policy (CORP)
 /// - X-Permitted-Cross-Domain-Policies: none
 pub async fn owasp_security_headers(req: Request, next: Next) -> Response {
+    let path = req.uri().path().to_string();
+    let is_docs_route = path.starts_with("/docs") || path.starts_with("/scalar") || path.starts_with("/api-reference") || path.starts_with("/swagger");
+
     let mut response = next.run(req).await;
     let headers = response.headers_mut();
 
-    // 1. Content-Security-Policy (CSP) - Strict OWASP compliant policy with zero unsafe-inline
+    // 1. Content-Security-Policy (CSP)
+    // Both docs and app now execute scripts strictly from 'self' with ZERO 'unsafe-inline' scripts.
+    // The docs route permits 'unsafe-inline' solely for style-src (CSS custom properties and themes injected by Scalar).
+    let csp_val = if is_docs_route {
+        "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'self'; form-action 'self'; base-uri 'self';"
+    } else {
+        "default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self' data:; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; form-action 'self'; base-uri 'self';"
+    };
+
     headers.insert(
         header::CONTENT_SECURITY_POLICY,
-        HeaderValue::from_static(
-            "default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self' data:; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; form-action 'self'; base-uri 'self';",
-        ),
+        HeaderValue::from_static(csp_val),
     );
 
     // 2. X-Content-Type-Options: Prevents MIME type sniffing

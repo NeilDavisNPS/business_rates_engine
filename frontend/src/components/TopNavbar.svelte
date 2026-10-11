@@ -41,6 +41,17 @@
         {/each}
       </nav>
 
+      <!-- Scalar API Reference Link -->
+      <a
+        href="/docs"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-blue-300 hover:text-white border border-slate-700 transition"
+        title="Open interactive Scalar API Reference (OpenAPI 3.1)"
+      >
+        API Reference (Scalar)
+      </a>
+
       <!-- API Status Pill -->
       <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
         <span class="w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-pulse"></span>

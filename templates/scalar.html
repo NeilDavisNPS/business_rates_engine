@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{TITLE}}</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏛️</text></svg>" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #0f172a;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    {{CUSTOM_CSS}}
+  </style>
+</head>
+<body>
+  <!-- Scalar API Reference Configuration -->
+  <script
+    id="api-reference"
+    data-url="{{SPEC_URL}}"
+    data-configuration='{"theme":"{{THEME}}","layout":"{{LAYOUT}}","showSidebar":true,"searchHotKey":"k"}'>
+  </script>
+
+  <!-- Local Self-Hosted Scalar Standalone Bundle (Zero External CDN) -->
+  <script src="/assets/scalar.js"></script>
+</body>
+</html>
+

@@ -290,7 +290,7 @@ class CalculationStore {
     }
 
     try {
-      const res = await fetch(`/api/v1/business-rates/calculate-liability?lang=${this.language}`, {
+      const res = await fetch(`/api/v1/calculate-liability?lang=${this.language}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -177,3 +177,62 @@ pub async fn static_frontend_asset(
         bytes,
     ))
 }
+
+#[derive(Debug, Deserialize, Default)]
+pub struct DocQueryParams {
+    pub title: Option<String>,
+    pub spec_url: Option<String>,
+    pub theme: Option<String>,
+    pub layout: Option<String>,
+}
+
+pub static OPENAPI_JSON: &str = include_str!("../../docs/openapi.json");
+pub static OPENAPI_YAML: &str = include_str!("../../docs/openapi.yaml");
+pub static SCALAR_TEMPLATE: &str = include_str!("../../templates/scalar.html");
+
+/// Serves raw OpenAPI 3.1 JSON definition
+pub async fn openapi_json_handler() -> ([(axum::http::HeaderName, &'static str); 1], &'static str) {
+    (
+        [(axum::http::header::CONTENT_TYPE, "application/json; charset=utf-8")],
+        OPENAPI_JSON,
+    )
+}
+
+/// Serves raw OpenAPI 3.1 YAML definition
+pub async fn openapi_yaml_handler() -> ([(axum::http::HeaderName, &'static str); 1], &'static str) {
+    (
+        [(axum::http::header::CONTENT_TYPE, "text/yaml; charset=utf-8")],
+        OPENAPI_YAML,
+    )
+}
+
+/// Serves interactive Scalar API reference interface rendered from templates/scalar.html
+pub async fn scalar_ui_handler(
+    Query(params): Query<DocQueryParams>,
+) -> ([(axum::http::HeaderName, &'static str); 1], String) {
+    let title = params.title.as_deref().unwrap_or("Business Rates Statutory Engine — API Reference (Scalar)");
+    let spec_url = params.spec_url.as_deref().unwrap_or("/api/v1/openapi.json");
+    let theme = params.theme.as_deref().unwrap_or("solarized");
+    let layout = params.layout.as_deref().unwrap_or("modern");
+
+    let rendered = SCALAR_TEMPLATE
+        .replace("{{TITLE}}", title)
+        .replace("{{SPEC_URL}}", spec_url)
+        .replace("{{THEME}}", theme)
+        .replace("{{LAYOUT}}", layout)
+        .replace("{{CUSTOM_CSS}}", "");
+
+    (
+        [(axum::http::header::CONTENT_TYPE, "text/html; charset=utf-8")],
+        rendered,
+    )
+}
+
+/// Alias pointing to Scalar UI documentation
+pub async fn swagger_ui_handler(
+    query: Query<DocQueryParams>,
+) -> ([(axum::http::HeaderName, &'static str); 1], String) {
+    scalar_ui_handler(query).await
+}
+
+

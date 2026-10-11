@@ -11,9 +11,10 @@
 - **Statutory Devolved Reliefs**: Small Business Rate Relief (SBRR England/Wales), Small Business Bonus Scheme (SBBS Scotland), Retail, Hospitality & Leisure (RHL), Mandatory Charitable Relief, NDRA 2023 Improvement Relief (G-factor), Rural Settlement Relief, Public Lavatories, and Heat Network exemptions.
 - **Devolved Anti-Avoidance Enforcement**: Implements Welsh Statutory Instrument 2026/43 artificial avoidance penalties (£500 fixed + 3% rateable value).
 - **4-Language Native Internationalization**: Full localization across **English (`en`)**, **Welsh (`cy`)**, **Scots (`sco`)**, and **Scottish Gaelic (`gd`)** for statutory narratives, relief names, error messages, and reference codes.
-- **Modern Svelte 5 Component Framework**: Interactive web sandbox built with Svelte 5 Runes (`$state`, `$derived`), Vite 6, TypeScript 5.7, and Standalone Tailwind CSS.
-- **Unauthenticated REST API**: Open, sub-millisecond calculation and reference REST endpoints with zero authentication overhead.
-- **OWASP Security Baseline**: Zero `'unsafe-inline'` Content Security Policy (CSP), HSTS, and strict security headers.
+- **Modern Svelte 5 Component Framework**: Interactive web sandbox built with Svelte 5 Runes (`$state`, `$derived`), Vite 6, TypeScript 5.7, Standalone Tailwind CSS, and embedded parameter catalog explorers.
+- **Unified Unauthenticated REST API**: Clean single-namespace endpoints (`/api/v1/calculate-liability`, `/api/v1/reference-codes`, `/api/v1/parameters/...`) with sub-millisecond execution and zero authentication overhead.
+- **OpenAPI 3.1.0 & Self-Hosted Scalar Reference**: Interactive API reference at `/docs` (and `/scalar`) powered by locally hosted `scalar.js` (zero external CDN dependencies; air-gapped compliant) with templated customization and official specs at `/api/v1/openapi.json` and `/api/v1/openapi.yaml`.
+- **OWASP Security Baseline**: Strict Content Security Policy (CSP) with `script-src 'self'` (zero `'unsafe-inline'` and zero CDN origins), HSTS, and comprehensive security headers.
 
 ---
 
@@ -23,7 +24,7 @@
 # 1. Build the Svelte 5 frontend bundle
 ./build-frontend.sh
 
-# 2. Run the integration test suite (43 passing tests)
+# 2. Run the integration test suite (45 passing tests)
 cargo test
 
 # 3. Start the application server (http://localhost:8080)
