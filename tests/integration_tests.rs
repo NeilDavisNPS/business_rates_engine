@@ -1714,11 +1714,15 @@ async fn test_openapi_and_swagger_endpoints() {
     let csp = res.headers().get(header::CONTENT_SECURITY_POLICY).unwrap().to_str().unwrap();
     assert!(csp.contains("script-src 'self';"), "script-src must be strictly 'self' with zero unsafe-inline");
     assert!(csp.contains("style-src 'self' 'unsafe-inline'"), "style-src permits unsafe-inline for dynamic theme styles");
+    assert!(csp.contains("font-src 'self' data:;"), "font-src must be strictly self and data with zero external font CDNs");
     assert!(!csp.contains("cdn.jsdelivr.net"), "CSP should have zero CDN dependencies when self-hosting scalar.js");
+    assert!(!csp.contains("fonts.scalar.com"), "CSP should have zero external font dependencies when using withDefaultFonts:false");
     let body_html = body_to_string(res.into_body()).await;
     assert!(body_html.contains("<title>Business Rates Statutory Engine — API Reference (Scalar)</title>"));
+    assert!(body_html.contains("type=\"application/json\""), "script tag must use type=application/json to avoid inline script execution");
     assert!(body_html.contains("data-url=\"/api/v1/openapi.json\""));
     assert!(body_html.contains("\"theme\":\"solarized\""));
+    assert!(body_html.contains("\"withDefaultFonts\":false"));
     assert!(body_html.contains("/assets/scalar.js"));
 
     // 4b. GET /docs with dynamic query parameters (templating verification)

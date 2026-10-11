@@ -16,11 +16,12 @@
   </style>
 </head>
 <body>
-  <!-- Scalar API Reference Configuration -->
+  <!-- Scalar API Reference Configuration (type="application/json" avoids inline script execution under CSP) -->
   <script
     id="api-reference"
+    type="application/json"
     data-url="{{SPEC_URL}}"
-    data-configuration='{"theme":"{{THEME}}","layout":"{{LAYOUT}}","showSidebar":true,"searchHotKey":"k"}'>
+    data-configuration='{"theme":"{{THEME}}","layout":"{{LAYOUT}}","showSidebar":true,"searchHotKey":"k","withDefaultFonts":false}'>
   </script>
 
   <!-- Local Self-Hosted Scalar Standalone Bundle (Zero External CDN) -->
