@@ -58,6 +58,10 @@ class CalculationStore {
     holiday_let_actual_days_let: null,
     is_sbbs_tr_qualifying: false,
     is_ssbr_qualifying: false,
+    is_telecommunications_infrastructure: false,
+    is_charity_discretionary_top_up: false,
+    is_renewable_energy_generation: false,
+    payment_installments_count: 10,
     apply_transitional_relief: true,
   });
 

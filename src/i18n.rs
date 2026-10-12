@@ -350,6 +350,10 @@ pub fn localize_relief_name(name: &str, lang: Language) -> String {
             "Supporting Small Business Relief" => "Rhyddhad Cefnogi Busnesau Bach".to_string(),
             "Welsh Transitional Relief" => "Rhyddhad Trosiannol Cymru".to_string(),
             "Welsh Food & Drink Hospitality Relief" => "Rhyddhad Ardrethi Lletygarwch Bwyd a Diod Cymru".to_string(),
+            "Telecommunications Infrastructure Relief" => "Rhyddhad Seilwaith Telathrebu".to_string(),
+            "Discretionary Charitable Rate Relief Top-Up" => "Ychwanegiad Dewisol at Ryddhad Elusennol".to_string(),
+            "Renewable Energy Generation Relief" => "Rhyddhad Cynhyrchu Ynni Adnewyddadwy".to_string(),
+            "Council Tax Transfer (Holiday Let Disqualification)" => "Trosglwyddo i'r Dreth Gyngor (Anghymhwyso Llety Gwyliau)".to_string(),
             other => other.to_string(),
         },
         Language::Sco => match name {
@@ -370,6 +374,10 @@ pub fn localize_relief_name(name: &str, lang: Language) -> String {
             "Supporting Small Business Relief" => "Supportin Smaa Business Relief".to_string(),
             "Welsh Transitional Relief" => "Welsh Transitional Relief".to_string(),
             "Welsh Food & Drink Hospitality Relief" => "Welsh Food & Drink Hospitality Relief".to_string(),
+            "Telecommunications Infrastructure Relief" => "Telecommunications Infrastructure Relief".to_string(),
+            "Discretionary Charitable Rate Relief Top-Up" => "Discretionary Chairitable Top-Up".to_string(),
+            "Renewable Energy Generation Relief" => "Renewable Energy Generation Relief".to_string(),
+            "Council Tax Transfer (Holiday Let Disqualification)" => "Council Tax Transfer (Holiday Let Disqualification)".to_string(),
             other => other.to_string(),
         },
         Language::Gd => match name {
@@ -390,6 +398,10 @@ pub fn localize_relief_name(name: &str, lang: Language) -> String {
             "Supporting Small Business Relief" => "Faochadh Taic do Ghnìomhachasan Beaga".to_string(),
             "Welsh Transitional Relief" => "Faochadh Gluasaid na Cuimrigh".to_string(),
             "Welsh Food & Drink Hospitality Relief" => "Faochadh Aoigheachd Bidhe is Deoch na Cuimrigh".to_string(),
+            "Telecommunications Infrastructure Relief" => "Faochadh Bun-structair Tele-conaltraidh".to_string(),
+            "Discretionary Charitable Rate Relief Top-Up" => "Barr-suim Roghainneil Faochadh Carthannais".to_string(),
+            "Renewable Energy Generation Relief" => "Faochadh Gineadh Lùth Ath-nuadhachail".to_string(),
+            "Council Tax Transfer (Holiday Let Disqualification)" => "Gluasad gu Cìs Comhairle (Dì-cheadachadh Togalaich Saor-làithean)".to_string(),
             other => other.to_string(),
         },
     }

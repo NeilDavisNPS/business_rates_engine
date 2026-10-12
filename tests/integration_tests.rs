@@ -3051,6 +3051,627 @@ async fn test_wales_transitional_relief_under_300_no_relief() {
     assert_eq!(seg.net_segment_payable, dec!(5020.00));
 }
 
+#[tokio::test]
+async fn test_statutory_telecommunications_infrastructure_relief_england_and_scotland() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Case 1: England (Telecommunications Infrastructure (Relief from Non-Domestic Rates) Act 2018 / SI 2018/715)
+    // 2024/25 Small Business Multiplier 0.499. Gross = 50,000 * 0.499 = £24,950.00. Relief = 100% (£24,950.00). Net = £0.00.
+    let eng_req = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2024, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2025, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::ENGLAND,
+            scat_code: "091".to_string(),
+            rateable_value_history: vec![RvEntry {
+                effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                effective_to: None,
+                rateable_value: dec!(50000.00),
+            }],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_telecommunications_infrastructure: true,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+    let eng_res = engine.calculate(eng_req);
+    let eng_seg = &eng_res.annual_billing_segments[0];
+    assert_eq!(eng_seg.gross_liability, dec!(24950.00));
+    let telecom_relief = eng_seg.itemized_reliefs.iter().find(|r| r.relief_code == "TELECOM_FIBRE_RELIEF").unwrap();
+    assert_eq!(telecom_relief.discount_percentage, dec!(100.00));
+    assert_eq!(telecom_relief.amount_deducted, dec!(24950.00));
+    assert_eq!(eng_seg.net_segment_payable, dec!(0.00));
+
+    // Case 2: Scotland (SSI 2019/111 / SSI 2024/76)
+    // 2024/25 Scotland Intermediate Multiplier 0.545. Gross = 60,000 * 0.545 = £32,700.00. Net = £0.00.
+    let sco_req = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2024, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2025, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::SCOTLAND,
+            scat_code: "091".to_string(),
+            rateable_value_history: vec![RvEntry {
+                effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                effective_to: None,
+                rateable_value: dec!(60000.00),
+            }],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_telecommunications_infrastructure: true,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+    let sco_res = engine.calculate(sco_req);
+    let sco_seg = &sco_res.annual_billing_segments[0];
+    assert_eq!(sco_seg.gross_liability, dec!(32700.00));
+    let sco_telecom = sco_seg.itemized_reliefs.iter().find(|r| r.relief_code == "TELECOM_FIBRE_RELIEF").unwrap();
+    assert_eq!(sco_telecom.discount_percentage, dec!(100.00));
+    assert_eq!(sco_telecom.amount_deducted, dec!(32700.00));
+    assert_eq!(sco_seg.net_segment_payable, dec!(0.00));
+}
+
+#[tokio::test]
+async fn test_discretionary_charitable_relief_top_up() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // LGFA 1988 s.43(5) grants 80% mandatory charity relief, and s.47(2)(a) empowers councils to award 20% discretionary top-up
+    // RV £20,000 * 0.499 = £9,980.00 gross. Mandatory: £7,984.00 (80%). Top-up: £1,996.00 (20%). Net: £0.00.
+    let req = LiabilityCalculationRequest {
+        party_type: PartyType::CHARITY,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2024, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2025, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::ENGLAND,
+            scat_code: "225".to_string(),
+            rateable_value_history: vec![RvEntry {
+                effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                effective_to: None,
+                rateable_value: dec!(20000.00),
+            }],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_charitable_purposes: true,
+            is_charity_discretionary_top_up: true,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+
+    let res = engine.calculate(req);
+    let seg = &res.annual_billing_segments[0];
+
+    assert_eq!(seg.gross_liability, dec!(9980.00));
+    let mandatory = seg.itemized_reliefs.iter().find(|r| r.relief_code == "CHARITY_MANDATORY").unwrap();
+    assert_eq!(mandatory.discount_percentage, dec!(80.00));
+    assert_eq!(mandatory.amount_deducted, dec!(7984.00));
+
+    let topup = seg.itemized_reliefs.iter().find(|r| r.relief_code == "CHARITY_DISCRETIONARY_TOPUP").unwrap();
+    assert_eq!(topup.discount_percentage, dec!(20.00));
+    assert_eq!(topup.amount_deducted, dec!(1996.00));
+
+    assert_eq!(seg.net_segment_payable, dec!(0.00));
+}
+
+#[tokio::test]
+async fn test_scottish_renewable_energy_generation_relief() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Case 1: RV £100,000 (<= £145,000) -> 100% relief under SSI 2010/336
+    // 2024/25 Intermediate Multiplier 0.545. Gross = 100,000 * 0.545 = £54,500.00. Relief = £54,500.00. Net = £0.00.
+    let req1 = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2024, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2025, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::SCOTLAND,
+            scat_code: "096".to_string(),
+            rateable_value_history: vec![RvEntry {
+                effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                effective_to: None,
+                rateable_value: dec!(100000.00),
+            }],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_renewable_energy_generation: true,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+    let res1 = engine.calculate(req1);
+    let seg1 = &res1.annual_billing_segments[0];
+    assert_eq!(seg1.gross_liability, dec!(54500.00));
+    let rel1 = seg1.itemized_reliefs.iter().find(|r| r.relief_code == "RENEWABLE_ENERGY_RELIEF").unwrap();
+    assert_eq!(rel1.discount_percentage, dec!(100.00));
+    assert_eq!(rel1.amount_deducted, dec!(54500.00));
+    assert_eq!(seg1.net_segment_payable, dec!(0.00));
+
+    // Case 2: RV £180,000 (£145,000 < RV <= £200,000) -> 50% relief under SSI 2010/336
+    // 2024/25 Higher Multiplier 0.559. Gross = 180,000 * 0.559 = £100,620.00. Relief 50% = £50,310.00. Net = £50,310.00.
+    let req2 = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2024, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2025, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::SCOTLAND,
+            scat_code: "096".to_string(),
+            rateable_value_history: vec![RvEntry {
+                effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                effective_to: None,
+                rateable_value: dec!(180000.00),
+            }],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_renewable_energy_generation: true,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+    let res2 = engine.calculate(req2);
+    let seg2 = &res2.annual_billing_segments[0];
+    assert_eq!(seg2.gross_liability, dec!(100620.00));
+    let rel2 = seg2.itemized_reliefs.iter().find(|r| r.relief_code == "RENEWABLE_ENERGY_RELIEF").unwrap();
+    assert_eq!(rel2.discount_percentage, dec!(50.00));
+    assert_eq!(rel2.amount_deducted, dec!(50310.00));
+    assert_eq!(seg2.net_segment_payable, dec!(50310.00));
+}
+
+#[tokio::test]
+async fn test_rural_settlement_relief_rv_cap_enforcement() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Case 1: General store (SCAT 225) with RV £7,500 (<= £8,500 statutory cap under LGFA 1988 s.43(6A)-(6E)) -> 100% relief
+    let pass_req = LiabilityCalculationRequest {
+        party_type: PartyType::INDIVIDUAL,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2024, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2025, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::ENGLAND,
+            scat_code: "225".to_string(),
+            rateable_value_history: vec![RvEntry {
+                effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                effective_to: None,
+                rateable_value: dec!(7500.00),
+            }],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_rural_settlement: true,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+    let pass_res = engine.calculate(pass_req);
+    let pass_seg = &pass_res.annual_billing_segments[0];
+    assert_eq!(pass_seg.net_segment_payable, dec!(0.00));
+    assert!(pass_seg.itemized_reliefs.iter().any(|r| r.relief_code == "RURAL_SETTLEMENT"));
+
+    // Case 2: General store (SCAT 225) with RV £10,000 (> £8,500 statutory cap) -> 0% rural relief awarded
+    let fail_req = LiabilityCalculationRequest {
+        party_type: PartyType::INDIVIDUAL,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2024, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2025, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::ENGLAND,
+            scat_code: "225".to_string(),
+            rateable_value_history: vec![RvEntry {
+                effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                effective_to: None,
+                rateable_value: dec!(10000.00),
+            }],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_rural_settlement: true,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+    let fail_res = engine.calculate(fail_req);
+    let fail_seg = &fail_res.annual_billing_segments[0];
+    assert!(!fail_seg.itemized_reliefs.iter().any(|r| r.relief_code == "RURAL_SETTLEMENT"));
+
+    // Case 3: Public house (SCAT 209) with RV £11,000 (<= £12,500 higher statutory cap) -> 100% relief awarded
+    let pub_pass_req = LiabilityCalculationRequest {
+        party_type: PartyType::INDIVIDUAL,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2024, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2025, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::ENGLAND,
+            scat_code: "209".to_string(),
+            rateable_value_history: vec![RvEntry {
+                effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                effective_to: None,
+                rateable_value: dec!(11000.00),
+            }],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_rural_settlement: true,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+    let pub_pass_res = engine.calculate(pub_pass_req);
+    let pub_pass_seg = &pub_pass_res.annual_billing_segments[0];
+    assert_eq!(pub_pass_seg.net_segment_payable, dec!(0.00));
+    assert!(pub_pass_seg.itemized_reliefs.iter().any(|r| r.relief_code == "RURAL_SETTLEMENT"));
+}
+
+#[tokio::test]
+async fn test_self_catering_holiday_let_letting_days_test() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Case 1: Scotland (SSI 2022/86 / SSI 2026/50) - 182-day actual letting threshold
+    // Sub-case A: 200 actual let days (>= 182 days) -> Qualifies as commercial holiday let on NDR list
+    let sco_pass_req = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2024, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2025, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::SCOTLAND,
+            scat_code: "249".to_string(),
+            rateable_value_history: vec![RvEntry {
+                effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                effective_to: None,
+                rateable_value: dec!(20000.00),
+            }],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            holiday_let_actual_days_let: Some(200),
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+    let sco_pass_res = engine.calculate(sco_pass_req);
+    let sco_pass_seg = &sco_pass_res.annual_billing_segments[0];
+    assert_eq!(sco_pass_seg.net_segment_payable, dec!(9960.00)); // 20,000 * 0.498 = £9,960.00
+    assert!(!sco_pass_seg.itemized_reliefs.iter().any(|r| r.relief_code == "COUNCIL_TAX_TRANSFER"));
+
+    // Sub-case B: 120 actual let days (< 182 days) -> Disqualified from NDR list and transferred to Council Tax
+    let sco_fail_req = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2024, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2025, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::SCOTLAND,
+            scat_code: "249".to_string(),
+            rateable_value_history: vec![RvEntry {
+                effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                effective_to: None,
+                rateable_value: dec!(20000.00),
+            }],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            holiday_let_actual_days_let: Some(120),
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+    let sco_fail_res = engine.calculate(sco_fail_req);
+    let sco_fail_seg = &sco_fail_res.annual_billing_segments[0];
+    assert_eq!(sco_fail_seg.net_segment_payable, dec!(0.00));
+    assert!(sco_fail_seg.itemized_reliefs.iter().any(|r| r.relief_code == "COUNCIL_TAX_TRANSFER"));
+    assert!(sco_fail_res.calculation_narrative.contains("Disqualified from Non-Domestic Rating List"));
+
+    // Case 2: England (70-day actual letting threshold)
+    // 50 actual let days (< 70 days) -> Disqualified and transferred to Council Tax
+    let eng_fail_req = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2024, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2025, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::ENGLAND,
+            scat_code: "249".to_string(),
+            rateable_value_history: vec![RvEntry {
+                effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                effective_to: None,
+                rateable_value: dec!(20000.00),
+            }],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            holiday_let_actual_days_let: Some(50),
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+    let eng_fail_res = engine.calculate(eng_fail_req);
+    let eng_fail_seg = &eng_fail_res.annual_billing_segments[0];
+    assert_eq!(eng_fail_seg.net_segment_payable, dec!(0.00));
+    assert!(eng_fail_seg.itemized_reliefs.iter().any(|r| r.relief_code == "COUNCIL_TAX_TRANSFER"));
+}
+
+#[tokio::test]
+async fn test_scottish_unoccupied_property_relief_50_percent() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Case 1: Low-value threshold in Scotland is £1,700 under SSI 2018/77 (vs £2,900 in England)
+    // RV £1,500 (< £1,700) -> 100% low value empty relief
+    let low_req = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2024, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2025, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::SCOTLAND,
+            scat_code: "091".to_string(),
+            rateable_value_history: vec![RvEntry {
+                effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                effective_to: None,
+                rateable_value: dec!(1500.00),
+            }],
+        },
+        occupancy_type: OccupancyType::UNOCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags::default(),
+        occupancy_periods: None,
+        language: None,
+    };
+    let low_res = engine.calculate(low_req);
+    let low_seg = &low_res.annual_billing_segments[0];
+    assert_eq!(low_seg.net_segment_payable, dec!(0.00));
+    assert!(low_seg.itemized_reliefs.iter().any(|r| r.relief_code == "EMPTY_LOW_VALUE"));
+
+    // Case 2: RV £10,000 (>= £1,700), commercial property, unoccupied for full 365 days in 2024/25.
+    // Basic multiplier = 0.498. Gross = 10,000 * 0.498 = £4,980.00.
+    // Under Scottish SSI 2018/77 reg 3, the first 91 days receive 50% relief (not 100% like England).
+    // Relief = 4,980.00 * (91 / 365) * 0.50 = £620.65.
+    // Net = £4,980.00 - £620.65 = £4,359.35.
+    let unocc_req = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2024, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2025, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::SCOTLAND,
+            scat_code: "091".to_string(),
+            rateable_value_history: vec![RvEntry {
+                effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                effective_to: None,
+                rateable_value: dec!(10000.00),
+            }],
+        },
+        occupancy_type: OccupancyType::UNOCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags::default(),
+        occupancy_periods: None,
+        language: None,
+    };
+    let unocc_res = engine.calculate(unocc_req);
+    let unocc_seg = &unocc_res.annual_billing_segments[0];
+    assert_eq!(unocc_seg.gross_liability, dec!(4980.00));
+    let empty_rel = unocc_seg.itemized_reliefs.iter().find(|r| r.relief_code == "EMPTY_PROPERTY_EXEMPTION").unwrap();
+    assert_eq!(empty_rel.amount_deducted, dec!(620.79));
+    assert_eq!(unocc_seg.net_segment_payable, dec!(4359.21));
+}
+
+#[tokio::test]
+async fn test_historical_welsh_transitional_relief_2017_list() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Welsh 2017 List Revaluation (W.S.I. 2016/1243)
+    // Base 2016/17: RV £4,000 * 0.497 = £1,988.00
+    // 2017/18: RV £10,000 * 0.499 = £4,990.00
+    // Increase = £4,990.00 - £1,988.00 = £3,002.00 (> £300 statutory threshold)
+    // Year 1 (2017/18) Welsh TR = 67% of £3,002.00 = £2,011.34
+    // Net = £4,990.00 - £2,011.34 = £2,978.66
+    let req = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2017, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2018, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::WALES,
+            scat_code: "096".to_string(),
+            rateable_value_history: vec![
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2010, 4, 1).unwrap(),
+                    effective_to: Some(NaiveDate::from_ymd_opt(2017, 3, 31).unwrap()),
+                    rateable_value: dec!(4000.00),
+                },
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2017, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(10000.00),
+                },
+            ],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            apply_transitional_relief: Some(true),
+            is_small_business_sole_property: false,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+
+    let res = engine.calculate(req);
+    let seg = &res.annual_billing_segments[0];
+
+    assert_eq!(seg.gross_liability, dec!(4990.00));
+    assert_eq!(seg.transitional_adjustment.adjustment_type, "RELIEF");
+    assert_eq!(seg.transitional_adjustment.amount, dec!(2011.34));
+    assert_eq!(seg.net_segment_payable, dec!(2978.66));
+}
+
+#[tokio::test]
+async fn test_historical_transitional_phasing_2000_list() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // 2000 List Revaluation (SI 1999/3379)
+    // England 1999/00: RV £4,000 * 0.489 = £1,956.00
+    // 2000/01: RV £8,000 (Small <= £12,000). Multiplier 0.416. Gross = 8,000 * 0.416 = £3,328.00.
+    // Small upward cap = 5.00%. Capped base = 1,956.00 * 1.05 = £2,053.80.
+    // Transitional relief = £3,328.00 - £2,053.80 = £1,274.20.
+    // Net = £2,053.80.
+    let req = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2000, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2001, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::ENGLAND,
+            scat_code: "096".to_string(),
+            rateable_value_history: vec![
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(1995, 4, 1).unwrap(),
+                    effective_to: Some(NaiveDate::from_ymd_opt(2000, 3, 31).unwrap()),
+                    rateable_value: dec!(4000.00),
+                },
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2000, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(8000.00),
+                },
+            ],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            apply_transitional_relief: Some(true),
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+
+    let res = engine.calculate(req);
+    let seg = &res.annual_billing_segments[0];
+
+    assert_eq!(seg.gross_liability, dec!(3328.00));
+    assert_eq!(seg.transitional_adjustment.adjustment_type, "RELIEF");
+    assert_eq!(seg.transitional_adjustment.amount, dec!(1274.20));
+    assert_eq!(seg.net_segment_payable, dec!(2053.80));
+}
+
+#[tokio::test]
+async fn test_statutory_10_and_12_installments_schedule() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Case 1: Default 10 monthly statutory installments (SI 1989/1058 Schedule 1)
+    let req10 = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2027, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::WALES,
+            scat_code: "096".to_string(),
+            rateable_value_history: vec![RvEntry {
+                effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+                effective_to: None,
+                rateable_value: dec!(10000.00),
+            }],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            payment_installments_count: None, // Defaults to 10
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+    let res10 = engine.calculate(req10);
+    let seg10 = &res10.annual_billing_segments[0];
+    let inst10 = seg10.statutory_installments.as_ref().unwrap();
+
+    assert_eq!(inst10.len(), 10);
+    assert_eq!(inst10[0].due_date, NaiveDate::from_ymd_opt(2026, 5, 1).unwrap());
+    assert_eq!(inst10[9].due_date, NaiveDate::from_ymd_opt(2027, 2, 1).unwrap());
+    let total10: rust_decimal::Decimal = inst10.iter().map(|i| i.amount).sum();
+    assert_eq!(total10, seg10.net_segment_payable);
+
+    // Case 2: 12 monthly installments (Local Government Act 2003 / SI 2014/466)
+    let req12 = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2027, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::WALES,
+            scat_code: "096".to_string(),
+            rateable_value_history: vec![RvEntry {
+                effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+                effective_to: None,
+                rateable_value: dec!(10000.00),
+            }],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            payment_installments_count: Some(12),
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+    let res12 = engine.calculate(req12);
+    let seg12 = &res12.annual_billing_segments[0];
+    let inst12 = seg12.statutory_installments.as_ref().unwrap();
+
+    assert_eq!(inst12.len(), 12);
+    assert_eq!(inst12[0].due_date, NaiveDate::from_ymd_opt(2026, 4, 1).unwrap());
+    assert_eq!(inst12[11].due_date, NaiveDate::from_ymd_opt(2027, 3, 1).unwrap());
+    let total12: rust_decimal::Decimal = inst12.iter().map(|i| i.amount).sum();
+    assert_eq!(total12, seg12.net_segment_payable);
+}
+
 
 
 

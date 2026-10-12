@@ -42,6 +42,10 @@ export interface QualifyingReliefFlags {
   holiday_let_actual_days_let: number | null;
   is_sbbs_tr_qualifying: boolean;
   is_ssbr_qualifying?: boolean;
+  is_telecommunications_infrastructure?: boolean;
+  is_charity_discretionary_top_up?: boolean;
+  is_renewable_energy_generation?: boolean;
+  payment_installments_count?: number;
   apply_transitional_relief?: boolean;
 }
 
@@ -99,6 +103,12 @@ export interface StatutoryPenalty {
   amount: number;
 }
 
+export interface StatutoryInstallment {
+  installment_number: number;
+  due_date: string;
+  amount: number;
+}
+
 export interface SegmentPeriod {
   start_date: string;
   end_date: string;
@@ -115,6 +125,7 @@ export interface AnnualBillingSegment {
   itemized_reliefs: ItemizedRelief[];
   net_segment_payable: number;
   statutory_penalties?: StatutoryPenalty[];
+  statutory_installments?: StatutoryInstallment[];
   occupancy_type?: OccupancyType;
 }
 

@@ -155,6 +155,28 @@
                 {/each}
               </div>
             {/if}
+
+            <!-- Statutory Payment Installment Schedule -->
+            {#if seg.statutory_installments && seg.statutory_installments.length > 0}
+              <div class="space-y-1.5 pt-2 border-t border-slate-100">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-slate-700 block">
+                    Statutory Payment Schedule ({seg.statutory_installments.length} Monthly Installments)
+                  </span>
+                  <span class="text-[10px] text-slate-500 font-medium">
+                    SI 1989/1058 Sched 1 / LGA 2003
+                  </span>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-5 md:grid-cols-6 gap-1.5">
+                  {#each seg.statutory_installments as inst}
+                    <div class="bg-slate-50 border border-slate-200/80 p-2 rounded text-center">
+                      <span class="text-[10px] text-slate-500 font-semibold block">#{inst.installment_number} ({inst.due_date})</span>
+                      <span class="font-bold font-mono text-xs text-slate-900 block mt-0.5">{fmt(inst.amount)}</span>
+                    </div>
+                  {/each}
+                </div>
+              </div>
+            {/if}
           </div>
         </div>
       {/each}

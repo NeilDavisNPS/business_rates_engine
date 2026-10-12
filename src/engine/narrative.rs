@@ -63,8 +63,19 @@ pub fn generate_narrative(
 
         if req.hereditament.scat_code == "249" {
             lines.push("4. Dilysu Ffiniau Statudol (SCAT 249 Llety Gwyliau):".to_string());
-            lines.push("    - Aseswyd o dan Reoliadau Treth y Cyngor (Anheddau) (Yr Alban) 2026 / Rheol 140/70 diwrnod Lloegr.".to_string());
-            lines.push("    - Statws: Llety gwyliau masnachol cymwys; cadwyd ar y Rhestr Ardrethu Annomestig.".to_string());
+            let threshold = if req.hereditament.jurisdiction == crate::models::enums::Jurisdiction::SCOTLAND { 182 } else { 70 };
+            if let Some(actual) = req.qualifying_relief_flags.holiday_let_actual_days_let {
+                if actual < threshold {
+                    lines.push(format!("    - Aseswyd o dan feini prawf statudol: wedi'i osod am {} diwrnod (llai na'r isafswm statudol o {} diwrnod).", actual, threshold));
+                    lines.push("    - Statws: Wedi'i anghymhwyso o'r Rhestr Ardrethu Annomestig; trosglwyddwyd i Restr Brisio'r Dreth Gyngor (£0 o atebolrwydd NDR).".to_string());
+                } else {
+                    lines.push(format!("    - Aseswyd o dan feini prawf statudol: wedi'i osod am {} diwrnod (yn cyrraedd yr isafswm statudol o {} diwrnod).", actual, threshold));
+                    lines.push("    - Statws: Llety gwyliau masnachol cymwys; cadwyd ar y Rhestr Ardrethu Annomestig.".to_string());
+                }
+            } else {
+                lines.push("    - Aseswyd o dan Reoliadau Treth y Cyngor (Anheddau) (Yr Alban) 2026 / Rheol 140/70 diwrnod Lloegr.".to_string());
+                lines.push("    - Statws: Llety gwyliau masnachol cymwys; cadwyd ar y Rhestr Ardrethu Annomestig.".to_string());
+            }
         }
 
         lines.push("=============================================".to_string());
@@ -119,8 +130,19 @@ pub fn generate_narrative(
 
         if req.hereditament.scat_code == "249" {
             lines.push("4. Statutary Borderline Verification (SCAT 249 Halyday Accommodation):".to_string());
-            lines.push("    - Assessed unner Council Tax (Dwellings) (Scotland) Regs 2026 / 140/70 day rule.".to_string());
-            lines.push("    - Status: Qualified commercial halyday let; retainit on Non-Domestic Rating Leet.".to_string());
+            let threshold = if req.hereditament.jurisdiction == crate::models::enums::Jurisdiction::SCOTLAND { 182 } else { 70 };
+            if let Some(actual) = req.qualifying_relief_flags.holiday_let_actual_days_let {
+                if actual < threshold {
+                    lines.push(format!("    - Assessed unner statutary criteria: actually let for {} days (ablow statutary minimum {} days).", actual, threshold));
+                    lines.push("    - Status: Disqualified frae Non-Domestic Rating Leet; transferred tae Domestic Council Tax Valuation Leet (£0 NDR leeabeelity).".to_string());
+                } else {
+                    lines.push(format!("    - Assessed unner statutary criteria: actually let for {} days (meets minimum {} days).", actual, threshold));
+                    lines.push("    - Status: Qualified commercial halyday let; retainit on Non-Domestic Rating Leet.".to_string());
+                }
+            } else {
+                lines.push("    - Assessed unner Council Tax (Dwellings) (Scotland) Regs 2026 / 140/70 day rule.".to_string());
+                lines.push("    - Status: Qualified commercial halyday let; retainit on Non-Domestic Rating Leet.".to_string());
+            }
         }
 
         lines.push("=============================================".to_string());
@@ -175,8 +197,19 @@ pub fn generate_narrative(
 
         if req.hereditament.scat_code == "249" {
             lines.push("4. Dearbhadh Crìochan Reachdail (SCAT 249 Àite-fuirich Saor-làithean):".to_string());
-            lines.push("    - Air a mheasadh fo Riaghailtean Cìs Comhairle (Alba) 2026 / riaghailt 140/70 latha.".to_string());
-            lines.push("    - Inbhe: Màl saor-làithean malairteach barrantaichte air a chumail air an Liosta Ìrean.".to_string());
+            let threshold = if req.hereditament.jurisdiction == crate::models::enums::Jurisdiction::SCOTLAND { 182 } else { 70 };
+            if let Some(actual) = req.qualifying_relief_flags.holiday_let_actual_days_let {
+                if actual < threshold {
+                    lines.push(format!("    - Aseswyd fo shlatan-tomhais reachdail: air mhàl airson {} làithean (nas lugha na an ìre as lugha de {} làithean).", actual, threshold));
+                    lines.push("    - Inbhe: Dì-cheadaichte bhon Liosta Ìrean Neo-Dachaigheil; air a ghluasad gu Liosta Luachaidh Cìs Comhairle (£0 buailteachd NDR).".to_string());
+                } else {
+                    lines.push(format!("    - Aseswyd fo shlatan-tomhais reachdail: air mhàl airson {} làithean (a' coinneachadh ris an ìre as lugha de {} làithean).", actual, threshold));
+                    lines.push("    - Inbhe: Màl saor-làithean malairteach barrantaichte air a chumail air an Liosta Ìrean.".to_string());
+                }
+            } else {
+                lines.push("    - Air a mheasadh fo Riaghailtean Cìs Comhairle (Alba) 2026 / riaghailt 140/70 latha.".to_string());
+                lines.push("    - Inbhe: Màl saor-làithean malairteach barrantaichte air a chumail air an Liosta Ìrean.".to_string());
+            }
         }
 
         lines.push("=============================================".to_string());
@@ -231,8 +264,19 @@ pub fn generate_narrative(
 
         if req.hereditament.scat_code == "249" {
             lines.push("4. Statutory Borderline Verification (SCAT 249 Holiday Accommodation):".to_string());
-            lines.push("    - Assessed under The Council Tax (Dwellings) (Scotland) Regs 2026 / English 140/70 day rule.".to_string());
-            lines.push("    - Status: Qualified commercial holiday let; retained on Non-Domestic Rating List.".to_string());
+            let threshold = if req.hereditament.jurisdiction == crate::models::enums::Jurisdiction::SCOTLAND { 182 } else { 70 };
+            if let Some(actual) = req.qualifying_relief_flags.holiday_let_actual_days_let {
+                if actual < threshold {
+                    lines.push(format!("    - Assessed under statutory criteria: actually let for {} days (below statutory minimum {} days).", actual, threshold));
+                    lines.push("    - Status: Disqualified from Non-Domestic Rating List; transferred to Domestic Council Tax Valuation List (£0 NDR liability).".to_string());
+                } else {
+                    lines.push(format!("    - Assessed under statutory criteria: actually let for {} days (meets minimum {} days).", actual, threshold));
+                    lines.push("    - Status: Qualified commercial holiday let; retained on Non-Domestic Rating List.".to_string());
+                }
+            } else {
+                lines.push("    - Assessed under The Council Tax (Dwellings) (Scotland) Regs 2026 / English 140/70 day rule.".to_string());
+                lines.push("    - Status: Qualified commercial holiday let; retained on Non-Domestic Rating List.".to_string());
+            }
         }
 
         lines.push("=============================================".to_string());

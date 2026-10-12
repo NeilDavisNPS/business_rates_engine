@@ -89,6 +89,20 @@
         </div>
       </label>
 
+      <!-- Telecommunications Infrastructure Relief (All nations - 2018 Act / SSI 2019/111) -->
+      <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
+        <input
+          type="checkbox"
+          bind:checked={calcStore.qualifyingReliefFlags.is_telecommunications_infrastructure}
+          onchange={onFlagChange}
+          class="mt-0.5 rounded text-blue-600 focus:ring-blue-500"
+        />
+        <div>
+          <span class="text-xs font-bold text-slate-900 block">Telecommunications Infrastructure Relief</span>
+          <span class="text-[11px] text-slate-500">100% relief for new fibre telecommunications infrastructure (Telecommunications Infrastructure Act 2018 / SSI 2019/111).</span>
+        </div>
+      </label>
+
       <!-- Public Lavatory Exemption (England & Wales) -->
       {#if calcStore.jurisdiction !== 'SCOTLAND'}
         <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
@@ -259,6 +273,39 @@
           </div>
         </label>
       {/if}
+      <!-- Charity Discretionary Top-Up (All nations - LGFA 1988 s.47(2)(a) / LGA(S) 1962 s.4(5)) -->
+      <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-purple-200 bg-purple-50/30 hover:bg-purple-50 cursor-pointer transition-colors">
+        <input
+          type="checkbox"
+          bind:checked={calcStore.qualifyingReliefFlags.is_charity_discretionary_top_up}
+          onchange={onFlagChange}
+          class="mt-0.5 rounded text-purple-600 focus:ring-purple-500"
+        />
+        <div>
+          <span class="text-xs font-bold text-purple-950 block">Discretionary Charity Top-Up (Up to 20%)</span>
+          <span class="text-[11px] text-purple-800">
+            Billing authority discretionary top-up of up to 20% on top of 80% mandatory charitable relief (LGFA 1988 s.47(2)(a) / 1962 Act s.4(5)), reducing liability to £0.
+          </span>
+        </div>
+      </label>
+
+      <!-- Scottish Renewable Energy Generation Relief (Scotland only - SSI 2010/336) -->
+      {#if calcStore.jurisdiction === 'SCOTLAND'}
+        <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50 cursor-pointer transition-colors">
+          <input
+            type="checkbox"
+            bind:checked={calcStore.qualifyingReliefFlags.is_renewable_energy_generation}
+            onchange={onFlagChange}
+            class="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500"
+          />
+          <div>
+            <span class="text-xs font-bold text-emerald-950 block">Renewable Energy Generation Relief</span>
+            <span class="text-[11px] text-emerald-800">
+              Tiered relief under SSI 2010/336: 100% (RV &le; £145k), 50% (RV &le; £200k), 25% (RV &le; £250k), 10% (RV &le; £1m).
+            </span>
+          </div>
+        </label>
+      {/if}
     </div>
   </div>
 
@@ -306,8 +353,8 @@
         <p class="text-[11px] text-slate-500">{calcStore.t.flag_unoccupied_days_desc}</p>
       </div>
 
-      <!-- Scottish Holiday Let Days (Scotland only) -->
-      {#if calcStore.jurisdiction === 'SCOTLAND'}
+      <!-- Self-Catering Holiday Accommodation Actual Days Let (All nations - 182 days Scotland, 70 days England/Wales) -->
+      {#if calcStore.scatCode === '249' || calcStore.jurisdiction === 'SCOTLAND'}
         <div class="p-2.5 rounded-lg border border-purple-200 bg-purple-50/50 space-y-1">
           <div class="flex justify-between items-center">
             <label for="holidayDaysInput" class="text-xs font-bold text-purple-900 block">
@@ -324,9 +371,32 @@
               class="w-24 px-2 py-1 text-xs border border-purple-300 rounded font-bold text-purple-900"
             />
           </div>
-          <p class="text-[11px] text-purple-700">{calcStore.t.flag_holiday_desc}</p>
+          <p class="text-[11px] text-purple-700">
+            {calcStore.jurisdiction === 'SCOTLAND' ? 'Must be actually let &ge; 182 days (SSI 2022/86) to remain on NDR list. Failing transfers to Council Tax (£0 NDR).' : 'Must be actually let &ge; 70 days (LGFA 1988 s.66) to remain on NDR list. Failing transfers to Council Tax (£0 NDR).'}
+          </p>
         </div>
       {/if}
+
+      <!-- Statutory Installment Schedule Plan (SI 1989/1058 Sched 1 / LGA 2003) -->
+      <div class="p-2.5 rounded-lg border border-slate-200 space-y-1">
+        <div class="flex justify-between items-center">
+          <label for="installmentsPlanSelect" class="text-xs font-bold text-slate-900 block">
+            Statutory Installment Plan
+          </label>
+          <select
+            id="installmentsPlanSelect"
+            bind:value={calcStore.qualifyingReliefFlags.payment_installments_count}
+            onchange={onFlagChange}
+            class="px-2 py-1 text-xs border border-slate-300 rounded font-bold text-slate-800 bg-white"
+          >
+            <option value={10}>10 Monthly Installments (Default)</option>
+            <option value={12}>12 Monthly Installments (Statutory Right)</option>
+          </select>
+        </div>
+        <p class="text-[11px] text-slate-500">
+          Statutory payment schedule under SI 1989/1058 (10 months May–Feb) or ratepayer right to 12 months (Apr–Mar under LGA 2003 / SI 2014/466).
+        </p>
+      </div>
 
       <!-- Welsh Artificial Avoidance Penalty (Wales only) -->
       {#if calcStore.jurisdiction === 'WALES'}

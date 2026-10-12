@@ -75,6 +75,12 @@ pub struct QualifyingReliefFlags {
     #[serde(default)]
     pub is_rural_settlement: bool,
     #[serde(default)]
+    pub is_telecommunications_infrastructure: bool,
+    #[serde(default)]
+    pub is_charity_discretionary_top_up: bool,
+    #[serde(default)]
+    pub is_renewable_energy_generation: bool,
+    #[serde(default)]
     pub is_public_lavatory: bool,
     #[serde(default)]
     pub is_heat_network: bool,
@@ -92,6 +98,8 @@ pub struct QualifyingReliefFlags {
     pub is_sbbs_tr_qualifying: bool,
     #[serde(default)]
     pub is_ssbr_qualifying: bool,
+    #[serde(default)]
+    pub payment_installments_count: Option<u32>,
     #[serde(default = "default_true_opt")]
     pub apply_transitional_relief: Option<bool>,
 }
@@ -222,6 +230,13 @@ pub struct StatutoryPenalty {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StatutoryInstallment {
+    pub installment_number: u32,
+    pub due_date: NaiveDate,
+    pub amount: Decimal,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AnnualBillingSegment {
     pub financial_year: String,
     pub segment_period: SegmentPeriod,
@@ -233,6 +248,8 @@ pub struct AnnualBillingSegment {
     pub net_segment_payable: Decimal,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub statutory_penalties: Vec<StatutoryPenalty>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub statutory_installments: Option<Vec<StatutoryInstallment>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub occupancy_type: Option<OccupancyType>,
 }

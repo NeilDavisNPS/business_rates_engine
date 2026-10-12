@@ -325,6 +325,20 @@ impl ParameterRepository {
             }
         }
 
+        // 4b. Higher / High-Value rate threshold check (e.g. Scotland Higher Multiplier for RV > £100,000, Wales HIGHER, England HIGH_VALUE)
+        for m in &matches {
+            if m.multiplier_type == "HIGHER" || m.multiplier_type == "HIGH_VALUE" {
+                let min_ok = rv >= m.rv_threshold_min;
+                let max_ok = m.rv_threshold_max.map_or(true, |max| rv <= max);
+                if min_ok && max_ok {
+                    return MultiplierInfo {
+                        multiplier_type: m.multiplier_type.clone(),
+                        rate: m.multiplier_rate,
+                    };
+                }
+            }
+        }
+
         // 5. Fallback to Standard or first available multiplier in matches
         let standard = matches.iter()
             .find(|m| m.multiplier_type == "STANDARD" || m.multiplier_type == "WELSH_DIFFERENTIAL")
@@ -534,13 +548,19 @@ impl ParameterRepository {
         })
     }
 
-    /// Resolves Welsh Transitional Relief scheme parameters under W.S.I. 2025/1371 / W.S.I. 2022/1350
+    /// Resolves Welsh Transitional Relief scheme parameters under W.S.I. 2025/1371 / W.S.I. 2022/1350 / W.S.I. 2016/1243 / W.S.I. 2009/3364 / W.S.I. 2004/3400
     pub fn resolve_welsh_transitional_relief_rate(&self, financial_year: &str) -> Option<(Decimal, &'static str)> {
         match financial_year {
             "2026/27" => Some((dec!(67.00), "LGFA 1988 s.58 / S.I. 2025/1371 (W. 226) / LGF(W)A 2024")),
             "2027/28" => Some((dec!(34.00), "LGFA 1988 s.58 / S.I. 2025/1371 (W. 226) / LGF(W)A 2024")),
             "2023/24" => Some((dec!(67.00), "LGFA 1988 s.58 / S.I. 2022/1350 (W. 272)")),
             "2024/25" => Some((dec!(34.00), "LGFA 1988 s.58 / S.I. 2022/1350 (W. 272)")),
+            "2017/18" => Some((dec!(67.00), "LGFA 1988 s.58 / W.S.I. 2016/1243 (W. 297)")),
+            "2018/19" => Some((dec!(34.00), "LGFA 1988 s.58 / W.S.I. 2016/1243 (W. 297)")),
+            "2010/11" => Some((dec!(67.00), "LGFA 1988 s.58 / W.S.I. 2009/3364 (W. 299)")),
+            "2011/12" => Some((dec!(34.00), "LGFA 1988 s.58 / W.S.I. 2009/3364 (W. 299)")),
+            "2005/06" => Some((dec!(67.00), "LGFA 1988 s.58 / W.S.I. 2004/3400 (W. 295)")),
+            "2006/07" => Some((dec!(34.00), "LGFA 1988 s.58 / W.S.I. 2004/3400 (W. 295)")),
             _ => None,
         }
     }
@@ -1034,6 +1054,10 @@ impl ParameterRepository {
         add("RELIEF_CODE", "SBBS_TR", "Small Business Bonus Scheme Transitional Relief", "Scottish statutory protection capping net bill increases for properties losing or seeing reduced SBBS (£600 in 2023/24 to £1,800 in 2025/26; 25% bill increase limit in 2026/27).", Some("SCOTLAND"), 12);
         add("RELIEF_CODE", "SSBR", "Supporting Small Business Relief", "English statutory protection capping net bill increases for properties losing or seeing reduced SBRR, rural rate relief, or RHL relief (£600 annual increase cap in 2023–2025; £800 annual increase cap in 2026/27).", Some("ENGLAND"), 13);
         add("RELIEF_CODE", "WALES_TR", "Welsh Transitional Relief", "Statutory two-year transitional phasing scheme under W.S.I. 2025/1371 / W.S.I. 2022/1350 (67% relief on bill increases > £300 in Year 1, 34% in Year 2).", Some("WALES"), 14);
+        add("RELIEF_CODE", "TELECOM", "Telecommunications Infrastructure Relief", "100% statutory relief for new fibre telecommunications infrastructure under Telecommunications Infrastructure Act 2018 / SSI 2019/111.", None, 15);
+        add("RELIEF_CODE", "CHARITY_TOPUP", "Discretionary Charitable Relief Top-Up", "Up to 20% discretionary top-up relief by billing authorities under LGFA 1988 s.47(2)(a) / 1962 Act s.4(5).", None, 16);
+        add("RELIEF_CODE", "RENEWABLE", "Renewable Energy Generation Relief", "Tiered relief for renewable energy generation hereditaments under SSI 2010/336 (100% up to £145k RV, scaling to 10% up to £1m RV).", Some("SCOTLAND"), 17);
+        add("RELIEF_CODE", "COUNCIL_TAX_TRANSFER", "Council Tax Transfer (Holiday Let Disqualification)", "Disqualification from non-domestic rating list where self-catering accommodation fails statutory actual letting days threshold (182 days Scotland, 70 days England/Wales).", None, 18);
 
         // MULTIPLIER_TYPE
         add("MULTIPLIER_TYPE", "STANDARD", "Standard Multiplier", "National baseline non-domestic rating multiplier.", None, 1);
