@@ -25,7 +25,7 @@ This guide details how to install, build, configure, test, and deploy the **Busi
 
 Before getting started, ensure you have the following installed on your machine:
 
-- **Rust & Cargo**: Rust 1.75+ (2021 Edition)  
+- **Rust & Cargo**: Rust 1.82+ (2021 Edition; Recommended: Latest Stable)  
   *Install:* `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
 - **Node.js & npm**: Node.js 18+ or 20+ (LTS)  
   *Verify:* `node -v` and `npm -v`  
