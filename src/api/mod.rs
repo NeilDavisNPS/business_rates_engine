@@ -9,13 +9,14 @@ use crate::models::AppState;
 use self::handlers::{
     calculate_liability_handler, component_ui_handler, get_all_parameters_handler,
     get_multipliers_handler, get_reference_codes_handler, get_sbrr_thresholds_handler,
-    get_sector_reliefs_handler, get_transitional_caps_handler, openapi_json_handler,
-    openapi_yaml_handler, scalar_ui_handler, static_frontend_asset,
+    get_sector_reliefs_handler, get_transitional_caps_handler, health_check_handler,
+    openapi_json_handler, openapi_yaml_handler, scalar_ui_handler, static_frontend_asset,
 };
 use self::middleware::owasp_security_headers;
 
 pub fn create_router(state: AppState) -> Router {
     let api_routes: Router<AppState> = Router::new()
+        .route("/health", get(health_check_handler))
         .route("/calculate-liability", post(calculate_liability_handler))
         .route("/reference-codes", get(get_reference_codes_handler))
         .route("/parameters", get(get_all_parameters_handler))
@@ -28,6 +29,7 @@ pub fn create_router(state: AppState) -> Router {
 
     Router::new()
         .route("/", get(component_ui_handler))
+        .route("/health", get(health_check_handler))
         .route("/docs", get(scalar_ui_handler))
         .route("/assets/:filename", get(static_frontend_asset))
         .nest("/api/v1", api_routes)

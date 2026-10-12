@@ -17,9 +17,18 @@
   import { calcStore } from './stores/calculation.svelte';
 
   onMount(() => {
+    calcStore.checkHealth();
     calcStore.loadParameters();
     calcStore.loadReferenceCodes();
     calcStore.executeCalculation();
+
+    const interval = setInterval(() => {
+      calcStore.checkHealth();
+    }, 15000);
+
+    return () => {
+      clearInterval(interval);
+    };
   });
 </script>
 

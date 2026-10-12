@@ -3,6 +3,7 @@
   "app_subtitle": "Ìrean Reachdail 1990–2027 (Sasainn, A' Chuimrigh, Alba)",
   "page_title": "Inneal Ìrean Gnìomhachais — Pòrtoil Rianachd & Bogsa-gainmhich Phàirtean",
   "api_status": "API Gnìomhach air :8080",
+  "api_offline": "API Far Loidhne",
   "sso_login": "Logadh a-steach aon-chomharra (SSO)",
   "active_tenant": "Màiliche Gnìomhach",
   "tenant_name": "Comhairle Cathair Mhanchain",

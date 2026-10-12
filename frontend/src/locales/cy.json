@@ -3,6 +3,7 @@
   "app_subtitle": "Ardrethi Statudol 1990–2027 (Lloegr, Cymru, Yr Alban)",
   "page_title": "Peiriant Trethi Busnes — Porth Gweinyddu a Blwch Tywod Profi",
   "api_status": "API Gweithredol ar :8080",
+  "api_offline": "API All-Lein",
   "sso_login": "Mewngofnodi Un Arwydd Mewn (SSO)",
   "active_tenant": "Tenant Gweithredol",
   "tenant_name": "Cyngor Dinas Manceinion",

@@ -3,6 +3,7 @@
   "app_subtitle": "Statutary Ratin 1990–2027 (Ingland, Wales, Scotland)",
   "page_title": "Business Rates Ingyne — Admin Portal & Component Saundbox",
   "api_status": "API Active on :8080",
+  "api_offline": "API Affline",
   "sso_login": "Single Sign-On (SSO) Login",
   "active_tenant": "Active Tenant",
   "tenant_name": "Manchester City Council",

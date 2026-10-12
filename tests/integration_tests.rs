@@ -3600,6 +3600,54 @@ async fn test_narrative_relief_assessment_audit_unawarded_reliefs() {
     assert!(nar_unocc.contains("Rural Settlement Relief: Disqualified — property is unoccupied (mandatory rural settlement relief requires qualifying occupation)"));
 }
 
+#[tokio::test]
+async fn test_health_check_endpoint() {
+    let app = create_test_app();
+    let response = app
+        .oneshot(
+            Request::builder()
+                .uri("/health")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::OK);
+    let headers = response.headers().clone();
+    assert!(headers.get("x-content-type-options").is_some());
+    assert!(headers.get("x-frame-options").is_some());
+
+    let body_str = body_to_string(response.into_body()).await;
+    let json: Value = serde_json::from_str(&body_str).unwrap();
+
+    assert_eq!(json["status"], "pass");
+    assert_eq!(json["checks"]["engine_api"], "pass");
+    assert_eq!(json["checks"]["parameters_repository"], "pass");
+    assert!(json["version"].is_string());
+}
+
+#[tokio::test]
+async fn test_api_v1_health_check_endpoint() {
+    let app = create_test_app();
+    let response = app
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/health")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::OK);
+    let body_str = body_to_string(response.into_body()).await;
+    let json: Value = serde_json::from_str(&body_str).unwrap();
+
+    assert_eq!(json["status"], "pass");
+    assert_eq!(json["checks"]["parameters_repository"], "pass");
+}
+
 
 
 

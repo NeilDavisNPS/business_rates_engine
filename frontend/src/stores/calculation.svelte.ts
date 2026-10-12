@@ -18,6 +18,7 @@ import { getDictionary, JURISDICTION_CONFIGS } from '../i18n';
 
 class CalculationStore {
   language = $state<SupportedLanguage>('en');
+  apiHealthy = $state<boolean>(true);
   theme = $state<'dark' | 'light'>('light');
   payloadMode = $state<'form' | 'json'>('form');
   jurisdiction = $state<Jurisdiction>('ENGLAND');
@@ -386,6 +387,23 @@ class CalculationStore {
       }
     } catch (e) {
       console.warn('Failed to load parameters from API:', e);
+    }
+  }
+
+  async checkHealth() {
+    try {
+      let res = await fetch('/api/v1/health');
+      if (!res.ok) {
+        res = await fetch('/health');
+      }
+      if (res.ok) {
+        const data = await res.json();
+        this.apiHealthy = data.status === 'pass' || data.status === 'warn';
+      } else {
+        this.apiHealthy = false;
+      }
+    } catch {
+      this.apiHealthy = false;
     }
   }
 }

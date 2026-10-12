@@ -52,11 +52,18 @@
         {calcStore.t.scalar_docs_label}
       </a>
 
-      <!-- API Status Pill -->
-      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-pulse"></span>
-        <span>{calcStore.t.api_status}</span>
-      </span>
+      <!-- API Status Pill (Live Health Check) -->
+      {#if calcStore.apiHealthy}
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-950/80 text-emerald-200 border border-emerald-500/40 shadow-xs">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-pulse"></span>
+          <span>{calcStore.t.api_status}</span>
+        </span>
+      {:else}
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-rose-950/80 text-rose-200 border border-rose-500/40 shadow-xs">
+          <span class="w-2 h-2 rounded-full bg-rose-400 mr-2"></span>
+          <span>{calcStore.t.api_offline}</span>
+        </span>
+      {/if}
     </div>
   </div>
 </header>

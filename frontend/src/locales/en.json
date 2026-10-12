@@ -3,6 +3,7 @@
   "app_subtitle": "Statutory Rating 1990–2027 (England, Wales, Scotland)",
   "page_title": "Business Rates Engine — Admin Portal & Component Sandbox",
   "api_status": "API Active on :8080",
+  "api_offline": "API Offline",
   "sso_login": "Single Sign-On (SSO) Login",
   "active_tenant": "Active Tenant",
   "tenant_name": "Manchester City Council",

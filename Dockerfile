@@ -57,7 +57,7 @@ ENV PORT=8080
 ENV RUST_LOG=info
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:8080/ || exit 1
+  CMD curl -f http://localhost:8080/health || exit 1
 
 ENTRYPOINT ["/app/business_rates_engine"]
 
