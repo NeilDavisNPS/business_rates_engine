@@ -36,34 +36,34 @@ export const JURISDICTION_CONFIGS: Record<SupportedLanguage, Record<Jurisdiction
       name: "England",
       pillClass: "bg-blue-100 text-blue-800",
       bannerBg: "bg-blue-50 border-blue-200 text-blue-900",
-      framework: "Local Government Finance Act 1988 & Non-Domestic Rating Act 2023 (NDRA 2023). Standard Multiplier applies for RV > £51,000. 3-Year revaluation list.",
+      framework: "Local Government Finance Act 1988 (LGFA 1988) & Non-Domestic Rating Act 2023 (NDRA 2023). Statutory coverage 1990–2027 (8 rating lists). 2026/27 features 5 statutory multipliers (Standard, Small Business, and 3 permanent high-street RHL multipliers). Statutory Transitional Relief (s.57A) and Supporting Small Business Relief (SSBR £600/£800 cap under s.47).",
       sbrrTitle: "Small Business Rate Relief (SBRR)",
-      sbrrDesc: "100% discount up to £12k RV; linear taper to £15k RV for sole-property occupiers.",
+      sbrrDesc: "100% discount up to £12k RV; linear taper to £15k RV for sole-property occupiers (plus 12-month second property grace period under SI 2017/411).",
       rhlTitle: "Retail, Hospitality & Leisure (RHL)",
-      rhlDesc: "Discretionary 40% discount in 2025/26 (£110k cap). Ceased in 2026/27 (replaced by lower high-street multipliers).",
-      charityDesc: "80% mandatory relief under LGFA 1988 s.43(5)."
+      rhlDesc: "Discretionary 40% discount in 2025/26 (£110k cap). From 2026/27 replaced by 3 statutory lower high-street multipliers (38.1p for RV < £51k, 43.0p for RV £51k–£100k, 44.5p for RV £100k–£500k).",
+      charityDesc: "80% mandatory relief under LGFA 1988 s.43(5), plus billing authority discretionary top-up of up to 20% under s.47(2)(a)."
     },
     WALES: {
       name: "Wales",
       pillClass: "bg-emerald-100 text-emerald-800",
       bannerBg: "bg-emerald-50 border-emerald-200 text-emerald-900",
-      framework: "Local Government Finance (Wales) Act 2024. WSI statutory instruments, differential multiplier system, anti-avoidance penalty framework.",
+      framework: "Local Government Finance Act 1988 & Local Government Finance (Wales) Act 2024 (LGF(W)A 2024). 2026/27 features 3 statutory multipliers (Standard, Small Business, Higher Multiplier for RV > £100k). 2-year statutory Transitional Relief under W.S.I. 2025/1371 (67% Year 1, 34% Year 2 for bill increases > £300) and anti-avoidance penalty framework under W.S.I. 2026/43.",
       sbrrTitle: "Welsh Small Business Rate Relief",
       sbrrDesc: "100% discount up to £6k RV; linear taper to £12k RV under devolved Welsh rules.",
       rhlTitle: "Welsh Food & Drink Hospitality Relief",
       rhlDesc: "15% Welsh scheme for 2026/27 (subject to £110k cap). Note: Petrol stations excluded.",
-      charityDesc: "80% mandatory relief under LGFA 1988 s.43(5)."
+      charityDesc: "80% mandatory relief under LGFA 1988 s.43(5), plus billing authority discretionary top-up of up to 20% under s.47(2)(a)."
     },
     SCOTLAND: {
       name: "Scotland",
       pillClass: "bg-purple-100 text-purple-900",
       bannerBg: "bg-purple-50 border-purple-200 text-purple-900",
-      framework: "Non-Domestic Rates (Scotland) Act 2020. Three-tier multiplier system (Basic, Intermediate, Higher). Statutory holiday let criteria in effect.",
+      framework: "Local Government (Financial Provisions) (Scotland) Act 1962, Local Government (Scotland) Act 1975 & Non-Domestic Rates (Scotland) Act 2020. Three-tier multiplier system (Basic, Intermediate, Higher Property Rate). Statutory Transitional Relief and SBBS TR bill increase caps under SSI 2023/45. Statutory holiday let criteria (182 days under SSI 2022/86).",
       sbrrTitle: "Small Business Bonus Scheme (SBBS)",
-      sbrrDesc: "Scottish 100% relief up to £11,500/£12,000 RV for single-property ratepayers.",
+      sbrrDesc: "Scottish 100% relief up to £12,000 RV for single-property ratepayers, with tiered tapers.",
       rhlTitle: "Scottish Retail, Hospitality & Leisure Relief",
       rhlDesc: "15% relief on mainland (RV <= £100k) or 100% on islands (Islands (Scotland) Act 2018), £110k cap.",
-      charityDesc: "80% mandatory relief under Local Government (Financial Provisions) (Scotland) Act 1962 s.4."
+      charityDesc: "80% mandatory relief under 1962 Act s.4(2), plus discretionary top-up of up to 20% under s.4(5)."
     }
   },
   cy: {

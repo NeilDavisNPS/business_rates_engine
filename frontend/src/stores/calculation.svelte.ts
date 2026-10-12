@@ -69,6 +69,7 @@ class CalculationStore {
   rawJsonResponse = $state<string>('');
   activeResultsTab = $state<'breakdown' | 'narrative' | 'json'>('breakdown');
   calcStatus = $state<'ready' | 'calculating' | 'success' | 'error'>('ready');
+  isCalculationDue = $state<boolean>(false);
   errorMessage = $state<string | null>(null);
   response = $state<LiabilityCalculationResponse | null>(null);
 
@@ -128,7 +129,7 @@ class CalculationStore {
     } else if (jur === 'WALES' && this.scatCode === '249') {
       this.scatCode = '211';
     }
-    this.syncFormToJson();
+    this.markCalculationDue();
   }
 
   addOccupancyPeriod(period?: Partial<OccupancyPeriodInput>) {
@@ -142,13 +143,13 @@ class CalculationStore {
       occupancy_type: period?.occupancy_type || 'OCCUPIED',
       part_occupied_apportionment: period?.part_occupied_apportionment,
     });
-    this.syncFormToJson();
+    this.markCalculationDue();
   }
 
   removeOccupancyPeriod(index: number) {
     if (this.occupancyPeriods.length > 1) {
       this.occupancyPeriods.splice(index, 1);
-      this.syncFormToJson();
+      this.markCalculationDue();
     }
   }
 
@@ -162,13 +163,13 @@ class CalculationStore {
       effective_to: entry?.effective_to || null,
       rateable_value: entry?.rateable_value ?? 45000,
     });
-    this.syncFormToJson();
+    this.markCalculationDue();
   }
 
   removeValuationEra(index: number) {
     if (this.rateableValueHistory.length > 1) {
       this.rateableValueHistory.splice(index, 1);
-      this.syncFormToJson();
+      this.markCalculationDue();
     }
   }
 
@@ -195,7 +196,11 @@ class CalculationStore {
       is_industrial_hereditament: this.qualifyingReliefFlags.is_industrial_hereditament,
       days_previously_unoccupied: this.qualifyingReliefFlags.days_previously_unoccupied,
       is_artificial_avoidance_suspected: jur === 'WALES' ? this.qualifyingReliefFlags.is_artificial_avoidance_suspected : false,
-      holiday_let_actual_days_let: jur === 'SCOTLAND' ? this.qualifyingReliefFlags.holiday_let_actual_days_let : null,
+      is_telecommunications_infrastructure: this.qualifyingReliefFlags.is_telecommunications_infrastructure,
+      is_charity_discretionary_top_up: this.qualifyingReliefFlags.is_charity_discretionary_top_up,
+      is_renewable_energy_generation: jur === 'SCOTLAND' ? this.qualifyingReliefFlags.is_renewable_energy_generation : false,
+      payment_installments_count: this.qualifyingReliefFlags.payment_installments_count ? Number(this.qualifyingReliefFlags.payment_installments_count) : 10,
+      holiday_let_actual_days_let: this.qualifyingReliefFlags.holiday_let_actual_days_let != null ? Number(this.qualifyingReliefFlags.holiday_let_actual_days_let) : null,
       is_sbbs_tr_qualifying: jur === 'SCOTLAND' ? this.qualifyingReliefFlags.is_sbbs_tr_qualifying : false,
       is_ssbr_qualifying: jur === 'ENGLAND' ? this.qualifyingReliefFlags.is_ssbr_qualifying : false,
       apply_transitional_relief: this.qualifyingReliefFlags.apply_transitional_relief,
@@ -226,6 +231,11 @@ class CalculationStore {
     } catch (e) {
       console.error('Error generating payload JSON:', e);
     }
+  }
+
+  markCalculationDue() {
+    this.syncFormToJson();
+    this.isCalculationDue = true;
   }
 
   syncJsonToForm() {
@@ -283,9 +293,14 @@ class CalculationStore {
           holiday_let_actual_days_let: p.qualifying_relief_flags.holiday_let_actual_days_let != null ? Number(p.qualifying_relief_flags.holiday_let_actual_days_let) : null,
           is_sbbs_tr_qualifying: !!p.qualifying_relief_flags.is_sbbs_tr_qualifying,
           is_ssbr_qualifying: !!p.qualifying_relief_flags.is_ssbr_qualifying,
+          is_telecommunications_infrastructure: !!p.qualifying_relief_flags.is_telecommunications_infrastructure,
+          is_charity_discretionary_top_up: !!p.qualifying_relief_flags.is_charity_discretionary_top_up,
+          is_renewable_energy_generation: !!p.qualifying_relief_flags.is_renewable_energy_generation,
+          payment_installments_count: p.qualifying_relief_flags.payment_installments_count != null ? Number(p.qualifying_relief_flags.payment_installments_count) : 10,
           apply_transitional_relief: p.qualifying_relief_flags.apply_transitional_relief !== false,
         };
       }
+      this.isCalculationDue = true;
       this.errorMessage = null;
     } catch (err: any) {
       this.errorMessage = `Invalid JSON: ${err.message}`;
@@ -341,6 +356,7 @@ class CalculationStore {
       this.response = data;
       this.rawJsonResponse = JSON.stringify(data, null, 2);
       this.calcStatus = 'success';
+      this.isCalculationDue = false;
     } catch (err: any) {
       this.calcStatus = 'error';
       this.errorMessage = err.message || 'Unknown network error';

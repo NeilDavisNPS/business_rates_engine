@@ -176,6 +176,11 @@
                   {/each}
                 </div>
               </div>
+            {:else if seg.net_segment_payable === 0}
+              <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-1 text-xs text-slate-600 bg-emerald-50/50 p-2.5 rounded border border-emerald-100">
+                <span class="font-bold text-emerald-950">Statutory Payment Schedule ({calcStore.qualifyingReliefFlags.payment_installments_count || 10} Monthly Installments selected):</span>
+                <span class="font-semibold text-emerald-700">Net payable is £0.00 (100% relief applied — no payment installments required under SI 1989/1058 reg. 4)</span>
+              </div>
             {/if}
           </div>
         </div>

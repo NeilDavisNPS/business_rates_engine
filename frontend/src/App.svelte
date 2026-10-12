@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import TopNavbar from './components/TopNavbar.svelte';
   import SummaryKpiCards from './components/SummaryKpiCards.svelte';
   import JurisdictionSelector from './components/JurisdictionSelector.svelte';
@@ -14,6 +15,12 @@
   import SectorReliefsCatalog from './components/SectorReliefsCatalog.svelte';
   import TransitionalCapsCatalog from './components/TransitionalCapsCatalog.svelte';
   import { calcStore } from './stores/calculation.svelte';
+
+  onMount(() => {
+    calcStore.loadParameters();
+    calcStore.loadReferenceCodes();
+    calcStore.executeCalculation();
+  });
 </script>
 
 <div class="min-h-screen bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 antialiased flex flex-col">
@@ -85,11 +92,15 @@
               type="button"
               onclick={() => calcStore.executeCalculation()}
               disabled={calcStore.calcStatus === 'calculating'}
-              class="px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold text-xs shadow transition flex items-center justify-center space-x-2"
+              class="px-5 py-2.5 rounded-lg text-white font-bold text-xs shadow transition flex items-center justify-center space-x-2 {calcStore.isCalculationDue
+                ? 'bg-amber-600 hover:bg-amber-700 ring-2 ring-amber-400 ring-offset-1 shadow-md'
+                : 'bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400'}"
             >
               {#if calcStore.calcStatus === 'calculating'}
                 <span class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
                 <span>{calcStore.t.calculating}</span>
+              {:else if calcStore.isCalculationDue}
+                <span>{calcStore.t.btn_calculate_due}</span>
               {:else}
                 <span>{calcStore.t.btn_calculate}</span>
               {/if}
@@ -97,7 +108,11 @@
 
             <!-- Status Indicator -->
             <div class="text-xs">
-              {#if calcStore.calcStatus === 'ready'}
+              {#if calcStore.calcStatus === 'calculating'}
+                <span class="text-blue-600 font-medium">● {calcStore.t.calculating}</span>
+              {:else if calcStore.isCalculationDue}
+                <span class="text-amber-600 font-bold">● Calculation due (pending inputs)</span>
+              {:else if calcStore.calcStatus === 'ready'}
                 <span class="text-slate-500 font-medium">● {calcStore.t.ready}</span>
               {:else}
                 {#if calcStore.calcStatus === 'success'}

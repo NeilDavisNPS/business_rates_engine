@@ -2,7 +2,7 @@
   import { calcStore } from '../stores/calculation.svelte';
 
   function onFlagChange() {
-    calcStore.syncFormToJson();
+    calcStore.markCalculationDue();
   }
 </script>
 

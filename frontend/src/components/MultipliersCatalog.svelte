@@ -39,7 +39,7 @@
     class="w-full p-4 flex justify-between items-center text-left bg-slate-50/80 hover:bg-slate-50 transition border-b border-slate-200"
   >
     <div class="flex items-center space-x-2">
-      <span class="text-sm font-bold text-slate-900">Statutory Rating Multipliers (1993–2027)</span>
+      <span class="text-sm font-bold text-slate-900">Statutory Rating Multipliers (1990–2027)</span>
       <span class="text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded">
         {calcStore.multipliers.length} Seeded Rates
       </span>

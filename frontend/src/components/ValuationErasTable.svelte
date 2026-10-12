@@ -27,7 +27,7 @@
         <select
           id="scatCodeSelect"
           bind:value={calcStore.scatCode}
-          onchange={() => calcStore.syncFormToJson()}
+          onchange={() => calcStore.markCalculationDue()}
           class="w-full text-xs px-2.5 py-1.5 border border-slate-300 rounded bg-white font-medium text-slate-800"
         >
           {#each scatOptions as opt}
@@ -84,7 +84,7 @@
                 <input
                   type="date"
                   bind:value={era.effective_from}
-                  oninput={() => calcStore.syncFormToJson()}
+                  oninput={() => calcStore.markCalculationDue()}
                   class="w-full px-2 py-1 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 font-mono font-medium text-slate-800 bg-white"
                 />
               </td>
@@ -94,7 +94,7 @@
                 <input
                   type="date"
                   bind:value={era.effective_to}
-                  oninput={() => calcStore.syncFormToJson()}
+                  oninput={() => calcStore.markCalculationDue()}
                   placeholder="Open"
                   class="w-full px-2 py-1 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 font-mono font-medium text-slate-800 bg-white"
                 />
@@ -111,7 +111,7 @@
                     min="0"
                     step="100"
                     bind:value={era.rateable_value}
-                    oninput={() => calcStore.syncFormToJson()}
+                    oninput={() => calcStore.markCalculationDue()}
                     class="w-full pl-6 pr-2 py-1 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 font-bold text-slate-900"
                   />
                 </div>

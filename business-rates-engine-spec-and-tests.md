@@ -170,7 +170,7 @@ The system operates with a decoupled modern architecture:
 │              Statutory Calculation Engine & Built-In Repo              │
 │                                                                        │
 │   - CalculationEngine (Statutory Slicer, Multi-Occupancy, Narratives)  │
-│   - ParameterRepository (Built-in In-Memory Multipliers 1993–2027,     │
+│   - ParameterRepository (Built-in In-Memory Multipliers 1990–2027,     │
 │     SBRR/SBBS Tapers, Devolved Sector Reliefs, Caps & Reference Codes) │
 └────────────────────────────────────────────────────────────────────────┘
 ```

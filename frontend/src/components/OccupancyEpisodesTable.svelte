@@ -13,7 +13,7 @@
     } else {
       calcStore.occupancyPeriods[index].part_occupied_apportionment = undefined;
     }
-    calcStore.syncFormToJson();
+    calcStore.markCalculationDue();
   }
 
   function onPctChange(index: number, value: string) {
@@ -25,7 +25,7 @@
     } else {
       calcStore.occupancyPeriods[index].part_occupied_apportionment!.occupied_percentage = isNaN(num) ? 50 : num;
     }
-    calcStore.syncFormToJson();
+    calcStore.markCalculationDue();
   }
 </script>
 
@@ -62,7 +62,7 @@
               <input
                 type="date"
                 bind:value={period.start_date}
-                oninput={() => calcStore.syncFormToJson()}
+                oninput={() => calcStore.markCalculationDue()}
                 class="w-full px-2 py-1 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 font-mono font-medium text-slate-800 bg-white"
               />
             </td>
@@ -72,7 +72,7 @@
               <input
                 type="date"
                 bind:value={period.end_date}
-                oninput={() => calcStore.syncFormToJson()}
+                oninput={() => calcStore.markCalculationDue()}
                 placeholder="Open"
                 class="w-full px-2 py-1 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 font-mono font-medium text-slate-800 bg-white"
               />
