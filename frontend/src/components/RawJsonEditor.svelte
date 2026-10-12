@@ -15,16 +15,16 @@
 </script>
 
 <div class="space-y-4">
-  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-3">
+  <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-3">
     <div class="flex justify-between items-center">
-      <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">
+      <span class="text-xs font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider">
         {calcStore.t.raw_json_title}
       </span>
       <div class="flex items-center gap-2">
         <button
           type="button"
           onclick={formatJson}
-          class="text-xs px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition"
+          class="text-xs px-2.5 py-1 rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white font-semibold transition border border-slate-300 dark:border-slate-700 cursor-pointer"
         >
           Format JSON
         </button>

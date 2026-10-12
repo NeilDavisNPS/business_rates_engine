@@ -117,7 +117,7 @@
                 type="button"
                 onclick={() => calcStore.removeOccupancyPeriod(idx)}
                 disabled={calcStore.occupancyPeriods.length <= 1}
-                class="text-xs px-2 py-0.5 text-red-600 hover:text-red-800 disabled:opacity-30 disabled:cursor-not-allowed font-medium"
+                class="text-xs px-2 py-0.5 text-red-700 dark:text-red-400 hover:text-red-950 dark:hover:text-red-100 disabled:opacity-30 disabled:cursor-not-allowed font-semibold"
               >
                 {calcStore.t.btn_remove}
               </button>

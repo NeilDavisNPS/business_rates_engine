@@ -53,8 +53,8 @@
               type="button"
               onclick={() => calcStore.setPayloadMode('form')}
               class="px-3 py-1 rounded-md transition {calcStore.payloadMode === 'form'
-                ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-300 shadow-xs font-bold'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'}"
+                ? 'bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-200 shadow-xs font-bold'
+                : 'text-slate-700 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-700/60'}"
             >
               {calcStore.t.btn_form}
             </button>
@@ -62,8 +62,8 @@
               type="button"
               onclick={() => calcStore.setPayloadMode('json')}
               class="px-3 py-1 rounded-md transition {calcStore.payloadMode === 'json'
-                ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-300 shadow-xs font-bold'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'}"
+                ? 'bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-200 shadow-xs font-bold'
+                : 'text-slate-700 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-700/60'}"
             >
               {calcStore.t.btn_json}
             </button>
@@ -139,27 +139,27 @@
                 <button
                   type="button"
                   onclick={() => { calcStore.activeResultsTab = 'breakdown'; }}
-                  class="px-3 py-1.5 font-bold rounded-t-lg transition {calcStore.activeResultsTab === 'breakdown'
-                    ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 border-t border-x border-slate-200 dark:border-slate-700'
-                    : 'text-slate-500 hover:text-slate-800 dark:text-slate-400'}"
+                  class="px-3.5 py-1.5 font-bold rounded-t-lg transition {calcStore.activeResultsTab === 'breakdown'
+                    ? 'bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-300 border-t border-x border-slate-200 dark:border-slate-700 shadow-xs'
+                    : 'text-slate-700 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-700/60'}"
                 >
                   {calcStore.t.annual_breakdown_title}
                 </button>
                 <button
                   type="button"
                   onclick={() => { calcStore.activeResultsTab = 'narrative'; }}
-                  class="px-3 py-1.5 font-bold rounded-t-lg transition {calcStore.activeResultsTab === 'narrative'
-                    ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 border-t border-x border-slate-200 dark:border-slate-700'
-                    : 'text-slate-500 hover:text-slate-800 dark:text-slate-400'}"
+                  class="px-3.5 py-1.5 font-bold rounded-t-lg transition {calcStore.activeResultsTab === 'narrative'
+                    ? 'bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-300 border-t border-x border-slate-200 dark:border-slate-700 shadow-xs'
+                    : 'text-slate-700 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-700/60'}"
                 >
                   {calcStore.t.tab_narrative}
                 </button>
                 <button
                   type="button"
                   onclick={() => { calcStore.activeResultsTab = 'json'; }}
-                  class="px-3 py-1.5 font-bold rounded-t-lg transition {calcStore.activeResultsTab === 'json'
-                    ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 border-t border-x border-slate-200 dark:border-slate-700'
-                    : 'text-slate-500 hover:text-slate-800 dark:text-slate-400'}"
+                  class="px-3.5 py-1.5 font-bold rounded-t-lg transition {calcStore.activeResultsTab === 'json'
+                    ? 'bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-300 border-t border-x border-slate-200 dark:border-slate-700 shadow-xs'
+                    : 'text-slate-700 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-700/60'}"
                 >
                   {calcStore.t.tab_json}
                 </button>

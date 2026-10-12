@@ -26,8 +26,8 @@
         onclick={() => calcStore.setJurisdiction(jur.id)}
         aria-pressed={calcStore.jurisdiction === jur.id}
         class="py-2 px-3 text-xs font-bold rounded-lg border flex items-center justify-center transition focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 {calcStore.jurisdiction === jur.id
-          ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-          : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'}"
+          ? 'bg-blue-700 text-white border-blue-700 shadow-sm'
+          : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-950 dark:hover:text-white'}"
       >
         <span>{calcStore.t[jur.labelKey]}</span>
       </button>
