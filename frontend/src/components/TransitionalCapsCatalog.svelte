@@ -44,13 +44,13 @@
     class="w-full p-4 flex justify-between items-center text-left bg-slate-50/80 hover:bg-slate-50 transition border-b border-slate-200"
   >
     <div class="flex items-center space-x-2">
-      <span class="text-sm font-bold text-slate-900">Transitional Phasing Relief Upward Caps</span>
+      <span class="text-sm font-bold text-slate-900">{calcStore.t.trans_catalog_title}</span>
       <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded">
-        {calcStore.transitionalCaps.length} Seeded Cap Tiers
+        {calcStore.transitionalCaps.length} {calcStore.t.trans_seeded_count}
       </span>
     </div>
     <span class="text-xs text-slate-500 font-medium">
-      {calcStore.isTransitionalCapsExpanded ? '▲ Collapse' : '▼ Click to toggle catalog'}
+      {calcStore.isTransitionalCapsExpanded ? calcStore.t.collapse_btn : calcStore.t.expand_btn}
     </span>
   </button>
 
@@ -89,7 +89,7 @@
           </button>
 
           <span class="text-slate-300 mx-1">|</span>
-          <span class="text-slate-500 font-semibold mr-1">Tier:</span>
+          <span class="text-slate-500 font-semibold mr-1">{calcStore.t.trans_tier_label}</span>
           <button
             type="button"
             onclick={() => { filterTier = 'ALL'; }}
@@ -97,7 +97,7 @@
               ? 'bg-slate-700 text-white border-slate-700 shadow-sm'
               : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}"
           >
-            All
+            {calcStore.t.trans_tier_all}
           </button>
           <button
             type="button"
@@ -106,7 +106,7 @@
               ? 'bg-slate-700 text-white border-slate-700 shadow-sm'
               : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}"
           >
-            Small
+            {calcStore.t.trans_tier_small}
           </button>
           <button
             type="button"
@@ -115,7 +115,7 @@
               ? 'bg-slate-700 text-white border-slate-700 shadow-sm'
               : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}"
           >
-            Medium
+            {calcStore.t.trans_tier_medium}
           </button>
           <button
             type="button"
@@ -124,13 +124,13 @@
               ? 'bg-slate-700 text-white border-slate-700 shadow-sm'
               : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}"
           >
-            Large
+            {calcStore.t.trans_tier_large}
           </button>
         </div>
 
         <input
           type="text"
-          placeholder="Search list year, tier or cap %..."
+          placeholder={calcStore.t.trans_search_ph}
           bind:value={searchTerm}
           class="w-full sm:w-64 px-3 py-1.5 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 font-medium text-slate-800 bg-white"
         />
@@ -141,13 +141,13 @@
         <table class="w-full text-left text-xs">
           <thead class="bg-slate-50 text-slate-700 border-b border-slate-200">
             <tr>
-              <th class="p-2.5 font-semibold">Reval List</th>
-              <th class="p-2.5 font-semibold">Financial Year</th>
-              <th class="p-2.5 font-semibold">Nation</th>
-              <th class="p-2.5 font-semibold">Property Tier</th>
-              <th class="p-2.5 font-semibold">Rateable Value Threshold</th>
-              <th class="p-2.5 font-semibold">Upward Phasing Cap</th>
-              <th class="p-2.5 font-semibold">Statutory Authority</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.trans_col_reval}</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.trans_col_fy}</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.trans_col_nation}</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.trans_col_tier}</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.trans_col_threshold}</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.trans_col_cap}</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.trans_col_statute}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">

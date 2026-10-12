@@ -161,10 +161,10 @@
               <div class="space-y-1.5 pt-2 border-t border-slate-100">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-bold text-slate-700 block">
-                    Statutory Payment Schedule ({seg.statutory_installments.length} Monthly Installments)
+                    {calcStore.t.statutory_schedule_header} ({seg.statutory_installments.length} {calcStore.t.monthly_installments_count})
                   </span>
                   <span class="text-[10px] text-slate-500 font-medium">
-                    SI 1989/1058 Sched 1 / LGA 2003
+                    {calcStore.t.si_1989_authority}
                   </span>
                 </div>
                 <div class="grid grid-cols-2 sm:grid-cols-5 md:grid-cols-6 gap-1.5">
@@ -178,8 +178,8 @@
               </div>
             {:else if seg.net_segment_payable === 0}
               <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-1 text-xs text-slate-600 bg-emerald-50/50 p-2.5 rounded border border-emerald-100">
-                <span class="font-bold text-emerald-950">Statutory Payment Schedule ({calcStore.qualifyingReliefFlags.payment_installments_count || 10} Monthly Installments selected):</span>
-                <span class="font-semibold text-emerald-700">Net payable is £0.00 (100% relief applied — no payment installments required under SI 1989/1058 reg. 4)</span>
+                <span class="font-bold text-emerald-950">{calcStore.t.statutory_schedule_header} ({calcStore.qualifyingReliefFlags.payment_installments_count || 10} {calcStore.t.monthly_installments_selected}):</span>
+                <span class="font-semibold text-emerald-700">{calcStore.t.zero_net_installments_note}</span>
               </div>
             {/if}
           </div>

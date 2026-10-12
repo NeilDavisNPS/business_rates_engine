@@ -1,0 +1,757 @@
+{
+  "app_name": "Business Rates Calculation Ingyne",
+  "app_subtitle": "Statutary Ratin 1990–2027 (Ingland, Wales, Scotland)",
+  "page_title": "Business Rates Ingyne — Admin Portal & Component Saundbox",
+  "api_status": "API Active on :8080",
+  "sso_login": "Single Sign-On (SSO) Login",
+  "active_tenant": "Active Tenant",
+  "tenant_name": "Manchester City Council",
+  "tenant_type": "LOCAL_AUTHORITY",
+  "data_plane_key": "Data Plane API Key",
+  "copy_api_key": "Copy",
+  "api_key_desc": "Hashed wi SHA-256 forenent",
+  "statutory_coverage": "Statutary Leet Coverage",
+  "statutory_coverage_sub": "1990 tae 2027 (Devolved Great Breetain)",
+  "badge_lgfa": "LGFA 1988 (Primary GB)",
+  "badge_ndra": "NDRA 2023 (Ingland)",
+  "badge_lgfwa": "LGF(W)A 2024 (Wales)",
+  "badge_ndr": "NDR 2020 / 1975 Act (Scotland)",
+  "badge_installments": "SI 1989/1058 (Installments)",
+  "badge_wsi": "WSI 2025/1371 & 2026/43",
+  "sandbox_heading": "Ratin Leeabeelity Calculation Saundbox",
+  "sandbox_sub": "Jurisdiction-sensitive assessment warkbench. Anerly fields an rules applicable tae the waled nation are kythit.",
+  "rating_jurisdiction": "Ratin Coort o Law (Govrenin Legal Framewark)",
+  "jurisdiction_help": "Govrens the relevant fields an rules",
+  "jur_btn_england": "Ingland",
+  "jur_btn_wales": "Wales",
+  "jur_btn_scotland": "Scotland",
+  "payload_editor": "Payload Eeditor:",
+  "btn_form": "Form Fields",
+  "btn_json": "Raw JSON",
+  "ratepayer_section": "1. Ratepeyer & Ooccupancy Eepisods",
+  "btn_add_occ": "+ Eik Ooccupancy Period",
+  "col_occ_start": "Stairt Date",
+  "col_occ_end": "End Date (Blank = Apen)",
+  "col_occ_type": "Ooccupancy Status",
+  "col_occ_apportionment": "Pairt-Ooccupyit (s.44A)",
+  "col_occ_action": "Action",
+  "occ_opt_occupied": "OOCCUPYIT (Fou)",
+  "occ_opt_unoccupied": "UNOOCCUPYIT (Tuim)",
+  "occ_opt_part_occupied": "PAIRT_OOCCUPYIT (s.44A)",
+  "occ_na_text": "100% fou",
+  "common_gb": "Common GB Condeetions",
+  "party_type": "Pairty Type (Codit)",
+  "property_section": "2. Hereditament & Proaperty Ptiklers",
+  "rating_classification": "Ratin Diveesion",
+  "scat_code": "Speecial Categerie (SCAT Code)",
+  "rv_history": "3. Rateable Value (RV) Heestory Eras",
+  "btn_add_rv": "+ Eik Valuation Era",
+  "col_from": "Effecktive Frae",
+  "col_to": "Effecktive Tae (Blank = Apen)",
+  "col_rv": "Rateable Value (£)",
+  "col_action": "Action",
+  "btn_remove": "Remove",
+  "relief_section": "4. Statutary Relief Eeligibility",
+  "relief_badge": "Applicable tae walit nation",
+  "flag_charity_title": "Mandatar Chairitable Relief",
+  "flag_charity_desc": "80% mandatar relief for chairitable uiss",
+  "flag_improvement_title": "Improvement RV Eik (£)",
+  "flag_improvement_desc": "NDRA 2023 s.1 G-factor 12-month exemption (Ingland anerly)",
+  "flag_heat_network_title": "Law-Cairbon Heat Netwark Relief",
+  "flag_heat_network_desc": "100% relief unner NDRA 2023 s.2 (Ingland anerly)",
+  "flag_lavatory_title": "Public Lavatory Exemption",
+  "flag_lavatory_desc": "100% relief unner Ratin Act 2021",
+  "flag_rural_title": "Kintra Settlement Relief",
+  "flag_rural_desc": "100% relief for ane-an-anerly clachan shap/pub (<3k fowk)",
+  "flag_avoidance_title": "Suspeckit Airtifeecial Avoidance",
+  "flag_avoidance_desc": "WSI 2026/43 penalty: £500 fixt + 3% RV (Wales anerly)",
+  "flag_holiday_title": "Halyday Let Eeckwal Days Lettit",
+  "flag_holiday_desc": "Scots Assessor 70/140-day lettin creeteria",
+  "placeholder_holiday_days": "e.g. 70",
+  "flag_industrial_title": "Industrial Hereditament",
+  "flag_industrial_desc": "6 month unoccupyit exemption (forenent 3 commercial)",
+  "flag_unoccupied_days_title": "Days Aforehand Unoccupyit",
+  "flag_unoccupied_days_desc": "Deducts aforehand tuim relief days frae the 3/6-month statutary allouance",
+  "raw_json_title": "Raw JSON Payload",
+  "btn_calculate": "Exequte Statutary Calculation",
+  "btn_calculate_due": "Exequte Statutary Calculation (Calculation Due)",
+  "ref_dict_title": "Statutary Reference Code Dictionar",
+  "ref_dict_badge": "Seedit DB Catalog",
+  "ref_dict_expand": "Clack tae toggle catalog",
+  "filter_codes_label": "Seeve Codes:",
+  "dict_btn_all": "Aw GB",
+  "dict_btn_england": "Ingland",
+  "dict_btn_wales": "Wales",
+  "dict_btn_scotland": "Scotland",
+  "dict_col_cat": "Categerie",
+  "dict_col_code": "Code",
+  "dict_col_nation": "Nation",
+  "dict_col_label": "Label",
+  "dict_col_rules": "Statutary Rules & Legal Context",
+  "results_title": "Calculation Ootcomes & Year-bi-Year Brakdoun",
+  "period_summary_label": "Oweraw Period Ootline",
+  "sum_gross_label": "Hale Gross",
+  "sum_trans_label": "Trans. Phasin",
+  "sum_reliefs_label": "Reliefs Applee'd",
+  "sum_net_label": "Hale Net Tae Pay",
+  "annual_breakdown_title": "Yearlie Brakdoun Bi Financial Year",
+  "annual_placeholder": "Clack 'Exequte Statutary Calculation' tae see annual rates leeabeelity brakkit doun for ilka financial year.",
+  "tab_narrative": "Statutary Audit Narrative",
+  "tab_json": "Raw JSON Response",
+  "narrative_placeholder": "Clack 'Exequte Statutary Calculation' tae see the hale audit narrative.",
+  "json_placeholder": "Clack 'Exequte Statutary Calculation' tae see the raw JSON response payload.",
+  "ready": "Redy",
+  "calculating": "Calculatin...",
+  "calc_success": "200 OK — Duin",
+  "calc_error": "Calculation Misgaed",
+  "fy_badge": "FY",
+  "days_label": "days",
+  "to_word": "tae",
+  "year_gross": "Year Gross",
+  "trans_phasing": "Trans. Phasin",
+  "year_reliefs": "Year Reliefs",
+  "year_net": "Year Net Tae Pay",
+  "itemized_label": "Eetemised Reliefs & Deductions:",
+  "no_reliefs": "Nae statutary reliefs applee'd for this year.",
+  "discount_word": "discoont",
+  "statutory_penalty": "Statutary Penalty Assessed:",
+  "theme_label": "Heich-Contrast Paper View",
+  "theme_light": "Heich-Contrast Paper View",
+  "theme_dark": "Heich-Contrast Terminal View",
+  "rv_label": "RV",
+  "multiplier_label": "Multiplier",
+  "years_unit": "Years",
+  "api_key_copied": "API Key copyit tae clipboard!",
+  "statutory_framework_title": "Statutary Framewark",
+  "statutory_framework_sub": "Historical Ratin Leets (1990–2022) & Devolved Modren Regimes (2023–2027)",
+  "statutory_framework_expand": "Click tae expan full framewark",
+  "statutory_framework_collapse": "Click tae collapse framewark",
+  "collapse_btn": "▲ Fauld",
+  "expand_btn": "▼ Clack tae toggle catalog",
+  "copied_btn": "✓ Copyit",
+  "btn_format_json": "Format JSON",
+  "switch_lang_aria": "Swith leid tae",
+  "scalar_docs_title": "Apen interactive Scalar API Reference (OpenAPI 3.1)",
+  "scalar_docs_label": "API Reference (Scalar)",
+  "calc_due_status": "Calculation due (pendin inputs)",
+  "parameters_section_title": "Statutary Parameters & Reference Catalogs",
+  "parameters_section_sub": "Rake throu in-memory seedit statutary rates, tapers, relief schemes, transitional caps, an reference code dictionars across Ingland, Wales, an Scotland.",
+  "multipliers_title": "Statutary Ratin Multipliers (1990–2027)",
+  "multipliers_seeded_count": "Seedit Rates",
+  "multipliers_search_ph": "Rake year (e.g. 2026/27), type...",
+  "multipliers_col_fy": "Financial Year",
+  "multipliers_col_nation": "Nation",
+  "multipliers_col_type": "Multiplier Type",
+  "multipliers_col_threshold": "Rateable Value Threshold",
+  "multipliers_col_rate": "Multiplier Rate",
+  "multipliers_col_period": "Effecktive Period",
+  "multipliers_all_rv": "Aw RV (Nae Threshold Cap)",
+  "sbrr_catalog_title": "Smaw Business Rate Relief & SBBS Thresholds",
+  "sbrr_seeded_count": "Seedit Taper Rules",
+  "sbrr_search_ph": "Rake year or relief rule...",
+  "sbrr_col_fy": "Financial Year",
+  "sbrr_col_nation": "Nation",
+  "sbrr_col_range": "Rateable Value Range",
+  "sbrr_col_max_relief": "Max Relief %",
+  "sbrr_col_mechanics": "Taper / Relief Mechanics",
+  "sbrr_col_statute": "Statutary Authority",
+  "sbrr_linear_taper": "Linear Taper (Tapers tae 0%)",
+  "sbrr_full_exemption": "Hale Statutary Exemption",
+  "sector_catalog_title": "Devolved Sector Relief Schemes (RHL)",
+  "sector_seeded_count": "Seedit Schemes",
+  "sector_search_ph": "Rake RHL scheme, discoont % or cap...",
+  "sector_col_fy": "Financial Year",
+  "sector_col_nation": "Nation",
+  "sector_col_code": "Scheme Code",
+  "sector_col_discount": "Discoont Rate",
+  "sector_col_cap": "Business Cash Cap",
+  "sector_col_statute": "Statutary Authority",
+  "sector_col_period": "Effecktive Period",
+  "sector_no_cap": "Nae Cap",
+  "trans_catalog_title": "Transitional Phasin Relief Upward Caps",
+  "trans_seeded_count": "Seedit Cap Tiers",
+  "trans_tier_label": "Tier:",
+  "trans_tier_all": "Aw",
+  "trans_tier_small": "Smaw",
+  "trans_tier_medium": "Middlin",
+  "trans_tier_large": "Muckle",
+  "trans_search_ph": "Rake leet year, tier or cap %...",
+  "trans_col_reval": "Reval Leet",
+  "trans_col_fy": "Financial Year",
+  "trans_col_nation": "Nation",
+  "trans_col_tier": "Proaperty Tier",
+  "trans_col_threshold": "Rateable Value Threshold",
+  "trans_col_cap": "Upward Phasin Cap",
+  "trans_col_statute": "Statutary Authority",
+  "ref_search_ph": "Rake categories, codes, laws...",
+  "relief_section_sub": "Statutary mandatar reliefs, discretionary schemes, an revaluation transitional phasin.",
+  "mandatory_reliefs_title": "Mandatar Statutary Reliefs",
+  "mandatory_reliefs_sub": "Awairdit bi richt whan qualifyin condeetions are met",
+  "flag_sbrr_grace_title": "SBRR Seicont Proaperty 12-Month Grace Period",
+  "flag_sbrr_grace_desc": "Haud SBRR on main hereditament for 12 month efter takkin on an addeetional proaperty (S.I. 2017/411 airt. 3(4) / LGFA 1988 s.43(4B)).",
+  "flag_telecom_title": "Telecommunications Infrastructure Relief",
+  "flag_telecom_desc": "100% relief for new fibre telecommunications infrastructure (Telecommunications Infrastructure Act 2018 / SSI 2019/111).",
+  "flag_welsh_retail_title": "Welsh Retail Premises (35.0p Multiplier)",
+  "flag_welsh_retail_desc": "Qualifyin retail hereditament wi RV < £51,000 eligible for the 35.0p Welsh Retail Multiplier unner Local Government Finance (Wales) Act 2024.",
+  "discretionary_section_title": "Discretionary & Revaluation Protections",
+  "discretionary_section_sub": "Local authority discretionary schemes an statutary transitional caps",
+  "flag_tr_toggle_title": "Apply Statutary Transitional Relief (TR)",
+  "flag_tr_toggle_desc_wales": "Automatically caps revaluation bill increases ower £300 unner W.S.I. 2025/1371 (67% relief in 2026/27, 34% in 2027/28). Uncheck tae calculate unphased leeabeelity.",
+  "flag_tr_toggle_desc_scotland": "Automatically caps revaluation bill increases unner Scots Transitional Relief Regulations. Uncheck tae calculate unphased leeabeelity.",
+  "flag_tr_toggle_desc_england": "Automatically caps revaluation bill increases (e.g. Ingland 2026/27: +5% Smaw, +15% Middlin, +30% Muckle unner LGFA 1988 s.57A / NDRA 2023). Uncheck tae calculate unphased leeabeelity.",
+  "flag_ssbr_title": "Supportin Smaw Business Relief (SSBR)",
+  "flag_ssbr_desc": "Discretionary s.47 protection cappin net bill increases tae £600/yr (2023–2025) an £800/yr (2026/27) for ratepeyers tyning or seein reduced SBRR, Kintra, or RHL relief.",
+  "flag_island_title": "Scots Island Proaperty (100% RHL Relief)",
+  "flag_island_desc": "Proaperty steidit on a Scots island unner Islands (Scotland) Act 2018 (100% relief cappit at £110k).",
+  "flag_sbbs_tr_title": "Smaw Business Bonus Transitional Relief (SBBS TR)",
+  "flag_sbbs_tr_desc": "Caps bill increases for proaperties tyning or seein reduced SBBS (£600/£1,200/£1,800 unner 2023 leet; max 25% bill increase in 2026/27).",
+  "flag_charity_topup_title": "Discretionary Chairity Tap-Up (Up tae 20%)",
+  "flag_charity_topup_desc": "Billin authority discretionary tap-up o up tae 20% on tap o 80% mandatar chairitable relief (LGFA 1988 s.47(2)(a) / 1962 Act s.4(5)), reducin leeabeelity tae £0.",
+  "flag_renewable_title": "Renewable Energy Generation Relief",
+  "flag_renewable_desc": "Tiered relief unner SSI 2010/336: 100% (RV ≤ £145k), 50% (RV ≤ £200k), 25% (RV ≤ £250k), 10% (RV ≤ £1m).",
+  "property_conditions_title": "Ooccupancy & Proaperty Condeetions",
+  "property_conditions_sub": "Tuim exemptions, self-caterin qualifications, an compliance checks",
+  "holiday_desc_scotland": "Maun be eeckwal lettit ≥ 182 days (SSI 2022/86) tae bide on NDR leet. Failin transfers tae Cooncil Tax (£0 NDR).",
+  "holiday_desc_eng_wales": "Maun be eeckwal lettit ≥ 70 days (LGFA 1988 s.66) tae bide on NDR leet. Failin transfers tae Cooncil Tax (£0 NDR).",
+  "installments_plan_label": "Statutary Installment Plan",
+  "installments_10_opt": "10 Monthlie Installments (Defaut)",
+  "installments_12_opt": "12 Monthlie Installments (Statutary Richt)",
+  "installments_help": "Statutary payment schedule unner SI 1989/1058 (10 month Mey–Feb) or ratepeyer richt tae 12 month (Apr–Mar unner LGA 2003 / SI 2014/466).",
+  "placeholder_open": "Apen",
+  "pct_occ_unit": "% occ",
+  "party_corporate": "CORPORATE (Company / Ltd / PLC)",
+  "party_individual": "INDIVIDUAL (Naitural Body)",
+  "party_charity": "CHAIRITY (Registered Chairity)",
+  "party_casc": "CASC (Community Amateur Sports Club)",
+  "party_local_authority": "LOCAL_AUTHORITY (Billin Authority / Public Body)",
+  "scat_091": "091 - General Offices / Commercial Premises",
+  "scat_003": "003 - Airport / Muckle Aviation Infrastructure",
+  "scat_096": "096 - Industrial Hereditament / Warehouse / Factory",
+  "scat_209": "209 - Public Hoose / Bar / Licensed Premise",
+  "scat_211": "211 - Petrol Fillin Station & Forecourt",
+  "scat_225": "225 - Retail Shop / Heich Street Unit",
+  "scat_249": "249 - Self-Caterin Halyday Accommodation",
+  "statutory_schedule_header": "Statutary Payment Schedule",
+  "monthly_installments_count": "Monthlie Installments",
+  "monthly_installments_selected": "Monthlie Installments walit",
+  "si_1989_authority": "SI 1989/1058 Sched 1 / LGA 2003",
+  "zero_net_installments_note": "Net tae pay is £0.00 (100% relief applee'd — nae payment installments required unner SI 1989/1058 reg. 4)",
+  "framework_authorities_title": "Statutary Authorities",
+  "framework_authorities_sub": "Offeecial Primary Legislation & Statutary Instruments (legislation.gov.uk)",
+  "framework_timeline_title": "Statutary Ratin Leets Timeline (1990–2027)",
+  "framework_timeline_sub": "Hale ratin leets heestory frae inaugural 1990 leet tae modren 2026/27 leet",
+  "framework_rating_lists_badge": "8 Ratin Leets",
+  "col_rating_list": "Ratin Leet",
+  "col_active_period": "Active Period",
+  "col_multipliers": "Multipliers",
+  "col_sbrr_scheme": "Smaw Business Relief Scheme",
+  "col_trans_empty": "Transitional Phasin & Tuim Rates",
+  "col_statute": "Govrenin Statutary Instruments",
+  "err_invalid_json": "Invalid JSON",
+  "err_malformed_request": "Malformed Request",
+  "err_unknown_network": "Unkent netwark error",
+  "jurisdictions": {
+    "ENGLAND": {
+      "name": "Ingland",
+      "sbrrTitle": "Small Business Rate Relief (SBRR)",
+      "sbrrDesc": "100% discoont up tae £12k RV; linear taper tae £15k RV for sole-proaperty occupiers.",
+      "rhlTitle": "Retail, Hospitality & Leisure (RHL)",
+      "rhlDesc": "40% discoont in 2025/26 (£110k cap). Expired in 2026/27 (replaced by lawer high-street multipliers).",
+      "charityDesc": "80% mandatar relief unner LGFA 1988 s.43(5)."
+    },
+    "WALES": {
+      "name": "Wales",
+      "sbrrTitle": "Welsh Small Business Rate Relief",
+      "sbrrDesc": "100% discoont up tae £6k RV; linear taper tae £12k RV unner devolved Welsh rules.",
+      "rhlTitle": "Welsh Food & Drink Hospitality Relief",
+      "rhlDesc": "15% Welsh scheme for 2026/27 (subject tae £110k cap). Note: Petrol stations excludit.",
+      "charityDesc": "80% mandatar relief unner LGFA 1988 s.43(5)."
+    },
+    "SCOTLAND": {
+      "name": "Scotland",
+      "sbrrTitle": "Small Business Bonus Scheme (SBBS)",
+      "sbrrDesc": "Scots 100% relief up tae £11,500/£12,000 RV for single-proaperty ratepeyers.",
+      "rhlTitle": "Scots Retail, Hospitality & Leisure Relief",
+      "rhlDesc": "15% relief on mainland (RV <= £100k) or 100% on islands (Islands (Scotland) Act 2018), £110k cap.",
+      "charityDesc": "80% mandatar relief unner Local Government (Financial Provisions) (Scotland) Act 1962 s.4."
+    }
+  },
+  "opens_legislation_link": " (opens on legislation.gov.uk)",
+  "statutory_framework": {
+    "ENGLAND": {
+      "name": "Ingland",
+      "legislation": [
+        {
+          "key": "LGFA 1988 (Primary GB)",
+          "url": "https://www.legislation.gov.uk/ukpga/1988/41/contents",
+          "title": "Local Government Finance Act 1988 (c. 41) — Base Statutary Rating Scheme",
+          "primary": true
+        },
+        {
+          "key": "NDRA 2023 (Ingland)",
+          "url": "https://www.legislation.gov.uk/ukpga/2023/53/contents/enacted",
+          "title": "Non-Domestic Rating Act 2023 (c. 53) — 3-Year Leests, Multipliers & Relief Reforms",
+          "primary": true
+        },
+        {
+          "key": "SI 1989/1058 (Instawments)",
+          "url": "https://www.legislation.gov.uk/uksi/1989/1058/contents/made",
+          "title": "The Non-Domestic Rating (Collection and Enforcement) Regulations 1989 (S.I. 1989/1058)",
+          "primary": false
+        },
+        {
+          "key": "SI 2017/411 (SBRR Ingland)",
+          "url": "https://www.legislation.gov.uk/uksi/2017/411/contents/made",
+          "title": "The Non-Domestic Rating (Small Business Rate Relief) (England) Order 2017",
+          "primary": false
+        },
+        {
+          "key": "SI 2008/386 (Tuim Property)",
+          "url": "https://www.legislation.gov.uk/uksi/2008/386/contents/made",
+          "title": "The Non-Domestic Rating (Unoccupied Property) (England) Regulations 2008",
+          "primary": false
+        }
+      ],
+      "currentRegimeSummary": {
+        "frameworkTitle": "Current & Upcomin Regime (2023–2027)",
+        "frameworkSub": "Local Government Finance Act 1988 & Non-Domestic Rating Act 2023 (NDRA 2023)",
+        "multiplierTitle": "2026/27 5-Multiplier Seestem (Permanent Hie-Street Rates):",
+        "multipliers": [
+          {
+            "label": "Smaw Business RHL",
+            "rate": "38.2p",
+            "rvThreshold": "RV < £51,000"
+          },
+          {
+            "label": "Standard RHL",
+            "rate": "43.0p",
+            "rvThreshold": "RV £51,000 tae £499,999"
+          },
+          {
+            "label": "Smaw Business Non-RHL",
+            "rate": "43.2p",
+            "rvThreshold": "RV < £51,000"
+          },
+          {
+            "label": "Standard Non-RHL",
+            "rate": "48.0p",
+            "rvThreshold": "RV £51,000 tae £499,999"
+          },
+          {
+            "label": "Hie-Value Multiplier",
+            "rate": "50.8p",
+            "rvThreshold": "RV ≥ £500,000"
+          }
+        ],
+        "reliefHighlights": [
+          {
+            "title": "Smaw Business Rate Relief (SBRR)",
+            "desc": "100% relief up tae £12k RV; linear taper tae £15k RV for sole-property occupiers. 12-month seicont property grace period unner S.I. 2017/411."
+          },
+          {
+            "title": "Supportin Smaw Business Relief (SSBR)",
+            "desc": "Caps net annual bill increases at £600/year for 2023–2026, an £800/year for 2026/27 unner s.47."
+          },
+          {
+            "title": "Abolition o Dounwaird Caps",
+            "desc": "Dounwaird transitional relief caps permanently aboleesht frae 2023/24; upwaird transition caps anerly unner s.57A."
+          },
+          {
+            "title": "Targetit Exemptions",
+            "desc": "100% Improvement Relief for 12 month (NDRA 2023 s.1 G-factor), 100% Law-Carbon Heat Networks (s.2), 100% Public Lavatories Relief."
+          }
+        ]
+      },
+      "preDevolution": {
+        "heading": "UK Unified Statutary Rating Framework (Pre-Devolution: 1990–2004)",
+        "era": "1990/91 tae 2004/05 (1990, 1995 & 2000 Rating Leests)",
+        "statute": "Local Government Finance Act 1988 (LGFA 1988 s.43, s.45, s.58)",
+        "overview": "Afore the Local Government Act 2003 reforms that tuik effect on 1 Aprile 2005, Ingland operatit unner the oreeginal unified Great Breetain non-domestic rating framewark enactit bi Pairliament in the LGFA 1988.",
+        "rules": [
+          "Single Unified Multiplier: A single non-domestic multiplier (e.g. 34.8p in 1990/91) applied tae aw non-domestic hereditaments. Nae smaw business multiplier existit.",
+          "Nae Smaw Business Relief: Smaw Business Rate Relief (SBRR) didnae exist. Ilka property, regairdless o bouk, peyed pure gross liability (Rateable Value × Single Multiplier).",
+          "Symmetrical 5-Year Transitional Phasing: Revaluations unner LGFA 1988 s.58 featurt upwaird caps (+15%/+20%) fundit bi dounwaird reduction caps that delayed bill reductions for fawin-value properties, indexit tae annual RPI.",
+          "Pre-2008 Tuim Property Rules: Tuim commercial premises gat 3 month 100% exemption, syne peyed 50% rates indefinitely; industrial hereditaments haed 100% permanent exemption till the Rating (Empty Properties) Act 2007 imposed 100% tuim liability on 1 Aprile 2008."
+        ]
+      },
+      "ratingLists": [
+        {
+          "list": "1990 Leest",
+          "years": "1990/91 – 1994/95",
+          "multipliers": "Single Unified Multiplier (34.8p in 1990/91 risin tae 42.3p in 1994/95)",
+          "sbrr": "Nae relief (0% — Pure RV × Multiplier)",
+          "transition": "Symmetrical 5-year transitional phasing wi upwaird caps an dounwaird reduction caps",
+          "statute": "LGFA 1988 s.58 / S.I. 1989/1060"
+        },
+        {
+          "list": "1995 Leest",
+          "years": "1995/96 – 1999/00",
+          "multipliers": "Single Unified Multiplier (43.2p in 1995/96 risin tae 48.9p in 1999/00)",
+          "sbrr": "Nae relief (0%)",
+          "transition": "5-year symmetrical phasing caps indexit tae annual RPI; 50% indefinite tuim rates",
+          "statute": "LGFA 1988 s.58 / S.I. 1994/3229"
+        },
+        {
+          "list": "2000 Leest",
+          "years": "2000/01 – 2004/05",
+          "multipliers": "Single Unified Multiplier (41.6p in 2000/01 risin tae 45.6p in 2004/05)",
+          "sbrr": "Nae relief (0%)",
+          "transition": "5-year symmetrical phasing caps; 50% rates efter 3 month tuim",
+          "statute": "LGFA 1988 s.58 / S.I. 1999/3379"
+        },
+        {
+          "list": "2005 Leest",
+          "years": "2005/06 – 2009/10",
+          "multipliers": "Twin Multipliers creatit: Standard Multiplier (42.2p) vs Smaw Business Multiplier (41.5p)",
+          "sbrr": "50% max discount for RV ≤ £5,000, linear taper tae £10,000 RV (£15k Lunnon). Formal application required.",
+          "transition": "5-year phasing caps. Rating (Empty Properties) Act 2007 aboleesht 50% tuim rates on 1 Aprile 2008",
+          "statute": "LGA 2003 / S.I. 2004/3315 / 2007 Act"
+        },
+        {
+          "list": "2010 Leest",
+          "years": "2010/11 – 2016/17",
+          "multipliers": "Smaw Business (40.7p in 2010/11) vs Standard (41.4p). Standard applied on RV > £18k/£25.5k",
+          "sbrr": "Doubled tae 100% up tae £6,000 RV, linear taper tae £12,000 RV. Annual claim form remuivit (automatic awaird).",
+          "transition": "5-year transitional relief scheme unner S.I. 2009/3371 wi tiered Smaw/Medium/Muckle caps",
+          "statute": "S.I. 2010/1659 / S.I. 2009/3371"
+        },
+        {
+          "list": "2017 Leest",
+          "years": "2017/18 – 2022/23",
+          "multipliers": "Smaw Business Multiplier (46.6p risin tae 49.9p) vs Standard Multiplier (47.9p risin tae 51.2p for RV > £51k)",
+          "sbrr": "100% relief up tae £12,000 RV, linear taper tae £15,000 RV (S.I. 2017/411). 12-mo 2nd property grace period. COVID 100%/66%/50% discounts.",
+          "transition": "Upwaird caps + dounwaird phasing. S.I. 2017/411 / COVID emergency schemes",
+          "statute": "S.I. 2017/411 / Rating Act 2021"
+        },
+        {
+          "list": "2023 Leest",
+          "years": "2023/24 – 2025/26",
+          "multipliers": "Decoupled multipliers unner NDRA 2023. Smaw Business Multiplier frozen at 49.9p; Standard 51.2p risin tae 54.6p",
+          "sbrr": "100% up tae £12k RV; RHL relief 75% in 2023–2025, 40% in 2025/26 (£110k cap). SSBR caps bills at £600/year.",
+          "transition": "Dounwaird transition caps permanently aboleesht (immediate savins for RV faws). Upwaird caps anerly.",
+          "statute": "NDRA 2023 / S.I. 2022/1239"
+        },
+        {
+          "list": "2026 Leest",
+          "years": "2026/27 – 2028/29",
+          "multipliers": "5 Multipliers: Smaw Business RHL (38.2p), Standard RHL (43.0p), Smaw Non-RHL (43.2p), Standard Non-RHL (48.0p), Hie-Value (50.8p)",
+          "sbrr": "Permanent lawer hie-street multipliers replace temporary RHL relief. 100% SBRR up tae £12k RV. SSBR £800 cap in 2026/27.",
+          "transition": "Upwaird transitional caps; 12-month Improvement Relief (100% G-factor); 100% Heat Networks exemption",
+          "statute": "NDRA 2023 / Rating Leests 2026"
+        }
+      ]
+    },
+    "WALES": {
+      "name": "Wales",
+      "legislation": [
+        {
+          "key": "LGFA 1988 (Primary GB)",
+          "url": "https://www.legislation.gov.uk/ukpga/1988/41/contents",
+          "title": "Local Government Finance Act 1988 (c. 41) — Base Statutary Rating Scheme",
+          "primary": true
+        },
+        {
+          "key": "LGF(W)A 2024 (Wales)",
+          "url": "https://www.legislation.gov.uk/asc/2024/6/contents/enacted",
+          "title": "Local Government Finance (Wales) Act 2024 (asc 6) — Devolved Multipliers & Anti-Avoidance",
+          "primary": true
+        },
+        {
+          "key": "WSI 2025/1371 (Transitional Relief)",
+          "url": "https://www.legislation.gov.uk/wsi/2025/1371/contents/made",
+          "title": "The Non-Domestic Rating (Chargeable Amounts) (Wales) Regulations 2025 (W.S.I. 2025/1371)",
+          "primary": false
+        },
+        {
+          "key": "WSI 2026/43 (Anti-Avoidance & Penalties)",
+          "url": "https://www.legislation.gov.uk/wsi/2026/43/contents/made",
+          "title": "The Non-Domestic Rating (Avoidance and Penalties) (Wales) Regulations 2026 (W.S.I. 2026/43)",
+          "primary": false
+        },
+        {
+          "key": "WSI 2022/575 (182-Day Holiday Let)",
+          "url": "https://www.legislation.gov.uk/wsi/2022/575/contents/made",
+          "title": "The Non-Domestic Rating (Definition of Domestic Property) (Wales) Order 2022 (W.S.I. 2022/575)",
+          "primary": false
+        }
+      ],
+      "currentRegimeSummary": {
+        "frameworkTitle": "Current & Upcomin Regime (2023–2027)",
+        "frameworkSub": "Local Government Finance Act 1988 & Local Government Finance (Wales) Act 2024 (LGF(W)A 2024)",
+        "multiplierTitle": "2026/27 3-Multiplier Seestem (Devolved Welsh Rates):",
+        "multipliers": [
+          {
+            "label": "Retail Multiplier",
+            "rate": "35.0p",
+            "rvThreshold": "RV ≤ £51,000 (Retail)"
+          },
+          {
+            "label": "Standard Multiplier",
+            "rate": "50.2p",
+            "rvThreshold": "RV ≤ £100,000"
+          },
+          {
+            "label": "Higher Multiplier",
+            "rate": "51.5p",
+            "rvThreshold": "RV > £100,000"
+          }
+        ],
+        "reliefHighlights": [
+          {
+            "title": "Welsh Smaw Business Rate Relief",
+            "desc": "100% relief up tae £6,000 RV; linear taper tae £12,000 RV. Restrickit tae max 2 properties per ratepayer per billin authority."
+          },
+          {
+            "title": "2-Year Transitional Phasing (W.S.I. 2025/1371)",
+            "desc": "67% relief in Year 1 (2026/27) an 34% in Year 2 (2027/28) for net bill increases exceedin £300."
+          },
+          {
+            "title": "Food & Drink Hospitality Relief",
+            "desc": "15% discount for 2026/27 (cappit at £110,000 athort Wales). Petrol fillin stations (SCAT 211) are explicitly excludit."
+          },
+          {
+            "title": "Anti-Avoidance Framework (W.S.I. 2026/43)",
+            "desc": "Tuim rate reset period extendit frae 42 days tae 180 days; statutary billin authority investigation penalty notices (£500 + 3% RV)."
+          }
+        ]
+      },
+      "preDevolution": {
+        "heading": "UK Unified Statutary Rating Framework (Pre-Devolution: 1990–1999/2004)",
+        "era": "1990/91 tae 2004/05 (1990, 1995 & early 2000 Rating Leests)",
+        "statute": "Local Government Finance Act 1988 (Orders bi the Secretar o State for Wales)",
+        "overview": "Afore the shift o rating order pouers tae the National Assembly for Wales unner the Government of Wales Act 1998 an the later introduction o devolved Welsh SBRR in 2005, Wales operatit unner common UK rating regulations.",
+        "rules": [
+          "Unified National Multiplier: Wales shared a single non-domestic multiplier set nationally (e.g. 36.8p in 1990/91, 39.0p in 1995/96) wi nae smaw business differentiation.",
+          "Nae Smaw Business Relief: Pre-devolution Welsh rating leests providit 0% smaw business relief; full rates were peyable on aw commercial properties.",
+          "Symmetrical 5-Year Transitional Phasing: LGFA 1988 s.58 applied athort Wales, featurin symmetrical upwaird protection caps fundit bi dounwaird phasing reduction caps, indexit tae RPI.",
+          "Pre-2008 Tuim Rates: Tuim commercial hereditaments gat 3 month 100% exemption, syne peyed 50% rates indefinitely till tuim rate parity wis introduced in 2008."
+        ]
+      },
+      "ratingLists": [
+        {
+          "list": "1990 Leest",
+          "years": "1990/91 – 1994/95",
+          "multipliers": "Single Unified Multiplier (36.8p in 1990/91 risin tae 44.0p in 1994/95)",
+          "sbrr": "Nae relief (0% — Pure RV × Multiplier)",
+          "transition": "Symmetrical 5-year transitional phasing wi upwaird caps an dounwaird reduction caps",
+          "statute": "LGFA 1988 s.58 / S.I. 1989/1060"
+        },
+        {
+          "list": "1995 Leest",
+          "years": "1995/96 – 1999/00",
+          "multipliers": "Single Unified Multiplier (39.0p in 1995/96 risin tae 43.1p in 1999/00)",
+          "sbrr": "Nae relief (0%)",
+          "transition": "5-year symmetrical phasing caps indexit tae annual RPI; 50% indefinite tuim rates",
+          "statute": "LGFA 1988 s.58 / S.I. 1994/3229"
+        },
+        {
+          "list": "2000 Leest",
+          "years": "2000/01 – 2004/05",
+          "multipliers": "Single Unified Multiplier (41.2p in 2000/01 risin tae 45.2p in 2004/05)",
+          "sbrr": "Nae relief (0%)",
+          "transition": "5-year transitional relief phasing unner Welsh statutary instruments",
+          "statute": "GWA 1998 / LGFA 1988 / W.S.I. 1999/3444"
+        },
+        {
+          "list": "2005 Leest",
+          "years": "2005/06 – 2009/10",
+          "multipliers": "Single Welsh Multiplier retained (42.2p in 2005/06 risin tae 48.5p in 2009/10)",
+          "sbrr": "Welsh Bandit SBRR introduced: 50% relief for RV ≤ £2,000; 25% relief for RV £2,001–£5,000",
+          "transition": "Devolved transitional phasing scheme. Rating (Empty Properties) Act 2007 aboleesht 50% tuim rates on 1 Aprile 2008",
+          "statute": "W.S.I. 2005/257 / 2007 Act"
+        },
+        {
+          "list": "2010 Leest",
+          "years": "2010/11 – 2016/17",
+          "multipliers": "Single Welsh Multiplier (40.9p in 2010/11 risin tae 48.6p in 2016/17)",
+          "sbrr": "Welsh SBRR expandit: 100% relief for RV ≤ £6,000, taperin linearly tae £12,000 RV",
+          "transition": "Welsh 5-year transitional phasing scheme",
+          "statute": "W.S.I. 2010/414 / W.S.I. 2010/2908"
+        },
+        {
+          "list": "2017 Leest",
+          "years": "2017/18 – 2022/23",
+          "multipliers": "Standard Welsh Multiplier (49.9p risin tae 53.5p)",
+          "sbrr": "100% up tae £6k RV, taper tae £12k RV (max 2 properties). W.S.I. 2022/575 holiday let criteria (182 days actual let, 252 days available).",
+          "transition": "W.S.I. 2017/262 Welsh transitional relief scheme",
+          "statute": "W.S.I. 2017/262 / W.S.I. 2022/575"
+        },
+        {
+          "list": "2023 Leest",
+          "years": "2023/24 – 2025/26",
+          "multipliers": "Welsh Multiplier (53.5p in 2023/24, 56.2p in 2024/25 & 2025/26)",
+          "sbrr": "100% up tae £6k RV, taper tae £12k RV. Temporary Welsh Retail, Leisure & Hospitality: 75% in 2023/24, 40% in 2024/25 & 2025/26 (£110k cap).",
+          "transition": "2-year transitional relief scheme unner W.S.I. 2022/1350 cappin net bill increases",
+          "statute": "LGFA 1988 / W.S.I. 2022/1350"
+        },
+        {
+          "list": "2026 Leest",
+          "years": "2026/27 – 2028/29",
+          "multipliers": "3 Multipliers unner LGF(W)A 2024: Retail Multiplier (35.0p for RV ≤ £51k), Standard (50.2p ≤ £100k), Higher (51.5p > £100k)",
+          "sbrr": "100% up tae £6k RV, taper tae £12k RV. 15% Food & Drink Hospitality Relief (petrol stations excludit).",
+          "transition": "2-year TR scheme unner W.S.I. 2025/1371 (67% Year 1, 34% Year 2 ower £300). W.S.I. 2026/43 anti-avoidance (180-day reset).",
+          "statute": "LGF(W)A 2024 (asc 6) / W.S.I. 2025/1371 / W.S.I. 2026/43"
+        }
+      ]
+    },
+    "SCOTLAND": {
+      "name": "Scotland",
+      "legislation": [
+        {
+          "key": "NDR 2020 (Scotland)",
+          "url": "https://www.legislation.gov.uk/asp/2020/4/contents",
+          "title": "Non-Domestic Rates (Scotland) Act 2020 (asp 4) — Barclay Review Implementation",
+          "primary": true
+        },
+        {
+          "key": "1975 Act (Valuation & Poundage)",
+          "url": "https://www.legislation.gov.uk/ukpga/1975/30/contents",
+          "title": "Local Government (Scotland) Act 1975 — Roll, Rate Setting & Statutary Powers",
+          "primary": true
+        },
+        {
+          "key": "1962 Act (Charities & Mandatory)",
+          "url": "https://www.legislation.gov.uk/ukpga/1962/9/contents",
+          "title": "Local Government (Financial Provisions) (Scotland) Act 1962 — Mandatory Charity 80% Relief",
+          "primary": false
+        },
+        {
+          "key": "SSI 2023/45 (Transitional Relief)",
+          "url": "https://www.legislation.gov.uk/ssi/2023/45/contents/made",
+          "title": "The Non-Domestic Rating (Transitional Relief) (Scotland) Regulations 2023 (S.S.I. 2023/45)",
+          "primary": false
+        },
+        {
+          "key": "SSI 2022/86 (Holiday Let Criteria)",
+          "url": "https://www.legislation.gov.uk/ssi/2022/86/contents/made",
+          "title": "The Council Tax (Variation for Unoccupied Dwellings) (Scotland) Regulations 2022 (S.S.I. 2022/86)",
+          "primary": false
+        },
+        {
+          "key": "SSI 2010/336 (Renewable Energy)",
+          "url": "https://www.legislation.gov.uk/ssi/2010/336/contents/made",
+          "title": "The Non-Domestic Rates (Renewable Energy Generation Relief) (Scotland) Regulations 2010",
+          "primary": false
+        }
+      ],
+      "currentRegimeSummary": {
+        "frameworkTitle": "Current & Upcomin Regime (2023–2027)",
+        "frameworkSub": "Local Government (Scotland) Act 1975 & Non-Domestic Rates (Scotland) Act 2020",
+        "multiplierTitle": "Three-Tier Poundage Seestem (Barclay Review Decoupled Rates):",
+        "multipliers": [
+          {
+            "label": "Basic Property Rate (BPR)",
+            "rate": "49.8p",
+            "rvThreshold": "RV ≤ £51,000"
+          },
+          {
+            "label": "Intermediate Property Rate",
+            "rate": "54.5p",
+            "rvThreshold": "RV £51,001 tae £100,000"
+          },
+          {
+            "label": "Higher Property Rate (HPR)",
+            "rate": "55.9p",
+            "rvThreshold": "RV > £100,000"
+          }
+        ],
+        "reliefHighlights": [
+          {
+            "title": "Small Business Bonus Scheme (SBBS)",
+            "desc": "100% relief for RV ≤ £12,000; tiered tapers: 100% tae 25% for RV £12,001–£15,000; 25% tae 0% for RV £15,001–£20,000; cumulative cap £35,000 athort multiple properties."
+          },
+          {
+            "title": "Transitional Relief (S.S.I. 2023/45 & 2026/50)",
+            "desc": "General TR an SBBS TR cappin bill increases at £600 (Year 1), £1,200 (Year 2), £1,800 (Year 3), an a 25% cap in 2026/27."
+          },
+          {
+            "title": "Retail, Hospitality & Leisure (RHL)",
+            "desc": "15% discount on mainland (RV ≤ £100k) or 100% on islands unner Islands (Scotland) Act 2018 (£110k cap)."
+          },
+          {
+            "title": "Renewable Energy Generation Relief",
+            "desc": "Tiered relief up tae 100% for hydro, wind, solar, biomass unner S.S.I. 2010/336."
+          }
+        ]
+      },
+      "preDevolution": {
+        "heading": "UK Unified Statutary Rating Framework (Pre-Devolution: 1990–1999/2008)",
+        "era": "1990/91 tae 2007/08 (1990, 1995, 2000 & early 2005 Rating Leests)",
+        "statute": "Local Government (Scotland) Act 1975 & Scotland Act 1998",
+        "overview": "Afore devolution unner the Scotland Act 1998 an the subsequent shapin o the Small Business Bonus Scheme (SBBS) on 1 Aprile 2008, non-domestic rates in Scotland were managed unner the UK Scots Office framewark.",
+        "rules": [
+          "Single Scots Poundage: A single uniform poundage rate (e.g. 52.5p in 1990/91, 43.2p in 1995/96) wis set bi the Secretar o State for Scotland, applied uniformly athort aw commercial properties.",
+          "Pre-SBBS Era: Nae universal smaw business relief existit till the pilot Small Business Rate Relief Scheme (SBRRS) in 2003, that wis replaced bi SBBS in 2008.",
+          "Symmetrical Transitional Phasing: Scots revaluations featurt symmetrical transitional phasing schemes cappin annual poundage shifts wi upwaird limits an dounwaird delay caps.",
+          "Pre-2008 Tuim Rating: 3 month initial tuim property exemption follaed bi 50% indefinite rating."
+        ]
+      },
+      "ratingLists": [
+        {
+          "list": "1990 Leest",
+          "years": "1990/91 – 1994/95",
+          "multipliers": "Single Scots Poundage (52.5p in 1990/91 fawin tae 48.6p in 1994/95)",
+          "sbrr": "Nae relief (0% — Pure RV × Poundage)",
+          "transition": "Symmetrical transitional phasing scheme unner Scots statutary instruments",
+          "statute": "Local Government (Scotland) Act 1975 / S.I. 1990/602"
+        },
+        {
+          "list": "1995 Leest",
+          "years": "1995/96 – 1999/00",
+          "multipliers": "Single Scots Poundage (43.2p in 1995/96 risin tae 48.9p in 1999/00)",
+          "sbrr": "Nae relief (0%)",
+          "transition": "5-year transitional phasing caps; 50% indefinite tuim rates",
+          "statute": "Local Government (Scotland) Act 1975 / S.I. 1995/543"
+        },
+        {
+          "list": "2000 Leest",
+          "years": "2000/01 – 2004/05",
+          "multipliers": "Single Scots Poundage (45.8p in 2000/01 risin tae 48.8p in 2004/05)",
+          "sbrr": "Small Business Rate Relief Scheme (SBRRS) pilot introduced in 2003",
+          "transition": "Scots transitional relief regulations",
+          "statute": "Scotland Act 1998 / 1975 Act / S.S.I. 2000/87"
+        },
+        {
+          "list": "2005 Leest",
+          "years": "2005/06 – 2009/10",
+          "multipliers": "Single Poundage (41.5p in 2005/06 risin tae 48.1p in 2009/10)",
+          "sbrr": "Small Business Bonus Scheme (SBBS) created on 1 Aprile 2008: 100% relief for single businesses wi RV ≤ £8k/£10k",
+          "transition": "Devolved transitional phasing schemes unner Scots statutary instruments",
+          "statute": "S.S.I. 2008/106 / 1975 Act"
+        },
+        {
+          "list": "2010 Leest",
+          "years": "2010/11 – 2016/17",
+          "multipliers": "Basic Poundage (40.7p in 2010/11 risin tae 48.4p in 2016/17); Muckle Business Supplement on RV > £35k",
+          "sbrr": "SBBS expandit: 100% relief for RV ≤ £10k; 50% for RV £10,001–£12k; 25% for RV £12,001–£18k",
+          "transition": "Scots 5-year transitional phasing scheme",
+          "statute": "S.S.I. 2010/37 / S.S.I. 2010/336 (Renewables)"
+        },
+        {
+          "list": "2017 Leest",
+          "years": "2017/18 – 2022/23",
+          "multipliers": "Barclay Review Decouplin: Basic (46.6p risin tae 49.8p), Intermediate (51.1p), Higher (52.4p)",
+          "sbrr": "SBBS 100% relief up tae £15,000 RV. S.S.I. 2022/86 holiday let lettin days criteria (70 days actual let, 140 days available).",
+          "transition": "Scots transitional relief regulations",
+          "statute": "S.S.I. 2017/85 / NDR Act 2020 / S.S.I. 2022/86"
+        },
+        {
+          "list": "2023 Leest",
+          "years": "2023/24 – 2025/26",
+          "multipliers": "3-Tier Poundage: Basic (49.8p ≤ £51k), Intermediate (54.5p £51k–£100k), Higher (55.9p > £100k)",
+          "sbrr": "SBBS reformed wi tiered tapers (100% ≤ £12k, 100% → 25% £12k–£15k, 25% → 0% £15k–£20k; £35k cumulative cap)",
+          "transition": "General TR an SBBS TR unner S.S.I. 2023/45 cappin bill increases at £600 (Year 1), £1,200 (Year 2), £1,800 (Year 3)",
+          "statute": "NDR (Scotland) Act 2020 / S.S.I. 2023/45"
+        },
+        {
+          "list": "2026 Leest",
+          "years": "2026/27 – 2028/29",
+          "multipliers": "3-Tier Poundage: Basic (49.8p ≤ £51k), Intermediate (54.5p £51k–£100k), Higher (55.9p > £100k)",
+          "sbrr": "100% SBBS up tae £12k RV wi tiered tapers tae £20k RV. SBBS TR 25% bill increase cap in 2026/27 unner S.S.I. 2026/50. 15% mainland / 100% island RHL relief.",
+          "transition": "SBBS TR 25% cap; Renewable Energy Generation relief (up tae 100% unner S.S.I. 2010/336)",
+          "statute": "NDR Act 2020 / S.S.I. 2026/50 / Islands Act 2018"
+        }
+      ]
+    }
+  }
+}

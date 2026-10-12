@@ -111,7 +111,7 @@
               {#if calcStore.calcStatus === 'calculating'}
                 <span class="text-blue-600 font-medium">● {calcStore.t.calculating}</span>
               {:else if calcStore.isCalculationDue}
-                <span class="text-amber-600 font-bold">● Calculation due (pending inputs)</span>
+                <span class="text-amber-600 font-bold">● {calcStore.t.calc_due_status}</span>
               {:else if calcStore.calcStatus === 'ready'}
                 <span class="text-slate-500 font-medium">● {calcStore.t.ready}</span>
               {:else}
@@ -190,8 +190,8 @@
     <!-- Seeded Statutory Parameters & Reference Data Catalogs -->
     <section class="space-y-4">
       <div class="border-b border-slate-200 pb-2">
-        <h3 class="text-base font-bold text-slate-900">Statutory Parameters & Reference Catalogs</h3>
-        <p class="text-xs text-slate-500 mt-0.5">Explore in-memory seeded statutory rates, tapers, relief schemes, transitional caps, and reference code dictionaries across England, Wales, and Scotland.</p>
+        <h3 class="text-base font-bold text-slate-900">{calcStore.t.parameters_section_title}</h3>
+        <p class="text-xs text-slate-500 mt-0.5">{calcStore.t.parameters_section_sub}</p>
       </div>
 
       <div class="space-y-4">

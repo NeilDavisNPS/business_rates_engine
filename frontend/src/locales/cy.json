@@ -1,0 +1,757 @@
+{
+  "app_name": "Peiriant Cyfrifo Trethi Busnes",
+  "app_subtitle": "Ardrethi Statudol 1990–2027 (Lloegr, Cymru, Yr Alban)",
+  "page_title": "Peiriant Trethi Busnes — Porth Gweinyddu a Blwch Tywod Profi",
+  "api_status": "API Gweithredol ar :8080",
+  "sso_login": "Mewngofnodi Un Arwydd Mewn (SSO)",
+  "active_tenant": "Tenant Gweithredol",
+  "tenant_name": "Cyngor Dinas Manceinion",
+  "tenant_type": "AWDURDOD_LLEOL",
+  "data_plane_key": "Allwedd API Plân Data",
+  "copy_api_key": "Copïo",
+  "api_key_desc": "Wedi'i hasio â SHA-256 yn erbyn",
+  "statutory_coverage": "Cwmpas y Rhestrau Statudol",
+  "statutory_coverage_sub": "1990 hyd 2027 (Prydain Fawr Ddatganoledig)",
+  "badge_lgfa": "DCLL 1988 (Cynradd Prydain Fawr)",
+  "badge_ndra": "NDRA 2023 (Lloegr)",
+  "badge_lgfwa": "LGF(W)A 2024 (Cymru)",
+  "badge_ndr": "NDR 2020 / Deddf 1975 (Yr Alban)",
+  "badge_installments": "OS 1989/1058 (Rhandaliadau)",
+  "badge_wsi": "OSC 2025/1371 a 2026/43",
+  "sandbox_heading": "Blwch Tywod Cyfrifo Atebolrwydd Ardrethu",
+  "sandbox_sub": "Gweithle asesu sy'n sensitif i awdurdodaeth. Dim ond meysydd a rheolau sy'n berthnasol i'r genedl a ddewiswyd a ddangosir.",
+  "rating_jurisdiction": "Awdurdodaeth Ardrethu (Fframwaith Cyfreithiol Llywodraethu)",
+  "jurisdiction_help": "Rheoli meysydd a rheolau perthnasol",
+  "jur_btn_england": "Lloegr",
+  "jur_btn_wales": "Cymru",
+  "jur_btn_scotland": "Yr Alban",
+  "payload_editor": "Golygydd Llwyth Tâl:",
+  "btn_form": "Meysydd Ffurflen",
+  "btn_json": "JSON Crai",
+  "ratepayer_section": "1. Trethdalwr a Chyfnodau Meddiannaeth",
+  "btn_add_occ": "+ Ychwanegu Cyfnod Meddiannaeth",
+  "col_occ_start": "Dyddiad Dechrau",
+  "col_occ_end": "Dyddiad Gorffen (Gwag = Agored)",
+  "col_occ_type": "Statws Meddiannaeth",
+  "col_occ_apportionment": "Rhan-Feddiant (a.44A)",
+  "col_occ_action": "Gweithred",
+  "occ_opt_occupied": "WEDI'I FEDDIANNU (Llawn)",
+  "occ_opt_unoccupied": "HEB EI FEDDIANNU (Gwag)",
+  "occ_opt_part_occupied": "RHAN-FEDDIANT (a.44A)",
+  "occ_na_text": "100% llawn",
+  "common_gb": "Darpariaethau Cyffredin Prydain Fawr",
+  "party_type": "Math o Barti (Codiedig)",
+  "property_section": "2. Eiddo Trethadwy a Manylion yr Eiddo",
+  "rating_classification": "Dosbarthiad Ardrethu",
+  "scat_code": "Categori Arbennig (Cod SCAT)",
+  "rv_history": "3. Hanes Cyfnodau Gwerth Trethiannol (RV)",
+  "btn_add_rv": "+ Ychwanegu Cyfnod Prisiad",
+  "col_from": "Yn Weithredol O",
+  "col_to": "Yn Weithredol Hyd (Gwag = Penagored)",
+  "col_rv": "Gwerth Trethiannol (£)",
+  "col_action": "Gweithred",
+  "btn_remove": "Dileu",
+  "relief_section": "4. Cymhwystra ar gyfer Rhyddhad Statudol",
+  "relief_badge": "Yn berthnasol i'r genedl a ddewiswyd",
+  "flag_charity_title": "Rhyddhad Elusennol Gorfodol",
+  "flag_charity_desc": "Rhyddhad gorfodol o 80% ar gyfer defnydd elusennol",
+  "flag_improvement_title": "Cynnydd RV Rhyddhad Gwelliannau (£)",
+  "flag_improvement_desc": "Eithriad 12 mis ffactor-G NDRA 2023 adr. 1 (Lloegr yn unig)",
+  "flag_heat_network_title": "Rhyddhad Rhwydwaith Gwres Carbon Isel",
+  "flag_heat_network_desc": "Rhyddhad 100% o dan NDRA 2023 adr. 2 (Lloegr yn unig)",
+  "flag_lavatory_title": "Eithriad Toiledau Cyhoeddus",
+  "flag_lavatory_desc": "Rhyddhad 100% o dan Ddeddf Ardrethu 2021",
+  "flag_rural_title": "Rhyddhad Anheddiad Gwledig",
+  "flag_rural_desc": "Rhyddhad 100% ar gyfer unig siop/tafarn pentref (<3k o boblogaeth)",
+  "flag_avoidance_title": "Cynllun Osgoi Artiffisial dan Amheuaeth",
+  "flag_avoidance_desc": "Cosb WSI 2026/43: £500 sefydlog + 3% RV (Cymru yn unig)",
+  "flag_holiday_title": "Dyddiau Gwirioneddol o Osod Gwyliau",
+  "flag_holiday_desc": "Meini prawf gosod 70/140 diwrnod Asesydd yr Alban",
+  "placeholder_holiday_days": "e.e. 70",
+  "flag_industrial_title": "Mangre Ddiwydiannol",
+  "flag_industrial_desc": "Eithriad 6 mis heb feddiannaeth (o'i gymharu â 3 masnachol)",
+  "flag_unoccupied_days_title": "Dyddiau Blaenorol Heb eu Meddiannu",
+  "flag_unoccupied_days_desc": "Didynnu dyddiau rhyddhad gwag blaenorol o'r lwfans statudol o 3/6 mis",
+  "raw_json_title": "Llwyth Tâl JSON Crai",
+  "btn_calculate": "Gweithredu Cyfrifiad Statudol",
+  "btn_calculate_due": "Gweithredu Cyfrifiad Statudol (Cyfrifiad yn Ddyledus)",
+  "ref_dict_title": "Geiriadur Codau Cyfeirio Statudol",
+  "ref_dict_badge": "Catalog Cronfa Ddata Seeded",
+  "ref_dict_expand": "Cliciwch i ehangu",
+  "filter_codes_label": "Hidlo Codau:",
+  "dict_btn_all": "Prydain Fawr Gyfan",
+  "dict_btn_england": "Lloegr",
+  "dict_btn_wales": "Cymru",
+  "dict_btn_scotland": "Yr Alban",
+  "dict_col_cat": "Categori",
+  "dict_col_code": "Cod",
+  "dict_col_nation": "Cenedl",
+  "dict_col_label": "Label",
+  "dict_col_rules": "Rheolau Statudol a Chyd-destun Cyfreithiol",
+  "results_title": "Canlyniadau Cyfrifo a Dadansoddiad Blwyddyn wrth Flwyddyn",
+  "period_summary_label": "Crynodeb Cyffredinol o'r Cyfnod",
+  "sum_gross_label": "Cyfanswm Crynswth",
+  "sum_trans_label": "Graddoldeb Trosiannol",
+  "sum_reliefs_label": "Rhyddhadau a Gymhwyswyd",
+  "sum_net_label": "Cyfanswm Net i'w Dalu",
+  "annual_breakdown_title": "Dadansoddiad Blynyddol yn ôl Blwyddyn Ariannol",
+  "annual_placeholder": "Cliciwch 'Gweithredu Cyfrifiad Statudol' i weld atebolrwydd ardrethi blynyddol wedi'i ddadansoddi ar gyfer pob blwyddyn ariannol.",
+  "tab_narrative": "Naratif Archwilio Statudol",
+  "tab_json": "Ymateb JSON Crai",
+  "narrative_placeholder": "Cliciwch 'Gweithredu Cyfrifiad Statudol' i weld y naratif archwilio llawn.",
+  "json_placeholder": "Cliciwch 'Gweithredu Cyfrifiad Statudol' i weld llwyth tâl yr ymateb JSON crai.",
+  "ready": "Barod",
+  "calculating": "Wrthi'n cyfrifo...",
+  "calc_success": "200 OK — Cwblhawyd",
+  "calc_error": "Methodd y Cyfrifiad",
+  "fy_badge": "BA",
+  "days_label": "diwrnod",
+  "to_word": "hyd",
+  "year_gross": "Crynswth y Flwyddyn",
+  "trans_phasing": "Graddoldeb Trosiannol",
+  "year_reliefs": "Rhyddhadau'r Flwyddyn",
+  "year_net": "Net y Flwyddyn i'w Dalu",
+  "itemized_label": "Rhyddhadau a Didyniadau Eitemedig:",
+  "no_reliefs": "Ni chymhwyswyd unrhyw ryddhadau statudol ar gyfer y flwyddyn hon.",
+  "discount_word": "o ddisgownt",
+  "statutory_penalty": "Cosb Statudol a Aseswyd:",
+  "theme_label": "Gwedd Bapur Cyferbyniad Uchel",
+  "theme_light": "Gwedd Bapur Cyferbyniad Uchel",
+  "theme_dark": "Gwedd Derfynell Cyferbyniad Uchel",
+  "rv_label": "RV",
+  "multiplier_label": "Lluosydd",
+  "years_unit": "Mlynedd",
+  "api_key_copied": "Allwedd API wedi'i chopïo i'r clipfwrdd!",
+  "statutory_framework_title": "Fframwaith Statudol",
+  "statutory_framework_sub": "Rhestrau Ardrethu Hanesyddol (1990–2022) a Threfnau Datganoledig Modern (2023–2027)",
+  "statutory_framework_expand": "Cliciwch i ehangu'r fframwaith cyflawn",
+  "statutory_framework_collapse": "Cliciwch i grebachu'r fframwaith",
+  "collapse_btn": "▲ Crebachu",
+  "expand_btn": "▼ Cliciwch i weld y catalog",
+  "copied_btn": "✓ Copïwyd",
+  "btn_format_json": "Fformadu JSON",
+  "switch_lang_aria": "Newid iaith i",
+  "scalar_docs_title": "Agor Cyfeirnod Rhyngweithiol API Scalar (OpenAPI 3.1)",
+  "scalar_docs_label": "Cyfeirnod API (Scalar)",
+  "calc_due_status": "Cyfrifiad yn ddyledus (disgwyl mewnbwn)",
+  "parameters_section_title": "Paramedrau Statudol a Chatalogau Cyfeirio",
+  "parameters_section_sub": "Archwiliwch gyfraddau statudol mewn-cof, taprau, cynlluniau rhyddhad, capiau trosiannol, a geiriaduron codau cyfeirio ar draws Lloegr, Cymru, a'r Alban.",
+  "multipliers_title": "Lluosyddion Ardrethu Statudol (1990–2027)",
+  "multipliers_seeded_count": "Cyfraddau Seeded",
+  "multipliers_search_ph": "Chwilio blwyddyn (e.e. 2026/27), math...",
+  "multipliers_col_fy": "Blwyddyn Ariannol",
+  "multipliers_col_nation": "Cenedl",
+  "multipliers_col_type": "Math o Luosydd",
+  "multipliers_col_threshold": "Trothwy Gwerth Trethiannol",
+  "multipliers_col_rate": "Cyfradd y Lluosydd",
+  "multipliers_col_period": "Cyfnod Gweithredol",
+  "multipliers_all_rv": "Pob RV (Dim Cap Trothwy)",
+  "sbrr_catalog_title": "Rhyddhad Ardrethi Busnesau Bach a Throthwyon SBBS",
+  "sbrr_seeded_count": "Rheolau Tapr Seeded",
+  "sbrr_search_ph": "Chwilio blwyddyn neu reol rhyddhad...",
+  "sbrr_col_fy": "Blwyddyn Ariannol",
+  "sbrr_col_nation": "Cenedl",
+  "sbrr_col_range": "Ystod Gwerth Trethiannol",
+  "sbrr_col_max_relief": "Uchafswm Rhyddhad %",
+  "sbrr_col_mechanics": "Mecaneg Tapr / Rhyddhad",
+  "sbrr_col_statute": "Awdurdod Statudol",
+  "sbrr_linear_taper": "Tapr Llinol (Tapro i 0%)",
+  "sbrr_full_exemption": "Eithriad Statudol Llawn",
+  "sector_catalog_title": "Cynlluniau Rhyddhad Sector Datganoledig (RHL)",
+  "sector_seeded_count": "Cynlluniau Seeded",
+  "sector_search_ph": "Chwilio cynllun RHL, disgownt % neu gap...",
+  "sector_col_fy": "Blwyddyn Ariannol",
+  "sector_col_nation": "Cenedl",
+  "sector_col_code": "Cod y Cynllun",
+  "sector_col_discount": "Cyfradd Ddisgownt",
+  "sector_col_cap": "Cap Arian Parod Busnes",
+  "sector_col_statute": "Awdurdod Statudol",
+  "sector_col_period": "Cyfnod Gweithredol",
+  "sector_no_cap": "Dim Cap",
+  "trans_catalog_title": "Capiau Esgynnol Rhyddhad Graddol Trosiannol",
+  "trans_seeded_count": "Haenau Cap Seeded",
+  "trans_tier_label": "Haen:",
+  "trans_tier_all": "Pob un",
+  "trans_tier_small": "Bach",
+  "trans_tier_medium": "Canolig",
+  "trans_tier_large": "Mawr",
+  "trans_search_ph": "Chwilio blwyddyn rhestr, haen neu gap %...",
+  "trans_col_reval": "Rhestr Ailbrisio",
+  "trans_col_fy": "Blwyddyn Ariannol",
+  "trans_col_nation": "Cenedl",
+  "trans_col_tier": "Haen Eiddo",
+  "trans_col_threshold": "Trothwy Gwerth Trethiannol",
+  "trans_col_cap": "Cap Graddol Esgynnol",
+  "trans_col_statute": "Awdurdod Statudol",
+  "ref_search_ph": "Chwilio categorïau, codau, deddfau...",
+  "relief_section_sub": "Rhyddhadau statudol gorfodol, cynlluniau dewisol, a graddoldeb trosiannol ailbrisio.",
+  "mandatory_reliefs_title": "Rhyddhadau Statudol Gorfodol",
+  "mandatory_reliefs_sub": "Dyfernir yn ôl hawl pan fodlonir amodau cymhwyso",
+  "flag_sbrr_grace_title": "Cyfnod Gras 12 Mis Ail Eiddo SBRR",
+  "flag_sbrr_grace_desc": "Cadw SBRR ar y prif eiddo am 12 mis ar ôl cymryd eiddo ychwanegol (OS 2017/411 ergl. 3(4) / DCLL 1988 a.43(4B)).",
+  "flag_telecom_title": "Rhyddhad Isadeiledd Telathrebu",
+  "flag_telecom_desc": "Rhyddhad 100% ar gyfer isadeiledd telathrebu ffibr newydd (Deddf Isadeiledd Telathrebu 2018 / SSI 2019/111).",
+  "flag_welsh_retail_title": "Mangre Fanwerthu Cymru (Lluosydd 35.0c)",
+  "flag_welsh_retail_desc": "Eiddo manwerthu cymwys gyda RV < £51,000 yn gymwys ar gyfer Lluosydd Manwerthu Cymru o 35.0c o dan Ddeddf Cyllid Llywodraeth Leol (Cymru) 2024.",
+  "discretionary_section_title": "Amddiffynfeydd Dewisol ac Ailbrisio",
+  "discretionary_section_sub": "Cynlluniau dewisol awdurdodau lleol a chapiau trosiannol statudol",
+  "flag_tr_toggle_title": "Cymhwyso Rhyddhad Trosiannol Statudol (TR)",
+  "flag_tr_toggle_desc_wales": "Yn capio cynnydd mewn biliau ailbrisio dros £300 yn awtomatig o dan OSC 2025/1371 (rhyddhad 67% yn 2026/27, 34% yn 2027/28). Dad-diciwch i gyfrifo atebolrwydd heb raddoli.",
+  "flag_tr_toggle_desc_scotland": "Yn capio cynnydd biliau ailbrisio yn awtomatig o dan Reoliadau Rhyddhad Trosiannol yr Alban. Dad-diciwch i gyfrifo atebolrwydd heb raddoli.",
+  "flag_tr_toggle_desc_england": "Yn capio cynnydd biliau ailbrisio yn awtomatig (e.e. Lloegr 2026/27: +5% Bach, +15% Canolig, +30% Mawr o dan DCLL 1988 a.57A / NDRA 2023). Dad-diciwch i gyfrifo atebolrwydd heb raddoli.",
+  "flag_ssbr_title": "Rhyddhad Cefnogi Busnesau Bach (SSBR)",
+  "flag_ssbr_desc": "Amddiffyniad dewisol a.47 sy'n capio cynnydd net biliau i £600/blwyddyn (2023–2025) a £800/blwyddyn (2026/27) ar gyfer trethdalwyr sy'n colli neu'n gweld gostyngiad yn SBRR, Gwledig, neu RHL.",
+  "flag_island_title": "Eiddo Ynys yr Alban (Rhyddhad RHL 100%)",
+  "flag_island_desc": "Eiddo wedi'i leoli ar ynys yn yr Alban o dan Ddeddf Ynysoedd (Yr Alban) 2018 (rhyddhad 100% gyda chap o £110k).",
+  "flag_sbbs_tr_title": "Rhyddhad Trosiannol Bonws Busnesau Bach (SBBS TR)",
+  "flag_sbbs_tr_desc": "Yn capio cynnydd biliau ar gyfer eiddo sy'n colli neu'n gweld gostyngiad yn SBBS (£600/£1,200/£1,800 o dan restr 2023; uchafswm cynnydd bil o 25% yn 2026/27).",
+  "flag_charity_topup_title": "Top-Up Elusennol Dewisol (Hyd at 20%)",
+  "flag_charity_topup_desc": "Top-up dewisol awdurdod bilio o hyd at 20% ar ben rhyddhad elusennol gorfodol o 80% (DCLL 1988 a.47(2)(a) / Deddf 1962 a.4(5)), gan ostwng atebolrwydd i £0.",
+  "flag_renewable_title": "Rhyddhad Cynhyrchu Ynni Adnewyddadwy",
+  "flag_renewable_desc": "Rhyddhad haenog o dan SSI 2010/336: 100% (RV ≤ £145k), 50% (RV ≤ £200k), 25% (RV ≤ £250k), 10% (RV ≤ £1m).",
+  "property_conditions_title": "Amodau Meddiannaeth ac Eiddo",
+  "property_conditions_sub": "Eithriadau gwag, cymwysterau hunanarlwyo, a gwiriadau cydymffurfiaeth",
+  "holiday_desc_scotland": "Rhaid ei osod mewn gwirionedd am ≥ 182 diwrnod (SSI 2022/86) i aros ar restr NDR. Os methir, trosglwyddir i'r Dreth Gyngor (£0 NDR).",
+  "holiday_desc_eng_wales": "Rhaid ei osod mewn gwirionedd am ≥ 70 diwrnod (DCLL 1988 a.66) i aros ar restr NDR. Os methir, trosglwyddir i'r Dreth Gyngor (£0 NDR).",
+  "installments_plan_label": "Cynllun Rhandaliadau Statudol",
+  "installments_10_opt": "10 Rhandaliad Misol (Diofyn)",
+  "installments_12_opt": "12 Rhandaliad Misol (Hawl Statudol)",
+  "installments_help": "Amserlen dalu statudol o dan OS 1989/1058 (10 mis Mai–Chwefror) neu hawl trethdalwr i 12 mis (Ebrill–Mawrth o dan LGA 2003 / OS 2014/466).",
+  "placeholder_open": "Agored",
+  "pct_occ_unit": "% medd",
+  "party_corporate": "CORFFORAETHOL (Cwmni / Cyf / Ccc)",
+  "party_individual": "UNIGOLYN (Person Naturiol)",
+  "party_charity": "ELUSEN (Elusen Gofrestredig)",
+  "party_casc": "CASC (Clwb Chwaraeon Amatur Cymunedol)",
+  "party_local_authority": "AWDURDOD_LLEOL (Awdurdod Bilio / Corff Cyhoeddus)",
+  "scat_091": "091 - Swyddfeydd Cyffredinol / Mangreoedd Masnachol",
+  "scat_003": "003 - Maes Awyr / Prif Isadeiledd Hedfan",
+  "scat_096": "096 - Mangre Ddiwydiannol / Warws / Ffatri",
+  "scat_209": "209 - Tafarn / Bar / Mangre Drwyddedig",
+  "scat_211": "211 - Gorsaf Llenwi Petrol a Blaengwrt",
+  "scat_225": "225 - Siop Fanwerthu / Uned Stryd Fawr",
+  "scat_249": "249 - Llety Gwyliau Hunanarlwyo",
+  "statutory_schedule_header": "Amserlen Dalu Statudol",
+  "monthly_installments_count": "Rhandaliadau Misol",
+  "monthly_installments_selected": "Rhandaliadau Misol wedi'u dewis",
+  "si_1989_authority": "OS 1989/1058 Atod 1 / LGA 2003",
+  "zero_net_installments_note": "Net i'w dalu yw £0.00 (rhyddhad 100% wedi'i gymhwyso — nid oes angen rhandaliadau talu o dan OS 1989/1058 rheol. 4)",
+  "framework_authorities_title": "Awdurdodau Statudol",
+  "framework_authorities_sub": "Deddfwriaeth Gynradd Swyddogol ac Offerynnau Statudol (legislation.gov.uk)",
+  "framework_timeline_title": "Llinell Amser 8 Rhestr Ardrethu Statudol (1990–2027)",
+  "framework_timeline_sub": "Hanes cyflawn rhestrau ardrethu o'r rhestr gyntaf yn 1990 i restr fodern 2026/27",
+  "framework_rating_lists_badge": "8 Rhestr Ardrethu",
+  "col_rating_list": "Rhestr Ardrethu",
+  "col_active_period": "Cyfnod Gweithredol",
+  "col_multipliers": "Lluosyddion",
+  "col_sbrr_scheme": "Cynllun Rhyddhad Busnesau Bach",
+  "col_trans_empty": "Graddoli Trosiannol ac Ardrethi Gwag",
+  "col_statute": "Offerynnau Statudol Llywodraethu",
+  "err_invalid_json": "JSON Annilys",
+  "err_malformed_request": "Cais Camffurfiol",
+  "err_unknown_network": "Gwall rhwydwaith anhysbys",
+  "jurisdictions": {
+    "ENGLAND": {
+      "name": "Lloegr",
+      "sbrrTitle": "Rhyddhad Ardrethi Busnesau Bach (SBRR)",
+      "sbrrDesc": "Disgownt o 100% hyd at £12k RV; tapr llinol i £15k RV ar gyfer meddianwyr un eiddo.",
+      "rhlTitle": "Manwerthu, Lletygarwch a Hamdden (RHL)",
+      "rhlDesc": "Disgownt o 40% yn 2025/26 (cap £110k). Daeth i ben yn 2026/27 (disodlwyd gan luosyddion stryd fawr is).",
+      "charityDesc": "Rhyddhad gorfodol o 80% o dan DCLL 1988 adr. 43(5)."
+    },
+    "WALES": {
+      "name": "Cymru",
+      "sbrrTitle": "Rhyddhad Busnesau Bach Cymru",
+      "sbrrDesc": "Disgownt o 100% hyd at £6k RV; tapr llinol i £12k RV o dan reolau datganoledig Cymru.",
+      "rhlTitle": "Cynllun Lletygarwch Bwyd a Diod Cymru",
+      "rhlDesc": "Cynllun Cymru o 15% ar gyfer 2026/27 (yn amodol ar gap o £110k). Nodyn: Gorsafoedd petrol wedi'u heithrio.",
+      "charityDesc": "Rhyddhad gorfodol o 80% o dan DCLL 1988 adr. 43(5)."
+    },
+    "SCOTLAND": {
+      "name": "Yr Alban",
+      "sbrrTitle": "Cynllun Bonws Busnesau Bach (SBBS)",
+      "sbrrDesc": "Rhyddhad 100% yr Alban hyd at £11,500/£12,000 RV ar gyfer trethdalwyr un eiddo.",
+      "rhlTitle": "Rhyddhad Manwerthu a Lletygarwch yr Alban",
+      "rhlDesc": "15% ar y tir mawr (RV <= £100k) neu 100% ar ynysoedd (Deddf Ynysoedd 2018), cap o £110k.",
+      "charityDesc": "Rhyddhad gorfodol o 80% o dan Ddeddf Llywodraeth Leol (Yr Alban) 1962 adr. 4."
+    }
+  },
+  "opens_legislation_link": " (yn agor ar legislation.gov.uk)",
+  "statutory_framework": {
+    "ENGLAND": {
+      "name": "Lloegr",
+      "legislation": [
+        {
+          "key": "LGFA 1988 (Sylfaenol DU)",
+          "url": "https://www.legislation.gov.uk/ukpga/1988/41/contents",
+          "title": "Deddf Cyllid Llywodraeth Leol 1988 (p. 41) — Cynllun Ardrethu Statudol Sylfaenol",
+          "primary": true
+        },
+        {
+          "key": "NDRA 2023 (Lloegr)",
+          "url": "https://www.legislation.gov.uk/ukpga/2023/53/contents/enacted",
+          "title": "Deddf Ardrethu Annomestig 2023 (p. 53) — Rhestrau 3-Blynedd, Lluosyddion a Diwygiadau Rhyddhad",
+          "primary": true
+        },
+        {
+          "key": "OS 1989/1058 (Rhandaliadau)",
+          "url": "https://www.legislation.gov.uk/uksi/1989/1058/contents/made",
+          "title": "Rheoliadau Ardrethu Annomestig (Casglu a Gorfodi) 1989 (O.S. 1989/1058)",
+          "primary": false
+        },
+        {
+          "key": "OS 2017/411 (SBRR Lloegr)",
+          "url": "https://www.legislation.gov.uk/uksi/2017/411/contents/made",
+          "title": "Gorchymyn Ardrethu Annomestig (Rhyddhad Ardrethi Busnesau Bach) (Lloegr) 2017",
+          "primary": false
+        },
+        {
+          "key": "OS 2008/386 (Eiddo Gwag)",
+          "url": "https://www.legislation.gov.uk/uksi/2008/386/contents/made",
+          "title": "Rheoliadau Ardrethu Annomestig (Eiddo Heb ei Feddiannu) (Lloegr) 2008",
+          "primary": false
+        }
+      ],
+      "currentRegimeSummary": {
+        "frameworkTitle": "Trefn Gyfredol ac i Ddod (2023–2027)",
+        "frameworkSub": "Deddf Cyllid Llywodraeth Leol 1988 a Deddf Ardrethu Annomestig 2023 (NDRA 2023)",
+        "multiplierTitle": "System 5-Lluosydd 2026/27 (Ardrethi Parhaol y Stryd Fawr):",
+        "multipliers": [
+          {
+            "label": "Busnes Bach RHL",
+            "rate": "38.2c",
+            "rvThreshold": "GA < £51,000"
+          },
+          {
+            "label": "Safonol RHL",
+            "rate": "43.0c",
+            "rvThreshold": "GA £51,000 i £499,999"
+          },
+          {
+            "label": "Busnes Bach Di-RHL",
+            "rate": "43.2c",
+            "rvThreshold": "GA < £51,000"
+          },
+          {
+            "label": "Safonol Di-RHL",
+            "rate": "48.0c",
+            "rvThreshold": "GA £51,000 i £499,999"
+          },
+          {
+            "label": "Lluosydd Gwerth Uchel",
+            "rate": "50.8c",
+            "rvThreshold": "GA ≥ £500,000"
+          }
+        ],
+        "reliefHighlights": [
+          {
+            "title": "Rhyddhad Ardrethi Busnesau Bach (SBRR)",
+            "desc": "100% rhyddhad hyd at £12k GA; tapr llinol i £15k GA ar gyfer unig feddianwyr eiddo. Cyfnod gras 12 mis ar gyfer ail eiddo o dan O.S. 2017/411."
+          },
+          {
+            "title": "Rhyddhad Cefnogi Busnesau Bach (SSBR)",
+            "desc": "Yn capio codiadau biliau net blynyddol ar £600/blwyddyn ar gyfer 2023–2026, ac £800/blwyddyn ar gyfer 2026/27 o dan a.47."
+          },
+          {
+            "title": "Dileu Capiau tuag i Lawr",
+            "desc": "Capiau rhyddhad trosiannol tuag i lawr wedi'u diddymu'n barhaol o 2023/24; capiau pontio tuag i fyny yn unig o dan a.57A."
+          },
+          {
+            "title": "Eithriadau wedi'u Targedu",
+            "desc": "Rhyddhad Gwella 100% am 12 mis (NDRA 2023 a.1 Ffactor-G), Rhwydweithiau Gwres Carbon Isel 100% (a.2), Rhyddhad Toiledau Cyhoeddus 100%."
+          }
+        ]
+      },
+      "preDevolution": {
+        "heading": "Fframwaith Ardrethu Statudol Unedig y DU (Cyn-Ddatganoli: 1990–2004)",
+        "era": "1990/91 i 2004/05 (Rhestrau Ardrethu 1990, 1995 a 2000)",
+        "statute": "Deddf Cyllid Llywodraeth Leol 1988 (LGFA 1988 a.43, a.45, a.58)",
+        "overview": "Cyn diwygiadau Deddf Llywodraeth Leol 2003 a ddaeth i rym ar 1 Ebrill 2005, roedd Lloegr yn gweithredu o dan y fframwaith ardrethu annomestig Prydain Fawr unedig gwreiddiol a ddeddfwyd gan y Senedd yn LGFA 1988.",
+        "rules": [
+          "Un Lluosydd Unedig: Roedd un lluosydd annomestig (e.e. 34.8c yn 1990/91) yn berthnasol i bob hereditament annomestig. Nid oedd lluosydd busnesau bach yn bodoli.",
+          "Dim Rhyddhad Busnesau Bach: Nid oedd Rhyddhad Ardrethi Busnesau Bach (SBRR) yn bodoli. Talodd pob eiddo, waeth beth fo'i faint, atebolrwydd gros pur (Gwerth Ardrethol × Un Lluosydd).",
+          "Cyfnodoldeb Trosiannol Cymesur 5-Mlynedd: Roedd ailbrisio o dan LGFA 1988 a.58 yn cynnwys capiau cynnydd (+15%/+20%) wedi'u hariannu gan gapiau gostyngiad a oedd yn oedi gostyngiadau mewn biliau ar gyfer eiddo sy'n disgyn mewn gwerth, wedi'u mynegeio i RPI blynyddol.",
+          "Rheolau Eiddo Gwag Cyn-2008: Cafodd mangreoedd masnachol gwag eithriad 100% am 3 mis, yna talwyd 50% o ardrethi am gyfnod amhenodol; mwynhaodd hereditamentau diwydiannol eithriad parhaol 100% nes i Ddeddf Ardrethu (Eiddo Gwag) 2007 osod 100% atebolrwydd gwag ar 1 Ebrill 2008."
+        ]
+      },
+      "ratingLists": [
+        {
+          "list": "Rhestr 1990",
+          "years": "1990/91 – 1994/95",
+          "multipliers": "Un Lluosydd Unedig (34.8c yn 1990/91 yn codi i 42.3c yn 1994/95)",
+          "sbrr": "Dim (0% — GA Pur × Lluosydd)",
+          "transition": "Cyfnodoldeb trosiannol cymesur 5-mlynedd gyda chapiau cynnydd a chapiau gostyngiad",
+          "statute": "LGFA 1988 a.58 / O.S. 1989/1060"
+        },
+        {
+          "list": "Rhestr 1995",
+          "years": "1995/96 – 1999/00",
+          "multipliers": "Un Lluosydd Unedig (43.2c yn 1995/96 yn codi i 48.9c yn 1999/00)",
+          "sbrr": "Dim (0%)",
+          "transition": "Capiau pontio cymesur 5-mlynedd wedi'u mynegeio i RPI blynyddol; ardrethi gwag amhenodol o 50%",
+          "statute": "LGFA 1988 a.58 / O.S. 1994/3229"
+        },
+        {
+          "list": "Rhestr 2000",
+          "years": "2000/01 – 2004/05",
+          "multipliers": "Un Lluosydd Unedig (41.6c yn 2000/01 yn codi i 45.6c yn 2004/05)",
+          "sbrr": "Dim (0%)",
+          "transition": "Capiau pontio cymesur 5-mlynedd; 50% ardrethi ar ôl 3 mis yn wag",
+          "statute": "LGFA 1988 a.58 / O.S. 1999/3379"
+        },
+        {
+          "list": "Rhestr 2005",
+          "years": "2005/06 – 2009/10",
+          "multipliers": "Creu Lluosyddion Pâr: Lluosydd Safonol (42.2c) yn erbyn Lluosydd Busnesau Bach (41.5c)",
+          "sbrr": "Gostyngiad uchaf o 50% ar gyfer GA ≤ £5,000, tapr llinol i £10,000 GA (£15k Llundain). Cais ffurfiol yn ofynnol.",
+          "transition": "Capiau pontio 5-mlynedd. Diddymodd Deddf Ardrethu (Eiddo Gwag) 2007 ardrethi gwag 50% ar 1 Ebrill 2008",
+          "statute": "LGA 2003 / O.S. 2004/3315 / Deddf 2007"
+        },
+        {
+          "list": "Rhestr 2010",
+          "years": "2010/11 – 2016/17",
+          "multipliers": "Busnes Bach (40.7c yn 2010/11) yn erbyn Safonol (41.4c). Safonol yn berthnasol ar GA > £18k/£25.5k",
+          "sbrr": "Dyblwyd i 100% hyd at £6,000 GA, tapr llinol i £12,000 GA. Ffurflen hawlio flynyddol wedi'i thynnu (dyfarniad awtomatig).",
+          "transition": "Cynllun rhyddhad trosiannol 5-mlynedd o dan O.S. 2009/3371 gyda chapiau Bach/Canolig/Mawr haenog",
+          "statute": "O.S. 2010/1659 / O.S. 2009/3371"
+        },
+        {
+          "list": "Rhestr 2017",
+          "years": "2017/18 – 2022/23",
+          "multipliers": "Lluosydd Busnesau Bach (46.6c yn codi i 49.9c) yn erbyn Lluosydd Safonol (47.9c yn codi i 51.2c ar gyfer GA > £51k)",
+          "sbrr": "100% rhyddhad hyd at £12,000 GA, tapr llinol i £15,000 GA (O.S. 2017/411). Cyfnod gras 12 mis am 2il eiddo. Gostyngiadau COVID 100%/66%/50%.",
+          "transition": "Capiau cynnydd + gostyngiad graddol. O.S. 2017/411 / Cynlluniau brys COVID",
+          "statute": "O.S. 2017/411 / Deddf Ardrethu 2021"
+        },
+        {
+          "list": "Rhestr 2023",
+          "years": "2023/24 – 2025/26",
+          "multipliers": "Lluosyddion datgysylltiedig o dan NDRA 2023. Lluosydd Busnesau Bach wedi'i rewi ar 49.9c; Safonol 51.2c yn codi i 54.6c",
+          "sbrr": "100% hyd at £12k GA; rhyddhad RHL 75% yn 2023–2025, 40% yn 2025/26 (cap £110k). SSBR yn capio biliau ar £600/blwyddyn.",
+          "transition": "Capiau pontio tuag i lawr wedi'u diddymu'n barhaol (arbedion ar unwaith ar gyfer gostyngiadau GA). Capiau cynnydd yn unig.",
+          "statute": "NDRA 2023 / O.S. 2022/1239"
+        },
+        {
+          "list": "Rhestr 2026",
+          "years": "2026/27 – 2028/29",
+          "multipliers": "5 Lluosydd: Busnes Bach RHL (38.2c), Safonol RHL (43.0c), Bach Di-RHL (43.2c), Safonol Di-RHL (48.0c), Gwerth Uchel (50.8c)",
+          "sbrr": "Lluosyddion stryd fawr is parhaol yn disodli rhyddhad RHL dros dro. 100% SBRR hyd at £12k GA. Cap SSBR £800 yn 2026/27.",
+          "transition": "Capiau pontio cynnydd; Rhyddhad Gwella 12 mis (100% Ffactor-G); eithriad Rhwydweithiau Gwres 100%",
+          "statute": "NDRA 2023 / Rhestrau Ardrethu 2026"
+        }
+      ]
+    },
+    "WALES": {
+      "name": "Cymru",
+      "legislation": [
+        {
+          "key": "LGFA 1988 (Sylfaenol DU)",
+          "url": "https://www.legislation.gov.uk/ukpga/1988/41/contents",
+          "title": "Deddf Cyllid Llywodraeth Leol 1988 (p. 41) — Cynllun Ardrethu Statudol Sylfaenol",
+          "primary": true
+        },
+        {
+          "key": "LGF(W)A 2024 (Cymru)",
+          "url": "https://www.legislation.gov.uk/asc/2024/6/contents/enacted",
+          "title": "Deddf Cyllid Llywodraeth Leol (Cymru) 2024 (dccc 6) — Lluosyddion Datganoledig a Gwrth-Osgoi",
+          "primary": true
+        },
+        {
+          "key": "OSC 2025/1371 (Rhyddhad Trosiannol)",
+          "url": "https://www.legislation.gov.uk/wsi/2025/1371/contents/made",
+          "title": "Rheoliadau Ardrethu Annomestig (Symiau y Gellir eu Codi) (Cymru) 2025 (O.S.C. 2025/1371)",
+          "primary": false
+        },
+        {
+          "key": "OSC 2026/43 (Gwrth-Osgoi a Chosbau)",
+          "url": "https://www.legislation.gov.uk/wsi/2026/43/contents/made",
+          "title": "Rheoliadau Ardrethu Annomestig (Osgoi a Chosbau) (Cymru) 2026 (O.S.C. 2026/43)",
+          "primary": false
+        },
+        {
+          "key": "OSC 2022/575 (Llety Gwyliau 182-Diwrnod)",
+          "url": "https://www.legislation.gov.uk/wsi/2022/575/contents/made",
+          "title": "Gorchymyn Ardrethu Annomestig (Diffinio Eiddo Domestig) (Cymru) 2022 (O.S.C. 2022/575)",
+          "primary": false
+        }
+      ],
+      "currentRegimeSummary": {
+        "frameworkTitle": "Trefn Gyfredol ac i Ddod (2023–2027)",
+        "frameworkSub": "Deddf Cyllid Llywodraeth Leol 1988 a Deddf Cyllid Llywodraeth Leol (Cymru) 2024 (LGF(W)A 2024)",
+        "multiplierTitle": "System 3-Lluosydd 2026/27 (Ardrethi Datganoledig Cymru):",
+        "multipliers": [
+          {
+            "label": "Lluosydd Manwerthu",
+            "rate": "35.0c",
+            "rvThreshold": "GA ≤ £51,000 (Manwerthu)"
+          },
+          {
+            "label": "Lluosydd Safonol",
+            "rate": "50.2c",
+            "rvThreshold": "GA ≤ £100,000"
+          },
+          {
+            "label": "Lluosydd Uwch",
+            "rate": "51.5c",
+            "rvThreshold": "GA > £100,000"
+          }
+        ],
+        "reliefHighlights": [
+          {
+            "title": "Rhyddhad Ardrethi Busnesau Bach Cymru",
+            "desc": "100% rhyddhad hyd at £6,000 GA; tapr llinol i £12,000 GA. Cyfyngedig i uchafswm o 2 eiddo fesul trethdalwr fesul awdurdod bilio."
+          },
+          {
+            "title": "Cyfnodoldeb Trosiannol 2-Flynedd (O.S.C. 2025/1371)",
+            "desc": "67% rhyddhad ym Mlwyddyn 1 (2026/27) a 34% ym Mlwyddyn 2 (2027/28) ar gyfer cynnydd bil net sy'n fwy na £300."
+          },
+          {
+            "title": "Rhyddhad Bwyd a Diod a Lletygarwch",
+            "desc": "Gostyngiad o 15% ar gyfer 2026/27 (wedi'i gapio ar £110,000 ar draws Cymru). Eithrir gorsafoedd petrol (SCAT 211) yn benodol."
+          },
+          {
+            "title": "Fframwaith Gwrth-Osgoi (O.S.C. 2026/43)",
+            "desc": "Cyfnod ailosod ardrethi gwag wedi'i ymestyn o 42 diwrnod i 180 diwrnod; hysbysiadau cosb ymchwilio statudol awdurdod bilio (£500 + 3% GA)."
+          }
+        ]
+      },
+      "preDevolution": {
+        "heading": "Fframwaith Ardrethu Statudol Unedig y DU (Cyn-Ddatganoli: 1990–1999/2004)",
+        "era": "1990/91 i 2004/05 (Rhestrau Ardrethu 1990, 1995 a 2000 cynnar)",
+        "statute": "Deddf Cyllid Llywodraeth Leol 1988 (gorchmynion Ysgrifennydd Gwladol Cymru)",
+        "overview": "Cyn trosglwyddo pwerau gorchmynion ardrethu i Gynulliad Cenedlaethol Cymru o dan Ddeddf Llywodraeth Cymru 1998 a chyflwyno SBRR Cymreig datganoledig yn ddiweddarach yn 2005, bu Cymru'n gweithredu o dan reoliadau ardrethu cyffredin y DU.",
+        "rules": [
+          "Lluosydd Cenedlaethol Unedig: Rhannodd Cymru un lluosydd annomestig a osodwyd yn genedlaethol (e.e. 36.8c yn 1990/91, 39.0c yn 1995/96) heb unrhyw wahaniaethu busnesau bach.",
+          "Dim Rhyddhad Busnesau Bach: Roedd rhestrau ardrethu Cymru cyn-ddatganoli yn darparu 0% o ryddhad busnesau bach; roedd ardrethi llawn yn daladwy ar bob eiddo masnachol.",
+          "Cyfnodoldeb Trosiannol Cymesur 5-Mlynedd: Roedd LGFA 1988 a.58 yn berthnasol ar draws Cymru, gyda chapiau amddiffyn cynnydd cymesur wedi'u hariannu gan gapiau lleihau graddol, wedi'u mynegeio i RPI.",
+          "Ardrethi Gwag Cyn-2008: Cafodd hereditamentau masnachol gwag eithriad 100% am 3 mis, yna talwyd 50% o ardrethi am gyfnod amhenodol nes cyflwyno cydraddoldeb ardrethi gwag yn 2008."
+        ]
+      },
+      "ratingLists": [
+        {
+          "list": "Rhestr 1990",
+          "years": "1990/91 – 1994/95",
+          "multipliers": "Un Lluosydd Unedig (36.8c yn 1990/91 yn codi i 44.0c yn 1994/95)",
+          "sbrr": "Dim (0% — GA Pur × Lluosydd)",
+          "transition": "Cyfnodoldeb trosiannol cymesur 5-mlynedd gyda chapiau cynnydd a chapiau gostyngiad",
+          "statute": "LGFA 1988 a.58 / O.S. 1989/1060"
+        },
+        {
+          "list": "Rhestr 1995",
+          "years": "1995/96 – 1999/00",
+          "multipliers": "Un Lluosydd Unedig (39.0c yn 1995/96 yn codi i 43.1c yn 1999/00)",
+          "sbrr": "Dim (0%)",
+          "transition": "Capiau pontio cymesur 5-mlynedd wedi'u mynegeio i RPI blynyddol; 50% ardrethi gwag amhenodol",
+          "statute": "LGFA 1988 a.58 / O.S. 1994/3229"
+        },
+        {
+          "list": "Rhestr 2000",
+          "years": "2000/01 – 2004/05",
+          "multipliers": "Un Lluosydd Unedig (41.2c yn 2000/01 yn codi i 45.2c yn 2004/05)",
+          "sbrr": "Dim (0%)",
+          "transition": "Cyfnodoldeb rhyddhad trosiannol 5-mlynedd o dan offerynnau statudol Cymreig",
+          "statute": "GWA 1998 / LGFA 1988 / O.S.C. 1999/3444"
+        },
+        {
+          "list": "Rhestr 2005",
+          "years": "2005/06 – 2009/10",
+          "multipliers": "Cadw Un Lluosydd Cymreig (42.2c yn 2005/06 yn codi i 48.5c yn 2009/10)",
+          "sbrr": "Cyflwyno SBRR Bandiedig Cymreig: 50% rhyddhad am GA ≤ £2,000; 25% rhyddhad am GA £2,001–£5,000",
+          "transition": "Cynllun pontio datganoledig. Diddymodd Deddf Ardrethu (Eiddo Gwag) 2007 ardrethi gwag 50% ar 1 Ebrill 2008",
+          "statute": "O.S.C. 2005/257 / Deddf 2007"
+        },
+        {
+          "list": "Rhestr 2010",
+          "years": "2010/11 – 2016/17",
+          "multipliers": "Un Lluosydd Cymreig (40.9c yn 2010/11 yn codi i 48.6c yn 2016/17)",
+          "sbrr": "Ehangu SBRR Cymru: 100% rhyddhad am GA ≤ £6,000, yn tapro'n llinol i £12,000 GA",
+          "transition": "Cynllun pontio 5-mlynedd Cymru",
+          "statute": "O.S.C. 2010/414 / O.S.C. 2010/2908"
+        },
+        {
+          "list": "Rhestr 2017",
+          "years": "2017/18 – 2022/23",
+          "multipliers": "Lluosydd Safonol Cymru (49.9c yn codi i 53.5c)",
+          "sbrr": "100% hyd at £6k GA, tapr i £12k GA (uchafswm 2 eiddo). Trothwy llety gwyliau O.S.C. 2022/575 (182 diwrnod gosod gwirioneddol, 252 diwrnod ar gael).",
+          "transition": "Cynllun rhyddhad trosiannol Cymru O.S.C. 2017/262",
+          "statute": "O.S.C. 2017/262 / O.S.C. 2022/575"
+        },
+        {
+          "list": "Rhestr 2023",
+          "years": "2023/24 – 2025/26",
+          "multipliers": "Lluosydd Cymru (53.5c yn 2023/24, 56.2c yn 2024/25 a 2025/26)",
+          "sbrr": "100% hyd at £6k GA, tapr i £12k GA. Rhyddhad dros dro Manwerthu, Hamdden a Lletygarwch Cymru: 75% yn 2023/24, 40% yn 2024/25 a 2025/26 (cap £110k).",
+          "transition": "Cynllun rhyddhad trosiannol 2-flynedd o dan O.S.C. 2022/1350 yn capio codiadau biliau net",
+          "statute": "LGFA 1988 / O.S.C. 2022/1350"
+        },
+        {
+          "list": "Rhestr 2026",
+          "years": "2026/27 – 2028/29",
+          "multipliers": "3 Lluosydd o dan LGF(W)A 2024: Lluosydd Manwerthu (35.0c am GA ≤ £51k), Safonol (50.2c ≤ £100k), Uwch (51.5c > £100k)",
+          "sbrr": "100% hyd at £6k GA, tapr i £12k GA. Rhyddhad Lletygarwch Bwyd a Diod 15% (eithrir gorsafoedd petrol).",
+          "transition": "Cynllun TR 2-flynedd o dan O.S.C. 2025/1371 (67% Blwyddyn 1, 34% Blwyddyn 2 dros £300). Gwrth-osgoi O.S.C. 2026/43 (ailosod 180 diwrnod).",
+          "statute": "LGF(W)A 2024 (dccc 6) / O.S.C. 2025/1371 / O.S.C. 2026/43"
+        }
+      ]
+    },
+    "SCOTLAND": {
+      "name": "Yr Alban",
+      "legislation": [
+        {
+          "key": "NDR 2020 (Yr Alban)",
+          "url": "https://www.legislation.gov.uk/asp/2020/4/contents",
+          "title": "Deddf Ardrethi Annomestig (Yr Alban) 2020 (dsa 4) — Gweithredu Adolygiad Barclay",
+          "primary": true
+        },
+        {
+          "key": "Deddf 1975 (Prisio a Bwndiant)",
+          "url": "https://www.legislation.gov.uk/ukpga/1975/30/contents",
+          "title": "Deddf Llywodraeth Leol (Yr Alban) 1975 — Rhol, Gosod Cyfraddau a Phwerau Statudol",
+          "primary": true
+        },
+        {
+          "key": "Deddf 1962 (Elusennau a Gorfodol)",
+          "url": "https://www.legislation.gov.uk/ukpga/1962/9/contents",
+          "title": "Deddf Llywodraeth Leol (Darpariaethau Ariannol) (Yr Alban) 1962 — Rhyddhad Elusennol Gorfodol 80%",
+          "primary": false
+        },
+        {
+          "key": "OSA 2023/45 (Rhyddhad Trosiannol)",
+          "url": "https://www.legislation.gov.uk/ssi/2023/45/contents/made",
+          "title": "Rheoliadau Ardrethu Annomestig (Rhyddhad Trosiannol) (Yr Alban) 2023 (O.S.A. 2023/45)",
+          "primary": false
+        },
+        {
+          "key": "OSA 2022/86 (Meini Prawf Llety Gwyliau)",
+          "url": "https://www.legislation.gov.uk/ssi/2022/86/contents/made",
+          "title": "Rheoliadau Treth y Cyngor (Amrywiad ar gyfer Anheddau Heb eu Meddiannu) (Yr Alban) 2022 (O.S.A. 2022/86)",
+          "primary": false
+        },
+        {
+          "key": "OSA 2010/336 (Ynni Adnewyddadwy)",
+          "url": "https://www.legislation.gov.uk/ssi/2010/336/contents/made",
+          "title": "Rheoliadau Ardrethi Annomestig (Rhyddhad Cynhyrchu Ynni Adnewyddadwy) (Yr Alban) 2010",
+          "primary": false
+        }
+      ],
+      "currentRegimeSummary": {
+        "frameworkTitle": "Trefn Gyfredol ac i Ddod (2023–2027)",
+        "frameworkSub": "Deddf Llywodraeth Leol (Yr Alban) 1975 a Deddf Ardrethi Annomestig (Yr Alban) 2020",
+        "multiplierTitle": "System Bwndiant Tair-Haen (Cyfraddau Datgysylltiedig Adolygiad Barclay):",
+        "multipliers": [
+          {
+            "label": "Cyfradd Eiddo Sylfaenol (BPR)",
+            "rate": "49.8c",
+            "rvThreshold": "GA ≤ £51,000"
+          },
+          {
+            "label": "Cyfradd Eiddo Canolraddol",
+            "rate": "54.5c",
+            "rvThreshold": "GA £51,001 i £100,000"
+          },
+          {
+            "label": "Cyfradd Eiddo Uwch (HPR)",
+            "rate": "55.9c",
+            "rvThreshold": "GA > £100,000"
+          }
+        ],
+        "reliefHighlights": [
+          {
+            "title": "Cynllun Bonws Busnesau Bach (SBBS)",
+            "desc": "100% rhyddhad am GA ≤ £12,000; taprau haenog: 100% i 25% am GA £12,001–£15,000; 25% i 0% am GA £15,001–£20,000; cap cronnus £35,000 ar draws sawl eiddo."
+          },
+          {
+            "title": "Rhyddhad Trosiannol (O.S.A. 2023/45 a 2026/50)",
+            "desc": "TR Cyffredinol ac SBBS TR yn capio codiadau biliau ar £600 (Blwyddyn 1), £1,200 (Blwyddyn 2), £1,800 (Blwyddyn 3), a chap o 25% yn 2026/27."
+          },
+          {
+            "title": "Manwerthu, Lletygarwch a Hamdden (RHL)",
+            "desc": "Gostyngiad o 15% ar y tir mawr (GA ≤ £100k) neu 100% ar ynysoedd o dan Ddeddf Ynysoedd (Yr Alban) 2018 (cap £110k)."
+          },
+          {
+            "title": "Rhyddhad Cynhyrchu Ynni Adnewyddadwy",
+            "desc": "Rhyddhad haenog hyd at 100% ar gyfer hydro, gwynt, solar, biomas o dan O.S.A. 2010/336."
+          }
+        ]
+      },
+      "preDevolution": {
+        "heading": "Fframwaith Ardrethu Statudol Unedig y DU (Cyn-Ddatganoli: 1990–1999/2008)",
+        "era": "1990/91 i 2007/08 (Rhestrau Ardrethu 1990, 1995, 2000 a 2005 cynnar)",
+        "statute": "Deddf Llywodraeth Leol (Yr Alban) 1975 a Deddf yr Alban 1998",
+        "overview": "Cyn datganoli o dan Ddeddf yr Alban 1998 a chreu Cynllun Bonws Busnesau Bach (SBBS) wedi hynny ar 1 Ebrill 2008, cafodd ardrethi annomestig yn yr Alban eu gweinyddu o dan fframwaith Swyddfa Albanaidd y DU.",
+        "rules": [
+          "Un Bwndiant Albanaidd: Gosodwyd cyfradd bwndiant unffurf sengl (e.e. 52.5c yn 1990/91, 43.2c yn 1995/96) gan Ysgrifennydd Gwladol yr Alban, a gymhwyswyd yn unffurf ar draws pob eiddo masnachol.",
+          "Cyfnod Cyn-SBBS: Nid oedd unrhyw ryddhad cyffredinol i fusnesau bach yn bodoli tan gynllun peilot Cynllun Rhyddhad Ardrethi Busnesau Bach (SBRRS) yn 2003, a gafodd ei ddisodli gan SBBS yn 2008.",
+          "Cyfnodoldeb Trosiannol Cymesur: Roedd ailbrisio yn yr Alban yn cynnwys cynlluniau pontio cymesur yn capio symudiadau bwndiant blynyddol gyda therfynau cynnydd a chapiau oedi gostyngiad.",
+          "Ardrethu Gwag Cyn-2008: Eithriad eiddo gwag cychwynnol o 3 mis ac yna ardrethu amhenodol o 50%."
+        ]
+      },
+      "ratingLists": [
+        {
+          "list": "Rhestr 1990",
+          "years": "1990/91 – 1994/95",
+          "multipliers": "Un Bwndiant Albanaidd (52.5c yn 1990/91 yn gostwng i 48.6c yn 1994/95)",
+          "sbrr": "Dim (0% — GA Pur × Bwndiant)",
+          "transition": "Cynllun pontio trosiannol cymesur o dan offerynnau statudol Albanaidd",
+          "statute": "Deddf Llywodraeth Leol (Yr Alban) 1975 / O.S. 1990/602"
+        },
+        {
+          "list": "Rhestr 1995",
+          "years": "1995/96 – 1999/00",
+          "multipliers": "Un Bwndiant Albanaidd (43.2c yn 1995/96 yn codi i 48.9c yn 1999/00)",
+          "sbrr": "Dim (0%)",
+          "transition": "Capiau pontio trosiannol 5-mlynedd; 50% ardrethi gwag amhenodol",
+          "statute": "Deddf Llywodraeth Leol (Yr Alban) 1975 / O.S. 1995/543"
+        },
+        {
+          "list": "Rhestr 2000",
+          "years": "2000/01 – 2004/05",
+          "multipliers": "Un Bwndiant Albanaidd (45.8c yn 2000/01 yn codi i 48.8c yn 2004/05)",
+          "sbrr": "Cyflwyno peilot Cynllun Rhyddhad Ardrethi Busnesau Bach (SBRRS) yn 2003",
+          "transition": "Rheoliadau rhyddhad trosiannol yr Alban",
+          "statute": "Deddf yr Alban 1998 / Deddf 1975 / O.S.A. 2000/87"
+        },
+        {
+          "list": "Rhestr 2005",
+          "years": "2005/06 – 2009/10",
+          "multipliers": "Un Bwndiant (41.5c yn 2005/06 yn codi i 48.1c yn 2009/10)",
+          "sbrr": "Creu Cynllun Bonws Busnesau Bach (SBBS) ar 1 Ebrill 2008: 100% rhyddhad i unig fusnesau gyda GA ≤ £8k/£10k",
+          "transition": "Cynlluniau pontio datganoledig o dan offerynnau statudol Albanaidd",
+          "statute": "O.S.A. 2008/106 / Deddf 1975"
+        },
+        {
+          "list": "Rhestr 2010",
+          "years": "2010/11 – 2016/17",
+          "multipliers": "Bwndiant Sylfaenol (40.7c yn 2010/11 yn codi i 48.4c yn 2016/17); Atodiad Busnes Mawr ar GA > £35k",
+          "sbrr": "Ehangu SBBS: 100% rhyddhad am GA ≤ £10k; 50% am GA £10,001–£12k; 25% am GA £12,001–£18k",
+          "transition": "Cynllun pontio trosiannol 5-mlynedd yr Alban",
+          "statute": "O.S.A. 2010/37 / O.S.A. 2010/336 (Adnewyddadwy)"
+        },
+        {
+          "list": "Rhestr 2017",
+          "years": "2017/18 – 2022/23",
+          "multipliers": "Datgysylltu Adolygiad Barclay: Sylfaenol (46.6c yn codi i 49.8c), Canolraddol (51.1c), Uwch (52.4c)",
+          "sbrr": "SBBS 100% rhyddhad hyd at £15,000 GA. Meini prawf diwrnodau gosod llety gwyliau O.S.A. 2022/86 (70 diwrnod gosod gwirioneddol, 140 diwrnod ar gael).",
+          "transition": "Rheoliadau rhyddhad trosiannol yr Alban",
+          "statute": "O.S.A. 2017/85 / Deddf NDR 2020 / O.S.A. 2022/86"
+        },
+        {
+          "list": "Rhestr 2023",
+          "years": "2023/24 – 2025/26",
+          "multipliers": "Bwndiant 3-Haen: Sylfaenol (49.8c ≤ £51k), Canolraddol (54.5c £51k–£100k), Uwch (55.9c > £100k)",
+          "sbrr": "Diwygio SBBS gyda thaprau haenog (100% ≤ £12k, 100% → 25% £12k–£15k, 25% → 0% £15k–£20k; cap cronnus £35k)",
+          "transition": "TR Cyffredinol ac SBBS TR o dan O.S.A. 2023/45 yn capio codiadau biliau ar £600 (Blwyddyn 1), £1,200 (Blwyddyn 2), £1,800 (Blwyddyn 3)",
+          "statute": "Deddf NDR (Yr Alban) 2020 / O.S.A. 2023/45"
+        },
+        {
+          "list": "Rhestr 2026",
+          "years": "2026/27 – 2028/29",
+          "multipliers": "Bwndiant 3-Haen: Sylfaenol (49.8c ≤ £51k), Canolraddol (54.5c £51k–£100k), Uwch (55.9c > £100k)",
+          "sbrr": "100% SBBS hyd at £12k GA gyda thaprau haenog i £20k GA. Cap codiad bil 25% SBBS TR yn 2026/27 o dan O.S.A. 2026/50. Rhyddhad RHL 15% tir mawr / 100% ynysoedd.",
+          "transition": "Cap 25% SBBS TR; Rhyddhad Cynhyrchu Ynni Adnewyddadwy (hyd at 100% o dan O.S.A. 2010/336)",
+          "statute": "Deddf NDR 2020 / O.S.A. 2026/50 / Deddf Ynysoedd 2018"
+        }
+      ]
+    }
+  }
+}

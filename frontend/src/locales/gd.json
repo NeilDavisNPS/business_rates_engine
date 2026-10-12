@@ -1,0 +1,757 @@
+{
+  "app_name": "Inneal Àireamhachaidh Ìrean Gnìomhachais",
+  "app_subtitle": "Ìrean Reachdail 1990–2027 (Sasainn, A' Chuimrigh, Alba)",
+  "page_title": "Inneal Ìrean Gnìomhachais — Pòrtoil Rianachd & Bogsa-gainmhich Phàirtean",
+  "api_status": "API Gnìomhach air :8080",
+  "sso_login": "Logadh a-steach aon-chomharra (SSO)",
+  "active_tenant": "Màiliche Gnìomhach",
+  "tenant_name": "Comhairle Cathair Mhanchain",
+  "tenant_type": "ÙGHDARRAS_IONADAIL",
+  "data_plane_key": "Iuchair API Plèana Dàta",
+  "copy_api_key": "Dèan Lethbhreac",
+  "api_key_desc": "Air a hashigeadh le SHA-256 an aghaidh",
+  "statutory_coverage": "Còmhdach Liosta Reachdail",
+  "statutory_coverage_sub": "1990 gu 2027 (Breatainn Mhòr Thiomnaichte)",
+  "badge_lgfa": "LGFA 1988 (Bun-reachd Bhreatainn)",
+  "badge_ndra": "NDRA 2023 (Sasainn)",
+  "badge_lgfwa": "LGF(W)A 2024 (A' Chuimrigh)",
+  "badge_ndr": "NDR 2020 / Achd 1975 (Alba)",
+  "badge_installments": "SI 1989/1058 (Cuibhreannan)",
+  "badge_wsi": "WSI 2025/1371 & 2026/43",
+  "sandbox_heading": "Bogsa-gainmhich Àireamhachadh Buailteachd Ìrean",
+  "sandbox_sub": "Being measaidh a tha mothachail air uachdranas. Chan fhaicear ach raointean agus riaghailtean a bhuineas don dùthaich a chaidh a thaghadh.",
+  "rating_jurisdiction": "Uachdranas Ìrean (Frèam Laghail Riaghlaidh)",
+  "jurisdiction_help": "A' stiùireadh nan raointean agus nan riaghailtean iomchaidh",
+  "jur_btn_england": "Sasainn",
+  "jur_btn_wales": "A' Chuimrigh",
+  "jur_btn_scotland": "Alba",
+  "payload_editor": "Deasaiche Luchd-pàighidh:",
+  "btn_form": "Raointean Foirm",
+  "btn_json": "JSON Amh",
+  "ratepayer_section": "1. Neach-pàighidh Ìre & Tràthan Gabhaltais",
+  "btn_add_occ": "+ Cuir Ùine Gabhaltais Ris",
+  "col_occ_start": "Ceann-latha Tòiseachaidh",
+  "col_occ_end": "Ceann-latha Crìochnachaidh (Bàn = Fosgailte)",
+  "col_occ_type": "Inbhe Gabhaltais",
+  "col_occ_apportionment": "Pàirt-ghabhailte (e.44A)",
+  "col_occ_action": "Gnìomh",
+  "occ_opt_occupied": "GABHAILTE (Làn)",
+  "occ_opt_unoccupied": "GUN GHABHAIL (Falamh)",
+  "occ_opt_part_occupied": "PÀIRT-GHABHAILTE (e.44A)",
+  "occ_na_text": "100% làn",
+  "common_gb": "Uallachan Coitcheann Bhreatainn Mhòir",
+  "party_type": "Seòrsa Pàrtaidh (Còdaichte)",
+  "property_section": "2. Oighreachd & Mion-fhiosrachadh Seilbhe",
+  "rating_classification": "Seòrsachadh Ìrean",
+  "scat_code": "Roinn Shònraichte (Còd SCAT)",
+  "rv_history": "3. Eachdraidh Luach Measaidh (RV)",
+  "btn_add_rv": "+ Cuir Linn Measaidh Ris",
+  "col_from": "Èifeachdach Bho",
+  "col_to": "Èifeachdach Gu (Bàn = Fosgailte)",
+  "col_rv": "Luach Measaidh (£)",
+  "col_action": "Gnìomh",
+  "btn_remove": "Thoir air falbh",
+  "relief_section": "4. Cothrom air Faochadh Reachdail",
+  "relief_badge": "Iomchaidh don dùthaich a chaidh a thaghadh",
+  "flag_charity_title": "Faochadh Carthannais Èigneachail",
+  "flag_charity_desc": "Faochadh èigneachail 80% airson cleachdadh carthannach",
+  "flag_improvement_title": "Meudachadh RV Faochadh Leasachaidh (£)",
+  "flag_improvement_desc": "Saoradh 12 mìosan fo NDRA 2023 e.1 fachtor-G (Sasainn a-mhàin)",
+  "flag_heat_network_title": "Faochadh Lìonra Teasa Ìosal-Charboin",
+  "flag_heat_network_desc": "Faochadh 100% fo NDRA 2023 e.2 (Sasainn a-mhàin)",
+  "flag_lavatory_title": "Saoradh Taighean-beaga Poblach",
+  "flag_lavatory_desc": "Faochadh 100% fo Achd nan Ìrean 2021",
+  "flag_rural_title": "Faochadh Tuineachaidh Dùthchail",
+  "flag_rural_desc": "Faochadh 100% airson aon bhùth/taigh-òsda a' bhaile (<3k sluagh)",
+  "flag_avoidance_title": "Seachnadh Fuadain fo Amharas",
+  "flag_avoidance_desc": "Peanas WSI 2026/43: £500 stèidhichte + 3% RV (A' Chuimrigh a-mhàin)",
+  "flag_holiday_title": "Làithean Màil Fhìor airson Saor-làithean",
+  "flag_holiday_desc": "Slatan-tomhais màil 70/140 latha Neach-measaidh na h-Alba",
+  "placeholder_holiday_days": "m.e. 70",
+  "flag_industrial_title": "Oighreachd Gnìomhachais",
+  "flag_industrial_desc": "Saoradh 6 mìosan gun ghabhail (an aghaidh 3 malairteach)",
+  "flag_unoccupied_days_title": "Làithean Roimhe Gun Ghabhail",
+  "flag_unoccupied_days_desc": "A' toirt làithean faochadh falamh roimhe às a' chuibhreann reachdail de 3/6 mìosan",
+  "raw_json_title": "Luchd-pàighidh JSON Amh",
+  "btn_calculate": "Dèan Àireamhachadh Reachdail",
+  "btn_calculate_due": "Dèan Àireamhachadh Reachdail (Àireamhachadh Ri Dèanamh)",
+  "ref_dict_title": "Faclair Còdan Iomraidh Reachdail",
+  "ref_dict_badge": "Catalog Stòr-dàta Sìolaichte",
+  "ref_dict_expand": "Cliog gus an catalog fhosgladh/dhùnadh",
+  "filter_codes_label": "Criathraich Còdan:",
+  "dict_btn_all": "Breatann Mhòr Uile",
+  "dict_btn_england": "Sasainn",
+  "dict_btn_wales": "A' Chuimrigh",
+  "dict_btn_scotland": "Alba",
+  "dict_col_cat": "Roinn",
+  "dict_col_code": "Còd",
+  "dict_col_nation": "Dùthaich",
+  "dict_col_label": "Leubail",
+  "dict_col_rules": "Riaghailtean Reachdail & Co-theacsa Laghail",
+  "results_title": "Toraidhean Àireamhachaidh & Mion-fhiosrachadh Bliadhna an Dèidh Bliadhna",
+  "period_summary_label": "Geàrr-chunntas na h-Ùine gu Lèir",
+  "sum_gross_label": "Iomlan Làn",
+  "sum_trans_label": "Ceumnachadh Eadar-amail",
+  "sum_reliefs_label": "Faochaidhean an Sàs",
+  "sum_net_label": "Iomlan Glan ri Phàigheadh",
+  "annual_breakdown_title": "Mion-fhiosrachadh Bliadhnail a rèir Bliadhna Ionmhais",
+  "annual_placeholder": "Cliog 'Dèan Àireamhachadh Reachdail' gus buailteachd ìrean bliadhnail fhaicinn air a bhriseadh sìos airson gach bliadhna ionmhais.",
+  "tab_narrative": "Aithris Sgrùdaidh Reachdail",
+  "tab_json": "Freagairt JSON Amh",
+  "narrative_placeholder": "Cliog 'Dèan Àireamhachadh Reachdail' gus an aithris sgrùdaidh slàn fhaicinn.",
+  "json_placeholder": "Cliog 'Dèan Àireamhachadh Reachdail' gus luchd-pàighidh na freagairt JSON fhaicinn.",
+  "ready": "Deiseil",
+  "calculating": "A' cunntadh...",
+  "calc_success": "200 Ceart gu Leòr — Crìochnaichte",
+  "calc_error": "Dh'fhàillig an t-Àireamhachadh",
+  "fy_badge": "BI",
+  "days_label": "làithean",
+  "to_word": "gu",
+  "year_gross": "Làn na Bliadhna",
+  "trans_phasing": "Ceumnachadh Eadar-amail",
+  "year_reliefs": "Faochaidhean na Bliadhna",
+  "year_net": "Glan na Bliadhna ri Phàigheadh",
+  "itemized_label": "Faochaidhean & Toirt air falbh Mionaideach:",
+  "no_reliefs": "Cha deach faochadh reachdail a chur an sàs airson na bliadhna seo.",
+  "discount_word": "lasachadh",
+  "statutory_penalty": "Peanas Reachdail air a Mheasadh:",
+  "theme_label": "Sealladh Pàipeir Àrd-Iomsgaradh",
+  "theme_light": "Sealladh Pàipeir Àrd-Iomsgaradh",
+  "theme_dark": "Sealladh Crìochnachaidh Àrd-Iomsgaradh",
+  "rv_label": "RV",
+  "multiplier_label": "Iomadair",
+  "years_unit": "Bliadhnaichean",
+  "api_key_copied": "Chaidh iuchair API a chopaigeadh don bhòrd-chriomag!",
+  "statutory_framework_title": "Frèam Reachdail",
+  "statutory_framework_sub": "Liostaichean Measaidh Eachdraidheil (1990–2022) & Siostaman Ùra Tiomnaichte (2023–2027)",
+  "statutory_framework_expand": "Cliog gus an làn fhrèam a leudachadh",
+  "statutory_framework_collapse": "Cliog gus am frèam a lùghdachadh",
+  "collapse_btn": "▲ Lùghdaich",
+  "expand_btn": "▼ Cliog gus an catalog fhosgladh/dhùnadh",
+  "copied_btn": "✓ Air a chopaigeadh",
+  "btn_format_json": "Fòrmataich JSON",
+  "switch_lang_aria": "Atharraich cànan gu",
+  "scalar_docs_title": "Fosgail Iomradh Eadar-ghnìomhach API Scalar (OpenAPI 3.1)",
+  "scalar_docs_label": "Iomradh API (Scalar)",
+  "calc_due_status": "Àireamhachadh ri dhèanamh (a' feitheamh ri cuir a-steach)",
+  "parameters_section_title": "Paramadairean Reachdail & Catalogan Iomraidh",
+  "parameters_section_sub": "Rannsaich ìrean reachdail ann an cuimhne, teipichean, sgeamaichean faochadh, crìochan eadar-amail, agus faclairean còdan iomraidh thairis air Sasainn, A' Chuimrigh, agus Alba.",
+  "multipliers_title": "Iomadairean Ìre Reachdail (1990–2027)",
+  "multipliers_seeded_count": "Ìrean Sìolaichte",
+  "multipliers_search_ph": "Lorg bliadhna (m.e. 2026/27), seòrsa...",
+  "multipliers_col_fy": "Bliadhna Ionmhais",
+  "multipliers_col_nation": "Dùthaich",
+  "multipliers_col_type": "Seòrsa Iomadair",
+  "multipliers_col_threshold": "Stairsneach Luach Measaidh",
+  "multipliers_col_rate": "Ìre Iomadair",
+  "multipliers_col_period": "Ùine Èifeachdach",
+  "multipliers_all_rv": "A h-uile RV (Gun chrìoch stairsnich)",
+  "sbrr_catalog_title": "Faochadh Ìrean Gnìomhachais Bheaga & Stairsnich SBBS",
+  "sbrr_seeded_count": "Riaghailtean Teip Shìolaichte",
+  "sbrr_search_ph": "Lorg bliadhna no riaghailt faochadh...",
+  "sbrr_col_fy": "Bliadhna Ionmhais",
+  "sbrr_col_nation": "Dùthaich",
+  "sbrr_col_range": "Raon Luach Measaidh",
+  "sbrr_col_max_relief": "Uilleann Faochadh %",
+  "sbrr_col_mechanics": "Maoineachadh Teip / Faochadh",
+  "sbrr_col_statute": "Ùghdarras Reachdail",
+  "sbrr_linear_taper": "Teip Loidhneach (A' teipigeadh gu 0%)",
+  "sbrr_full_exemption": "Saoradh Reachdail Làn",
+  "sector_catalog_title": "Sgeamaichean Faochadh Roinneil Tiomnaichte (RHL)",
+  "sector_seeded_count": "Sgeamaichean Sìolaichte",
+  "sector_search_ph": "Lorg sgeama RHL, lasachadh % no crìoch...",
+  "sector_col_fy": "Bliadhna Ionmhais",
+  "sector_col_nation": "Dùthaich",
+  "sector_col_code": "Còd Sgeama",
+  "sector_col_discount": "Ìre Lasachaidh",
+  "sector_col_cap": "Crìoch Airgid Gnìomhachais",
+  "sector_col_statute": "Ùghdarras Reachdail",
+  "sector_col_period": "Ùine Èifeachdach",
+  "sector_no_cap": "Gun Chrìoch",
+  "trans_catalog_title": "Crìochan Àrdachaidh Faochadh Ceumnachadh Eadar-amail",
+  "trans_seeded_count": "Sreathan Crìche Sìolaichte",
+  "trans_tier_label": "Sreath:",
+  "trans_tier_all": "Uile",
+  "trans_tier_small": "Beag",
+  "trans_tier_medium": "Meadhanach",
+  "trans_tier_large": "Mòr",
+  "trans_search_ph": "Lorg bliadhna liosta, sreath no crìoch %...",
+  "trans_col_reval": "Liosta Ath-mheasaidh",
+  "trans_col_fy": "Bliadhna Ionmhais",
+  "trans_col_nation": "Dùthaich",
+  "trans_col_tier": "Sreath Seilbhe",
+  "trans_col_threshold": "Stairsneach Luach Measaidh",
+  "trans_col_cap": "Crìoch Ceumnachaidh Àrdachaidh",
+  "trans_col_statute": "Ùghdarras Reachdail",
+  "ref_search_ph": "Lorg roinnean, còdan, laghan...",
+  "relief_section_sub": "Faochaidhean reachdail èigneachail, sgeamaichean fo thoil, agus ceumnachadh eadar-amail ath-mheasaidh.",
+  "mandatory_reliefs_title": "Faochaidhean Reachdail Èigneachail",
+  "mandatory_reliefs_sub": "Air a bhuileachadh a rèir còir nuair a thathar a' coinneachadh ri suidheachaidhean teisteanais",
+  "flag_sbrr_grace_title": "Ùine Gràis 12 Mìosan Dàrna Seilbh SBRR",
+  "flag_sbrr_grace_desc": "Cùm SBRR air a' phrìomh oighreachd airson 12 mìosan às dèidh seilbh a bharrachd a ghabhail (S.I. 2017/411 art. 3(4) / LGFA 1988 e.43(4B)).",
+  "flag_telecom_title": "Faochadh Bun-structair Tele-chonaltradh",
+  "flag_telecom_desc": "Faochadh 100% airson bun-structar tele-chonaltradh snàithleach ùr (Achd Bun-structair Tele-chonaltradh 2018 / SSI 2019/111).",
+  "flag_welsh_retail_title": "Togalaichean Mion-reic na Cuimrigh (Iomadair 35.0sg)",
+  "flag_welsh_retail_desc": "Oighreachd mion-reic iomchaidh le RV < £51,000 ion-roghnach airson Iomadair Mion-reic na Cuimrigh 35.0sg fo Achd Ionmhais Riaghaltas Ionadail (A' Chuimrigh) 2024.",
+  "discretionary_section_title": "Dìonan Fo Thoil & Ath-mheasadh",
+  "discretionary_section_sub": "Sgeamaichean fo thoil ùghdarrasan ionadail agus crìochan reachdail eadar-amail",
+  "flag_tr_toggle_title": "Cuir an sàs Faochadh Eadar-amail Reachdail (TR)",
+  "flag_tr_toggle_desc_wales": "A' cur crìoch gu fèin-ghluasadach air àrdachadh cunntas ath-mheasaidh os cionn £300 fo W.S.I. 2025/1371 (faochadh 67% ann an 2026/27, 34% ann an 2027/28). Thoir a' chromag dheth gus buailteachd neo-cheumnaichte obrachadh a-mach.",
+  "flag_tr_toggle_desc_scotland": "A' cur crìoch gu fèin-ghluasadach air àrdachadh cunntas ath-mheasaidh fo Riaghailtean Faochadh Eadar-amail na h-Alba. Thoir a' chromag dheth gus buailteachd neo-cheumnaichte obrachadh a-mach.",
+  "flag_tr_toggle_desc_england": "A' cur crìoch gu fèin-ghluasadach air àrdachadh cunntas ath-mheasaidh (m.e. Sasainn 2026/27: +5% Beag, +15% Meadhanach, +30% Mòr fo LGFA 1988 e.57A / NDRA 2023). Thoir a' chromag dheth gus buailteachd neo-cheumnaichte obrachadh a-mach.",
+  "flag_ssbr_title": "Faochadh Taic do Ghnìomhachasan Beaga (SSBR)",
+  "flag_ssbr_desc": "Dìon fo thoil e.47 a' cur crìoch air àrdachadh glan bile aig £600/bliadhna (2023–2025) agus £800/bliadhna (2026/27) do luchd-pàighidh a tha a' call no a' faicinn lùghdachadh ann an SBRR, Dùthchail, no RHL.",
+  "flag_island_title": "Seilbh Eileanach na h-Alba (Faochadh RHL 100%)",
+  "flag_island_desc": "Seilbh suidhichte air eilean Albannach fo Achd nan Eilean (Alba) 2018 (faochadh 100% le crìoch de £110k).",
+  "flag_sbbs_tr_title": "Faochadh Eadar-amail Bònas Ghnìomhachasan Beaga (SBBS TR)",
+  "flag_sbbs_tr_desc": "A' cur crìoch air àrdachadh bile airson togalaichean a tha a' call no a' faicinn lùghdachadh ann an SBBS (£600/£1,200/£1,800 fo liosta 2023; uilleann àrdachadh bile 25% ann an 2026/27).",
+  "flag_charity_topup_title": "Mullach Carthannais Fo Thoil (Suas gu 20%)",
+  "flag_charity_topup_desc": "Mullach fo thoil an ùghdarrais bileachaidh suas gu 20% a bharrachd air faochadh èigneachail carthannais de 80% (LGFA 1988 e.47(2)(a) / Achd 1962 e.4(5)), a' lughdachadh buailteachd gu £0.",
+  "flag_renewable_title": "Faochadh Gineadh Lùth Ath-nuadhachail",
+  "flag_renewable_desc": "Faochadh sreathaichte fo SSI 2010/336: 100% (RV ≤ £145k), 50% (RV ≤ £200k), 25% (RV ≤ £250k), 10% (RV ≤ £1m).",
+  "property_conditions_title": "Cùmhnantan Gabhaltais & Seilbhe",
+  "property_conditions_sub": "Saoraidhean falamh, teisteanasan fèin-frithealaidh, agus sgrùdaidhean gèillidh",
+  "holiday_desc_scotland": "Feumaidh e a bhith air a thoirt air màl gu fìor ≥ 182 latha (SSI 2022/86) gus fuireach air liosta NDR. Ma dh'fhàilligeas e, thèid a ghluasad gu Cìs Comhairle (£0 NDR).",
+  "holiday_desc_eng_wales": "Feumaidh e a bhith air a thoirt air màl gu fìor ≥ 70 latha (LGFA 1988 e.66) gus fuireach air liosta NDR. Ma dh'fhàilligeas e, thèid a ghluasad gu Cìs Comhairle (£0 NDR).",
+  "installments_plan_label": "Plana Cuibhreannan Reachdail",
+  "installments_10_opt": "10 Cuibhreannan Mìosail (Bun-roghainn)",
+  "installments_12_opt": "12 Cuibhreannan Mìosail (Còir Reachdail)",
+  "installments_help": "Clàr pàighidh reachdail fo SI 1989/1058 (10 mìosan Cèitean–Gearran) no còir neach-pàighidh gu 12 mìosan (Giblean–Màrt fo LGA 2003 / SI 2014/466).",
+  "placeholder_open": "Fosgailte",
+  "pct_occ_unit": "% gabhail",
+  "party_corporate": "CORPARRA (Companaidh / Earr / Cbang)",
+  "party_individual": "FA leth (Neach Nàdarra)",
+  "party_charity": "CARTHANNACHD (Carthannachd Clàraichte)",
+  "party_casc": "CASC (Club Spòrs Neo-dhreuchdail Coimhearsnachd)",
+  "party_local_authority": "ÙGHDARRAS_IONADAIL (Ùghdarras Bileachaidh / Buidheann Poblach)",
+  "scat_091": "091 - Oifisean Coitcheann / Togalaichean Malairteach",
+  "scat_003": "003 - Port-adhair / Prìomh Bhun-structar Adhair",
+  "scat_096": "096 - Oighreachd Gnìomhachais / Taigh-bathair / Factaraidh",
+  "scat_209": "209 - Taigh-òsda / Bàr / Togalach le Cead",
+  "scat_211": "211 - Stèisean Peatrail & Raon-aghaidh",
+  "scat_225": "225 - Bùth Mion-reic / Aonad Sràid Mhòr",
+  "scat_249": "249 - Àite-fuirich Saor-làithean Fèin-frithealaidh",
+  "statutory_schedule_header": "Clàr Pàighidh Reachdail",
+  "monthly_installments_count": "Cuibhreannan Mìosail",
+  "monthly_installments_selected": "Cuibhreannan Mìosail air an taghadh",
+  "si_1989_authority": "SI 1989/1058 Clàr 1 / LGA 2003",
+  "zero_net_installments_note": "Is e £0.00 a tha ri phàigheadh (faochadh 100% air a chur an sàs — chan eil feum air cuibhreannan pàighidh fo SI 1989/1058 riagh. 4)",
+  "framework_authorities_title": "Ùghdarrasan Reachdail",
+  "framework_authorities_sub": "Prìomh Reachdas Oifigeil & Innealan Reachdail (legislation.gov.uk)",
+  "framework_timeline_title": "Loidhne-tìm 8 Liostaichean Measaidh Reachdail (1990–2027)",
+  "framework_timeline_sub": "Eachdraidh iomlan liostaichean measaidh bhon chiad fhear ann an 1990 chun an latha an-diugh 2026/27",
+  "framework_rating_lists_badge": "8 Liostaichean Measaidh",
+  "col_rating_list": "Liosta Measaidh",
+  "col_active_period": "Ùine Ghnìomhach",
+  "col_multipliers": "Iomadairean",
+  "col_sbrr_scheme": "Sgeama Faochadh Gnìomhachasan Beaga",
+  "col_trans_empty": "Ceumnachadh Eadar-amail & Ìrean Falamh",
+  "col_statute": "Innealan Reachdail Riaghlaidh",
+  "err_invalid_json": "JSON Neo-dhligheach",
+  "err_malformed_request": "Iarrtas Mì-chruthach",
+  "err_unknown_network": "Mearachd lìonra neo-aithnichte",
+  "jurisdictions": {
+    "ENGLAND": {
+      "name": "Sasainn",
+      "sbrrTitle": "Faochadh Ìrean Gnìomhachais Bheaga (SBRR)",
+      "sbrrDesc": "Lasachadh 100% suas gu £12k RV; teip loidhneach gu £15k RV airson luchd-còmhnaidh aon-sheilbh.",
+      "rhlTitle": "Mion-reic, Aoigheachd & Cur-seachad (RHL)",
+      "rhlDesc": "Lasachadh 40% ann an 2025/26 (crìoch £110k). Thàinig e gu crìch ann an 2026/27.",
+      "charityDesc": "Faochadh èigneachail 80% fo LGFA 1988 e.43(5)."
+    },
+    "WALES": {
+      "name": "A' Chuimrigh",
+      "sbrrTitle": "Faochadh Gnìomhachasan Beaga na Cuimrigh",
+      "sbrrDesc": "Lasachadh 100% suas gu £6k RV; teip loidhneach gu £12k RV fo riaghailtean tiomnaichte na Cuimrigh.",
+      "rhlTitle": "Faochadh Aoigheachd Bidhe is Dibhe na Cuimrigh",
+      "rhlDesc": "Sgeama Cuimreach 15% airson 2026/27 (fo smachd crìoch £110k). Nòta: Stèiseanan peatrail air an dùnadh a-mach.",
+      "charityDesc": "Faochadh èigneachail 80% fo LGFA 1988 e.43(5)."
+    },
+    "SCOTLAND": {
+      "name": "Alba",
+      "sbrrTitle": "Sgeama Bònas Ghnìomhachasan Beaga (SBBS)",
+      "sbrrDesc": "Faochadh Albannach 100% suas gu £11,500/£12,000 RV airson luchd-pàighidh aon-sheilbh.",
+      "rhlTitle": "Faochadh Mion-reic is Aoigheachd na h-Alba",
+      "rhlDesc": "15% air tìr-mòr (RV <= £100k) no 100% air eileanan (Achd nan Eilean 2018), crìoch £110k.",
+      "charityDesc": "Faochadh èigneachail 80% fo Local Government (Financial Provisions) (Scotland) Act 1962 e.4."
+    }
+  },
+  "opens_legislation_link": " (a' fosgladh air legislation.gov.uk)",
+  "statutory_framework": {
+    "ENGLAND": {
+      "name": "Sasainn",
+      "legislation": [
+        {
+          "key": "LGFA 1988 (Bun-Reachd GB)",
+          "url": "https://www.legislation.gov.uk/ukpga/1988/41/contents",
+          "title": "Achd Ionmhas Riaghaltas Ionadail 1988 (e. 41) — Bun-Sgeama Reataichean Reachdail",
+          "primary": true
+        },
+        {
+          "key": "NDRA 2023 (Sasainn)",
+          "url": "https://www.legislation.gov.uk/ukpga/2023/53/contents/enacted",
+          "title": "Achd Reataichean Neo-Dhachaigheil 2023 (e. 53) — Liostaichean 3 Bliadhna, Iomadachaidhean & Ath-leasachaidhean Faochadh",
+          "primary": true
+        },
+        {
+          "key": "SI 1989/1058 (Cuibhreannan)",
+          "url": "https://www.legislation.gov.uk/uksi/1989/1058/contents/made",
+          "title": "Riaghailtean Reataichean Neo-Dhachaigheil (Cruinneachadh agus Co-èigneachadh) 1989 (S.I. 1989/1058)",
+          "primary": false
+        },
+        {
+          "key": "SI 2017/411 (SBRR Sasainn)",
+          "url": "https://www.legislation.gov.uk/uksi/2017/411/contents/made",
+          "title": "Òrdugh Reataichean Neo-Dhachaigheil (Faochadh Reataichean Gnìomhachais Bhig) (Sasainn) 2017",
+          "primary": false
+        },
+        {
+          "key": "SI 2008/386 (Togalach Falamh)",
+          "url": "https://www.legislation.gov.uk/uksi/2008/386/contents/made",
+          "title": "Riaghailtean Reataichean Neo-Dhachaigheil (Togalaichean Neo-Oifigeil) (Sasainn) 2008",
+          "primary": false
+        }
+      ],
+      "currentRegimeSummary": {
+        "frameworkTitle": "Rèim Làithreach & Ri Thighinn (2023–2027)",
+        "frameworkSub": "Achd Ionmhas Riaghaltas Ionadail 1988 & Achd Reataichean Neo-Dhachaigheil 2023 (NDRA 2023)",
+        "multiplierTitle": "Siostam 5-Iomadachaidh 2026/27 (Reataichean Maireannach a' Phrìomh Shràid):",
+        "multipliers": [
+          {
+            "label": "Gnìomhachas Beag RHL",
+            "rate": "38.2sg",
+            "rvThreshold": "LR < £51,000"
+          },
+          {
+            "label": "Coitcheann RHL",
+            "rate": "43.0sg",
+            "rvThreshold": "LR £51,000 gu £499,999"
+          },
+          {
+            "label": "Gnìomhachas Beag Neo-RHL",
+            "rate": "43.2sg",
+            "rvThreshold": "LR < £51,000"
+          },
+          {
+            "label": "Coitcheann Neo-RHL",
+            "rate": "48.0sg",
+            "rvThreshold": "LR £51,000 gu £499,999"
+          },
+          {
+            "label": "Iomadachaidh Àrd-Luach",
+            "rate": "50.8sg",
+            "rvThreshold": "LR ≥ £500,000"
+          }
+        ],
+        "reliefHighlights": [
+          {
+            "title": "Faochadh Reataichean Gnìomhachais Bhig (SBRR)",
+            "desc": "100% faochadh suas gu £12k Luach Reataichte; teip loidhneach gu £15k LR airson luchd-còmhnaidh aon togalach. Ùine gras 12 mìosan airson dàrna togalach fo S.I. 2017/411."
+          },
+          {
+            "title": "Faochadh Taic do Ghnìomhachas Beag (SSBR)",
+            "desc": "A' cur crìoch air àrdachadh bhilean lìon bliadhnail aig £600/bliadhna airson 2023–2026, agus £800/bliadhna airson 2026/27 fo e.47."
+          },
+          {
+            "title": "Cur às do Chrìochan Lùghdachaidh",
+            "desc": "Crìochan faochadh eadar-amail lùghdachaidh air an cur às gu maireannach bho 2023/24; crìochan àrdachaidh a-mhàin fo e.57A."
+          },
+          {
+            "title": "Saoraidhean Cuimsichte",
+            "desc": "Faochadh Leasachaidh 100% airson 12 mìosan (NDRA 2023 e.1 Factar-G), Lìonraidhean Teas Carbon-Iosal 100% (e.2), Faochadh Taighean-beaga Poblach 100%."
+          }
+        ]
+      },
+      "preDevolution": {
+        "heading": "Frèam Reachdail Reataichean Aonaichte an RA (Ro-Dì-mheadhanachadh: 1990–2004)",
+        "era": "1990/91 gu 2004/05 (Liostaichean Reataichean 1990, 1995 & 2000)",
+        "statute": "Achd Ionmhas Riaghaltas Ionadail 1988 (LGFA 1988 e.43, e.45, e.58)",
+        "overview": "Mus deach ath-leasachaidhean Achd an Riaghaltais Ionadail 2003 a chur an gnìomh air 1 Giblean 2005, bha Sasainn ag obair fo bhun-fhrèam reataichean neo-dhachaigheil Bhreatainn Mhòir aonaichte a chaidh a stèidheachadh leis a' Phàrlamaid ann an LGFA 1988.",
+        "rules": [
+          "Aon Iomadachaidh Aonaichte: Bha aon iomadachaidh neo-dhachaigheil (m.e. 34.8sg ann an 1990/91) a' buntainn ris a h-uile oighreachd neo-dhachaigheil. Cha robh iomadachaidh gnìomhachais bhig ann.",
+          "Gun Fhaochadh Gnìomhachais Bhig: Cha robh Faochadh Reataichean Gnìomhachais Bhig (SBRR) ann idir. Phàigh gach togalach, ge bith dè am meud, uallach iomlan fìor (Luach Reataichte × Aon Iomadachaidh).",
+          "Ìrean Eadar-amail Co-chothromach 5 Bliadhna: Bha ath-luachaidhean fo LGFA 1988 e.58 a' nochdadh crìochan àrdachaidh (+15%/+20%) air am maoineachadh le crìochan lùghdachaidh a chuir dàil air lùghdachaidhean bilean airson togalaichean a bha a' tuiteam ann an luach, ceangailte ri RPI bliadhnail.",
+          "Riaghailtean Togalaichean Falamh Ro-2008: Fhuair togalaichean malairteach falamh saoradh 100% airson 3 mìosan, an uairsin phàigh iad 50% de reataichean gun chrìoch; bha saoradh maireannach 100% aig togalaichean gnìomhachais gus an do chuir Achd Reataichean (Togalaichean Falamh) 2007 uallach falamh 100% an sàs air 1 Giblean 2008."
+        ]
+      },
+      "ratingLists": [
+        {
+          "list": "Liosta 1990",
+          "years": "1990/91 – 1994/95",
+          "multipliers": "Aon Iomadachaidh Aonaichte (34.8sg ann an 1990/91 ag èirigh gu 42.3sg ann an 1994/95)",
+          "sbrr": "Chan eil gin (0% — Fìor LR × Iomadachaidh)",
+          "transition": "Ìrean eadar-amail co-chothromach 5 bliadhna le crìochan àrdachaidh is lùghdachaidh",
+          "statute": "LGFA 1988 e.58 / S.I. 1989/1060"
+        },
+        {
+          "list": "Liosta 1995",
+          "years": "1995/96 – 1999/00",
+          "multipliers": "Aon Iomadachaidh Aonaichte (43.2sg ann an 1995/96 ag èirigh gu 48.9sg ann an 1999/00)",
+          "sbrr": "Chan eil gin (0%)",
+          "transition": "Crìochan eadar-amail 5 bliadhna ceangailte ri RPI; 50% reataichean falamh gun chrìoch",
+          "statute": "LGFA 1988 e.58 / S.I. 1994/3229"
+        },
+        {
+          "list": "Liosta 2000",
+          "years": "2000/01 – 2004/05",
+          "multipliers": "Aon Iomadachaidh Aonaichte (41.6sg ann an 2000/01 ag èirigh gu 45.6sg ann an 2004/05)",
+          "sbrr": "Chan eil gin (0%)",
+          "transition": "Crìochan eadar-amail 5 bliadhna; 50% reataichean an dèidh 3 mìosan falamh",
+          "statute": "LGFA 1988 e.58 / S.I. 1999/3379"
+        },
+        {
+          "list": "Liosta 2005",
+          "years": "2005/06 – 2009/10",
+          "multipliers": "Dà Iomadachaidh air an cruthachadh: Coitcheann (42.2sg) vs Gnìomhachas Beag (41.5sg)",
+          "sbrr": "Lasachadh as àirde 50% airson LR ≤ £5,000, teip loidhneach gu £10,000 LR (£15k Lunnainn). Iarrtas foirmeil a dhìth.",
+          "transition": "Crìochan 5 bliadhna. Chuir Achd Reataichean (Togalaichean Falamh) 2007 às do 50% reataichean falamh air 1 Giblean 2008",
+          "statute": "LGA 2003 / S.I. 2004/3315 / Achd 2007"
+        },
+        {
+          "list": "Liosta 2010",
+          "years": "2010/11 – 2016/17",
+          "multipliers": "Gnìomhachas Beag (40.7sg ann an 2010/11) vs Coitcheann (41.4sg). Coitcheann air a chur an sàs air LR > £18k/£25.5k",
+          "sbrr": "Air a dhùblachadh gu 100% suas gu £6,000 LR, teip loidhneach gu £12,000 LR. Foirirm tagraidh bliadhnail air a thoirt air falbh.",
+          "transition": "Sgeama faochadh eadar-amail 5 bliadhna fo S.I. 2009/3371 le crìochan Beag/Meadhanach/Mòr",
+          "statute": "S.I. 2010/1659 / S.I. 2009/3371"
+        },
+        {
+          "list": "Liosta 2017",
+          "years": "2017/18 – 2022/23",
+          "multipliers": "Iomadachaidh Gnìomhachais Bhig (46.6sg ag èirigh gu 49.9sg) vs Coitcheann (47.9sg ag èirigh gu 51.2sg airson LR > £51k)",
+          "sbrr": "100% faochadh suas gu £12,000 LR, teip loidhneach gu £15,000 LR (S.I. 2017/411). Ùine gras 12 mìosan. Lasachaidhean COVID 100%/66%/50%.",
+          "transition": "Crìochan àrdachaidh + lùghdachadh mean air mhean. S.I. 2017/411 / Sgeamaichean èiginn COVID",
+          "statute": "S.I. 2017/411 / Achd Reataichean 2021"
+        },
+        {
+          "list": "Liosta 2023",
+          "years": "2023/24 – 2025/26",
+          "multipliers": "Iomadachaidhean neo-cheangailte fo NDRA 2023. Gnìomhachas Beag air a reothadh aig 49.9sg; Coitcheann 51.2sg ag èirigh gu 54.6sg",
+          "sbrr": "100% suas gu £12k LR; faochadh RHL 75% ann an 2023–2025, 40% ann an 2025/26 (crìoch £110k). SSBR a' cur crìoch air bilean aig £600/bliadhna.",
+          "transition": "Crìochan lùghdachaidh air an cur às gu maireannach. Crìochan àrdachaidh a-mhàin.",
+          "statute": "NDRA 2023 / S.I. 2022/1239"
+        },
+        {
+          "list": "Liosta 2026",
+          "years": "2026/27 – 2028/29",
+          "multipliers": "5 Iomadachaidhean: Gnìomhachas Beag RHL (38.2sg), Coitcheann RHL (43.0sg), Beag Neo-RHL (43.2sg), Coitcheann Neo-RHL (48.0sg), Àrd-Luach (50.8sg)",
+          "sbrr": "Iomadachaidhean prìomh shràid nas ìsle maireannach a' dol an àite faochadh RHL sealach. 100% SBRR suas gu £12k LR. Crìoch SSBR £800 ann an 2026/27.",
+          "transition": "Crìochan eadar-amail àrdachaidh; Faochadh Leasachaidh 12 mìosan (100% Factar-G); saoradh Lìonraidhean Teas 100%",
+          "statute": "NDRA 2023 / Liostaichean Reataichean 2026"
+        }
+      ]
+    },
+    "WALES": {
+      "name": "A' Chuimrigh",
+      "legislation": [
+        {
+          "key": "LGFA 1988 (Bun-Reachd GB)",
+          "url": "https://www.legislation.gov.uk/ukpga/1988/41/contents",
+          "title": "Achd Ionmhas Riaghaltas Ionadail 1988 (e. 41) — Bun-Sgeama Reataichean Reachdail",
+          "primary": true
+        },
+        {
+          "key": "LGF(W)A 2024 (A' Chuimrigh)",
+          "url": "https://www.legislation.gov.uk/asc/2024/6/contents/enacted",
+          "title": "Achd Ionmhas Riaghaltas Ionadail (A' Chuimrigh) 2024 (asc 6) — Iomadachaidhean Dì-mheadhanaichte & An-aghaidh Seachnadh",
+          "primary": true
+        },
+        {
+          "key": "WSI 2025/1371 (Faochadh Eadar-amail)",
+          "url": "https://www.legislation.gov.uk/wsi/2025/1371/contents/made",
+          "title": "Riaghailtean Reataichean Neo-Dhachaigheil (Suimean Ri Phàigheadh) (A' Chuimrigh) 2025 (W.S.I. 2025/1371)",
+          "primary": false
+        },
+        {
+          "key": "WSI 2026/43 (An-aghaidh Seachnadh & Peanasan)",
+          "url": "https://www.legislation.gov.uk/wsi/2026/43/contents/made",
+          "title": "Riaghailtean Reataichean Neo-Dhachaigheil (Seachnadh agus Peanasan) (A' Chuimrigh) 2026 (W.S.I. 2026/43)",
+          "primary": false
+        },
+        {
+          "key": "WSI 2022/575 (Loidseadh Saor-làithean 182 Latha)",
+          "url": "https://www.legislation.gov.uk/wsi/2022/575/contents/made",
+          "title": "Òrdugh Reataichean Neo-Dhachaigheil (Mìneachadh air Togalach Dachaigheil) (A' Chuimrigh) 2022 (W.S.I. 2022/575)",
+          "primary": false
+        }
+      ],
+      "currentRegimeSummary": {
+        "frameworkTitle": "Rèim Làithreach & Ri Thighinn (2023–2027)",
+        "frameworkSub": "Achd Ionmhas Riaghaltas Ionadail 1988 & Achd Ionmhas Riaghaltas Ionadail (A' Chuimrigh) 2024 (LGF(W)A 2024)",
+        "multiplierTitle": "Siostam 3-Iomadachaidh 2026/27 (Reataichean Dì-mheadhanaichte na Cuimrigh):",
+        "multipliers": [
+          {
+            "label": "Iomadachaidh Mion-reic",
+            "rate": "35.0sg",
+            "rvThreshold": "LR ≤ £51,000 (Mion-reic)"
+          },
+          {
+            "label": "Iomadachaidh Coitcheann",
+            "rate": "50.2sg",
+            "rvThreshold": "LR ≤ £100,000"
+          },
+          {
+            "label": "Iomadachaidh Nas Àirde",
+            "rate": "51.5sg",
+            "rvThreshold": "LR > £100,000"
+          }
+        ],
+        "reliefHighlights": [
+          {
+            "title": "Faochadh Reataichean Gnìomhachais Bhig na Cuimrigh",
+            "desc": "100% faochadh suas gu £6,000 LR; teip loidhneach gu £12,000 LR. Cuingealaichte ri 2 thogalach aig a' char as àirde gach neach-pàighidh reata gach ùghdarras bileachaidh."
+          },
+          {
+            "title": "Ìrean Eadar-amail 2 Bhliadhna (W.S.I. 2025/1371)",
+            "desc": "67% faochadh ann am Bliadhna 1 (2026/27) agus 34% ann am Bliadhna 2 (2027/28) airson àrdachadh bhilean lìon os cionn £300."
+          },
+          {
+            "title": "Faochadh Aoigheachd Bidhe is Dibhe",
+            "desc": "Lasachadh 15% airson 2026/27 (air a chuingealachadh aig £110,000 air feadh na Cuimrigh). Tha stèiseanan peatrail (SCAT 211) air an dùnadh a-mach gu sònraichte."
+          },
+          {
+            "title": "Frèam An-aghaidh Seachnadh (W.S.I. 2026/43)",
+            "desc": "Ùine ath-shuidheachadh reata falamh air a leudachadh bho 42 latha gu 180 latha; brathan peanas sgrùdaidh ùghdarras bileachaidh reachdail (£500 + 3% LR)."
+          }
+        ]
+      },
+      "preDevolution": {
+        "heading": "Frèam Reachdail Reataichean Aonaichte an RA (Ro-Dì-mheadhanachadh: 1990–1999/2004)",
+        "era": "1990/91 gu 2004/05 (Liostaichean Reataichean 1990, 1995 & tràth ann an 2000)",
+        "statute": "Achd Ionmhas Riaghaltas Ionadail 1988 (òrdughan Rùnaire Stàite na Cuimrigh)",
+        "overview": "Mus deach cumhachdan òrdughan reataichean a ghluasad gu Seanadh Nàiseanta na Cuimrigh fo Achd Riaghaltas na Cuimrigh 1998 agus toirt a-steach SBRR Cuimreach dì-mheadhanaichte ann an 2005, bha A' Chuimrigh ag obair fo riaghailtean reataichean cumanta an RA.",
+        "rules": [
+          "Iomadachaidh Nàiseanta Aonaichte: Cho-roinn A' Chuimrigh aon iomadachaidh neo-dhachaigheil a chaidh a shuidheachadh gu nàiseanta (m.e. 36.8sg ann an 1990/91, 39.0sg ann an 1995/96) gun eadar-dhealachadh gnìomhachas beag.",
+          "Gun Fhaochadh Gnìomhachais Bhig: Thug liostaichean reataichean Cuimreach ro-dhì-mheadhanachadh seachad 0% faochadh gnìomhachas beag; bha làn reataichean ri phàigheadh air a h-uile togalach malairteach.",
+          "Ìrean Eadar-amail Co-chothromach 5 Bliadhna: Chaidh LGFA 1988 e.58 a chur an sàs air feadh na Cuimrigh, a' nochdadh crìochan dìona àrdachaidh co-chothromach air am maoineachadh le crìochan lughdachaidh, ceangailte ri RPI.",
+          "Reataichean Falamh Ro-2008: Fhuair oighreachdan malairteach falamh saoradh 100% airson 3 mìosan, an uairsin phàigh iad 50% reataichean gun chrìoch gus an deach co-ionannachd reataichean falamh a thoirt a-steach ann an 2008."
+        ]
+      },
+      "ratingLists": [
+        {
+          "list": "Liosta 1990",
+          "years": "1990/91 – 1994/95",
+          "multipliers": "Aon Iomadachaidh Aonaichte (36.8sg ann an 1990/91 ag èirigh gu 44.0sg ann an 1994/95)",
+          "sbrr": "Chan eil gin (0% — Fìor LR × Iomadachaidh)",
+          "transition": "Ìrean eadar-amail co-chothromach 5 bliadhna le crìochan àrdachaidh is lùghdachaidh",
+          "statute": "LGFA 1988 e.58 / S.I. 1989/1060"
+        },
+        {
+          "list": "Liosta 1995",
+          "years": "1995/96 – 1999/00",
+          "multipliers": "Aon Iomadachaidh Aonaichte (39.0sg ann an 1995/96 ag èirigh gu 43.1sg ann an 1999/00)",
+          "sbrr": "Chan eil gin (0%)",
+          "transition": "Crìochan eadar-amail 5 bliadhna ceangailte ri RPI; 50% reataichean falamh gun chrìoch",
+          "statute": "LGFA 1988 e.58 / S.I. 1994/3229"
+        },
+        {
+          "list": "Liosta 2000",
+          "years": "2000/01 – 2004/05",
+          "multipliers": "Aon Iomadachaidh Aonaichte (41.2sg ann an 2000/01 ag èirigh gu 45.2sg ann an 2004/05)",
+          "sbrr": "Chan eil gin (0%)",
+          "transition": "Ìrean eadar-amail 5 bliadhna fo ionnstramaidean reachdail Cuimreach",
+          "statute": "GWA 1998 / LGFA 1988 / W.S.I. 1999/3444"
+        },
+        {
+          "list": "Liosta 2005",
+          "years": "2005/06 – 2009/10",
+          "multipliers": "Aon Iomadachaidh Cuimreach air a ghleidheadh (42.2sg ann an 2005/06 ag èirigh gu 48.5sg ann an 2009/10)",
+          "sbrr": "SBRR le Còmhlain air a thoirt a-steach: 50% faochadh airson LR ≤ £2,000; 25% airson LR £2,001–£5,000",
+          "transition": "Sgeama eadar-amail dì-mheadhanaichte. Chuir Achd 2007 às do 50% reataichean falamh air 1 Giblean 2008",
+          "statute": "W.S.I. 2005/257 / Achd 2007"
+        },
+        {
+          "list": "Liosta 2010",
+          "years": "2010/11 – 2016/17",
+          "multipliers": "Aon Iomadachaidh Cuimreach (40.9sg ann an 2010/11 ag èirigh gu 48.6sg ann an 2016/17)",
+          "sbrr": "SBRR na Cuimrigh air a leudachadh: 100% faochadh airson LR ≤ £6,000, a' teipigeadh gu £12,000 LR",
+          "transition": "Sgeama eadar-amail 5 bliadhna na Cuimrigh",
+          "statute": "W.S.I. 2010/414 / W.S.I. 2010/2908"
+        },
+        {
+          "list": "Liosta 2017",
+          "years": "2017/18 – 2022/23",
+          "multipliers": "Iomadachaidh Coitcheann na Cuimrigh (49.9sg ag èirigh gu 53.5sg)",
+          "sbrr": "100% suas gu £6k LR, teip gu £12k LR (2 thogalach aig a' char as àirde). Slatan-tomhais loidseadh saor-làithean W.S.I. 2022/575 (182 latha air màl, 252 latha ri fhaighinn).",
+          "transition": "Sgeama faochadh eadar-amail W.S.I. 2017/262 na Cuimrigh",
+          "statute": "W.S.I. 2017/262 / W.S.I. 2022/575"
+        },
+        {
+          "list": "Liosta 2023",
+          "years": "2023/24 – 2025/26",
+          "multipliers": "Iomadachaidh na Cuimrigh (53.5sg ann an 2023/24, 56.2sg ann an 2024/25 & 2025/26)",
+          "sbrr": "100% suas gu £6k LR, teip gu £12k LR. Mion-reic, Cur-seachad & Aoigheachd sealach na Cuimrigh: 75% ann an 2023/24, 40% ann an 2024/25 & 2025/26 (crìoch £110k).",
+          "transition": "Sgeama faochadh eadar-amail 2 bhliadhna fo W.S.I. 2022/1350 a' cur crìoch air àrdachadh bhilean lìon",
+          "statute": "LGFA 1988 / W.S.I. 2022/1350"
+        },
+        {
+          "list": "Liosta 2026",
+          "years": "2026/27 – 2028/29",
+          "multipliers": "3 Iomadachaidhean fo LGF(W)A 2024: Mion-reic (35.0sg airson LR ≤ £51k), Coitcheann (50.2sg ≤ £100k), Nas Àirde (51.5sg > £100k)",
+          "sbrr": "100% suas gu £6k LR, teip gu £12k LR. Faochadh Aoigheachd Bidhe is Dibhe 15% (stèiseanan peatrail air an dùnadh a-mach).",
+          "transition": "Sgeama TR 2 bhliadhna fo W.S.I. 2025/1371 (67% Bliadhna 1, 34% Bliadhna 2 os cionn £300). An-aghaidh seachnadh W.S.I. 2026/43 (ath-shuidheachadh 180 latha).",
+          "statute": "LGF(W)A 2024 (asc 6) / W.S.I. 2025/1371 / W.S.I. 2026/43"
+        }
+      ]
+    },
+    "SCOTLAND": {
+      "name": "Alba",
+      "legislation": [
+        {
+          "key": "NDR 2020 (Alba)",
+          "url": "https://www.legislation.gov.uk/asp/2020/4/contents",
+          "title": "Achd Reataichean Neo-Dhachaigheil (Alba) 2020 (asp 4) — Buileachadh Ath-bhreithneachadh Barclay",
+          "primary": true
+        },
+        {
+          "key": "Achd 1975 (Luachadh & Punndachd)",
+          "url": "https://www.legislation.gov.uk/ukpga/1975/30/contents",
+          "title": "Achd Riaghaltas Ionadail (Alba) 1975 — Roll, Suidheachadh Reataichean & Cumhachdan Reachdail",
+          "primary": true
+        },
+        {
+          "key": "Achd 1962 (Carthannasan & Èigneachail)",
+          "url": "https://www.legislation.gov.uk/ukpga/1962/9/contents",
+          "title": "Achd Riaghaltas Ionadail (Uallachdan Ionmhais) (Alba) 1962 — Faochadh Carthannais Èigneachail 80%",
+          "primary": false
+        },
+        {
+          "key": "SSI 2023/45 (Faochadh Eadar-amail)",
+          "url": "https://www.legislation.gov.uk/ssi/2023/45/contents/made",
+          "title": "Riaghailtean Reataichean Neo-Dhachaigheil (Faochadh Eadar-amail) (Alba) 2023 (S.S.I. 2023/45)",
+          "primary": false
+        },
+        {
+          "key": "SSI 2022/86 (Slatan-tomhais Loidseadh Saor-làithean)",
+          "url": "https://www.legislation.gov.uk/ssi/2022/86/contents/made",
+          "title": "Riaghailtean Cìs Comhairle (Caochladh airson Dachaighean Neo-chòmhnaidh) (Alba) 2022 (S.S.I. 2022/86)",
+          "primary": false
+        },
+        {
+          "key": "SSI 2010/336 (Lùth Ath-nuadhachail)",
+          "url": "https://www.legislation.gov.uk/ssi/2010/336/contents/made",
+          "title": "Riaghailtean Reataichean Neo-Dhachaigheil (Faochadh Gineadh Lùth Ath-nuadhachail) (Alba) 2010",
+          "primary": false
+        }
+      ],
+      "currentRegimeSummary": {
+        "frameworkTitle": "Rèim Làithreach & Ri Thighinn (2023–2027)",
+        "frameworkSub": "Achd Riaghaltas Ionadail (Alba) 1975 & Achd Reataichean Neo-Dhachaigheil (Alba) 2020",
+        "multiplierTitle": "Siostam Punndachd Trì-Ìre (Ìrean Neo-cheangailte Ath-bhreithneachadh Barclay):",
+        "multipliers": [
+          {
+            "label": "Ìre Togalach Bunaiteach (BPR)",
+            "rate": "49.8sg",
+            "rvThreshold": "LR ≤ £51,000"
+          },
+          {
+            "label": "Ìre Togalach Meadhanach",
+            "rate": "54.5sg",
+            "rvThreshold": "LR £51,001 gu £100,000"
+          },
+          {
+            "label": "Ìre Togalach Nas Àirde (HPR)",
+            "rate": "55.9sg",
+            "rvThreshold": "LR > £100,000"
+          }
+        ],
+        "reliefHighlights": [
+          {
+            "title": "Sgeama Bònas Gnìomhachais Bhig (SBBS)",
+            "desc": "100% faochadh airson LR ≤ £12,000; teipichean le sreathan: 100% gu 25% airson LR £12,001–£15,000; 25% gu 0% airson LR £15,001–£20,000; crìoch chruinnichte £35,000 thairis air ioma-thogalaichean."
+          },
+          {
+            "title": "Faochadh Eadar-amail (S.S.I. 2023/45 & 2026/50)",
+            "desc": "TR Coitcheann agus SBBS TR a' cur crìoch air àrdachadh bhilean aig £600 (Bliadhna 1), £1,200 (Bliadhna 2), £1,800 (Bliadhna 3), agus crìoch 25% ann an 2026/27."
+          },
+          {
+            "title": "Mion-reic, Aoigheachd & Cur-seachad (RHL)",
+            "desc": "Lasachadh 15% air tìr-mòr (LR ≤ £100k) no 100% air eileanan fo Achd nan Eilean (Alba) 2018 (crìoch £110k)."
+          },
+          {
+            "title": "Faochadh Gineadh Lùth Ath-nuadhachail",
+            "desc": "Faochadh le sreathan suas gu 100% airson uisge, gaoth, grèine, bith-thomas fo S.S.I. 2010/336."
+          }
+        ]
+      },
+      "preDevolution": {
+        "heading": "Frèam Reachdail Reataichean Aonaichte an RA (Ro-Dì-mheadhanachadh: 1990–1999/2008)",
+        "era": "1990/91 gu 2007/08 (Liostaichean Reataichean 1990, 1995, 2000 & tràth ann an 2005)",
+        "statute": "Achd Riaghaltas Ionadail (Alba) 1975 & Achd na h-Alba 1998",
+        "overview": "Mus deach dì-mheadhanachadh a dhèanamh fo Achd na h-Alba 1998 agus cruthachadh Sgeama Bònas Gnìomhachais Bhig (SBBS) às deidh sin air 1 Giblean 2008, chaidh reataichean neo-dhachaigheil ann an Alba a rianachd fo fhrèam Oifis na h-Alba aig an RA.",
+        "rules": [
+          "Aon Phunndachd Albannach: Chaidh aon ìre punndachd èideann (m.e. 52.5sg ann an 1990/91, 43.2sg ann an 1995/96) a shuidheachadh le Rùnaire Stàite na h-Alba, air a chur an sàs gu cothromach thairis air a h-uile togalach malairteach.",
+          "Linn Ro-SBBS: Cha robh faochadh uile-choitcheann gnìomhachas beag ann gus an robh am pìleat Sgeama Faochadh Reataichean Gnìomhachais Bhig (SBRRS) ann an 2003, a chaidh a chur na àite le SBBS ann an 2008.",
+          "Ìrean Eadar-amail Co-chothromach: Bha ath-luachaidhean Albannach a' nochdadh sgeamaichean eadar-amail co-chothromach a' cur crìoch air gluasadan punndachd bliadhnail le crìochan àrdachaidh agus crìochan dàil lughdachaidh.",
+          "Reataichean Falamh Ro-2008: Saoradh togalach falamh tùsail 3 mìosan air a leantainn le 50% reataichean gun chrìoch."
+        ]
+      },
+      "ratingLists": [
+        {
+          "list": "Liosta 1990",
+          "years": "1990/91 – 1994/95",
+          "multipliers": "Aon Phunndachd Albannach (52.5sg ann an 1990/91 a' tuiteam gu 48.6sg ann an 1994/95)",
+          "sbrr": "Chan eil gin (0% — Fìor LR × Punndachd)",
+          "transition": "Sgeama eadar-amail co-chothromach fo ionnstramaidean reachdail Albannach",
+          "statute": "Achd Riaghaltas Ionadail (Alba) 1975 / S.I. 1990/602"
+        },
+        {
+          "list": "Liosta 1995",
+          "years": "1995/96 – 1999/00",
+          "multipliers": "Aon Phunndachd Albannach (43.2sg ann an 1995/96 ag èirigh gu 48.9sg ann an 1999/00)",
+          "sbrr": "Chan eil gin (0%)",
+          "transition": "Crìochan eadar-amail 5 bliadhna; 50% reataichean falamh gun chrìoch",
+          "statute": "Achd Riaghaltas Ionadail (Alba) 1975 / S.I. 1995/543"
+        },
+        {
+          "list": "Liosta 2000",
+          "years": "2000/01 – 2004/05",
+          "multipliers": "Aon Phunndachd Albannach (45.8sg ann an 2000/01 ag èirigh gu 48.8sg ann an 2004/05)",
+          "sbrr": "Pìleat Sgeama Faochadh Reataichean Gnìomhachais Bhig (SBRRS) air a thoirt a-steach ann an 2003",
+          "transition": "Riaghailtean faochadh eadar-amail na h-Alba",
+          "statute": "Achd na h-Alba 1998 / Achd 1975 / S.S.I. 2000/87"
+        },
+        {
+          "list": "Liosta 2005",
+          "years": "2005/06 – 2009/10",
+          "multipliers": "Aon Phunndachd (41.5sg ann an 2005/06 ag èirigh gu 48.1sg ann an 2009/10)",
+          "sbrr": "Sgeama Bònas Gnìomhachais Bhig (SBBS) air a chruthachadh air 1 Giblean 2008: 100% faochadh airson aon ghnìomhachas le LR ≤ £8k/£10k",
+          "transition": "Sgeamaichean eadar-amail dì-mheadhanaichte fo ionnstramaidean reachdail Albannach",
+          "statute": "S.S.I. 2008/106 / Achd 1975"
+        },
+        {
+          "list": "Liosta 2010",
+          "years": "2010/11 – 2016/17",
+          "multipliers": "Punndachd Bhunaiteach (40.7sg ann an 2010/11 ag èirigh gu 48.4sg ann an 2016/17); Leasachadh Gnìomhachas Mòr air LR > £35k",
+          "sbrr": "SBBS air a leudachadh: 100% faochadh airson LR ≤ £10k; 50% airson LR £10,001–£12k; 25% airson LR £12,001–£18k",
+          "transition": "Sgeama eadar-amail 5 bliadhna na h-Alba",
+          "statute": "S.S.I. 2010/37 / S.S.I. 2010/336 (Lùth Ath-nuadhachail)"
+        },
+        {
+          "list": "Liosta 2017",
+          "years": "2017/18 – 2022/23",
+          "multipliers": "Dì-cheangal Ath-bhreithneachadh Barclay: Bunaiteach (46.6sg ag èirigh gu 49.8sg), Meadhanach (51.1sg), Nas Àirde (52.4sg)",
+          "sbrr": "SBBS 100% faochadh suas gu £15,000 LR. Slatan-tomhais latha màil loidseadh saor-làithean S.S.I. 2022/86 (70 latha air màl, 140 latha ri fhaighinn).",
+          "transition": "Riaghailtean faochadh eadar-amail na h-Alba",
+          "statute": "S.S.I. 2017/85 / Achd NDR 2020 / S.S.I. 2022/86"
+        },
+        {
+          "list": "Liosta 2023",
+          "years": "2023/24 – 2025/26",
+          "multipliers": "Punndachd Trì-Ìre: Bunaiteach (49.8sg ≤ £51k), Meadhanach (54.5sg £51k–£100k), Nas Àirde (55.9sg > £100k)",
+          "sbrr": "SBBS air ath-leasachadh le teipichean le sreathan (100% ≤ £12k, 100% → 25% £12k–£15k, 25% → 0% £15k–£20k; crìoch chruinnichte £35k)",
+          "transition": "TR Coitcheann agus SBBS TR fo S.S.I. 2023/45 a' cur crìoch air àrdachadh bhilean aig £600 (Bliadhna 1), £1,200 (Bliadhna 2), £1,800 (Bliadhna 3)",
+          "statute": "Achd NDR (Alba) 2020 / S.S.I. 2023/45"
+        },
+        {
+          "list": "Liosta 2026",
+          "years": "2026/27 – 2028/29",
+          "multipliers": "Punndachd Trì-Ìre: Bunaiteach (49.8sg ≤ £51k), Meadhanach (54.5sg £51k–£100k), Nas Àirde (55.9sg > £100k)",
+          "sbrr": "100% SBBS suas gu £12k LR le teipichean le sreathan gu £20k LR. Crìoch àrdachadh bile SBBS TR 25% ann an 2026/27 fo S.S.I. 2026/50. Faochadh RHL 15% tìr-mòr / 100% eileanan.",
+          "transition": "Crìoch SBBS TR 25%; Faochadh Gineadh Lùth Ath-nuadhachail (suas gu 100% fo S.S.I. 2010/336)",
+          "statute": "Achd NDR 2020 / S.S.I. 2026/50 / Achd nan Eilean 2018"
+        }
+      ]
+    }
+  }
+}

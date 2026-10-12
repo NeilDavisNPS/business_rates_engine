@@ -40,13 +40,13 @@
     class="w-full p-4 flex justify-between items-center text-left bg-slate-50/80 hover:bg-slate-50 transition border-b border-slate-200"
   >
     <div class="flex items-center space-x-2">
-      <span class="text-sm font-bold text-slate-900">Devolved Sector Relief Schemes (RHL)</span>
+      <span class="text-sm font-bold text-slate-900">{calcStore.t.sector_catalog_title}</span>
       <span class="text-[10px] bg-purple-100 text-purple-800 font-bold px-2 py-0.5 rounded">
-        {calcStore.sectorReliefs.length} Seeded Schemes
+        {calcStore.sectorReliefs.length} {calcStore.t.sector_seeded_count}
       </span>
     </div>
     <span class="text-xs text-slate-500 font-medium">
-      {calcStore.isSectorReliefsExpanded ? '▲ Collapse' : '▼ Click to toggle catalog'}
+      {calcStore.isSectorReliefsExpanded ? calcStore.t.collapse_btn : calcStore.t.expand_btn}
     </span>
   </button>
 
@@ -96,7 +96,7 @@
 
         <input
           type="text"
-          placeholder="Search RHL scheme, discount % or cap..."
+          placeholder={calcStore.t.sector_search_ph}
           bind:value={searchTerm}
           class="w-full sm:w-64 px-3 py-1.5 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 font-medium text-slate-800 bg-white"
         />
@@ -107,13 +107,13 @@
         <table class="w-full text-left text-xs">
           <thead class="bg-slate-50 text-slate-700 border-b border-slate-200">
             <tr>
-              <th class="p-2.5 font-semibold">Financial Year</th>
-              <th class="p-2.5 font-semibold">Nation</th>
-              <th class="p-2.5 font-semibold">Scheme Code</th>
-              <th class="p-2.5 font-semibold">Discount Rate</th>
-              <th class="p-2.5 font-semibold">Business Cash Cap</th>
-              <th class="p-2.5 font-semibold">Statutory Authority</th>
-              <th class="p-2.5 font-semibold">Effective Period</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.sector_col_fy}</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.sector_col_nation}</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.sector_col_code}</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.sector_col_discount}</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.sector_col_cap}</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.sector_col_statute}</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.sector_col_period}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
@@ -133,7 +133,7 @@
                   {#if item.cash_cap_gbp != null}
                     £{Number(item.cash_cap_gbp).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   {:else}
-                    <span class="text-slate-400">No Cap</span>
+                    <span class="text-slate-400">{calcStore.t.sector_no_cap}</span>
                   {/if}
                 </td>
                 <td class="p-2.5 text-slate-600 text-[11px]">
@@ -146,7 +146,7 @@
                   {/if}
                 </td>
                 <td class="p-2.5 text-slate-500 font-mono text-[11px]">
-                  {item.effective_from} to {item.effective_to}
+                  {item.effective_from} {calcStore.t.to_word} {item.effective_to}
                 </td>
               </tr>
             {/each}

@@ -13,7 +13,7 @@
         {calcStore.t.relief_section}
       </h3>
       <p class="text-[11px] text-slate-500 mt-0.5">
-        Statutory mandatory reliefs, discretionary schemes, and revaluation transitional phasing.
+        {calcStore.t.relief_section_sub}
       </p>
     </div>
     <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-medium">
@@ -25,9 +25,9 @@
   <div class="space-y-2">
     <div class="flex items-center space-x-2">
       <span class="text-[11px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded">
-        Mandatory Statutory Reliefs
+        {calcStore.t.mandatory_reliefs_title}
       </span>
-      <span class="text-[11px] text-slate-400">Awarded by right when qualifying conditions are met</span>
+      <span class="text-[11px] text-slate-400">{calcStore.t.mandatory_reliefs_sub}</span>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -55,8 +55,8 @@
             class="mt-0.5 rounded text-blue-600 focus:ring-blue-500"
           />
           <div>
-            <span class="text-xs font-bold text-blue-950 block">SBRR Second Property 12-Month Grace Period</span>
-            <span class="text-[11px] text-blue-800">Retain SBRR on main hereditament for 12 months after taking on an additional property (S.I. 2017/411 art. 3(4) / LGFA 1988 s.43(4B)).</span>
+            <span class="text-xs font-bold text-blue-950 block">{calcStore.t.flag_sbrr_grace_title}</span>
+            <span class="text-[11px] text-blue-800">{calcStore.t.flag_sbrr_grace_desc}</span>
           </div>
         </label>
       {/if}
@@ -98,8 +98,8 @@
           class="mt-0.5 rounded text-blue-600 focus:ring-blue-500"
         />
         <div>
-          <span class="text-xs font-bold text-slate-900 block">Telecommunications Infrastructure Relief</span>
-          <span class="text-[11px] text-slate-500">100% relief for new fibre telecommunications infrastructure (Telecommunications Infrastructure Act 2018 / SSI 2019/111).</span>
+          <span class="text-xs font-bold text-slate-900 block">{calcStore.t.flag_telecom_title}</span>
+          <span class="text-[11px] text-slate-500">{calcStore.t.flag_telecom_desc}</span>
         </div>
       </label>
 
@@ -168,9 +168,9 @@
             class="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500"
           />
           <div>
-            <span class="text-xs font-bold text-emerald-950 block">Welsh Retail Premises (35.0p Multiplier)</span>
+            <span class="text-xs font-bold text-emerald-950 block">{calcStore.t.flag_welsh_retail_title}</span>
             <span class="text-[11px] text-emerald-800">
-              Qualifying retail hereditament with RV &lt; £51,000 eligible for the 35.0p Welsh Retail Multiplier under Local Government Finance (Wales) Act 2024.
+              {calcStore.t.flag_welsh_retail_desc}
             </span>
           </div>
         </label>
@@ -182,9 +182,9 @@
   <div class="space-y-2 pt-2 border-t border-slate-100">
     <div class="flex items-center space-x-2">
       <span class="text-[11px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-2 py-0.5 rounded">
-        Discretionary & Revaluation Protections
+        {calcStore.t.discretionary_section_title}
       </span>
-      <span class="text-[11px] text-slate-400">Local authority discretionary schemes and statutory transitional caps</span>
+      <span class="text-[11px] text-slate-400">{calcStore.t.discretionary_section_sub}</span>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -197,14 +197,14 @@
           class="mt-0.5 rounded text-amber-600 focus:ring-amber-500"
         />
         <div>
-          <span class="text-xs font-bold text-amber-950 block">Apply Statutory Transitional Relief (TR)</span>
+          <span class="text-xs font-bold text-amber-950 block">{calcStore.t.flag_tr_toggle_title}</span>
           <span class="text-[11px] text-amber-800">
             {#if calcStore.jurisdiction === 'WALES'}
-              Automatically caps revaluation bill increases exceeding £300 under W.S.I. 2025/1371 (67% relief in 2026/27, 34% in 2027/28). Uncheck to calculate unphased liability.
+              {calcStore.t.flag_tr_toggle_desc_wales}
             {:else if calcStore.jurisdiction === 'SCOTLAND'}
-              Automatically caps revaluation bill increases under Scottish Transitional Relief Regulations. Uncheck to calculate unphased liability.
+              {calcStore.t.flag_tr_toggle_desc_scotland}
             {:else}
-              Automatically caps revaluation bill increases (e.g. England 2026/27: +5% Small, +15% Medium, +30% Large under LGFA 1988 s.57A / NDRA 2023). Uncheck to calculate unphased liability.
+              {calcStore.t.flag_tr_toggle_desc_england}
             {/if}
           </span>
         </div>
@@ -220,9 +220,9 @@
             class="mt-0.5 rounded text-purple-600 focus:ring-purple-500"
           />
           <div>
-            <span class="text-xs font-bold text-purple-950 block">Supporting Small Business Relief (SSBR)</span>
+            <span class="text-xs font-bold text-purple-950 block">{calcStore.t.flag_ssbr_title}</span>
             <span class="text-[11px] text-purple-800">
-              Discretionary s.47 protection capping net bill increases to £600/yr (2023–2025) and £800/yr (2026/27) for ratepayers losing or seeing reduced SBRR, Rural, or RHL relief.
+              {calcStore.t.flag_ssbr_desc}
             </span>
           </div>
         </label>
@@ -252,8 +252,8 @@
             class="mt-0.5 rounded text-purple-600 focus:ring-purple-500"
           />
           <div>
-            <span class="text-xs font-bold text-purple-900 block">Scottish Island Property (100% RHL Relief)</span>
-            <span class="text-[11px] text-purple-700">Property located on a Scottish island under Islands (Scotland) Act 2018 (100% relief capped at £110k).</span>
+            <span class="text-xs font-bold text-purple-900 block">{calcStore.t.flag_island_title}</span>
+            <span class="text-[11px] text-purple-700">{calcStore.t.flag_island_desc}</span>
           </div>
         </label>
       {/if}
@@ -268,8 +268,8 @@
             class="mt-0.5 rounded text-purple-600 focus:ring-purple-500"
           />
           <div>
-            <span class="text-xs font-bold text-purple-900 block">Small Business Bonus Transitional Relief (SBBS TR)</span>
-            <span class="text-[11px] text-purple-700">Caps bill increases for properties losing or seeing reduced SBBS (£600/£1,200/£1,800 under 2023 list; max 25% bill increase in 2026/27).</span>
+            <span class="text-xs font-bold text-purple-900 block">{calcStore.t.flag_sbbs_tr_title}</span>
+            <span class="text-[11px] text-purple-700">{calcStore.t.flag_sbbs_tr_desc}</span>
           </div>
         </label>
       {/if}
@@ -282,9 +282,9 @@
           class="mt-0.5 rounded text-purple-600 focus:ring-purple-500"
         />
         <div>
-          <span class="text-xs font-bold text-purple-950 block">Discretionary Charity Top-Up (Up to 20%)</span>
+          <span class="text-xs font-bold text-purple-950 block">{calcStore.t.flag_charity_topup_title}</span>
           <span class="text-[11px] text-purple-800">
-            Billing authority discretionary top-up of up to 20% on top of 80% mandatory charitable relief (LGFA 1988 s.47(2)(a) / 1962 Act s.4(5)), reducing liability to £0.
+            {calcStore.t.flag_charity_topup_desc}
           </span>
         </div>
       </label>
@@ -299,9 +299,9 @@
             class="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500"
           />
           <div>
-            <span class="text-xs font-bold text-emerald-950 block">Renewable Energy Generation Relief</span>
+            <span class="text-xs font-bold text-emerald-950 block">{calcStore.t.flag_renewable_title}</span>
             <span class="text-[11px] text-emerald-800">
-              Tiered relief under SSI 2010/336: 100% (RV &le; £145k), 50% (RV &le; £200k), 25% (RV &le; £250k), 10% (RV &le; £1m).
+              {calcStore.t.flag_renewable_desc}
             </span>
           </div>
         </label>
@@ -313,9 +313,9 @@
   <div class="space-y-2 pt-2 border-t border-slate-100">
     <div class="flex items-center space-x-2">
       <span class="text-[11px] font-bold uppercase tracking-wider text-slate-700 bg-slate-100 px-2 py-0.5 rounded">
-        Occupancy & Property Conditions
+        {calcStore.t.property_conditions_title}
       </span>
-      <span class="text-[11px] text-slate-400">Empty exemptions, self-catering qualifications, and compliance checks</span>
+      <span class="text-[11px] text-slate-400">{calcStore.t.property_conditions_sub}</span>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -372,7 +372,7 @@
             />
           </div>
           <p class="text-[11px] text-purple-700">
-            {calcStore.jurisdiction === 'SCOTLAND' ? 'Must be actually let &ge; 182 days (SSI 2022/86) to remain on NDR list. Failing transfers to Council Tax (£0 NDR).' : 'Must be actually let &ge; 70 days (LGFA 1988 s.66) to remain on NDR list. Failing transfers to Council Tax (£0 NDR).'}
+            {calcStore.jurisdiction === 'SCOTLAND' ? calcStore.t.holiday_desc_scotland : calcStore.t.holiday_desc_eng_wales}
           </p>
         </div>
       {/if}
@@ -380,7 +380,7 @@
       <!-- Statutory Installment Schedule Plan (SI 1989/1058 Sched 1 / LGA 2003) -->
       <div class="p-2.5 rounded-lg border border-slate-200 space-y-1.5">
         <label for="installmentsPlanSelect" class="text-xs font-bold text-slate-900 block">
-          Statutory Installment Plan
+          {calcStore.t.installments_plan_label}
         </label>
         <select
           id="installmentsPlanSelect"
@@ -388,11 +388,11 @@
           onchange={onFlagChange}
           class="w-full max-w-full px-2 py-1 text-xs border border-slate-300 rounded font-bold text-slate-800 bg-white cursor-pointer focus:ring-1 focus:ring-blue-500"
         >
-          <option value={10}>10 Monthly Installments (Default)</option>
-          <option value={12}>12 Monthly Installments (Statutory Right)</option>
+          <option value={10}>{calcStore.t.installments_10_opt}</option>
+          <option value={12}>{calcStore.t.installments_12_opt}</option>
         </select>
         <p class="text-[11px] text-slate-500">
-          Statutory payment schedule under SI 1989/1058 (10 months May–Feb) or ratepayer right to 12 months (Apr–Mar under LGA 2003 / SI 2014/466).
+          {calcStore.t.installments_help}
         </p>
       </div>
 

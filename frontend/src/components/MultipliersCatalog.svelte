@@ -39,13 +39,13 @@
     class="w-full p-4 flex justify-between items-center text-left bg-slate-50/80 hover:bg-slate-50 transition border-b border-slate-200"
   >
     <div class="flex items-center space-x-2">
-      <span class="text-sm font-bold text-slate-900">Statutory Rating Multipliers (1990–2027)</span>
+      <span class="text-sm font-bold text-slate-900">{calcStore.t.multipliers_title}</span>
       <span class="text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded">
-        {calcStore.multipliers.length} Seeded Rates
+        {calcStore.multipliers.length} {calcStore.t.multipliers_seeded_count}
       </span>
     </div>
     <span class="text-xs text-slate-500 font-medium">
-      {calcStore.isMultipliersExpanded ? '▲ Collapse' : '▼ Click to toggle catalog'}
+      {calcStore.isMultipliersExpanded ? calcStore.t.collapse_btn : calcStore.t.expand_btn}
     </span>
   </button>
 
@@ -95,7 +95,7 @@
 
         <input
           type="text"
-          placeholder="Search year (e.g. 2026/27), type..."
+          placeholder={calcStore.t.multipliers_search_ph}
           bind:value={searchTerm}
           class="w-full sm:w-64 px-3 py-1.5 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 font-medium text-slate-800 bg-white"
         />
@@ -106,12 +106,12 @@
         <table class="w-full text-left text-xs">
           <thead class="bg-slate-50 text-slate-700 border-b border-slate-200">
             <tr>
-              <th class="p-2.5 font-semibold">Financial Year</th>
-              <th class="p-2.5 font-semibold">Nation</th>
-              <th class="p-2.5 font-semibold">Multiplier Type</th>
-              <th class="p-2.5 font-semibold">Rateable Value Threshold</th>
-              <th class="p-2.5 font-semibold">Multiplier Rate</th>
-              <th class="p-2.5 font-semibold">Effective Period</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.multipliers_col_fy}</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.multipliers_col_nation}</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.multipliers_col_type}</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.multipliers_col_threshold}</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.multipliers_col_rate}</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.multipliers_col_period}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
@@ -130,14 +130,14 @@
                   {:else if Number(item.rv_threshold_min) > 0}
                     ≥ £{Number(item.rv_threshold_min).toLocaleString()}
                   {:else}
-                    All RV (No Threshold Cap)
+                    {calcStore.t.multipliers_all_rv}
                   {/if}
                 </td>
                 <td class="p-2.5 font-mono font-bold text-blue-700 text-sm">
                   {Number(item.multiplier_rate).toFixed(4)}
                 </td>
                 <td class="p-2.5 text-slate-500 font-mono text-[11px]">
-                  {item.effective_from} to {item.effective_to}
+                  {item.effective_from} {calcStore.t.to_word} {item.effective_to}
                 </td>
               </tr>
             {/each}

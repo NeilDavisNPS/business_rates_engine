@@ -26,7 +26,7 @@
           onclick={formatJson}
           class="text-xs px-2.5 py-1 rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white font-semibold transition border border-slate-300 dark:border-slate-700 cursor-pointer"
         >
-          Format JSON
+          {calcStore.t.btn_format_json}
         </button>
       </div>
     </div>

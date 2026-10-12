@@ -45,7 +45,7 @@
       </span>
     </div>
     <span class="text-xs text-slate-500 font-medium">
-      {calcStore.isDictExpanded ? '▲ Collapse' : '▼ ' + calcStore.t.ref_dict_expand}
+      {calcStore.isDictExpanded ? calcStore.t.collapse_btn : '▼ ' + calcStore.t.ref_dict_expand}
     </span>
   </button>
 
@@ -95,7 +95,7 @@
 
         <input
           type="text"
-          placeholder="Search categories, codes, laws..."
+          placeholder={calcStore.t.ref_search_ph}
           bind:value={searchTerm}
           class="w-full sm:w-64 px-3 py-1.5 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-blue-500"
         />

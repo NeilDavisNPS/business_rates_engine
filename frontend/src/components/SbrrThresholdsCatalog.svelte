@@ -38,13 +38,13 @@
     class="w-full p-4 flex justify-between items-center text-left bg-slate-50/80 hover:bg-slate-50 transition border-b border-slate-200"
   >
     <div class="flex items-center space-x-2">
-      <span class="text-sm font-bold text-slate-900">Small Business Rate Relief & SBBS Thresholds</span>
+      <span class="text-sm font-bold text-slate-900">{calcStore.t.sbrr_catalog_title}</span>
       <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">
-        {calcStore.sbrrThresholds.length} Seeded Taper Rules
+        {calcStore.sbrrThresholds.length} {calcStore.t.sbrr_seeded_count}
       </span>
     </div>
     <span class="text-xs text-slate-500 font-medium">
-      {calcStore.isSbrrExpanded ? '▲ Collapse' : '▼ Click to toggle catalog'}
+      {calcStore.isSbrrExpanded ? calcStore.t.collapse_btn : calcStore.t.expand_btn}
     </span>
   </button>
 
@@ -94,7 +94,7 @@
 
         <input
           type="text"
-          placeholder="Search year or relief rule..."
+          placeholder={calcStore.t.sbrr_search_ph}
           bind:value={searchTerm}
           class="w-full sm:w-64 px-3 py-1.5 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 font-medium text-slate-800 bg-white"
         />
@@ -105,12 +105,12 @@
         <table class="w-full text-left text-xs">
           <thead class="bg-slate-50 text-slate-700 border-b border-slate-200">
             <tr>
-              <th class="p-2.5 font-semibold">Financial Year</th>
-              <th class="p-2.5 font-semibold">Nation</th>
-              <th class="p-2.5 font-semibold">Rateable Value Range</th>
-              <th class="p-2.5 font-semibold">Max Relief %</th>
-              <th class="p-2.5 font-semibold">Taper / Relief Mechanics</th>
-              <th class="p-2.5 font-semibold">Statutory Authority</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.sbrr_col_fy}</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.sbrr_col_nation}</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.sbrr_col_range}</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.sbrr_col_max_relief}</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.sbrr_col_mechanics}</th>
+              <th class="p-2.5 font-semibold">{calcStore.t.sbrr_col_statute}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
@@ -131,11 +131,11 @@
                 <td class="p-2.5">
                   {#if item.is_tapered}
                     <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-amber-100 text-amber-800">
-                      Linear Taper (Tapers to 0%)
+                      {calcStore.t.sbrr_linear_taper}
                     </span>
                   {:else}
                     <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-emerald-100 text-emerald-800">
-                      Full Statutory Exemption
+                      {calcStore.t.sbrr_full_exemption}
                     </span>
                   {/if}
                 </td>

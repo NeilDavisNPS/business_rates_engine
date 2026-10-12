@@ -73,7 +73,7 @@
                 type="date"
                 bind:value={period.end_date}
                 oninput={() => calcStore.markCalculationDue()}
-                placeholder="Open"
+                placeholder={calcStore.t.placeholder_open}
                 class="w-full px-2 py-1 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 font-mono font-medium text-slate-800 bg-white"
               />
             </td>
@@ -104,7 +104,7 @@
                     oninput={(e) => onPctChange(idx, e.currentTarget.value)}
                     class="w-16 px-1.5 py-1 text-xs border border-amber-300 bg-amber-50 rounded font-bold text-amber-900"
                   />
-                  <span class="text-amber-800 font-bold">% occ</span>
+                  <span class="text-amber-800 font-bold">{calcStore.t.pct_occ_unit}</span>
                 </div>
               {:else}
                 <span class="text-slate-600 italic">{calcStore.t.occ_na_text}</span>
@@ -139,11 +139,11 @@
       onchange={() => calcStore.syncFormToJson()}
       class="text-xs px-2.5 py-1 border border-slate-300 rounded bg-white font-medium text-slate-800 max-w-xs"
     >
-      <option value="CORPORATE">CORPORATE (Company / Ltd / PLC)</option>
-      <option value="INDIVIDUAL">INDIVIDUAL (Natural Person)</option>
-      <option value="CHARITY">CHARITY (Registered Charity)</option>
-      <option value="CASC">CASC (Community Amateur Sports Club)</option>
-      <option value="LOCAL_AUTHORITY">LOCAL_AUTHORITY (Billing Authority / Public Body)</option>
+      <option value="CORPORATE">{calcStore.t.party_corporate}</option>
+      <option value="INDIVIDUAL">{calcStore.t.party_individual}</option>
+      <option value="CHARITY">{calcStore.t.party_charity}</option>
+      <option value="CASC">{calcStore.t.party_casc}</option>
+      <option value="LOCAL_AUTHORITY">{calcStore.t.party_local_authority}</option>
     </select>
   </div>
 </div>

@@ -31,7 +31,7 @@
             lang={lang.code}
             onclick={() => calcStore.setLanguage(lang.code)}
             aria-pressed={calcStore.language === lang.code}
-            aria-label={"Switch language to " + lang.label}
+            aria-label={calcStore.t.switch_lang_aria + " " + lang.label}
             class="px-3 py-1.5 rounded-md transition focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 {calcStore.language === lang.code
               ? 'bg-white text-slate-900 font-bold shadow-sm'
               : 'text-slate-300 hover:text-white hover:bg-slate-700/50'}"
@@ -47,9 +47,9 @@
         target="_blank"
         rel="noopener noreferrer"
         class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-blue-300 hover:text-white border border-slate-700 transition"
-        title="Open interactive Scalar API Reference (OpenAPI 3.1)"
+        title={calcStore.t.scalar_docs_title}
       >
-        API Reference (Scalar)
+        {calcStore.t.scalar_docs_label}
       </a>
 
       <!-- API Status Pill -->

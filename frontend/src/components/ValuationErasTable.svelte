@@ -1,15 +1,15 @@
 <script lang="ts">
   import { calcStore } from '../stores/calculation.svelte';
 
-  const scatOptions = [
-    { code: '091', label: '091 - General Offices / Commercial Premises' },
-    { code: '003', label: '003 - Airport / Major Aviation Infrastructure' },
-    { code: '096', label: '096 - Industrial Hereditament / Warehouse / Factory' },
-    { code: '209', label: '209 - Public House / Bar / Licensed Premise' },
-    { code: '211', label: '211 - Petrol Filling Station & Forecourt' },
-    { code: '225', label: '225 - Retail Shop / High Street Unit' },
-    { code: '249', label: '249 - Self-Catering Holiday Accommodation' },
-  ];
+  const scatOptions = $derived([
+    { code: '091', label: calcStore.t.scat_091 },
+    { code: '003', label: calcStore.t.scat_003 },
+    { code: '096', label: calcStore.t.scat_096 },
+    { code: '209', label: calcStore.t.scat_209 },
+    { code: '211', label: calcStore.t.scat_211 },
+    { code: '225', label: calcStore.t.scat_225 },
+    { code: '249', label: calcStore.t.scat_249 },
+  ]);
 </script>
 
 <div class="space-y-4">
@@ -95,7 +95,7 @@
                   type="date"
                   bind:value={era.effective_to}
                   oninput={() => calcStore.markCalculationDue()}
-                  placeholder="Open"
+                  placeholder={calcStore.t.placeholder_open}
                   class="w-full px-2 py-1 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 font-mono font-medium text-slate-800 bg-white"
                 />
               </td>

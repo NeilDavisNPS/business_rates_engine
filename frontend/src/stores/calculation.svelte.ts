@@ -303,7 +303,7 @@ class CalculationStore {
       this.isCalculationDue = true;
       this.errorMessage = null;
     } catch (err: any) {
-      this.errorMessage = `Invalid JSON: ${err.message}`;
+      this.errorMessage = `${this.t.err_invalid_json}: ${err.message}`;
     }
   }
 
@@ -322,7 +322,7 @@ class CalculationStore {
       payload.language = this.language;
     } catch (err: any) {
       this.calcStatus = 'error';
-      this.errorMessage = `Malformed Request: ${err.message}`;
+      this.errorMessage = `${this.t.err_malformed_request}: ${err.message}`;
       return;
     }
 
@@ -359,7 +359,7 @@ class CalculationStore {
       this.isCalculationDue = false;
     } catch (err: any) {
       this.calcStatus = 'error';
-      this.errorMessage = err.message || 'Unknown network error';
+      this.errorMessage = err.message || this.t.err_unknown_network;
     }
   }
 
