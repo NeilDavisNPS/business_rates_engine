@@ -3,7 +3,7 @@
 > **Target Environment:** Full-Stack Rust Workspace & Svelte 5 Component Framework  
 > **Backend Architecture:** Axum 0.7 + Tokio 1.38 + Built-In Parameter Repository (Seeded 1993–2027)  
 > **Frontend Architecture:** Svelte 5 (Runes `$state`, `$derived`) + Vite 6 + TypeScript 5.7 + Standalone Tailwind CSS (`frontend/`)  
-> **API Access Mode:** Unauthenticated Public REST API (No API keys or SSO required)  
+> **API Access Mode:** Public REST API  
 > **API Documentation:** Interactive Scalar API Reference (`/docs`) with Self-Hosted `scalar.js` (Zero CDN) & OpenAPI 3.1.0 (`/api/v1/openapi.json`)  
 > **Internationalization (i18n):** Native 4-language support: English (`en`), Welsh (`cy`), Scots (`sco`), and Scottish Gaelic (`gd`) across UI, statutory narratives, relief names, error payloads, and reference codes  
 > **Security Baseline:** OWASP-compliant HTTP security headers with strict Content Security Policy (zero `'unsafe-inline'` scripts, zero external CDNs)  
@@ -88,12 +88,11 @@ The system operates with a decoupled modern architecture:
 
 #### Key Technical Decisions & Choices:
 1. **Svelte 5 Component UI Architecture**:
-   - Replaced server-side Askama templates with Svelte 5 Runes (`$state`, `$derived`).
+   - Modern component-driven architecture built with Svelte 5 Runes (`$state`, `$derived`).
    - Clean, modular component decomposition for reactive form state, multi-episode tables, live audit narrative preview, parameter catalog accordions, and bidirectional Form-to-JSON editing.
    - Built to production dist via `./build-frontend.sh` (`frontend/dist/`).
-2. **Unauthenticated Public Access**:
-   - Decommissioned multi-tenancy controls, tenant API keys (`X-API-Key`), and SSO identity providers.
-   - All REST APIs and calculation endpoints are directly accessible with zero authentication overhead.
+2. **Public REST API Access**:
+   - All REST APIs and calculation endpoints are directly accessible as a public service with zero authentication overhead.
 3. **4-Language Internationalization (i18n)**:
    - Full support for **English (`en`)**, **Welsh (`cy`)**, **Scots (`sco`)**, and **Scottish Gaelic (`gd`)**.
    - Language is negotiated dynamically based on: Request body `"language"` > Query parameter `?lang=` > `Accept-Language` header > Default `en`.
@@ -107,7 +106,6 @@ The system operates with a decoupled modern architecture:
    - Built-in interactive documentation served at `/docs` rendered via [`templates/scalar.html`](templates/scalar.html) using self-hosted `/assets/scalar.js`. Operates 100% offline with zero external CDN dependencies and supports dynamic query parameter templating (`title`, `spec_url`, `theme`, `layout`).
 7. **Unified Single REST API Routes**:
    - Standardized single-namespace REST endpoints directly under `/api/v1/` (`/calculate-liability`, `/reference-codes`, `/parameters/*`, `/openapi.*`).
-   - All legacy route aliases (`/admin`, `/component-ui`, `/app`, `/scalar`, `/api-reference`, `/swagger`, `/swagger-ui`, `/openapi.json`, `/openapi.yaml`, and `/api/v1/business-rates/*`) have been decommissioned and return `404 Not Found`.
 
 ---
 
@@ -151,7 +149,7 @@ The engine implements compile-time verified multi-lingual support via [`src/i18n
 
 ### 2.4 Core Calculation Engine Contract (`POST /api/v1/calculate-liability`)
 
-> **Single Canonical Calculation Route:** All liability calculations are handled exclusively by `POST /api/v1/calculate-liability`. Legacy route `/api/v1/business-rates/calculate-liability` has been decommissioned and returns `404 Not Found`.
+> **Single Canonical Calculation Route:** All liability calculations are handled exclusively by `POST /api/v1/calculate-liability`.
 
 #### Multi-Occupancy Request Payload Schema
 ```json
@@ -283,7 +281,7 @@ The engine implements compile-time verified multi-lingual support via [`src/i18n
 
 ## 3. Built-In Statutory Parameter Repository (`src/db/repository.rs`)
 
-For the initial release, the calculation engine operates with a self-contained, in-memory **Built-In Statutory Parameter Repository** (`ParameterRepository` in `src/db/repository.rs`). This design decision provides:
+The calculation engine operates with a self-contained, in-memory **Built-In Statutory Parameter Repository** (`ParameterRepository` in `src/db/repository.rs`). This architecture provides:
 
 - **Zero External Infrastructure**: Operates independently with zero database services, connection strings, or migration scripts.
 - **Deterministic Sub-Millisecond Latency**: Microsecond in-memory indexing and lookups with zero network overhead.
@@ -356,7 +354,7 @@ The in-memory parameter repository and statutory documentation are exposed direc
 - `GET /api/v1/parameters/sector-reliefs`: Devolved retail, hospitality, leisure, and special relief schemes.
 - `GET /api/v1/parameters/transitional-caps`: Statutory revaluation transitional phasing percentage caps.
 - `GET /api/v1/openapi.json` & `GET /api/v1/openapi.yaml`: Official OpenAPI 3.1.0 specifications documenting all statutory models, calculation endpoints, schemas, and parameter filters.
-- `GET /docs`: Interactive self-hosted Scalar API reference UI rendered from `templates/scalar.html` with zero external CDN dependencies, strict script CSP, and dynamic query parameter templating (`?title=...&spec_url=...&theme=...&layout=...`). All redundant aliases (`/scalar`, `/api-reference`, `/swagger`, `/swagger-ui`) are decommissioned and return `404 NOT FOUND`.
+- `GET /docs`: Interactive self-hosted Scalar API reference UI rendered from `templates/scalar.html` with zero external CDN dependencies, strict script CSP, and dynamic query parameter templating (`?title=...&spec_url=...&theme=...&layout=...`).
 
 ---
 
@@ -396,15 +394,15 @@ The test suite in [`tests/integration_tests.rs`](file:///c:/Users/mark__q2t877z/
   - `test_http_calculate_liability_bad_payload_error`: Validates HTTP 422 `PAYLOAD_DESERIALIZATION_ERROR` response on malformed JSON payload.
   - `test_domain_error_status_codes_and_codes`: Verifies strongly-typed `AppError` status codes and error identifiers (`InvalidOccupationPeriod` -> 400 `INVALID_OCCUPATION_PERIOD`, `PayloadDeserialization` -> 422 `PAYLOAD_DESERIALIZATION_ERROR`).
 
-- **Suite D: Reference Codes, Parameter Resolution & Unauthenticated Access**:
+- **Suite D: Reference Codes, Parameter Resolution & Public API Access**:
   - `test_app_state_repository_access`: Validates thread-safe parameter repository access on `AppState`.
   - `test_zero_hardcoding_historical_multipliers_1993_to_2026`: Complete verification of English, Welsh, and Scottish rating multipliers from 1993 to 2026.
   - `test_preseeded_reference_codes_and_allowable_values`: Pre-seeded values for jurisdictions, party types, and reliefs.
-  - `test_http_reference_codes_endpoints`: Validates unauthenticated `GET /api/v1/reference-codes` and verifies deprecated `/api/v1/business-rates/reference-codes` returns `404 NOT FOUND`.
-  - `test_http_calculate_liability_unauthenticated_access`: Verifies calculation succeeds on `POST /api/v1/calculate-liability` without any `X-API-Key` or authorization headers, and confirms legacy `/api/v1/business-rates/calculate-liability` returns `404 NOT FOUND`.
-  - `test_http_sso_endpoints`: Verifies removed SSO endpoints return `404 NOT FOUND`.
+  - `test_http_reference_codes_endpoints`: Validates public `GET /api/v1/reference-codes` and verifies unmapped endpoints return `404 NOT FOUND`.
+  - `test_http_calculate_liability_unauthenticated_access`: Verifies calculation succeeds on `POST /api/v1/calculate-liability` without requiring authorization headers, and confirms unmapped routes return `404 NOT FOUND`.
+  - `test_http_sso_endpoints`: Verifies unmapped auth endpoints return `404 NOT FOUND`.
   - `test_http_parameters_endpoints`: Validates all 5 parameter catalog endpoints (`/api/v1/parameters`, `/api/v1/parameters/multipliers`, `/api/v1/parameters/sbrr-thresholds`, `/api/v1/parameters/sector-reliefs`, `/api/v1/parameters/transitional-caps`) return valid HTTP 200 JSON arrays.
-  - `test_openapi_and_swagger_endpoints`: Validates OpenAPI 3.1.0 specifications (`/api/v1/openapi.json`, `/api/v1/openapi.yaml`), `/docs` Scalar HTML rendering with query parameter templating (`title`, `spec_url`, `theme`, `layout`), self-hosted zero-CDN `scalar.js`, and confirms decommissioned aliases (`/scalar`, `/api-reference`, `/swagger`, `/swagger-ui`, `/openapi.json`, `/openapi.yaml`) return `404 NOT FOUND`.
+  - `test_openapi_and_swagger_endpoints`: Validates OpenAPI 3.1.0 specifications (`/api/v1/openapi.json`, `/api/v1/openapi.yaml`), `/docs` Scalar HTML rendering with query parameter templating (`title`, `spec_url`, `theme`, `layout`), self-hosted zero-CDN `scalar.js`, and confirms unmapped documentation routes return `404 NOT FOUND`.
 
 - **Suite E: Statutory Relief Extensions**:
   - `test_statutory_heat_network_exemption`: NDRA 2023 s.2 100% heat network discount.
@@ -417,11 +415,11 @@ The test suite in [`tests/integration_tests.rs`](file:///c:/Users/mark__q2t877z/
 - **Suite F: Component UI Serving & OWASP Security**:
   - `test_root_ui_route_and_static_assets_with_owasp_headers`: Verifies `/` and bundled assets `/assets/*` serve with strict OWASP CSP headers.
   - `test_ui_html_rendering_english_default`: Verifies `/` serves the Svelte 5 single-page application mount `<div id="app">`.
-  - `test_ui_decommissioned_alias_routes_return_404`: Verifies decommissioned aliases (`/admin`, `/component-ui`, `/app`) return `404 NOT FOUND`.
+  - `test_ui_decommissioned_alias_routes_return_404`: Verifies unmapped UI routes return `404 NOT FOUND`.
   - `test_owasp_secure_headers_on_html_ui_response`: Verifies complete suite of OWASP headers on HTML responses.
   - `test_owasp_secure_headers_on_api_json_response`: Verifies OWASP security headers on API JSON responses.
   - `test_owasp_secure_headers_on_error_and_unauthorized_responses`: Verifies OWASP security headers on 422/404 error responses.
-  - `test_static_assets_served_with_correct_content_types`: CSS and Vite assets served with proper MIME types; removed SSR assets return 404.
+  - `test_static_assets_served_with_correct_content_types`: CSS and Vite assets served with proper MIME types; unmapped static assets return 404.
 
 ---
 
@@ -439,7 +437,7 @@ cargo test --test integration_tests
 # 3. Start the HTTP API & Single-Page Application server (default port 8080)
 cargo run --bin business_rates_engine
 
-# 4. Execute a calculation via curl (Unauthenticated — No API Key required)
+# 4. Execute a calculation via curl (Public REST API)
 curl -s -X POST http://localhost:8080/api/v1/calculate-liability \
   -H "Content-Type: application/json" \
   -d @tests/fixtures/scenario_1_sbrr_rhl_england.json

@@ -2,6 +2,7 @@
   "version": "2.0.0",
   "tasks": [
     { "label": "Run Axum Backend", "type": "shell", "command": "cargo run --bin business_rates_engine" },
-    { "label": "Run Trunk WASM", "type": "shell", "command": "trunk serve --locked" }
+    { "label": "Build Svelte Frontend", "type": "shell", "command": "./build-frontend.sh" },
+    { "label": "Run Vite Dev", "type": "shell", "command": "cd frontend && npm run dev" }
   ]
 }

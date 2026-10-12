@@ -113,12 +113,6 @@ PORT=9090 cargo run
 | `http://localhost:8080/api/v1/openapi.json` | OpenAPI 3.1.0 Specification (JSON format) | Public (GET) |
 | `http://localhost:8080/api/v1/openapi.yaml` | OpenAPI 3.1.0 Specification (YAML format) | Public (GET) |
 
-> **Note on Decommissioned Routes**: All redundant aliases have been removed and return `404 Not Found`:
-> - UI aliases (`/admin`, `/component-ui`, `/app`)
-> - Documentation aliases (`/scalar`, `/api-reference`, `/swagger`, `/swagger-ui`)
-> - Root-level OpenAPI duplicates (`/openapi.json`, `/openapi.yaml`)
-> - Deprecated service slugs (`/api/v1/business-rates/*`)
-
 ---
 
 ## 5. Frontend Development Mode (Vite HMR)
@@ -412,7 +406,7 @@ rates.example.gov.uk {
 
 ## 9. REST API Endpoints & cURL Reference
 
-The REST API is **100% unauthenticated**; no API keys (`X-API-Key`) or bearer tokens are required.
+The REST API is a public, high-performance service; requests do not require API keys or bearer tokens.
 
 ### 1. Calculate Liability (Standard Scenario)
 ```bash
@@ -518,9 +512,10 @@ business_rates_engine/
 ├── tests/
 │   ├── fixtures/                 # Pre-configured test scenario JSON files (Scenarios 1-5)
 │   └── integration_tests.rs      # Complete test suite (45 passing tests)
-├── build-frontend.sh             # Build script for Svelte 5 frontend
-├── build-css.sh                  # Standalone Tailwind CSS compiler
-├── watch-css.sh                  # Tailwind CSS watch mode
+├── build-frontend.sh             # Build script for Svelte 5 frontend (Tailwind + Vite bundle)
+├── watch-css.sh                  # Tailwind CSS watch mode for Vite development
+├── setup-node.sh                 # Local Node.js environment setup helper
+├── LICENSE.md                    # MIT License specification
 ├── Dockerfile                    # Multi-stage production container build
 └── Cargo.toml                    # Rust dependencies & package manifest
 ```
