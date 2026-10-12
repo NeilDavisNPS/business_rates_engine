@@ -13,7 +13,7 @@ This guide details how to install, build, configure, test, and deploy the **Busi
 6. [Automated Testing & Quality Verification](#6-automated-testing--quality-verification)
 7. [Deploying for Testing / Staging](#7-deploying-for-testing--staging)
 8. [Deploying for Production](#8-deploying-for-production)
-   - [Option A: Multi-Stage Container Deployment (Docker / Kubernetes)](#option-a-multi-stage-container-deployment-docker--kubernetes)
+   - [Option A: Multi-Stage Container Deployment (Podman / Docker / Kubernetes)](#option-a-multi-stage-container-deployment-podman--docker--kubernetes)
    - [Option B: Bare-Metal / VM Linux Systemd Service](#option-b-bare-metal--vm-linux-systemd-service)
    - [Reverse Proxy & SSL/TLS Configuration (Nginx & Caddy)](#reverse-proxy--ssltls-configuration)
 9. [REST API Endpoints & cURL Reference](#9-rest-api-endpoints--curl-reference)
@@ -30,7 +30,7 @@ Before getting started, ensure you have the following installed on your machine:
 - **Node.js & npm**: Node.js 18+ or 20+ (LTS)  
   *Verify:* `node -v` and `npm -v`  
   *(Note: In WSL/Linux environments without global Node, run `./setup-node.sh` to install a local portable Node binary into `./bin/`).*
-- **(Optional) Docker**: For standalone containerized deployment using the multi-stage [`Dockerfile`](Dockerfile).  
+- **(Optional) Podman (or Docker)**: For rootless, daemonless containerized deployment using Podman with the multi-stage [`Dockerfile`](Dockerfile).  
   *(Note: The calculation engine includes an in-memory repository pre-seeded with all 1993–2027 statutory parameters across Great Britain, operating with zero external database dependencies).*
 
 ---
@@ -206,21 +206,25 @@ curl -f -s http://staging-server:8080/docs | grep -q 'scalar.js' && echo "Scalar
 
 ## 8. Deploying for Production
 
-### Option A: Multi-Stage Container Deployment (Docker / Kubernetes)
+### Option A: Multi-Stage Container Deployment (Podman / Docker / Kubernetes)
 
-A production-ready [`Dockerfile`](Dockerfile) is provided in the root directory. It uses a **3-stage build process**:
-1. Builds the Svelte 5 frontend with Node 20.
-2. Compiles the Rust backend with `--release` optimizations.
-3. Packages the binary and static assets into an ultra-lean Debian runtime container (~90 MB) running as an **unprivileged non-root user** (`appuser`).
+A production-ready [`Dockerfile`](Dockerfile) is provided in the root directory. It uses a **3-stage multi-stage build**:
+1. **Frontend Builder (`node:20-slim`)**: Automatically fetches verified standalone Tailwind CLI and compiles Svelte 5 frontend assets via Vite.
+2. **Backend Builder (`rust:1-slim-bookworm`)**: Compiles the Rust binary with `--release` optimizations, baking OpenAPI definitions and Scalar templates directly into the binary.
+3. **Runtime (`debian:bookworm-slim`)**: Minimal (~90 MB) secure runtime executing as an **unprivileged non-root service account** (`appuser`, UID/GID 1001).
 
-#### 1. Build the Docker Image
+Podman is daemonless and rootless by default, requiring no root privileges or background daemon.
+
+#### 1. Build the Container Image with Podman
 ```bash
-docker build -t business-rates-engine:latest .
+# Build using rootless Podman (automatically detects Dockerfile):
+podman build -t business-rates-engine:latest .
 ```
+*(Docker drop-in equivalent: `docker build -t business-rates-engine:latest .`)*
 
 #### 2. Run the Container
 ```bash
-docker run -d \
+podman run -d \
   --name business-rates-engine \
   -p 8080:8080 \
   -e PORT=8080 \
@@ -228,8 +232,32 @@ docker run -d \
   --restart unless-stopped \
   business-rates-engine:latest
 ```
+*(Docker drop-in equivalent: replace `podman` with `docker`).*
 
-#### 3. Kubernetes Deployment Manifest (`k8s-deployment.yaml`)
+#### 3. Container Management & Health Inspection
+```bash
+# Stream container logs
+podman logs -f business-rates-engine
+
+# Verify built-in container healthcheck
+podman healthcheck run business-rates-engine
+
+# Graceful stop (triggers SIGTERM; shuts down cleanly in milliseconds)
+podman stop business-rates-engine
+```
+
+#### 4. Run Directly with Podman Play Kube (Local Kubernetes Without a Cluster)
+Podman can directly run Kubernetes pod and service manifests locally:
+
+```bash
+# Launch pods directly from the manifest
+podman play kube k8s-deployment.yaml
+
+# Tear down the pod
+podman play kube --down k8s-deployment.yaml
+```
+
+#### 5. Kubernetes Deployment Manifest (`k8s-deployment.yaml`)
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -521,6 +549,6 @@ business_rates_engine/
 ├── setup-node.sh                 # Local Node.js environment setup helper
 ├── LICENSE.md                    # MIT License specification
 ├── MIGRATION.md                  # Route deprecations & migration guide
-├── Dockerfile                    # Multi-stage production container build
+├── Dockerfile                    # Multi-stage production container build (Podman / Docker)
 └── Cargo.toml                    # Rust dependencies & package manifest
 ```

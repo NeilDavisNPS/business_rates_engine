@@ -286,7 +286,7 @@ The calculation engine operates with a self-contained, in-memory **Built-In Stat
 - **Zero External Infrastructure**: Operates independently with zero database services, connection strings, or migration scripts.
 - **Deterministic Sub-Millisecond Latency**: Microsecond in-memory indexing and lookups with zero network overhead.
 - **Statutory Parameter Immutability**: Exact legal parameters pre-seeded from primary acts and secondary regulations (1993–2027) across England, Wales, and Scotland.
-- **Turnkey Portability**: The single compiled release binary or Docker container runs anywhere out of the box.
+- **Turnkey Portability**: The single compiled release binary or OCI container (Podman / Docker) runs anywhere out of the box.
 
 ### 3.1 Repository Structure & Seeded Models
 
