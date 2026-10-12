@@ -42,13 +42,17 @@ RUN touch src/main.rs src/lib.rs && cargo build --release
 FROM debian:bookworm-slim AS runtime
 WORKDIR /app
 
+LABEL org.opencontainers.image.title="business_rates_engine" \
+      org.opencontainers.image.description="Statutory Business Rates Engine (England, Wales, Scotland 1990-2027)" \
+      org.opencontainers.image.licenses="Apache-2.0"
+
 RUN apt-get update && apt-get install -y ca-certificates curl && rm -rf /var/lib/apt/lists/*
 
 # Run as non-root unprivileged service account
 RUN groupadd -g 1001 appgroup && useradd -u 1001 -g appgroup -s /bin/sh appuser
 
-COPY --from=backend-builder /app/target/release/business_rates_engine /app/business_rates_engine
-COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
+COPY --chown=appuser:appgroup --from=backend-builder /app/target/release/business_rates_engine /app/business_rates_engine
+COPY --chown=appuser:appgroup --from=frontend-builder /app/frontend/dist /app/frontend/dist
 
 USER appuser
 
@@ -60,4 +64,3 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:8080/health || exit 1
 
 ENTRYPOINT ["/app/business_rates_engine"]
-
