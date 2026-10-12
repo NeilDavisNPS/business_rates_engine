@@ -170,30 +170,7 @@ async fn test_zero_hardcoding_historical_multipliers_1990_to_2026() {
 async fn test_mandatory_charitable_relief_80_percent() {
     let repo = ParameterRepository::new_seeded();
     let engine = CalculationEngine::new(repo);
-
-    let request = LiabilityCalculationRequest {
-        party_type: PartyType::CHARITY,
-        occupation_period: DateRange {
-            start_date: NaiveDate::from_ymd_opt(2025, 4, 1).unwrap(),
-            end_date: NaiveDate::from_ymd_opt(2026, 3, 31).unwrap(),
-        },
-        hereditament: HereditamentInput {
-            jurisdiction: Jurisdiction::ENGLAND,
-            scat_code: "096".to_string(),
-            rateable_value_history: vec![RvEntry {
-                effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
-                effective_to: None,
-                rateable_value: dec!(20000.00),
-            }],
-        },
-        occupancy_type: OccupancyType::OCCUPIED,
-        qualifying_relief_flags: QualifyingReliefFlags {
-            is_charitable_purposes: true,
-            ..Default::default()
-        },
-        occupancy_periods: None,
-        language: None,
-    };
+    let request = load_fixture("scenario_6_charity_mandatory_80.json");
 
     let response = engine.calculate(request);
     let seg = &response.annual_billing_segments[0];
@@ -205,30 +182,7 @@ async fn test_mandatory_charitable_relief_80_percent() {
 async fn test_ndra_2023_improvement_relief_g_factor() {
     let repo = ParameterRepository::new_seeded();
     let engine = CalculationEngine::new(repo);
-
-    let request = LiabilityCalculationRequest {
-        party_type: PartyType::CORPORATE,
-        occupation_period: DateRange {
-            start_date: NaiveDate::from_ymd_opt(2025, 4, 1).unwrap(),
-            end_date: NaiveDate::from_ymd_opt(2026, 3, 31).unwrap(),
-        },
-        hereditament: HereditamentInput {
-            jurisdiction: Jurisdiction::ENGLAND,
-            scat_code: "249".to_string(),
-            rateable_value_history: vec![RvEntry {
-                effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
-                effective_to: None,
-                rateable_value: dec!(30000.00),
-            }],
-        },
-        occupancy_type: OccupancyType::OCCUPIED,
-        qualifying_relief_flags: QualifyingReliefFlags {
-            qualifying_improvement_rv_increment: dec!(5000.00),
-            ..Default::default()
-        },
-        occupancy_periods: None,
-        language: None,
-    };
+    let request = load_fixture("scenario_9_improvement_relief_g_factor.json");
 
     let response = engine.calculate(request);
     let seg = &response.annual_billing_segments[0];
@@ -327,30 +281,7 @@ async fn test_suite_8_empty_property_exemption() {
     let engine = CalculationEngine::new(repo);
 
     // Industrial warehouse (SCAT 096) unoccupied for 90 days (within 182-day exemption)
-    let request = LiabilityCalculationRequest {
-        party_type: PartyType::CORPORATE,
-        occupation_period: DateRange {
-            start_date: NaiveDate::from_ymd_opt(2025, 4, 1).unwrap(),
-            end_date: NaiveDate::from_ymd_opt(2025, 6, 29).unwrap(), // 90 days
-        },
-        hereditament: HereditamentInput {
-            jurisdiction: Jurisdiction::ENGLAND,
-            scat_code: "096".to_string(),
-            rateable_value_history: vec![RvEntry {
-                effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
-                effective_to: None,
-                rateable_value: dec!(50000.00),
-            }],
-        },
-        occupancy_type: OccupancyType::UNOCCUPIED,
-        qualifying_relief_flags: QualifyingReliefFlags {
-            is_industrial_hereditament: true,
-            days_previously_unoccupied: Some(0),
-            ..Default::default()
-        },
-        occupancy_periods: None,
-        language: None,
-    };
+    let request = load_fixture("scenario_8_empty_property_exemption.json");
 
     let response = engine.calculate(request);
     let seg = &response.annual_billing_segments[0];
@@ -996,30 +927,7 @@ async fn test_statutory_public_lavatory_exemption() {
 async fn test_statutory_rural_settlement_relief() {
     let repo = ParameterRepository::new_mock();
     let engine = CalculationEngine::new(repo);
-
-    let request = LiabilityCalculationRequest {
-        party_type: PartyType::INDIVIDUAL,
-        occupation_period: DateRange {
-            start_date: NaiveDate::from_ymd_opt(2025, 4, 1).unwrap(),
-            end_date: NaiveDate::from_ymd_opt(2026, 3, 31).unwrap(),
-        },
-        hereditament: HereditamentInput {
-            jurisdiction: Jurisdiction::ENGLAND,
-            scat_code: "225".to_string(),
-            rateable_value_history: vec![RvEntry {
-                effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
-                effective_to: None,
-                rateable_value: dec!(7500.00),
-            }],
-        },
-        occupancy_type: OccupancyType::OCCUPIED,
-        qualifying_relief_flags: QualifyingReliefFlags {
-            is_rural_settlement: true,
-            ..Default::default()
-        },
-        occupancy_periods: None,
-        language: None,
-    };
+    let request = load_fixture("scenario_11_rural_settlement_relief.json");
 
     let response = engine.calculate(request);
     let seg = &response.annual_billing_segments[0];
@@ -1316,64 +1224,7 @@ async fn test_multi_occupancy_periods_single_liable_party() {
     // 2. OCCUPIED: 2024-07-01 to 2024-12-31 (184 days) -> 100% SBRR; consecutive days = 184 >= 91 resets empty allowance
     // 3. PART_OCCUPIED: 2025-01-01 to 2025-03-31 (90 days) -> 50% occupied (£6,000) & 50% unoccupied (£6,000)
     //    Because empty allowance reset, unoccupied gets s.44A relief; occupied gets SBRR!
-    let request = LiabilityCalculationRequest {
-        party_type: PartyType::INDIVIDUAL,
-        occupation_period: DateRange {
-            start_date: NaiveDate::from_ymd_opt(2024, 4, 1).unwrap(),
-            end_date: NaiveDate::from_ymd_opt(2025, 3, 31).unwrap(),
-        },
-        hereditament: HereditamentInput {
-            jurisdiction: Jurisdiction::ENGLAND,
-            scat_code: "225".to_string(),
-            rateable_value_history: vec![RvEntry {
-                effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
-                effective_to: None,
-                rateable_value: dec!(12000.00),
-            }],
-        },
-        occupancy_type: OccupancyType::OCCUPIED,
-        qualifying_relief_flags: QualifyingReliefFlags {
-            is_small_business_sole_property: true,
-            ..Default::default()
-        },
-        occupancy_periods: Some(vec![
-            OccupancyPeriodInput {
-                start_date: NaiveDate::from_ymd_opt(2024, 4, 1).unwrap(),
-                end_date: NaiveDate::from_ymd_opt(2024, 6, 30).unwrap(), // 91 days
-                occupancy_type: OccupancyType::UNOCCUPIED,
-                qualifying_relief_flags: Some(QualifyingReliefFlags {
-                    days_previously_unoccupied: Some(0),
-                    ..Default::default()
-                }),
-                part_occupied_apportionment: None,
-            },
-            OccupancyPeriodInput {
-                start_date: NaiveDate::from_ymd_opt(2024, 7, 1).unwrap(),
-                end_date: NaiveDate::from_ymd_opt(2024, 12, 31).unwrap(), // 184 days
-                occupancy_type: OccupancyType::OCCUPIED,
-                qualifying_relief_flags: Some(QualifyingReliefFlags {
-                    is_small_business_sole_property: true,
-                    ..Default::default()
-                }),
-                part_occupied_apportionment: None,
-            },
-            OccupancyPeriodInput {
-                start_date: NaiveDate::from_ymd_opt(2025, 1, 1).unwrap(),
-                end_date: NaiveDate::from_ymd_opt(2025, 3, 31).unwrap(), // 90 days
-                occupancy_type: OccupancyType::PART_OCCUPIED,
-                qualifying_relief_flags: Some(QualifyingReliefFlags {
-                    is_small_business_sole_property: true,
-                    ..Default::default()
-                }),
-                part_occupied_apportionment: Some(PartOccupiedApportionment {
-                    occupied_rateable_value: Some(dec!(6000.00)),
-                    unoccupied_rateable_value: Some(dec!(6000.00)),
-                    occupied_percentage: Some(dec!(50.00)),
-                }),
-            },
-        ]),
-        language: None,
-    };
+    let request = load_fixture("scenario_7_multi_occupancy_episodes.json");
 
     let response = engine.calculate(request);
     assert_eq!(response.annual_billing_segments.len(), 3);
@@ -3604,29 +3455,8 @@ async fn test_statutory_10_and_12_installments_schedule() {
     let engine = CalculationEngine::new(repo);
 
     // Case 1: Default 10 monthly statutory installments (SI 1989/1058 Schedule 1)
-    let req10 = LiabilityCalculationRequest {
-        party_type: PartyType::CORPORATE,
-        occupation_period: DateRange {
-            start_date: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
-            end_date: NaiveDate::from_ymd_opt(2027, 3, 31).unwrap(),
-        },
-        hereditament: HereditamentInput {
-            jurisdiction: Jurisdiction::WALES,
-            scat_code: "096".to_string(),
-            rateable_value_history: vec![RvEntry {
-                effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
-                effective_to: None,
-                rateable_value: dec!(10000.00),
-            }],
-        },
-        occupancy_type: OccupancyType::OCCUPIED,
-        qualifying_relief_flags: QualifyingReliefFlags {
-            payment_installments_count: None, // Defaults to 10
-            ..Default::default()
-        },
-        occupancy_periods: None,
-        language: None,
-    };
+    let mut req10 = load_fixture("scenario_10_statutory_12_installments.json");
+    req10.qualifying_relief_flags.payment_installments_count = None; // Defaults to 10
     let res10 = engine.calculate(req10);
     let seg10 = &res10.annual_billing_segments[0];
     let inst10 = seg10.statutory_installments.as_ref().unwrap();
@@ -3638,29 +3468,7 @@ async fn test_statutory_10_and_12_installments_schedule() {
     assert_eq!(total10, seg10.net_segment_payable);
 
     // Case 2: 12 monthly installments (Local Government Act 2003 / SI 2014/466)
-    let req12 = LiabilityCalculationRequest {
-        party_type: PartyType::CORPORATE,
-        occupation_period: DateRange {
-            start_date: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
-            end_date: NaiveDate::from_ymd_opt(2027, 3, 31).unwrap(),
-        },
-        hereditament: HereditamentInput {
-            jurisdiction: Jurisdiction::WALES,
-            scat_code: "096".to_string(),
-            rateable_value_history: vec![RvEntry {
-                effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
-                effective_to: None,
-                rateable_value: dec!(10000.00),
-            }],
-        },
-        occupancy_type: OccupancyType::OCCUPIED,
-        qualifying_relief_flags: QualifyingReliefFlags {
-            payment_installments_count: Some(12),
-            ..Default::default()
-        },
-        occupancy_periods: None,
-        language: None,
-    };
+    let req12 = load_fixture("scenario_10_statutory_12_installments.json");
     let res12 = engine.calculate(req12);
     let seg12 = &res12.annual_billing_segments[0];
     let inst12 = seg12.statutory_installments.as_ref().unwrap();

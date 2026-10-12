@@ -1,0 +1,23 @@
+{
+  "party_type": "INDIVIDUAL",
+  "occupation_period": {
+    "start_date": "2025-04-01",
+    "end_date": "2026-03-31"
+  },
+  "hereditament": {
+    "jurisdiction": "ENGLAND",
+    "scat_code": "225",
+    "rateable_value_history": [
+      {
+        "effective_from": "2023-04-01",
+        "effective_to": null,
+        "rateable_value": 7500.00
+      }
+    ]
+  },
+  "occupancy_type": "OCCUPIED",
+  "qualifying_relief_flags": {
+    "is_rural_settlement": true
+  }
+}
+

@@ -1,0 +1,23 @@
+{
+  "party_type": "CORPORATE",
+  "occupation_period": {
+    "start_date": "2026-04-01",
+    "end_date": "2027-03-31"
+  },
+  "hereditament": {
+    "jurisdiction": "WALES",
+    "scat_code": "096",
+    "rateable_value_history": [
+      {
+        "effective_from": "2026-04-01",
+        "effective_to": null,
+        "rateable_value": 10000.00
+      }
+    ]
+  },
+  "occupancy_type": "OCCUPIED",
+  "qualifying_relief_flags": {
+    "payment_installments_count": 12
+  }
+}
+

@@ -1,0 +1,24 @@
+{
+  "party_type": "CORPORATE",
+  "occupation_period": {
+    "start_date": "2025-04-01",
+    "end_date": "2025-06-29"
+  },
+  "hereditament": {
+    "jurisdiction": "ENGLAND",
+    "scat_code": "096",
+    "rateable_value_history": [
+      {
+        "effective_from": "2023-04-01",
+        "effective_to": null,
+        "rateable_value": 50000.00
+      }
+    ]
+  },
+  "occupancy_type": "UNOCCUPIED",
+  "qualifying_relief_flags": {
+    "is_industrial_hereditament": true,
+    "days_previously_unoccupied": 0
+  }
+}
+

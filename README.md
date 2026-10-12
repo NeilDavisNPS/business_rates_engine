@@ -24,7 +24,7 @@
 # 1. Build the Svelte 5 frontend bundle
 ./build-frontend.sh
 
-# 2. Run the integration test suite (45 passing tests)
+# 2. Run the integration test suite (78 passing tests)
 cargo test
 
 # 3. Start the application server (http://localhost:8080)

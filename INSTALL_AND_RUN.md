@@ -139,7 +139,7 @@ For live code editing with instant Hot Module Replacement:
 Run the test suite verifying multi-jurisdiction calculations, multi-occupancy slicing, Section 44A apportionments, 4-language i18n, parameter endpoints, Scalar documentation, and OWASP security headers:
 
 ```bash
-# Run all 45 integration tests
+# Run all 78 integration tests
 cargo test
 
 # Run tests with detailed backtrace on failure
@@ -438,11 +438,65 @@ rates.example.gov.uk {
 
 The REST API operates as an **unauthenticated public service**; requests do not require API keys (`X-API-Key`) or bearer tokens.
 
-### 1. Calculate Liability (Standard Scenario)
+### 1. Calculate Liability via Canonical Test Fixtures (Scenarios 1–11)
+
+The test suite includes 11 canonical statutory scenario fixtures under `tests/fixtures/` covering major non-domestic rating workflows across England, Wales, and Scotland:
+
 ```bash
+# Scenario 1: England Small Business (SBRR) & RHL Multi-Year Calculation
 curl -s -X POST http://localhost:8080/api/v1/calculate-liability \
   -H "Content-Type: application/json" \
   -d @tests/fixtures/scenario_1_sbrr_rhl_england.json
+
+# Scenario 2: Wales Commercial Hereditament (Petrol Station / SCAT 211)
+curl -s -X POST http://localhost:8080/api/v1/calculate-liability \
+  -H "Content-Type: application/json" \
+  -d @tests/fixtures/scenario_2_wales_petrol_station.json
+
+# Scenario 3: Scotland Self-Catering Accommodation (SBBS & 182-Day Letting Test)
+curl -s -X POST http://localhost:8080/api/v1/calculate-liability \
+  -H "Content-Type: application/json" \
+  -d @tests/fixtures/scenario_3_scotland_self_catering.json
+
+# Scenario 4: Welsh Section 63B Artificial Avoidance Civil Penalty (£500 + 3% of RV)
+curl -s -X POST http://localhost:8080/api/v1/calculate-liability \
+  -H "Content-Type: application/json" \
+  -d @tests/fixtures/scenario_4_welsh_artificial_avoidance.json
+
+# Scenario 5: England High-Value Hereditament (> £500,000 RV High-Value Multiplier)
+curl -s -X POST http://localhost:8080/api/v1/calculate-liability \
+  -H "Content-Type: application/json" \
+  -d @tests/fixtures/scenario_5_airport_high_value.json
+
+# Scenario 6: Mandatory 80% Charitable Relief (LGFA 1988 s.43(5) & LG(R)S 1962 s.4(2))
+curl -s -X POST http://localhost:8080/api/v1/calculate-liability \
+  -H "Content-Type: application/json" \
+  -d @tests/fixtures/scenario_6_charity_mandatory_80.json
+
+# Scenario 7: Multi-Occupancy Episodes (Unoccupied → Occupied SBRR → S.44A Part-Occupied)
+curl -s -X POST http://localhost:8080/api/v1/calculate-liability \
+  -H "Content-Type: application/json" \
+  -d @tests/fixtures/scenario_7_multi_occupancy_episodes.json
+
+# Scenario 8: Empty Industrial Hereditament Section 45 Exemption (6-Month Rate-Free Period)
+curl -s -X POST http://localhost:8080/api/v1/calculate-liability \
+  -H "Content-Type: application/json" \
+  -d @tests/fixtures/scenario_8_empty_property_exemption.json
+
+# Scenario 9: NDRA 2023 Certified Improvement Relief (G-Factor RV Increment Exemption)
+curl -s -X POST http://localhost:8080/api/v1/calculate-liability \
+  -H "Content-Type: application/json" \
+  -d @tests/fixtures/scenario_9_improvement_relief_g_factor.json
+
+# Scenario 10: Statutory 12-Month Installment Plan (LGA 2003 / SI 2014/466 Statutory Right)
+curl -s -X POST http://localhost:8080/api/v1/calculate-liability \
+  -H "Content-Type: application/json" \
+  -d @tests/fixtures/scenario_10_statutory_12_installments.json
+
+# Scenario 11: Mandatory 100% Rural Settlement Relief (Sole Village Shop / Post Office / Pub)
+curl -s -X POST http://localhost:8080/api/v1/calculate-liability \
+  -H "Content-Type: application/json" \
+  -d @tests/fixtures/scenario_11_rural_settlement_relief.json
 ```
 
 ### 2. Multi-Language Content Negotiation

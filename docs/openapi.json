@@ -159,6 +159,89 @@
                     },
                     "language": "en"
                   }
+                },
+                "charity_mandatory_relief": {
+                  "summary": "Mandatory 80% Charitable Relief (LGFA 1988 s.43(5))",
+                  "value": {
+                    "party_type": "CHARITY",
+                    "occupation_period": {
+                      "start_date": "2025-04-01",
+                      "end_date": "2026-03-31"
+                    },
+                    "hereditament": {
+                      "jurisdiction": "ENGLAND",
+                      "scat_code": "096",
+                      "rateable_value_history": [
+                        {
+                          "effective_from": "2023-04-01",
+                          "effective_to": null,
+                          "rateable_value": 20000.0
+                        }
+                      ]
+                    },
+                    "occupancy_type": "OCCUPIED",
+                    "qualifying_relief_flags": {
+                      "is_charitable_purposes": true
+                    },
+                    "language": "en"
+                  }
+                },
+                "multi_occupancy_episodes": {
+                  "summary": "Multi-Occupancy Episodes (Unoccupied -> Occupied SBRR -> S.44A Part-Occupied)",
+                  "value": {
+                    "party_type": "INDIVIDUAL",
+                    "occupation_period": {
+                      "start_date": "2024-04-01",
+                      "end_date": "2025-03-31"
+                    },
+                    "hereditament": {
+                      "jurisdiction": "ENGLAND",
+                      "scat_code": "225",
+                      "rateable_value_history": [
+                        {
+                          "effective_from": "2023-04-01",
+                          "effective_to": null,
+                          "rateable_value": 12000.0
+                        }
+                      ]
+                    },
+                    "occupancy_type": "OCCUPIED",
+                    "qualifying_relief_flags": {
+                      "is_small_business_sole_property": true
+                    },
+                    "occupancy_periods": [
+                      {
+                        "start_date": "2024-04-01",
+                        "end_date": "2024-06-30",
+                        "occupancy_type": "UNOCCUPIED",
+                        "qualifying_relief_flags": {
+                          "days_previously_unoccupied": 0
+                        }
+                      },
+                      {
+                        "start_date": "2024-07-01",
+                        "end_date": "2024-12-31",
+                        "occupancy_type": "OCCUPIED",
+                        "qualifying_relief_flags": {
+                          "is_small_business_sole_property": true
+                        }
+                      },
+                      {
+                        "start_date": "2025-01-01",
+                        "end_date": "2025-03-31",
+                        "occupancy_type": "PART_OCCUPIED",
+                        "qualifying_relief_flags": {
+                          "is_small_business_sole_property": true
+                        },
+                        "part_occupied_apportionment": {
+                          "occupied_rateable_value": 6000.0,
+                          "unoccupied_rateable_value": 6000.0,
+                          "occupied_percentage": 50.0
+                        }
+                      }
+                    ],
+                    "language": "en"
+                  }
                 }
               }
             }

@@ -456,25 +456,27 @@ The in-memory parameter repository and statutory documentation are exposed direc
 
 ## 4. Test Cases Specification & Scenario Fixtures
 
-### Test Suite Overview (59 Passing Integration Tests)
+### Test Suite Overview (78 Passing Integration Tests)
 
 The test suite in [`tests/integration_tests.rs`](tests/integration_tests.rs) rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, and web security:
 
-- **Suite A: Multi-Jurisdiction Scenario Tests**:
-  - `test_scenario_1_england_sbrr_and_rhl_multi_year`: Multi-year slicing (2025/26 & 2026/27), SBRR linear taper, England 2026/27 RHL expiration verification, and Transitional Relief caps.
-  - `test_scenario_2_wales_petrol_station`: SCAT 211 forecourt valuation under Welsh Local Government Finance Act 2024.
-  - `test_scenario_3_scotland_self_catering`: Scottish SBBS £12k threshold and 182-day actual letting compliance.
-  - `test_scenario_4_welsh_artificial_avoidance`: Statutory avoidance penalty triggered by `is_artificial_avoidance_suspected` flag (£500 + 3% RV penalty under WSI 2026/43).
-  - `test_scenario_5_airport_high_value`: High-value hereditament (RV £1.25m) using English standard national multiplier.
+- **Suite A: Canonical Multi-Jurisdiction Scenario Fixture Tests (Scenarios 1–11)**:
+  - `test_scenario_1_england_sbrr_and_rhl_multi_year` (`scenario_1_sbrr_rhl_england.json`): Multi-year slicing (2025/26 & 2026/27), SBRR linear taper, England 2026/27 RHL expiration verification, and Transitional Relief caps.
+  - `test_scenario_2_wales_petrol_station` (`scenario_2_wales_petrol_station.json`): SCAT 211 forecourt valuation under Welsh Local Government Finance Act 2024.
+  - `test_scenario_3_scotland_self_catering` (`scenario_3_scotland_self_catering.json`): Scottish SBBS £12k threshold and 182-day actual letting compliance.
+  - `test_scenario_4_welsh_artificial_avoidance` (`scenario_4_welsh_artificial_avoidance.json`): Statutory avoidance penalty triggered by `is_artificial_avoidance_suspected` flag (£500 + 3% RV penalty under WSI 2026/43).
+  - `test_scenario_5_airport_high_value` (`scenario_5_airport_high_value.json`): High-value hereditament (RV £1.25m) using English standard national multiplier.
+  - `test_mandatory_charitable_relief_80_percent` (`scenario_6_charity_mandatory_80.json`): LGFA 1988 s.43(5) & LG(R)S 1962 s.4(2) mandatory 80% charitable reduction.
+  - `test_multi_occupancy_periods_single_liable_party` (`scenario_7_multi_occupancy_episodes.json`): 3 episodes across 2024/25 (`UNOCCUPIED` → `OCCUPIED` → `PART_OCCUPIED`), Section 44A dual-portion apportionments, and statutory reset triggers.
+  - `test_suite_8_empty_property_exemption` (`scenario_8_empty_property_exemption.json`): 100% exemption for initial statutory period and "box-shifting" reset rules under SI 2008/386.
+  - `test_ndra_2023_improvement_relief_g_factor` (`scenario_9_improvement_relief_g_factor.json`): Non-Domestic Rating Act 2023 s.1 G-factor certificate reduction on qualifying property improvements.
+  - `test_statutory_10_and_12_installments_schedule` (`scenario_10_statutory_12_installments.json`): Statutory payment schedules under SI 1989/1058 (10 monthly installments) and ratepayer election of 12 monthly installments (LGA 2003 / SI 2014/466).
+  - `test_statutory_rural_settlement_relief` (`scenario_11_rural_settlement_relief.json`): Mandatory 100% rural settlement relief under LGFA 1988 s.43(6A) for sole village shops, food stores, post offices, and pubs.
 
 - **Suite B: Multi-Occupancy & Core Statutory Rules**:
-  - `test_multi_occupancy_periods_single_liable_party`: 3 episodes across 2024/25 (`UNOCCUPIED` → `OCCUPIED` → `PART_OCCUPIED`), Section 44A dual-portion apportionments, and statutory reset triggers.
   - `test_multi_occupancy_api_endpoint_json_serialization`: JSON payload serialization and billing segment output for multi-occupancy arrays.
-  - `test_mandatory_charitable_relief_80_percent`: LGFA 1988 s.43(5) mandatory 80% charity deduction.
-  - `test_ndra_2023_improvement_relief_g_factor`: Non-Domestic Rating Act 2023 s.1 G-factor certificate reduction.
   - `test_suite_7_transitional_phasing_relief_cap`: Chargeable amounts ceiling capping year-on-year bill escalation.
   - `test_suite_7_transitional_relief_none_when_under_cap`: Zero transitional adjustment when calculated liability remains under cap.
-  - `test_suite_8_empty_property_exemption`: 100% exemption for initial statutory period and "box-shifting" reset rules.
   - `test_open_ended_occupation_empty_string_and_null`: Open-ended occupation handling (`""`, `null`, omitted `end_date`) defaulting cleanly to 2027-03-31.
 
 - **Suite C: 4-Language Internationalization (i18n) & Content Negotiation**:
@@ -530,7 +532,7 @@ The test suite in [`tests/integration_tests.rs`](tests/integration_tests.rs) rig
   - `test_scottish_unoccupied_property_relief_50_percent`: Verifies Scottish unoccupied property relief under *S.S.I. 2018/77* (low value exemption threshold of £1,700; 50% rate relief for first 91 days of empty commercial property).
   - `test_historical_welsh_transitional_relief_2017_list`: Verifies historical Welsh transitional relief for the 2017 Revaluation List under *W.S.I. 2016/1243* (67% relief on bill increases exceeding £300 in 2017/18).
   - `test_historical_transitional_phasing_2000_list`: Verifies historical English transitional phasing caps for the 2000 Revaluation List under *S.I. 1999/3379* (+5.0% upward cap for small properties).
-  - `test_statutory_10_and_12_installments_schedule`: Verifies statutory payment schedules under *S.I. 1989/1058 Schedule 1* (default 10 monthly installments May–Feb) and ratepayer election of 12 monthly installments (*Local Government Act 2003* / *S.I. 2014/466*).
+  - `test_narrative_relief_assessment_audit_unawarded_reliefs`: Verifies localized statutory audit justification for disqualified/unawarded reliefs across English, Welsh, Scots, and Scottish Gaelic.
 
 - **Suite F: Component UI Serving & OWASP Security**:
   - `test_root_ui_route_and_static_assets_with_owasp_headers`: Verifies `/` and bundled assets `/assets/*` serve with strict OWASP CSP headers.
@@ -561,7 +563,7 @@ To build, verify, and run the project:
 # 1. Compile the Svelte 5 frontend component framework with Vite
 ./build-frontend.sh
 
-# 2. Run the automated test suite (77 integration tests)
+# 2. Run the automated test suite (78 integration tests)
 cargo test --test integration_tests
 
 # 3. Start the HTTP API & Single-Page Application server (default port 8080)
