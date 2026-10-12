@@ -44,13 +44,14 @@ WORKDIR /app
 
 LABEL org.opencontainers.image.title="business_rates_engine" \
       org.opencontainers.image.description="Statutory Business Rates Engine (England, Wales, Scotland 1990-2027)" \
-      org.opencontainers.image.licenses="Apache-2.0"
+      org.opencontainers.image.licenses="MIT"
 
 RUN apt-get update && apt-get install -y ca-certificates curl && rm -rf /var/lib/apt/lists/*
 
 # Run as non-root unprivileged service account
 RUN groupadd -g 1001 appgroup && useradd -u 1001 -g appgroup -s /bin/sh appuser
 
+COPY --chown=appuser:appgroup LICENSE.md THIRD_PARTY_LICENSES.md /app/
 COPY --chown=appuser:appgroup --from=backend-builder /app/target/release/business_rates_engine /app/business_rates_engine
 COPY --chown=appuser:appgroup --from=frontend-builder /app/frontend/dist /app/frontend/dist
 
