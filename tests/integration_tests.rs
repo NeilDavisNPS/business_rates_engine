@@ -3648,6 +3648,73 @@ async fn test_api_v1_health_check_endpoint() {
     assert_eq!(json["checks"]["parameters_repository"], "pass");
 }
 
+#[tokio::test]
+async fn test_licenses_endpoint() {
+    let app = create_test_app();
+    let response = app
+        .oneshot(
+            Request::builder()
+                .uri("/licenses")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::OK);
+    let content_type = response.headers().get("content-type").unwrap().to_str().unwrap();
+    assert!(content_type.contains("text/html"));
+
+    let body_str = body_to_string(response.into_body()).await;
+    assert!(body_str.contains("<title>Third-Party Software Licenses — Business Rates Engine</title>"));
+    assert!(body_str.contains("The MIT License"));
+    assert!(body_str.contains("The Apache License, Version 2.0"));
+    assert!(!body_str.contains("Overview & License Summary"));
+}
+
+#[tokio::test]
+async fn test_licenses_markdown_format() {
+    let app = create_test_app();
+    let response = app
+        .oneshot(
+            Request::builder()
+                .uri("/licenses.md")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::OK);
+    let content_type = response.headers().get("content-type").unwrap().to_str().unwrap();
+    assert!(content_type.contains("text/markdown"));
+
+    let body_str = body_to_string(response.into_body()).await;
+    assert!(body_str.contains("# Third-Party Software Licenses\n"));
+    assert!(body_str.contains("## 1. Rust Backend Dependencies"));
+    assert!(body_str.contains("## 2. Frontend Dependencies"));
+    assert!(!body_str.contains("Overview & License Summary"));
+}
+
+#[tokio::test]
+async fn test_api_v1_licenses_endpoint() {
+    let app = create_test_app();
+    let response = app
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/licenses?format=md")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::OK);
+    let body_str = body_to_string(response.into_body()).await;
+    assert!(body_str.contains("# Third-Party Software Licenses\n"));
+}
+
+
 
 
 

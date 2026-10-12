@@ -33,3 +33,8 @@ node_modules/
 .npm/
 .vite/
 **/.vite/
+
+# Software Bill of Materials (SBOM) generated artifacts
+sbom.cdx.json
+*.cdx.json
+

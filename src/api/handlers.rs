@@ -160,9 +160,23 @@ pub async fn static_frontend_asset(
         .ok_or((axum::http::StatusCode::BAD_REQUEST, "Invalid path"))?;
 
     let p = format!("{}/frontend/dist/assets/{}", env!("CARGO_MANIFEST_DIR"), clean_name);
-    let bytes = std::fs::read(&p)
-        .or_else(|_| std::fs::read(format!("frontend/dist/assets/{}", clean_name)))
-        .map_err(|_| (axum::http::StatusCode::NOT_FOUND, "Asset not found"))?;
+    let mut bytes = std::fs::read(&p)
+        .or_else(|_| std::fs::read(format!("frontend/dist/assets/{}", clean_name)));
+
+    if bytes.is_err() && clean_name.ends_with(".css") {
+        let dir = format!("{}/frontend/dist/assets", env!("CARGO_MANIFEST_DIR"));
+        if let Ok(entries) = std::fs::read_dir(&dir).or_else(|_| std::fs::read_dir("frontend/dist/assets")) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.extension().and_then(|s| s.to_str()) == Some("css") {
+                    bytes = std::fs::read(path);
+                    break;
+                }
+            }
+        }
+    }
+
+    let bytes = bytes.map_err(|_| (axum::http::StatusCode::NOT_FOUND, "Asset not found"))?;
 
     let content_type = if clean_name.ends_with(".js") {
         "application/javascript; charset=utf-8"
@@ -282,5 +296,53 @@ pub async fn health_check_handler(
         }),
     )
 }
+
+const LICENSES_HTML: &str = include_str!("../../templates/licenses.html");
+const LICENSES_MD: &str = include_str!("../../THIRD_PARTY_LICENSES.md");
+
+#[derive(Debug, Deserialize, Default)]
+pub struct LicensesQuery {
+    pub format: Option<String>,
+}
+
+/// Serves the comprehensive third-party open-source attribution notices and licenses document.
+/// Renders an accessible, interactive HTML page by default to browsers, or raw Markdown when requested.
+pub async fn licenses_handler(
+    headers: HeaderMap,
+    Query(query): Query<LicensesQuery>,
+) -> Response {
+    use axum::response::IntoResponse;
+
+    let prefers_markdown = query.format.as_deref() == Some("md")
+        || headers
+            .get("accept")
+            .and_then(|h| h.to_str().ok())
+            .map(|a| a.contains("text/markdown") && !a.contains("text/html"))
+            .unwrap_or(false);
+
+    if prefers_markdown {
+        (
+            [(axum::http::header::CONTENT_TYPE, "text/markdown; charset=utf-8")],
+            LICENSES_MD,
+        )
+            .into_response()
+    } else {
+        (
+            [(axum::http::header::CONTENT_TYPE, "text/html; charset=utf-8")],
+            LICENSES_HTML,
+        )
+            .into_response()
+    }
+}
+
+/// Serves the raw Markdown attribution document directly
+pub async fn licenses_md_handler() -> ([(axum::http::HeaderName, &'static str); 1], &'static str) {
+    (
+        [(axum::http::header::CONTENT_TYPE, "text/markdown; charset=utf-8")],
+        LICENSES_MD,
+    )
+}
+
+
 
 

@@ -3,7 +3,7 @@
   "info": {
     "title": "Business Rates Statutory Calculation Engine API",
     "version": "1.0.0",
-    "description": "# Business Rates Statutory Calculation Engine (1993–2027)\n\nThe **Business Rates Statutory Calculation Engine** is a deterministic, microsecond-latency billing engine for non-domestic property rating across the United Kingdom, implementing primary and secondary legislation for:\n- **England**: *Local Government Finance Act 1988 (LGFA 1988)* & *Non-Domestic Rating Act 2023 (NDRA 2023)*\n- **Wales**: *Local Government Finance (Wales) Act 2024 (LGF(W)A 2024)* & Welsh Statutory Instruments\n- **Scotland**: *Non-Domestic Rates (Scotland) Act 2020*, Three-tier multipliers & Small Business Bonus Scheme (SBBS)\n\n## Key Capabilities\n- **Multi-Year Rating Liability**: Exact day-by-day leap-year calculation (365/366-day apportionments) from 1993/94 through 2026/27+.\n- **Multi-Occupancy Episodes**: Support for multiple successive occupiers, vacant periods, and Section 44A part-occupied apportionments on a single hereditament.\n- **Devolved Relief Schemes**:\n  - Mandatory Small Business Rate Relief (SBRR / SBBS) with non-linear/linear tapers.\n  - Mandatory 80% Charitable Relief and Community Amateur Sports Clubs (CASC) relief.\n  - Retail, Hospitality & Leisure (RHL) relief (75%, 40%, 35%) with statutory cash cap enforcement (£110,000.00).\n  - Rural Settlement Relief (100% mandatory).\n  - Heat Network & Public Lavatory statutory 100% exemptions.\n  - NDRA 2023 Improvement Relief G-factor RV exclusions.\n  - Section 45 Unoccupied property exemptions (3-month commercial, 6-month industrial, low-value £2,900 threshold).\n  - Section 63B Welsh Artificial Avoidance punitive penalties.\n- **Multilingual Support**: First-class localized narrative auditing and error reporting in English (`en`), Welsh (`cy`), Scots (`sco`), and Scottish Gaelic (`gd`).\n",
+    "description": "# Business Rates Statutory Calculation Engine (1993–2027)\n\nThe **Business Rates Statutory Calculation Engine** is a deterministic, microsecond-latency billing engine for non-domestic property rating across the United Kingdom, implementing primary and secondary legislation for:\n- **England**: *Local Government Finance Act 1988 (LGFA 1988)* & *Non-Domestic Rating Act 2023 (NDRA 2023)*\n- **Wales**: *Local Government Finance (Wales) Act 2024 (LGF(W)A 2024)* & Welsh Statutory Instruments\n- **Scotland**: *Non-Domestic Rates (Scotland) Act 2020*, Three-tier multipliers & Small Business Bonus Scheme (SBBS)\n\n## Key Capabilities\n- **Multi-Year Rating Liability**: Exact day-by-day leap-year calculation (365/366-day apportionments) from 1993/94 through 2026/27+.\n- **Multi-Occupancy Episodes**: Support for multiple successive occupiers, vacant periods, and Section 44A part-occupied apportionments on a single hereditament.\n- **Devolved Relief Schemes**:\n  - Mandatory Small Business Rate Relief (SBRR / SBBS) with non-linear/linear tapers.\n  - Mandatory 80% Charitable Relief and Community Amateur Sports Clubs (CASC) relief.\n  - Retail, Hospitality & Leisure (RHL) relief (75%, 40%, 35%) with statutory cash cap enforcement (£110,000.00).\n  - Rural Settlement Relief (100% mandatory).\n  - Heat Network & Public Lavatory statutory 100% exemptions.\n  - NDRA 2023 Improvement Relief G-factor RV exclusions.\n  - Section 45 Unoccupied property exemptions (3-month commercial, 6-month industrial, low-value £2,900 threshold).\n  - Section 63B Welsh Artificial Avoidance punitive penalties.\n- **Multilingual Support**: First-class localized narrative auditing and error reporting in English (`en`), Welsh (`cy`), Scots (`sco`), and Scottish Gaelic (`gd`).\n\n## Open Source Licensing & Third-Party Attribution\nThis software is licensed under the [MIT License](https://opensource.org/licenses/MIT). Complete third-party license notices, copyright disclaimers, and dependency inventories are available at [/licenses](/licenses).\n",
     "contact": {
       "name": "Business Rates Engine Team",
       "email": "mark.st.stanley@gmail.com",
@@ -25,6 +25,28 @@
     }
   ],
   "paths": {
+    "/licenses": {
+      "get": {
+        "summary": "Fetch Third-Party Open Source Software Licenses & Attribution",
+        "description": "Returns comprehensive attribution notices, license texts, and dependency provenance for all incorporated third-party Rust crates and NPM packages.",
+        "operationId": "getLicenses",
+        "tags": [
+          "Metadata & Specification"
+        ],
+        "responses": {
+          "200": {
+            "description": "Third-party software attribution notices in Markdown format.",
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/calculate-liability": {
       "post": {
         "summary": "Execute Statutory Liability Calculation",

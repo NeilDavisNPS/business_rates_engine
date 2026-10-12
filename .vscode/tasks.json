@@ -4,6 +4,7 @@
     { "label": "Run Axum Backend", "type": "shell", "command": "cargo run --bin business_rates_engine" },
     { "label": "Build Svelte Frontend", "type": "shell", "command": "./build-frontend.sh" },
     { "label": "Run Vite Dev", "type": "shell", "command": "cd frontend && npm run dev" },
-    { "label": "Generate Third-Party Licenses", "type": "shell", "command": "./scripts/generate-third-party-licenses.sh" }
+    { "label": "Generate Third-Party Licenses", "type": "shell", "command": "./scripts/generate-third-party-licenses.sh" },
+    { "label": "Generate CycloneDX SBOM", "type": "shell", "command": "./scripts/generate-sbom.sh" }
   ]
 }

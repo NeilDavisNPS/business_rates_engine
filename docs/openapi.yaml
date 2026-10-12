@@ -23,6 +23,9 @@ info:
       - Section 45 Unoccupied property exemptions (3-month commercial, 6-month industrial, low-value £2,900 threshold).
       - Section 63B Welsh Artificial Avoidance punitive penalties.
     - **Multilingual Support**: First-class localized narrative auditing and error reporting in English (`en`), Welsh (`cy`), Scots (`sco`), and Scottish Gaelic (`gd`).
+
+    ## Open Source Licensing & Third-Party Attribution
+    This software is licensed under the [MIT License](https://opensource.org/licenses/MIT). Complete third-party license notices, copyright disclaimers, and dependency inventories are available at [/licenses](/licenses).
   contact:
     name: Business Rates Engine Team
     email: mark.st.stanley@gmail.com
@@ -38,6 +41,20 @@ servers:
     description: Current Server Origin
 
 paths:
+  /licenses:
+    get:
+      summary: Fetch Third-Party Open Source Software Licenses & Attribution
+      description: Returns comprehensive attribution notices, license texts, and dependency provenance for all incorporated third-party Rust crates and NPM packages.
+      operationId: getLicenses
+      tags:
+        - Metadata & Specification
+      responses:
+        '200':
+          description: Third-party software attribution notices in Markdown format.
+          content:
+            text/markdown:
+              schema:
+                type: string
   /api/v1/calculate-liability:
     post:
       summary: Execute Statutory Liability Calculation

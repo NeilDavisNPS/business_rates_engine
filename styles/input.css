@@ -2,6 +2,8 @@
 
 @source "../frontend/src/**/*.{svelte,ts,html}";
 @source "../frontend/index.html";
+@source "../templates/**/*.{html,js}";
+
 
 /* Accessible Date Input Styling: Ensure high-contrast text matching text-slate-800 (#1e293b) across browsers */
 input[type="date"] {
