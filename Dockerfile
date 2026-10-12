@@ -30,7 +30,8 @@ COPY Cargo.toml Cargo.lock ./
 RUN mkdir -p src && echo "fn main() {}" > src/main.rs && echo "" > src/lib.rs && cargo build --release && rm -rf src
 
 COPY src ./src
-COPY tests ./tests
+COPY docs ./docs
+COPY templates ./templates
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 
 RUN touch src/main.rs src/lib.rs && cargo build --release
