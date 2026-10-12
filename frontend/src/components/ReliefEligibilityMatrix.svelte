@@ -144,6 +144,23 @@
           <p class="text-[11px] text-slate-500">{calcStore.t.flag_improvement_desc}</p>
         </div>
       {/if}
+      <!-- Welsh Retail Premises (Wales only - Local Government Finance (Wales) Act 2024) -->
+      {#if calcStore.jurisdiction === 'WALES'}
+        <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50 cursor-pointer transition-colors">
+          <input
+            type="checkbox"
+            bind:checked={calcStore.qualifyingReliefFlags.is_retail_premises}
+            onchange={onFlagChange}
+            class="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500"
+          />
+          <div>
+            <span class="text-xs font-bold text-emerald-950 block">Welsh Retail Premises (35.0p Multiplier)</span>
+            <span class="text-[11px] text-emerald-800">
+              Qualifying retail hereditament with RV &lt; £51,000 eligible for the 35.0p Welsh Retail Multiplier under Local Government Finance (Wales) Act 2024.
+            </span>
+          </div>
+        </label>
+      {/if}
     </div>
   </div>
 
@@ -168,7 +185,13 @@
         <div>
           <span class="text-xs font-bold text-amber-950 block">Apply Statutory Transitional Relief (TR)</span>
           <span class="text-[11px] text-amber-800">
-            Automatically caps revaluation bill increases (e.g. England 2026/27: +5% Small, +15% Medium, +30% Large under LGFA 1988 s.57A / NDRA 2023). Uncheck to calculate unphased liability.
+            {#if calcStore.jurisdiction === 'WALES'}
+              Automatically caps revaluation bill increases exceeding £300 under W.S.I. 2025/1371 (67% relief in 2026/27, 34% in 2027/28). Uncheck to calculate unphased liability.
+            {:else if calcStore.jurisdiction === 'SCOTLAND'}
+              Automatically caps revaluation bill increases under Scottish Transitional Relief Regulations. Uncheck to calculate unphased liability.
+            {:else}
+              Automatically caps revaluation bill increases (e.g. England 2026/27: +5% Small, +15% Medium, +30% Large under LGFA 1988 s.57A / NDRA 2023). Uncheck to calculate unphased liability.
+            {/if}
           </span>
         </div>
       </label>

@@ -30,6 +30,7 @@ export interface QualifyingReliefFlags {
   is_small_business_second_property_grace?: boolean;
   is_charitable_purposes: boolean;
   is_rhl_qualifying: boolean;
+  is_retail_premises?: boolean;
   is_island_property: boolean;
   is_rural_settlement: boolean;
   is_public_lavatory: boolean;

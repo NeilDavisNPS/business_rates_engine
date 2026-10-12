@@ -42,6 +42,9 @@ The calculation engine's business logic, zero-hardcoding parameter tables, and s
   - [**The Non-Domestic Rating (Chargeable Amounts) (England) Regulations 2004 (S.I. 2004/3312)**](https://www.legislation.gov.uk/uksi/2004/3312/contents/made) — 2005 Revaluation List transitional phasing caps.
   - [**The Non-Domestic Rating (Chargeable Amounts) Regulations 1994 (S.I. 1994/3279)**](https://www.legislation.gov.uk/uksi/1994/3279/contents/made) — 1995 Revaluation List transitional phasing caps.
   - [**The Non-Domestic Rating (Transitional Period) Regulations 1990 (S.I. 1990/608)**](https://www.legislation.gov.uk/uksi/1990/608/contents/made) & [**The Non-Domestic Rating (Transitional Period) (Amendment) Regulations 1993 (S.I. 1993/616)**](https://www.legislation.gov.uk/uksi/1993/616/contents/made) — Inaugural national non-domestic rating transitional phasing caps.
+- **Wales**:
+  - [**The Non-Domestic Rating (Chargeable Amounts) (Wales) Regulations 2025 (W.S.I. 2025/1371 / W. 226)**](https://www.legislation.gov.uk/wsi/2025/1371/contents/made) — 2026 Revaluation List 2-Year Transitional Relief Scheme: applies to net bill increases exceeding **£300** over the 31 March 2026 baseline bill; grants **67% relief** on the excess in Year 1 (2026/27, ratepayer pays 33%), and **34% relief** on the excess in Year 2 (2027/28, ratepayer pays 66%).
+  - [**The Non-Domestic Rating (Chargeable Amounts) (Wales) Regulations 2022 (W.S.I. 2022/1350 / W. 272)**](https://www.legislation.gov.uk/wsi/2022/1350/contents/made) — 2023 Revaluation List 2-Year Transitional Relief Scheme: 67% relief in 2023/24 and 34% relief in 2024/25 on net bill increases exceeding £300.
 
 ### 1.3 Statutory Instruments — Small Business Rate Relief (SBRR & SBBS) & Multiplier Frameworks
 - **Scotland (SBBS)**:
@@ -61,8 +64,13 @@ The calculation engine's business logic, zero-hardcoding parameter tables, and s
   - [**Supporting Small Business Relief Scheme (SSBR) under LGFA 1988 s.47**](https://www.gov.uk/government/publications/business-rates-supporting-small-business-relief-guidance) — Statutory discretionary relief capping annual bill increases to **£600/year** (2023/24–2025/26) and **£800/year** (2026/27) for ratepayers losing or experiencing reduced SBRR, Rural Rate Relief, or 2022/23 RHL relief due to revaluation.
   - [**The Non-Domestic Rating (Small Business Rate Relief) (England) Order 2012 (S.I. 2012/148)**](https://www.legislation.gov.uk/uksi/2012/148/contents/made) & [**S.I. 2010/1959**](https://www.legislation.gov.uk/uksi/2010/1959/contents/made) — 2010 list SBRR doubled taper.
   - [**The Non-Domestic Rating (Small Business Rate Relief) (England) Order 2004 (S.I. 2004/3315)**](https://www.legislation.gov.uk/uksi/2004/3315/contents/made) — Inaugural SBRR order establishing 50% max relief and linear taper.
-- **Wales (SBRR)**:
+- **Wales (SBRR, 2026/27 3-Tier Multipliers & Food and Drink Hospitality Rates Relief)**:
   - [**The Non-Domestic Rating (Small Business Relief) (Wales) Order 2017 (W.S.I. 2017/1229 / W. 293)**](https://www.legislation.gov.uk/wsi/2017/1229/contents/made) — 100% relief for $\text{RV} \le £6,000$; linear taper between £6,001 and £12,000 RV.
+  - [**Local Government Finance (Wales) Act 2024 (asc 6)**](https://www.legislation.gov.uk/asc/2024/6/contents/enacted) — 2026/27 3-Tier Multiplier Framework replacing the historical single multiplier:
+    - **Retail Multiplier**: `35.0p` (`0.350`) for retail premises with $\text{RV} < £51,000$.
+    - **Standard Multiplier**: `50.2p` (`0.502`) for commercial premises with $\text{RV} \le £100,000$ (non-retail or general commercial).
+    - **Higher Multiplier**: `51.5p` (`0.515`) for high-value properties with $\text{RV} > £100,000$.
+  - [**Welsh Food and Drink Hospitality Rates Relief Scheme (2026/27)**](https://www.gov.wales/non-domestic-rates-relief) under LGFA 1988 s.47 — Successor to Welsh RHL relief providing a **15% discount** capped at £110,000 per business; targeted specifically at qualifying food and drink hospitality premises (pubs, restaurants, cafés, bars, live music venues); excludes petrol filling stations (SCAT 211) and general accommodation.
   - [**The Non-Domestic Rating (Small Business Relief) (Wales) Order 2015 (W.S.I. 2015/976 / W. 69)**](https://www.legislation.gov.uk/wsi/2015/976/contents/made), [**W.S.I. 2010/248 (W. 34)**](https://www.legislation.gov.uk/wsi/2010/248/contents/made), and [**W.S.I. 2008/707 (W. 75)**](https://www.legislation.gov.uk/wsi/2008/707/contents/made).
 
 ### 1.4 Statutory Instruments — Relief Exemptions, Unoccupied Rates & Compliance
@@ -486,6 +494,10 @@ The test suite in [`tests/integration_tests.rs`](tests/integration_tests.rs) rig
   - `test_england_supporting_small_business_relief_2023_cap_600`: Verifies English Supporting Small Business Relief (SSBR) under LGFA 1988 s.47 capping net bill increase to £600/year in 2023/24 for ratepayers losing SBRR.
   - `test_england_supporting_small_business_relief_2026_cap_800`: Verifies English Supporting Small Business Relief (SSBR) under LGFA 1988 s.47 capping net bill increase to £800/year in 2026/27 for ratepayers losing SBRR.
   - `test_england_transitional_relief_opt_out`: Verifies setting `apply_transitional_relief: Some(false)` calculates unphased gross liability without transitional relief deduction.
+  - `test_wales_2026_three_multipliers`: Verifies Welsh 2026/27 three-tier multiplier regime under *Local Government Finance (Wales) Act 2024* (Retail 35.0p for RV < £51,000, Standard 50.2p for RV <= £100,000, and Higher 51.5p for RV > £100,000).
+  - `test_wales_transitional_relief_2026_year_1_67_percent`: Verifies Welsh 2-year transitional relief scheme under *W.S.I. 2025/1371* granting 67% relief on bill increases exceeding £300 in Year 1 (2026/27).
+  - `test_wales_transitional_relief_2027_year_2_34_percent`: Verifies Welsh 2-year transitional relief scheme under *W.S.I. 2025/1371* granting 34% relief on bill increases exceeding £300 in Year 2 (2027/28).
+  - `test_wales_transitional_relief_under_300_no_relief`: Verifies Welsh transitional relief under *W.S.I. 2025/1371* awards 0% relief when the bill increase does not exceed the £300 statutory threshold.
 
 - **Suite F: Component UI Serving & OWASP Security**:
   - `test_root_ui_route_and_static_assets_with_owasp_headers`: Verifies `/` and bundled assets `/assets/*` serve with strict OWASP CSP headers.
@@ -516,7 +528,7 @@ To build, verify, and run the project:
 # 1. Compile the Svelte 5 frontend component framework with Vite
 ./build-frontend.sh
 
-# 2. Run the automated test suite (64 integration tests)
+# 2. Run the automated test suite (68 integration tests)
 cargo test --test integration_tests
 
 # 3. Start the HTTP API & Single-Page Application server (default port 8080)

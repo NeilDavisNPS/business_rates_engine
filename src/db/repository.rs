@@ -257,6 +257,32 @@ impl ParameterRepository {
             };
         }
 
+        // 1b. Wales 2026/27 Differential Multipliers (Local Government Finance (Wales) Act 2024)
+        if jurisdiction == Jurisdiction::WALES && financial_year == "2026/27" {
+            if rv > dec!(100000.00) {
+                if let Some(m) = matches.iter().find(|m| m.multiplier_type == "HIGHER") {
+                    return MultiplierInfo {
+                        multiplier_type: m.multiplier_type.clone(),
+                        rate: m.multiplier_rate,
+                    };
+                }
+            } else if is_rhl && rv < dec!(51000.00) {
+                if let Some(m) = matches.iter().find(|m| m.multiplier_type == "RETAIL") {
+                    return MultiplierInfo {
+                        multiplier_type: m.multiplier_type.clone(),
+                        rate: m.multiplier_rate,
+                    };
+                }
+            } else {
+                if let Some(m) = matches.iter().find(|m| m.multiplier_type == "STANDARD") {
+                    return MultiplierInfo {
+                        multiplier_type: m.multiplier_type.clone(),
+                        rate: m.multiplier_rate,
+                    };
+                }
+            }
+        }
+
         // 2. Retail, Hospitality & Leisure (RHL) permanent lower multipliers (England 2026/27)
         if is_rhl {
             if let Some(m) = matches.iter().find(|m| {
@@ -508,6 +534,17 @@ impl ParameterRepository {
         })
     }
 
+    /// Resolves Welsh Transitional Relief scheme parameters under W.S.I. 2025/1371 / W.S.I. 2022/1350
+    pub fn resolve_welsh_transitional_relief_rate(&self, financial_year: &str) -> Option<(Decimal, &'static str)> {
+        match financial_year {
+            "2026/27" => Some((dec!(67.00), "LGFA 1988 s.58 / S.I. 2025/1371 (W. 226) / LGF(W)A 2024")),
+            "2027/28" => Some((dec!(34.00), "LGFA 1988 s.58 / S.I. 2025/1371 (W. 226) / LGF(W)A 2024")),
+            "2023/24" => Some((dec!(67.00), "LGFA 1988 s.58 / S.I. 2022/1350 (W. 272)")),
+            "2024/25" => Some((dec!(34.00), "LGFA 1988 s.58 / S.I. 2022/1350 (W. 272)")),
+            _ => None,
+        }
+    }
+
     // --- Private Seeders ---
 
     fn seed_multipliers(&mut self) {
@@ -622,11 +659,29 @@ impl ParameterRepository {
         add("m_eng_st_rhl_2026", "2026/27", Jurisdiction::ENGLAND, "STANDARD_RHL", dec!(51000.01), Some(dec!(499999.99)), dec!(0.430), "2026-04-01", "2027-03-31");
         add("m_eng_st_2026", "2026/27", Jurisdiction::ENGLAND, "STANDARD", dec!(51000.01), Some(dec!(499999.99)), dec!(0.480), "2026-04-01", "2027-03-31");
 
-        add("m_wal_diff_2026", "2026/27", Jurisdiction::WALES, "WELSH_DIFFERENTIAL", dec!(0.00), None, dec!(0.562), "2026-04-01", "2027-03-31");
+        // 2026/27 (Revaluation Year — Local Government Finance (Wales) Act 2024 3-multiplier system for Wales)
+        add("m_wal_ret_2026", "2026/27", Jurisdiction::WALES, "RETAIL", dec!(0.00), Some(dec!(51000.00)), dec!(0.350), "2026-04-01", "2027-03-31");
+        add("m_wal_std_2026", "2026/27", Jurisdiction::WALES, "STANDARD", dec!(0.00), Some(dec!(100000.00)), dec!(0.502), "2026-04-01", "2027-03-31");
+        add("m_wal_hgh_2026", "2026/27", Jurisdiction::WALES, "HIGHER", dec!(100000.01), None, dec!(0.515), "2026-04-01", "2027-03-31");
 
         add("m_sco_b_2026", "2026/27", Jurisdiction::SCOTLAND, "BASIC", dec!(0.00), Some(dec!(12000.00)), dec!(0.498), "2026-04-01", "2027-03-31");
         add("m_sco_st_2026", "2026/27", Jurisdiction::SCOTLAND, "STANDARD", dec!(12000.01), Some(dec!(100000.00)), dec!(0.545), "2026-04-01", "2027-03-31");
         add("m_sco_h_2026", "2026/27", Jurisdiction::SCOTLAND, "HIGHER", dec!(100000.01), None, dec!(0.559), "2026-04-01", "2027-03-31");
+
+        // 2027/28 (Revaluation List Year 2)
+        add("m_eng_hv_2027", "2027/28", Jurisdiction::ENGLAND, "HIGH_VALUE", dec!(500000.00), None, dec!(0.508), "2027-04-01", "2028-03-31");
+        add("m_eng_sm_rhl_2027", "2027/28", Jurisdiction::ENGLAND, "SMALL_BUSINESS_RHL", dec!(0.00), Some(dec!(51000.00)), dec!(0.382), "2027-04-01", "2028-03-31");
+        add("m_eng_sm_2027", "2027/28", Jurisdiction::ENGLAND, "SMALL_BUSINESS", dec!(0.00), Some(dec!(51000.00)), dec!(0.432), "2027-04-01", "2028-03-31");
+        add("m_eng_st_rhl_2027", "2027/28", Jurisdiction::ENGLAND, "STANDARD_RHL", dec!(51000.01), Some(dec!(499999.99)), dec!(0.430), "2027-04-01", "2028-03-31");
+        add("m_eng_st_2027", "2027/28", Jurisdiction::ENGLAND, "STANDARD", dec!(51000.01), Some(dec!(499999.99)), dec!(0.480), "2027-04-01", "2028-03-31");
+
+        add("m_wal_ret_2027", "2027/28", Jurisdiction::WALES, "RETAIL", dec!(0.00), Some(dec!(51000.00)), dec!(0.350), "2027-04-01", "2028-03-31");
+        add("m_wal_std_2027", "2027/28", Jurisdiction::WALES, "STANDARD", dec!(0.00), Some(dec!(100000.00)), dec!(0.502), "2027-04-01", "2028-03-31");
+        add("m_wal_hgh_2027", "2027/28", Jurisdiction::WALES, "HIGHER", dec!(100000.01), None, dec!(0.515), "2027-04-01", "2028-03-31");
+
+        add("m_sco_b_2027", "2027/28", Jurisdiction::SCOTLAND, "BASIC", dec!(0.00), Some(dec!(12000.00)), dec!(0.498), "2027-04-01", "2028-03-31");
+        add("m_sco_st_2027", "2027/28", Jurisdiction::SCOTLAND, "STANDARD", dec!(12000.01), Some(dec!(100000.00)), dec!(0.545), "2027-04-01", "2028-03-31");
+        add("m_sco_h_2027", "2027/28", Jurisdiction::SCOTLAND, "HIGHER", dec!(100000.01), None, dec!(0.559), "2027-04-01", "2028-03-31");
     }
 
     fn seed_sbrr_thresholds(&mut self) {
@@ -712,8 +767,8 @@ impl ParameterRepository {
             add(&format!("sbbs_sco_tap_{}", fy), fy, Jurisdiction::SCOTLAND, dec!(15000.01), dec!(18000.00), dec!(25.00), false, &start, &end);
         }
 
-        // 2023 Revaluation List (2023/24 through 2026/27)
-        for fy in ["2023/24", "2024/25", "2025/26", "2026/27"] {
+        // 2023 Revaluation List (2023/24 through 2027/28)
+        for fy in ["2023/24", "2024/25", "2025/26", "2026/27", "2027/28"] {
             let start = format!("{}-04-01", &fy[0..4]);
             let next_y: i32 = fy[0..4].parse::<i32>().unwrap() + 1;
             let end = format!("{}-03-31", next_y);
@@ -978,5 +1033,15 @@ impl ParameterRepository {
         add("RELIEF_CODE", "WELSH_AVOIDANCE", "Anti-Avoidance Statutory Penalty", "Statutory penalty under Welsh Statutory Instrument 2026/43 (£500 fixed + 3% rateable value) for artificial avoidance.", Some("WALES"), 11);
         add("RELIEF_CODE", "SBBS_TR", "Small Business Bonus Scheme Transitional Relief", "Scottish statutory protection capping net bill increases for properties losing or seeing reduced SBBS (£600 in 2023/24 to £1,800 in 2025/26; 25% bill increase limit in 2026/27).", Some("SCOTLAND"), 12);
         add("RELIEF_CODE", "SSBR", "Supporting Small Business Relief", "English statutory protection capping net bill increases for properties losing or seeing reduced SBRR, rural rate relief, or RHL relief (£600 annual increase cap in 2023–2025; £800 annual increase cap in 2026/27).", Some("ENGLAND"), 13);
+        add("RELIEF_CODE", "WALES_TR", "Welsh Transitional Relief", "Statutory two-year transitional phasing scheme under W.S.I. 2025/1371 / W.S.I. 2022/1350 (67% relief on bill increases > £300 in Year 1, 34% in Year 2).", Some("WALES"), 14);
+
+        // MULTIPLIER_TYPE
+        add("MULTIPLIER_TYPE", "STANDARD", "Standard Multiplier", "National baseline non-domestic rating multiplier.", None, 1);
+        add("MULTIPLIER_TYPE", "SMALL_BUSINESS", "Small Business Multiplier", "Reduced multiplier for qualifying small businesses.", None, 2);
+        add("MULTIPLIER_TYPE", "HIGH_VALUE", "High-Value Multiplier", "Higher rating multiplier for high-value properties (e.g. RV >= £500,000 in England).", None, 3);
+        add("MULTIPLIER_TYPE", "SMALL_BUSINESS_RHL", "Small Business RHL Multiplier", "Permanent reduced multiplier for qualifying retail, hospitality, leisure under £51k RV in England.", Some("ENGLAND"), 4);
+        add("MULTIPLIER_TYPE", "STANDARD_RHL", "Standard RHL Multiplier", "Permanent reduced multiplier for qualifying retail, hospitality, leisure £51k-£500k RV in England.", Some("ENGLAND"), 5);
+        add("MULTIPLIER_TYPE", "RETAIL", "Welsh Retail Multiplier", "Lower statutory multiplier for small retail premises under £51k RV in Wales under LGF(W)A 2024 (35.0p in 2026/27).", Some("WALES"), 6);
+        add("MULTIPLIER_TYPE", "HIGHER", "Higher Multiplier (Wales)", "Higher statutory multiplier for properties exceeding £100k RV in Wales under LGF(W)A 2024 (51.5p in 2026/27).", Some("WALES"), 7);
     }
 }

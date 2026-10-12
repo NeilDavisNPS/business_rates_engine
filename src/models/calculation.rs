@@ -69,6 +69,8 @@ pub struct QualifyingReliefFlags {
     #[serde(default)]
     pub is_rhl_qualifying: bool,
     #[serde(default)]
+    pub is_retail_premises: bool,
+    #[serde(default)]
     pub is_island_property: bool,
     #[serde(default)]
     pub is_rural_settlement: bool,

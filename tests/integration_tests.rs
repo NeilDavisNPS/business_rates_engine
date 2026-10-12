@@ -77,8 +77,8 @@ async fn test_scenario_2_wales_petrol_station() {
 
     let response = engine.calculate(request);
     assert_eq!(response.jurisdiction, Jurisdiction::WALES);
-    assert_eq!(response.annual_billing_segments[0].multiplier_used.rate, dec!(0.562));
-    assert_eq!(response.annual_billing_segments[0].multiplier_used.multiplier_type, "WELSH_DIFFERENTIAL");
+    assert_eq!(response.annual_billing_segments[0].multiplier_used.rate, dec!(0.502));
+    assert_eq!(response.annual_billing_segments[0].multiplier_used.multiplier_type, "STANDARD");
 }
 
 #[tokio::test]
@@ -2797,6 +2797,258 @@ async fn test_england_transitional_relief_opt_out() {
     // Gross unphased: £16,000 * 0.432 = £6,912.00
     assert_eq!(seg.gross_liability, dec!(6912.00));
     assert_eq!(seg.net_segment_payable, dec!(6912.00));
+}
+
+#[tokio::test]
+async fn test_wales_2026_three_multipliers() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Case 1: Small Retail Hereditament (RV < £51,000, is_retail_premises = true) -> Retail Multiplier 0.350
+    let retail_req = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2027, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::WALES,
+            scat_code: "249".to_string(), // Shop
+            rateable_value_history: vec![
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(30000.00),
+                },
+            ],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_retail_premises: true,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+    let retail_res = engine.calculate(retail_req);
+    let retail_seg = &retail_res.annual_billing_segments[0];
+    assert_eq!(retail_seg.multiplier_used.rate, dec!(0.350));
+    assert_eq!(retail_seg.multiplier_used.multiplier_type, "RETAIL");
+    assert_eq!(retail_seg.gross_liability, dec!(10500.00));
+
+    // Case 2: Standard Hereditament (RV <= £100,000, non-retail) -> Standard Multiplier 0.502
+    let standard_req = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2027, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::WALES,
+            scat_code: "096".to_string(), // Industrial/Office
+            rateable_value_history: vec![
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(30000.00),
+                },
+            ],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_retail_premises: false,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+    let standard_res = engine.calculate(standard_req);
+    let standard_seg = &standard_res.annual_billing_segments[0];
+    assert_eq!(standard_seg.multiplier_used.rate, dec!(0.502));
+    assert_eq!(standard_seg.multiplier_used.multiplier_type, "STANDARD");
+    assert_eq!(standard_seg.gross_liability, dec!(15060.00));
+
+    // Case 3: Higher Hereditament (RV > £100,000) -> Higher Multiplier 0.515
+    let higher_req = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2027, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::WALES,
+            scat_code: "249".to_string(),
+            rateable_value_history: vec![
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(150000.00),
+                },
+            ],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_retail_premises: true, // Even if retail, RV > 100k takes Higher Multiplier
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+    let higher_res = engine.calculate(higher_req);
+    let higher_seg = &higher_res.annual_billing_segments[0];
+    assert_eq!(higher_seg.multiplier_used.rate, dec!(0.515));
+    assert_eq!(higher_seg.multiplier_used.multiplier_type, "HIGHER");
+    assert_eq!(higher_seg.gross_liability, dec!(77250.00));
+}
+
+#[tokio::test]
+async fn test_wales_transitional_relief_2026_year_1_67_percent() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Baseline 2025/26: RV £4,000 * 0.562 = £2,248.00
+    // 2026/27: RV £10,000 * 0.502 = £5,020.00
+    // Increase = £5,020.00 - £2,248.00 = £2,772.00 (> £300 statutory threshold)
+    // Year 1 (2026/27) Welsh TR = 67% of £2,772.00 = £1,857.24 (W.S.I. 2025/1371)
+    let req = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2027, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::WALES,
+            scat_code: "096".to_string(),
+            rateable_value_history: vec![
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                    effective_to: Some(NaiveDate::from_ymd_opt(2026, 3, 31).unwrap()),
+                    rateable_value: dec!(4000.00),
+                },
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(10000.00),
+                },
+            ],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            apply_transitional_relief: Some(true),
+            is_small_business_sole_property: false,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+
+    let res = engine.calculate(req);
+    let seg = &res.annual_billing_segments[0];
+
+    assert_eq!(seg.gross_liability, dec!(5020.00));
+    assert_eq!(seg.transitional_adjustment.adjustment_type, "RELIEF");
+    assert_eq!(seg.transitional_adjustment.amount, dec!(1857.24));
+    assert_eq!(seg.net_segment_payable, dec!(3162.76));
+}
+
+#[tokio::test]
+async fn test_wales_transitional_relief_2027_year_2_34_percent() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Baseline 2025/26: RV £4,000 * 0.562 = £2,248.00
+    // 2027/28: RV £10,000 * 0.502 = £5,020.00
+    // Increase = £5,020.00 - £2,248.00 = £2,772.00 (> £300 statutory threshold)
+    // Year 2 (2027/28) Welsh TR = 34% of £2,772.00 = £942.48 (W.S.I. 2025/1371)
+    let req = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2027, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2028, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::WALES,
+            scat_code: "096".to_string(),
+            rateable_value_history: vec![
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                    effective_to: Some(NaiveDate::from_ymd_opt(2026, 3, 31).unwrap()),
+                    rateable_value: dec!(4000.00),
+                },
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(10000.00),
+                },
+            ],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            apply_transitional_relief: Some(true),
+            is_small_business_sole_property: false,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+
+    let res = engine.calculate(req);
+    let seg = &res.annual_billing_segments[0];
+
+    assert_eq!(seg.gross_liability, dec!(5020.00));
+    assert_eq!(seg.transitional_adjustment.adjustment_type, "RELIEF");
+    assert_eq!(seg.transitional_adjustment.amount, dec!(942.48));
+    assert_eq!(seg.net_segment_payable, dec!(4077.52));
+}
+
+#[tokio::test]
+async fn test_wales_transitional_relief_under_300_no_relief() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Baseline 2025/26: RV £8,600 * 0.562 = £4,833.20
+    // 2026/27: RV £10,000 * 0.502 = £5,020.00
+    // Increase = £5,020.00 - £4,833.20 = £186.80 (<= £300 statutory threshold)
+    // No Welsh TR awarded under W.S.I. 2025/1371
+    let req = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2027, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::WALES,
+            scat_code: "096".to_string(),
+            rateable_value_history: vec![
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                    effective_to: Some(NaiveDate::from_ymd_opt(2026, 3, 31).unwrap()),
+                    rateable_value: dec!(8600.00),
+                },
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(10000.00),
+                },
+            ],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            apply_transitional_relief: Some(true),
+            is_small_business_sole_property: false,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+
+    let res = engine.calculate(req);
+    let seg = &res.annual_billing_segments[0];
+
+    assert_eq!(seg.gross_liability, dec!(5020.00));
+    assert_eq!(seg.transitional_adjustment.adjustment_type, "NONE");
+    assert_eq!(seg.transitional_adjustment.amount, dec!(0.00));
+    assert_eq!(seg.net_segment_payable, dec!(5020.00));
 }
 
 

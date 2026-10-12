@@ -45,6 +45,14 @@ impl CalculationEngine {
         None
     }
 
+    fn resolve_welsh_base_fy_and_date(&self, current_fy: &str) -> Option<(&'static str, NaiveDate)> {
+        match current_fy {
+            "2026/27" | "2027/28" => Some(("2025/26", NaiveDate::from_ymd_opt(2026, 3, 31).unwrap())),
+            "2023/24" | "2024/25" => Some(("2022/23", NaiveDate::from_ymd_opt(2023, 3, 31).unwrap())),
+            _ => None,
+        }
+    }
+
     pub fn calculate(&self, req: LiabilityCalculationRequest) -> LiabilityCalculationResponse {
         let lang = req.language.as_deref().map(crate::i18n::Language::from_code).unwrap_or_default();
         self.calculate_with_language(req, lang)
@@ -72,11 +80,13 @@ impl CalculationEngine {
 
         for win in &windows {
             let rv = self.resolve_rv_for_date(&req.hereditament.rateable_value_history, win.period.start_date);
+            let is_retail_or_rhl = win.period_relief_flags.is_retail_premises
+                || (win.period_relief_flags.is_rhl_qualifying && req.hereditament.scat_code != "209");
             let mult = self.repo.resolve_multiplier_ex(
                 req.hereditament.jurisdiction,
                 &win.financial_year,
                 rv,
-                win.period_relief_flags.is_rhl_qualifying,
+                is_retail_or_rhl,
             );
 
             let days_dec = Decimal::from(win.period.days);
@@ -85,7 +95,7 @@ impl CalculationEngine {
             let gross_liability = ((rv * mult.rate) / year_days_dec * days_dec).round_dp(2);
             total_gross += gross_liability;
 
-            // Transitional Phasing Calculation (LGFA 1988 s.57A / NDR Chargeable Amounts Regs)
+            // Transitional Phasing Calculation (LGFA 1988 s.57A / s.58 / NDR Chargeable Amounts Regs)
             let mut transitional_adj = TransitionalAdjustment {
                 adjustment_type: "NONE".to_string(),
                 amount: dec!(0.00),
@@ -95,7 +105,55 @@ impl CalculationEngine {
             if win.period_relief_flags.apply_transitional_relief.unwrap_or(true) {
                 if let Some(prev_fy) = self.get_previous_financial_year(&win.financial_year) {
                     if let Some(prev_rv) = self.resolve_previous_rv(&req.hereditament.rateable_value_history, win.period.start_date) {
-                        if let Some(cap) = self.repo.resolve_transitional_cap(req.hereditament.jurisdiction, &win.financial_year, rv) {
+                        if req.hereditament.jurisdiction == Jurisdiction::WALES {
+                            // Welsh Transitional Relief (W.S.I. 2025/1371 / W.S.I. 2022/1350)
+                            // 2-Year Phasing Scheme: 67% relief in Year 1, 34% relief in Year 2 on bill increases > £300
+                            if let Some((relief_pct, _authority)) = self.repo.resolve_welsh_transitional_relief_rate(&win.financial_year) {
+                                let (base_fy, base_date) = self.resolve_welsh_base_fy_and_date(&win.financial_year)
+                                    .unwrap_or((prev_fy.as_str(), win.period.start_date));
+                                let base_rv = {
+                                    let rv_at_date = self.resolve_rv_for_date(&req.hereditament.rateable_value_history, base_date);
+                                    if rv_at_date > dec!(0.00) {
+                                        rv_at_date
+                                    } else {
+                                        prev_rv
+                                    }
+                                };
+
+                                let prev_is_retail = win.period_relief_flags.is_retail_premises
+                                    || (win.period_relief_flags.is_rhl_qualifying && req.hereditament.scat_code != "209");
+                                let prev_mult = self.repo.resolve_multiplier_ex(
+                                    Jurisdiction::WALES,
+                                    base_fy,
+                                    base_rv,
+                                    prev_is_retail,
+                                );
+                                let prev_gross_annual = base_rv * prev_mult.rate;
+                                let prev_sbrr_pct = if win.period_relief_flags.is_small_business_sole_property {
+                                    self.repo.resolve_sbrr(Jurisdiction::WALES, base_fy, base_rv)
+                                        .map(|s| s.discount_percentage)
+                                        .unwrap_or(dec!(0.00))
+                                } else {
+                                    dec!(0.00)
+                                };
+                                let prev_net_annual = (prev_gross_annual * (dec!(1.00) - (prev_sbrr_pct / dec!(100.00)))).round_dp(2);
+                                let base_segment_liability = ((prev_net_annual / year_days_dec) * days_dec).round_dp(2);
+
+                                if gross_liability > base_segment_liability {
+                                    let segment_increase = gross_liability - base_segment_liability;
+                                    let annual_increase = ((segment_increase / days_dec) * year_days_dec).round_dp(2);
+
+                                    // Statutory threshold: increase must exceed £300 to trigger transitional relief
+                                    if annual_increase > dec!(300.00) {
+                                        segment_trans_relief = (segment_increase * (relief_pct / dec!(100.00))).round_dp(2);
+                                        transitional_adj = TransitionalAdjustment {
+                                            adjustment_type: "RELIEF".to_string(),
+                                            amount: segment_trans_relief,
+                                        };
+                                    }
+                                }
+                            }
+                        } else if let Some(cap) = self.repo.resolve_transitional_cap(req.hereditament.jurisdiction, &win.financial_year, rv) {
                             let prev_mult = self.repo.resolve_multiplier_ex(
                                 req.hereditament.jurisdiction,
                                 &prev_fy,
