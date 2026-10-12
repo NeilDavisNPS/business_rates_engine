@@ -114,7 +114,6 @@ export const sco = {
   itemized_label: "Eetemised Reliefs & Deductions:",
   no_reliefs: "Nae statutary reliefs applee'd for this year.",
   discount_word: "discoont",
-  statutory_framework: "Statutary Framewark:",
   statutory_penalty: "Statutary Penalty Assessed:",
   theme_label: "Heich-Contrast Paper View",
   theme_light: "Heich-Contrast Paper View",
@@ -123,5 +122,9 @@ export const sco = {
   multiplier_label: "Multiplier",
   years_unit: "Years",
   api_key_copied: "API Key copyit tae clipboard!",
+  statutory_framework_title: "Statutary Framewark",
+  statutory_framework_sub: "Historical Ratin Leets (1990–2022) & Devolved Modren Regimes (2023–2027)",
+  statutory_framework_expand: "Click tae expan full framewark",
+  statutory_framework_collapse: "Click tae collapse framewark",
 };
 

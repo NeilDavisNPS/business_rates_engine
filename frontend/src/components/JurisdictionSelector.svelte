@@ -33,24 +33,4 @@
       </button>
     {/each}
   </div>
-
-  <!-- Dynamic Framework Info Banner -->
-  <div class="rounded-lg p-3 text-xs border {calcStore.jurisdictionInfo.bannerBg} space-y-1">
-    <div class="font-bold flex items-center gap-1.5">
-      <span>{calcStore.jurisdictionInfo.name} — {calcStore.t.statutory_framework}</span>
-    </div>
-    <p class="text-[11px] leading-relaxed text-slate-700">
-      {calcStore.jurisdictionInfo.framework}
-    </p>
-    <div class="mt-2 pt-2 border-t border-slate-200/60 grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
-      <div>
-        <span class="font-bold text-slate-800">{calcStore.jurisdictionInfo.sbrrTitle}:</span>
-        <span class="text-slate-600 block">{calcStore.jurisdictionInfo.sbrrDesc}</span>
-      </div>
-      <div>
-        <span class="font-bold text-slate-800">{calcStore.jurisdictionInfo.rhlTitle}:</span>
-        <span class="text-slate-600 block">{calcStore.jurisdictionInfo.rhlDesc}</span>
-      </div>
-    </div>
-  </div>
 </div>

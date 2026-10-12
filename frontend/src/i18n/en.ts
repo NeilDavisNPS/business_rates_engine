@@ -114,7 +114,6 @@ export const en = {
   itemized_label: "Itemized Reliefs & Deductions:",
   no_reliefs: "No statutory reliefs applied for this year.",
   discount_word: "discount",
-  statutory_framework: "Statutory Framework:",
   statutory_penalty: "Statutory Penalty Assessed:",
   theme_label: "High-Contrast Paper View",
   theme_light: "High-Contrast Paper View",
@@ -123,5 +122,9 @@ export const en = {
   multiplier_label: "Multiplier",
   years_unit: "Years",
   api_key_copied: "API Key copied to clipboard!",
+  statutory_framework_title: "Statutory Framework",
+  statutory_framework_sub: "Historical Rating Lists (1990–2022) & Devolved Modern Regimes (2023–2027)",
+  statutory_framework_expand: "Click to expand complete statutory framework",
+  statutory_framework_collapse: "Click to collapse framework",
 };
 

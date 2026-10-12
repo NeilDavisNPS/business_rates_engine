@@ -114,7 +114,6 @@ export const cy = {
   itemized_label: "Rhyddhadau a Didyniadau Eitemedig:",
   no_reliefs: "Ni chymhwyswyd unrhyw ryddhadau statudol ar gyfer y flwyddyn hon.",
   discount_word: "o ddisgownt",
-  statutory_framework: "Fframwaith Statudol:",
   statutory_penalty: "Cosb Statudol a Aseswyd:",
   theme_label: "Gwedd Bapur Cyferbyniad Uchel",
   theme_light: "Gwedd Bapur Cyferbyniad Uchel",
@@ -123,5 +122,9 @@ export const cy = {
   multiplier_label: "Lluosydd",
   years_unit: "Mlynedd",
   api_key_copied: "Allwedd API wedi'i chopïo i'r clipfwrdd!",
+  statutory_framework_title: "Fframwaith Statudol",
+  statutory_framework_sub: "Rhestrau Ardrethu Hanesyddol (1990–2022) a Threfnau Datganoledig Modern (2023–2027)",
+  statutory_framework_expand: "Cliciwch i ehangu'r fframwaith cyflawn",
+  statutory_framework_collapse: "Cliciwch i grebachu'r fframwaith",
 };
 

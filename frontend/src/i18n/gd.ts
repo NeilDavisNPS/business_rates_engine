@@ -114,7 +114,6 @@ export const gd = {
   itemized_label: "Faochaidhean & Toirt air falbh Mionaideach:",
   no_reliefs: "Cha deach faochadh reachdail a chur an sàs airson na bliadhna seo.",
   discount_word: "lasachadh",
-  statutory_framework: "Frèam Reachdail:",
   statutory_penalty: "Peanas Reachdail air a Mheasadh:",
   theme_label: "Sealladh Pàipeir Àrd-Iomsgaradh",
   theme_light: "Sealladh Pàipeir Àrd-Iomsgaradh",
@@ -123,5 +122,9 @@ export const gd = {
   multiplier_label: "Iomadair",
   years_unit: "Bliadhnaichean",
   api_key_copied: "Chaidh iuchair API a chopaigeadh don bhòrd-chriomag!",
+  statutory_framework_title: "Frèam Reachdail",
+  statutory_framework_sub: "Liostaichean Measaidh Eachdraidheil (1990–2022) & Siostaman Ùra Tiomnaichte (2023–2027)",
+  statutory_framework_expand: "Cliog gus an làn fhrèam a leudachadh",
+  statutory_framework_collapse: "Cliog gus am frèam a lùghdachadh",
 };
 
