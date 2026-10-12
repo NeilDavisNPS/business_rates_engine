@@ -3672,6 +3672,127 @@ async fn test_statutory_10_and_12_installments_schedule() {
     assert_eq!(total12, seg12.net_segment_payable);
 }
 
+#[tokio::test]
+async fn test_narrative_relief_assessment_audit_unawarded_reliefs() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Case 1: Commercial office (SCAT 091) RV £45,000 claiming Rural Settlement Relief in England
+    let req_rural_fail = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2024, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2025, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::ENGLAND,
+            scat_code: "091".to_string(),
+            rateable_value_history: vec![RvEntry {
+                effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                effective_to: None,
+                rateable_value: dec!(45000.00),
+            }],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_rural_settlement: true,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: Some("en".to_string()),
+    };
+    let res_rural_fail = engine.calculate(req_rural_fail);
+    let nar = &res_rural_fail.calculation_narrative;
+    assert!(nar.contains("Relief Assessment Audit (Unawarded Reliefs):"));
+    assert!(nar.contains("Rural Settlement Relief: Disqualified — Rateable Value (£45000.00) exceeds statutory cap of £8,500 for commercial/general hereditaments [LGFA 1988 s.43(6B) / LGFA 1997]"));
+
+    // Case 2: Welsh language narrative audit for the same disqualification
+    let req_rural_cy = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2024, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2025, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::ENGLAND,
+            scat_code: "091".to_string(),
+            rateable_value_history: vec![RvEntry {
+                effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                effective_to: None,
+                rateable_value: dec!(45000.00),
+            }],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_rural_settlement: true,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: Some("cy".to_string()),
+    };
+    let res_rural_cy = engine.calculate(req_rural_cy);
+    let nar_cy = &res_rural_cy.calculation_narrative;
+    assert!(nar_cy.contains("Archwiliad Asesu Rhyddhadau (Rhyddhadau heb eu Dyfarnu):"));
+    assert!(nar_cy.contains("Rhyddhad Anheddiad Gwledig: Wedi'i anghymhwyso — mae'r Gwerth Trethiannol (£45000.00) yn fwy na'r cap statudol o £8,500 ar gyfer hereditamentau masnachol/cyffredinol [LGFA 1988 s.43(6B) / LGFA 1997]"));
+
+    // Case 3: SBRR claimed with RV £25,000 (> £15,000 cap in England)
+    let req_sbrr_fail = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2024, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2025, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::ENGLAND,
+            scat_code: "091".to_string(),
+            rateable_value_history: vec![RvEntry {
+                effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                effective_to: None,
+                rateable_value: dec!(25000.00),
+            }],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_small_business_sole_property: true,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: Some("en".to_string()),
+    };
+    let res_sbrr_fail = engine.calculate(req_sbrr_fail);
+    let nar_sbrr = &res_sbrr_fail.calculation_narrative;
+    assert!(nar_sbrr.contains("Small Business Rate Relief: Disqualified — Rateable Value (£25000.00) exceeds £15,000 statutory taper ceiling [LGFA 1988 s.43(4B) / S.I. 2017/411]"));
+
+    // Case 4: Unoccupied property claiming occupied relief
+    let req_unocc_fail = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2024, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2025, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::ENGLAND,
+            scat_code: "091".to_string(),
+            rateable_value_history: vec![RvEntry {
+                effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                effective_to: None,
+                rateable_value: dec!(5000.00),
+            }],
+        },
+        occupancy_type: OccupancyType::UNOCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_rural_settlement: true,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: Some("en".to_string()),
+    };
+    let res_unocc_fail = engine.calculate(req_unocc_fail);
+    let nar_unocc = &res_unocc_fail.calculation_narrative;
+    assert!(nar_unocc.contains("Rural Settlement Relief: Disqualified — property is unoccupied (mandatory rural settlement relief requires qualifying occupation)"));
+}
+
+
 
 
 
