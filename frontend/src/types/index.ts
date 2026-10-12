@@ -27,6 +27,7 @@ export interface PartOccupiedApportionment {
 
 export interface QualifyingReliefFlags {
   is_small_business_sole_property: boolean;
+  is_small_business_second_property_grace?: boolean;
   is_charitable_purposes: boolean;
   is_rhl_qualifying: boolean;
   is_island_property: boolean;
@@ -38,6 +39,9 @@ export interface QualifyingReliefFlags {
   days_previously_unoccupied: number | null;
   is_artificial_avoidance_suspected: boolean;
   holiday_let_actual_days_let: number | null;
+  is_sbbs_tr_qualifying: boolean;
+  is_ssbr_qualifying?: boolean;
+  apply_transitional_relief?: boolean;
 }
 
 export interface OccupancyPeriodInput {

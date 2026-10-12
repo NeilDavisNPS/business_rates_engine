@@ -27,7 +27,7 @@ class CalculationStore {
   occupancyPeriods = $state<OccupancyPeriodInput[]>([
     {
       start_date: '2024-04-01',
-      end_date: '2026-03-31',
+      end_date: '2027-03-31',
       occupancy_type: 'OCCUPIED',
       part_occupied_apportionment: undefined,
     },
@@ -43,6 +43,7 @@ class CalculationStore {
 
   qualifyingReliefFlags = $state<QualifyingReliefFlags>({
     is_small_business_sole_property: false,
+    is_small_business_second_property_grace: false,
     is_charitable_purposes: false,
     is_rhl_qualifying: false,
     is_island_property: false,
@@ -54,6 +55,9 @@ class CalculationStore {
     days_previously_unoccupied: null,
     is_artificial_avoidance_suspected: false,
     holiday_let_actual_days_let: null,
+    is_sbbs_tr_qualifying: false,
+    is_ssbr_qualifying: false,
+    apply_transitional_relief: true,
   });
 
   rawJsonRequest = $state<string>('');
@@ -174,6 +178,7 @@ class CalculationStore {
     const jur = this.jurisdiction;
     const flags: QualifyingReliefFlags = {
       is_small_business_sole_property: this.qualifyingReliefFlags.is_small_business_sole_property,
+      is_small_business_second_property_grace: jur === 'ENGLAND' ? this.qualifyingReliefFlags.is_small_business_second_property_grace : false,
       is_charitable_purposes: this.qualifyingReliefFlags.is_charitable_purposes,
       is_rhl_qualifying: this.qualifyingReliefFlags.is_rhl_qualifying,
       is_island_property: jur === 'SCOTLAND' ? this.qualifyingReliefFlags.is_island_property : false,
@@ -185,6 +190,9 @@ class CalculationStore {
       days_previously_unoccupied: this.qualifyingReliefFlags.days_previously_unoccupied,
       is_artificial_avoidance_suspected: jur === 'WALES' ? this.qualifyingReliefFlags.is_artificial_avoidance_suspected : false,
       holiday_let_actual_days_let: jur === 'SCOTLAND' ? this.qualifyingReliefFlags.holiday_let_actual_days_let : null,
+      is_sbbs_tr_qualifying: jur === 'SCOTLAND' ? this.qualifyingReliefFlags.is_sbbs_tr_qualifying : false,
+      is_ssbr_qualifying: jur === 'ENGLAND' ? this.qualifyingReliefFlags.is_ssbr_qualifying : false,
+      apply_transitional_relief: this.qualifyingReliefFlags.apply_transitional_relief,
     };
 
     return {
@@ -254,6 +262,7 @@ class CalculationStore {
       if (p.qualifying_relief_flags) {
         this.qualifyingReliefFlags = {
           is_small_business_sole_property: !!p.qualifying_relief_flags.is_small_business_sole_property,
+          is_small_business_second_property_grace: !!p.qualifying_relief_flags.is_small_business_second_property_grace,
           is_charitable_purposes: !!p.qualifying_relief_flags.is_charitable_purposes,
           is_rhl_qualifying: !!p.qualifying_relief_flags.is_rhl_qualifying,
           is_island_property: !!p.qualifying_relief_flags.is_island_property,
@@ -265,6 +274,9 @@ class CalculationStore {
           days_previously_unoccupied: p.qualifying_relief_flags.days_previously_unoccupied != null ? Number(p.qualifying_relief_flags.days_previously_unoccupied) : null,
           is_artificial_avoidance_suspected: !!p.qualifying_relief_flags.is_artificial_avoidance_suspected,
           holiday_let_actual_days_let: p.qualifying_relief_flags.holiday_let_actual_days_let != null ? Number(p.qualifying_relief_flags.holiday_let_actual_days_let) : null,
+          is_sbbs_tr_qualifying: !!p.qualifying_relief_flags.is_sbbs_tr_qualifying,
+          is_ssbr_qualifying: !!p.qualifying_relief_flags.is_ssbr_qualifying,
+          apply_transitional_relief: p.qualifying_relief_flags.apply_transitional_relief !== false,
         };
       }
       this.errorMessage = null;

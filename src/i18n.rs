@@ -346,6 +346,8 @@ pub fn localize_relief_name(name: &str, lang: Language) -> String {
             "Section 44A Part-Occupied Relief" => "Rhyddhad Rhan-Feddiant Adran 44A".to_string(),
             "Heat Network Relief" | "Heat Network Exemption" => "Rhyddhad Rhwydwaith Gwres".to_string(),
             "Anti-Avoidance Statutory Penalty" => "Cosb Statudol Gwrth-osgoi".to_string(),
+            "Small Business Bonus Scheme Transitional Relief" => "Rhyddhad Trosiannol Cynllun Bonws Busnesau Bach".to_string(),
+            "Supporting Small Business Relief" => "Rhyddhad Cefnogi Busnesau Bach".to_string(),
             other => other.to_string(),
         },
         Language::Sco => match name {
@@ -362,6 +364,8 @@ pub fn localize_relief_name(name: &str, lang: Language) -> String {
             "Section 44A Part-Occupied Relief" => "Section 44A Pairt-Occupyit Relief".to_string(),
             "Heat Network Relief" | "Heat Network Exemption" => "Heat Netwark Relief".to_string(),
             "Anti-Avoidance Statutory Penalty" => "Anti-Avoidance Statutary Penalty".to_string(),
+            "Small Business Bonus Scheme Transitional Relief" => "Small Business Bonus Scheme Transitional Relief".to_string(),
+            "Supporting Small Business Relief" => "Supportin Smaa Business Relief".to_string(),
             other => other.to_string(),
         },
         Language::Gd => match name {
@@ -378,6 +382,8 @@ pub fn localize_relief_name(name: &str, lang: Language) -> String {
             "Section 44A Part-Occupied Relief" => "Faochadh Pàirt-ghabhailte Earrann 44A".to_string(),
             "Heat Network Relief" | "Heat Network Exemption" => "Faochadh Lìonra Teasa".to_string(),
             "Anti-Avoidance Statutory Penalty" => "Peanas Reachdail an-aghaidh Seachnadh".to_string(),
+            "Small Business Bonus Scheme Transitional Relief" => "Faochadh Gluasaid Sgeama Bònas Ghnìomhachasan Beaga".to_string(),
+            "Supporting Small Business Relief" => "Faochadh Taic do Ghnìomhachasan Beaga".to_string(),
             other => other.to_string(),
         },
     }

@@ -72,7 +72,12 @@ impl CalculationEngine {
 
         for win in &windows {
             let rv = self.resolve_rv_for_date(&req.hereditament.rateable_value_history, win.period.start_date);
-            let mult = self.repo.resolve_multiplier(req.hereditament.jurisdiction, &win.financial_year, rv);
+            let mult = self.repo.resolve_multiplier_ex(
+                req.hereditament.jurisdiction,
+                &win.financial_year,
+                rv,
+                win.period_relief_flags.is_rhl_qualifying,
+            );
 
             let days_dec = Decimal::from(win.period.days);
             let year_days_dec = Decimal::from(win.year_days);
@@ -87,21 +92,28 @@ impl CalculationEngine {
             };
             let mut segment_trans_relief = dec!(0.00);
 
-            if let Some(prev_fy) = self.get_previous_financial_year(&win.financial_year) {
-                if let Some(prev_rv) = self.resolve_previous_rv(&req.hereditament.rateable_value_history, win.period.start_date) {
-                    if let Some(cap) = self.repo.resolve_transitional_cap(req.hereditament.jurisdiction, &win.financial_year, rv) {
-                        let prev_mult = self.repo.resolve_multiplier(req.hereditament.jurisdiction, &prev_fy, prev_rv);
-                        let base_liability_annual = prev_rv * prev_mult.rate;
-                        let cap_factor = dec!(1.00) + (cap.upward_cap_percentage / dec!(100.00));
-                        let capped_annual_liability = base_liability_annual * cap_factor;
-                        let capped_segment_liability = ((capped_annual_liability / year_days_dec) * days_dec).round_dp(2);
+            if win.period_relief_flags.apply_transitional_relief.unwrap_or(true) {
+                if let Some(prev_fy) = self.get_previous_financial_year(&win.financial_year) {
+                    if let Some(prev_rv) = self.resolve_previous_rv(&req.hereditament.rateable_value_history, win.period.start_date) {
+                        if let Some(cap) = self.repo.resolve_transitional_cap(req.hereditament.jurisdiction, &win.financial_year, rv) {
+                            let prev_mult = self.repo.resolve_multiplier_ex(
+                                req.hereditament.jurisdiction,
+                                &prev_fy,
+                                prev_rv,
+                                win.period_relief_flags.is_rhl_qualifying,
+                            );
+                            let base_liability_annual = prev_rv * prev_mult.rate;
+                            let cap_factor = dec!(1.00) + (cap.upward_cap_percentage / dec!(100.00));
+                            let capped_annual_liability = base_liability_annual * cap_factor;
+                            let capped_segment_liability = ((capped_annual_liability / year_days_dec) * days_dec).round_dp(2);
 
-                        if gross_liability > capped_segment_liability {
-                            segment_trans_relief = (gross_liability - capped_segment_liability).round_dp(2);
-                            transitional_adj = TransitionalAdjustment {
-                                adjustment_type: "RELIEF".to_string(),
-                                amount: segment_trans_relief,
-                            };
+                            if gross_liability > capped_segment_liability {
+                                segment_trans_relief = (gross_liability - capped_segment_liability).round_dp(2);
+                                transitional_adj = TransitionalAdjustment {
+                                    adjustment_type: "RELIEF".to_string(),
+                                    amount: segment_trans_relief,
+                                };
+                            }
                         }
                     }
                 }
@@ -205,19 +217,120 @@ impl CalculationEngine {
                     }
 
                     // 6. Dynamic SBRR / SBBS logic resolved from parameter repository tables
-                    if flags.is_small_business_sole_property && segment_relief_total < gross_liability {
+                    if (flags.is_small_business_sole_property || flags.is_small_business_second_property_grace)
+                        && segment_relief_total < chargeable_before_reliefs
+                    {
                         if let Some(sbrr) = self.repo.resolve_sbrr(req.hereditament.jurisdiction, &win.financial_year, rv) {
-                            let remaining = gross_liability - segment_relief_total;
+                            let remaining = chargeable_before_reliefs - segment_relief_total;
                             let amount = (remaining * (sbrr.discount_percentage / dec!(100.00))).round_dp(2);
                             if amount > dec!(0.00) {
                                 segment_relief_total += amount;
+                                let authority = if flags.is_small_business_second_property_grace && req.hereditament.jurisdiction == Jurisdiction::ENGLAND {
+                                    format!("{} / S.I. 2017/411 art. 3(4) (12-Month Grace Period)", sbrr.statutory_authority)
+                                } else {
+                                    sbrr.statutory_authority
+                                };
                                 reliefs.push(ItemizedRelief {
                                     relief_code: sbrr.relief_code,
                                     relief_name: crate::i18n::localize_relief_name(&sbrr.relief_name, lang),
-                                    statutory_authority: sbrr.statutory_authority,
+                                    statutory_authority: authority,
                                     discount_percentage: sbrr.discount_percentage,
                                     amount_deducted: amount,
                                 });
+                            }
+                        }
+                    }
+
+                    // 6b. Scottish Small Business Bonus Scheme Transitional Relief (SBBS TR)
+                    if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND
+                        && flags.is_sbbs_tr_qualifying
+                        && segment_relief_total < chargeable_before_reliefs
+                    {
+                        if let Some(sbbs_tr) = self.repo.resolve_sbbs_tr(&win.financial_year) {
+                            let prev_net_segment = if let Some(prev_fy) = self.get_previous_financial_year(&win.financial_year) {
+                                if let Some(prev_rv) = self.resolve_previous_rv(&req.hereditament.rateable_value_history, win.period.start_date) {
+                                    let prev_mult = self.repo.resolve_multiplier(Jurisdiction::SCOTLAND, &prev_fy, prev_rv);
+                                    let prev_gross_annual = prev_rv * prev_mult.rate;
+                                    let prev_sbbs_pct = self.repo.resolve_sbrr(Jurisdiction::SCOTLAND, &prev_fy, prev_rv)
+                                        .map(|r| r.discount_percentage)
+                                        .unwrap_or(dec!(0.00));
+                                    let prev_net_annual = (prev_gross_annual * (dec!(1.00) - (prev_sbbs_pct / dec!(100.00)))).round_dp(2);
+                                    ((prev_net_annual / year_days_dec) * days_dec).round_dp(2)
+                                } else {
+                                    dec!(0.00)
+                                }
+                            } else {
+                                dec!(0.00)
+                            };
+
+                            let current_net_before_tr = chargeable_before_reliefs - segment_relief_total;
+                            if current_net_before_tr > prev_net_segment {
+                                let unmitigated_increase = current_net_before_tr - prev_net_segment;
+                                let tr_deduction = match sbbs_tr.cap_type {
+                                    crate::db::repository::SbbsTrCapType::FixedCash(annual_cap) => {
+                                        let segment_cap = ((annual_cap / year_days_dec) * days_dec).round_dp(2);
+                                        (unmitigated_increase - segment_cap).max(dec!(0.00))
+                                    }
+                                    crate::db::repository::SbbsTrCapType::PercentageOfIncrease(payable_pct) => {
+                                        let relief_pct = (dec!(100.00) - payable_pct) / dec!(100.00);
+                                        (unmitigated_increase * relief_pct).round_dp(2)
+                                    }
+                                };
+
+                                if tr_deduction > dec!(0.00) {
+                                    segment_relief_total += tr_deduction;
+                                    let effective_pct = ((tr_deduction / current_net_before_tr) * dec!(100.00)).round_dp(2);
+                                    reliefs.push(ItemizedRelief {
+                                        relief_code: sbbs_tr.relief_code,
+                                        relief_name: crate::i18n::localize_relief_name(&sbbs_tr.relief_name, lang),
+                                        statutory_authority: sbbs_tr.statutory_authority,
+                                        discount_percentage: effective_pct,
+                                        amount_deducted: tr_deduction,
+                                    });
+                                }
+                            }
+                        }
+                    }
+
+                    // 6c. Supporting Small Business Relief (SSBR) in England (LGFA 1988 s.47)
+                    if req.hereditament.jurisdiction == Jurisdiction::ENGLAND
+                        && flags.is_ssbr_qualifying
+                        && segment_relief_total < chargeable_before_reliefs
+                    {
+                        if let Some(ssbr) = self.repo.resolve_ssbr(&win.financial_year) {
+                            let prev_net_segment = if let Some(prev_fy) = self.get_previous_financial_year(&win.financial_year) {
+                                if let Some(prev_rv) = self.resolve_previous_rv(&req.hereditament.rateable_value_history, win.period.start_date) {
+                                    let prev_mult = self.repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, &prev_fy, prev_rv, flags.is_rhl_qualifying);
+                                    let prev_gross_annual = prev_rv * prev_mult.rate;
+                                    let prev_sbrr_pct = self.repo.resolve_sbrr(Jurisdiction::ENGLAND, &prev_fy, prev_rv)
+                                        .map(|r| r.discount_percentage)
+                                        .unwrap_or(dec!(0.00));
+                                    let prev_net_annual = (prev_gross_annual * (dec!(1.00) - (prev_sbrr_pct / dec!(100.00)))).round_dp(2);
+                                    ((prev_net_annual / year_days_dec) * days_dec).round_dp(2)
+                                } else {
+                                    dec!(0.00)
+                                }
+                            } else {
+                                dec!(0.00)
+                            };
+
+                            let current_net_before_ssbr = chargeable_before_reliefs - segment_relief_total;
+                            if current_net_before_ssbr > prev_net_segment {
+                                let unmitigated_increase = current_net_before_ssbr - prev_net_segment;
+                                let segment_cap = ((ssbr.annual_cap / year_days_dec) * days_dec).round_dp(2);
+                                let ssbr_deduction = (unmitigated_increase - segment_cap).max(dec!(0.00));
+
+                                if ssbr_deduction > dec!(0.00) {
+                                    segment_relief_total += ssbr_deduction;
+                                    let effective_pct = ((ssbr_deduction / current_net_before_ssbr) * dec!(100.00)).round_dp(2);
+                                    reliefs.push(ItemizedRelief {
+                                        relief_code: ssbr.relief_code,
+                                        relief_name: crate::i18n::localize_relief_name(&ssbr.relief_name, lang),
+                                        statutory_authority: ssbr.statutory_authority,
+                                        discount_percentage: effective_pct,
+                                        amount_deducted: ssbr_deduction,
+                                    });
+                                }
                             }
                         }
                     }
@@ -381,15 +494,20 @@ impl CalculationEngine {
                         });
                     }
 
-                    if flags.is_small_business_sole_property {
+                    if flags.is_small_business_sole_property || flags.is_small_business_second_property_grace {
                         if let Some(sbrr) = self.repo.resolve_sbrr(req.hereditament.jurisdiction, &win.financial_year, rv) {
                             let amount = (occ_chargeable * (sbrr.discount_percentage / dec!(100.00))).round_dp(2);
                             if amount > dec!(0.00) {
                                 segment_relief_total += amount;
+                                let authority = if flags.is_small_business_second_property_grace && req.hereditament.jurisdiction == Jurisdiction::ENGLAND {
+                                    format!("{} / S.I. 2017/411 art. 3(4) / LGFA 1988 s.44A", sbrr.statutory_authority)
+                                } else {
+                                    format!("{} / LGFA 1988 s.44A", sbrr.statutory_authority)
+                                };
                                 reliefs.push(ItemizedRelief {
                                     relief_code: sbrr.relief_code,
                                     relief_name: crate::i18n::localize_relief_name(&sbrr.relief_name, lang),
-                                    statutory_authority: format!("{} / LGFA 1988 s.44A", sbrr.statutory_authority),
+                                    statutory_authority: authority,
                                     discount_percentage: sbrr.discount_percentage,
                                     amount_deducted: amount,
                                 });

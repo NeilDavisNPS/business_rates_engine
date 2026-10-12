@@ -61,10 +61,10 @@ async fn test_scenario_1_england_sbrr_and_rhl_multi_year() {
     let seg2 = &response.annual_billing_segments[1];
     assert_eq!(seg2.financial_year, "2026/27");
     assert_eq!(seg2.rateable_value, dec!(16000.00));
-    assert_eq!(seg2.multiplier_used.rate, dec!(0.522));
-    // In England 2026/27, temporary RHL relief has ceased on 31 March 2026
+    assert_eq!(seg2.multiplier_used.rate, dec!(0.382));
+    assert_eq!(seg2.multiplier_used.multiplier_type, "SMALL_BUSINESS_RHL");
+    // In England 2026/27, temporary RHL relief has ceased on 31 March 2026, replaced by permanent lower multiplier (38.2p)
     assert!(!seg2.itemized_reliefs.iter().any(|r| r.relief_code.starts_with("RHL")));
-    assert_eq!(seg2.net_segment_payable, dec!(3990.43));
 
     assert!(response.calculation_narrative.contains("Local Government Finance Act 1988"));
 }
@@ -123,7 +123,7 @@ async fn test_scenario_5_airport_high_value() {
     let response = engine.calculate(request);
     assert_eq!(response.jurisdiction, Jurisdiction::ENGLAND);
     assert_eq!(response.annual_billing_segments[0].multiplier_used.multiplier_type, "HIGH_VALUE");
-    assert_eq!(response.annual_billing_segments[0].multiplier_used.rate, dec!(0.568));
+    assert_eq!(response.annual_billing_segments[0].multiplier_used.rate, dec!(0.508));
 }
 
 #[tokio::test]
@@ -162,7 +162,7 @@ async fn test_zero_hardcoding_historical_multipliers_1990_to_2026() {
 
     // 2026/27 High-Value Threshold (£500k)
     let m_26_hv = repo.resolve_multiplier(Jurisdiction::ENGLAND, "2026/27", dec!(500000.00));
-    assert_eq!(m_26_hv.rate, dec!(0.568));
+    assert_eq!(m_26_hv.rate, dec!(0.508));
     assert_eq!(m_26_hv.multiplier_type, "HIGH_VALUE");
 }
 
@@ -2429,6 +2429,376 @@ async fn test_sector_relief_wales_2026_food_drink_hospitality() {
     assert!(!seg_p.itemized_reliefs.iter().any(|r| r.relief_code.starts_with("RHL")),
         "Petrol filling station in Wales must be excluded from RHL relief");
 }
+
+#[tokio::test]
+async fn test_scottish_general_transitional_relief_2023_list() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Scottish property RV £10,000 in 2022/23 increasing to £18,000 in 2023/24 (Small property <= £20k)
+    // 2022/23 base: £10,000 * 0.498 = £4,980.00
+    // 2023/24 cap: +12.5% -> £4,980 * 1.125 = £5,602.50
+    // 2023/24 gross: £18,000 * 0.498 = £8,964.00
+    // Transitional Relief = £8,964.00 - £5,602.50 = £3,361.50
+    let request = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2024, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::SCOTLAND,
+            scat_code: "096".to_string(),
+            rateable_value_history: vec![
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2020, 4, 1).unwrap(),
+                    effective_to: Some(NaiveDate::from_ymd_opt(2023, 3, 31).unwrap()),
+                    rateable_value: dec!(10000.00),
+                },
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(18000.00),
+                },
+            ],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags::default(),
+        occupancy_periods: None,
+        language: None,
+    };
+
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    assert_eq!(seg.transitional_adjustment.adjustment_type, "RELIEF");
+    assert_eq!(seg.transitional_adjustment.amount, dec!(3361.50));
+    assert_eq!(response.summary_financials.total_transitional_adjustments, dec!(3361.50));
+    assert_eq!(seg.net_segment_payable, dec!(5602.50));
+}
+
+#[tokio::test]
+async fn test_scottish_sbbs_tr_2023_list_600_cap() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Scottish property with RV £14,000 in 2022/23 receiving 100% SBBS (net = £0)
+    // In 2023/24, RV stays at £14,000. Under 2023 SBBS rules, £14k receives 25% taper.
+    // Gross = £14,000 * 0.498 = £6,972.00
+    // SBBS = 25% of £6,972 = £1,743.00
+    // Net before SBBS TR = £5,229.00
+    // Under SSI 2023/31, net bill increase over 2022/23 (£0) is capped to £600
+    // SBBS TR deduction = £5,229.00 - £600.00 = £4,629.00
+    // Net payable = £600.00
+    let request = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2024, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::SCOTLAND,
+            scat_code: "249".to_string(),
+            rateable_value_history: vec![
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2020, 4, 1).unwrap(),
+                    effective_to: Some(NaiveDate::from_ymd_opt(2023, 3, 31).unwrap()),
+                    rateable_value: dec!(14000.00),
+                },
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(14000.00),
+                },
+            ],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_small_business_sole_property: true,
+            is_sbbs_tr_qualifying: true,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    let sbbs_tr = seg.itemized_reliefs.iter().find(|r| r.relief_code == "SBBS_TR");
+    assert!(sbbs_tr.is_some(), "Expected SBBS TR to be awarded");
+    assert_eq!(sbbs_tr.unwrap().amount_deducted, dec!(4629.00));
+    assert_eq!(sbbs_tr.unwrap().relief_name, "Small Business Bonus Scheme Transitional Relief");
+    assert_eq!(seg.net_segment_payable, dec!(600.00));
+}
+
+#[tokio::test]
+async fn test_scottish_sbbs_tr_2026_list_25_percent_cap() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Scottish property with RV £10,000 in 2025/26 receiving 100% SBBS (net = £0).
+    // In 2026/27, RV revalued to £16,000 (standard rate 0.545, 0% SBBS).
+    // Base liability = £10,000 * 0.498 = £4,980.00.
+    // 2026 General TR (+12.5%): capped gross = £4,980 * 1.125 = £5,602.50.
+    // Gross = £16,000 * 0.545 = £8,720.00 -> General TR deduction = £3,117.50.
+    // Chargeable after General TR = £5,602.50.
+    // Under 2026 SBBS TR, the net bill increase over previous year (£0) is capped to 25%:
+    // Ratepayer pays 25% of £5,602.50 = £1,400.62.
+    // SBBS TR deducts 75% of £5,602.50 = £4,201.88.
+    let request = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2027, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::SCOTLAND,
+            scat_code: "249".to_string(),
+            rateable_value_history: vec![
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                    effective_to: Some(NaiveDate::from_ymd_opt(2026, 3, 31).unwrap()),
+                    rateable_value: dec!(10000.00),
+                },
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(16000.00),
+                },
+            ],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_small_business_sole_property: true,
+            is_sbbs_tr_qualifying: true,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    assert_eq!(seg.transitional_adjustment.adjustment_type, "RELIEF");
+    assert_eq!(seg.transitional_adjustment.amount, dec!(3117.50));
+
+    let sbbs_tr = seg.itemized_reliefs.iter().find(|r| r.relief_code == "SBBS_TR");
+    assert!(sbbs_tr.is_some(), "Expected SBBS TR to be awarded in 2026/27");
+    assert_eq!(sbbs_tr.unwrap().amount_deducted, dec!(4201.88));
+    assert_eq!(seg.net_segment_payable, dec!(1400.62));
+}
+
+#[tokio::test]
+async fn test_england_sbrr_second_property_grace_period() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    let request = LiabilityCalculationRequest {
+        party_type: PartyType::INDIVIDUAL,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2025, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2026, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::ENGLAND,
+            scat_code: "249".to_string(),
+            rateable_value_history: vec![
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(10000.00),
+                },
+            ],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_small_business_sole_property: false,
+            is_small_business_second_property_grace: true,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+    let sbrr = seg.itemized_reliefs.iter().find(|r| r.relief_code == "SBRR");
+    assert!(sbrr.is_some(), "SBRR should be granted during 12-month grace period on secondary property acquisition");
+    assert_eq!(sbrr.unwrap().discount_percentage, dec!(100.00));
+    assert!(sbrr.unwrap().statutory_authority.contains("S.I. 2017/411 art. 3(4) (12-Month Grace Period)"));
+    assert_eq!(seg.net_segment_payable, dec!(0.00));
+}
+
+#[tokio::test]
+async fn test_england_2026_five_multipliers_rhl_vs_non_rhl() {
+    let repo = ParameterRepository::new_seeded();
+
+    // 1. Small Business RHL (< £51k with RHL)
+    let m1 = repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, "2026/27", dec!(30000.00), true);
+    assert_eq!(m1.rate, dec!(0.382));
+    assert_eq!(m1.multiplier_type, "SMALL_BUSINESS_RHL");
+
+    // 2. Small Business non-RHL (< £51k without RHL)
+    let m2 = repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, "2026/27", dec!(30000.00), false);
+    assert_eq!(m2.rate, dec!(0.432));
+    assert_eq!(m2.multiplier_type, "SMALL_BUSINESS");
+
+    // 3. Standard RHL (£51k <= RV < £500k with RHL)
+    let m3 = repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, "2026/27", dec!(100000.00), true);
+    assert_eq!(m3.rate, dec!(0.430));
+    assert_eq!(m3.multiplier_type, "STANDARD_RHL");
+
+    // 4. Standard non-RHL (£51k <= RV < £500k without RHL)
+    let m4 = repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, "2026/27", dec!(100000.00), false);
+    assert_eq!(m4.rate, dec!(0.480));
+    assert_eq!(m4.multiplier_type, "STANDARD");
+
+    // 5. High-Value (RV >= £500k)
+    let m5 = repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, "2026/27", dec!(600000.00), false);
+    assert_eq!(m5.rate, dec!(0.508));
+    assert_eq!(m5.multiplier_type, "HIGH_VALUE");
+}
+
+#[tokio::test]
+async fn test_england_supporting_small_business_relief_2023_cap_600() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    let request = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2024, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::ENGLAND,
+            scat_code: "249".to_string(),
+            rateable_value_history: vec![
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2020, 4, 1).unwrap(),
+                    effective_to: Some(NaiveDate::from_ymd_opt(2023, 3, 31).unwrap()),
+                    rateable_value: dec!(10000.00),
+                },
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(16000.00),
+                },
+            ],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_small_business_sole_property: true,
+            is_ssbr_qualifying: true,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    let ssbr = seg.itemized_reliefs.iter().find(|r| r.relief_code == "SSBR");
+    assert!(ssbr.is_some(), "Expected SSBR to be awarded in 2023/24");
+    assert_eq!(ssbr.unwrap().relief_name, "Supporting Small Business Relief");
+    assert_eq!(seg.net_segment_payable, dec!(600.00));
+}
+
+#[tokio::test]
+async fn test_england_supporting_small_business_relief_2026_cap_800() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    let request = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2027, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::ENGLAND,
+            scat_code: "249".to_string(),
+            rateable_value_history: vec![
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                    effective_to: Some(NaiveDate::from_ymd_opt(2026, 3, 31).unwrap()),
+                    rateable_value: dec!(10000.00),
+                },
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(16000.00),
+                },
+            ],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_small_business_sole_property: true,
+            is_ssbr_qualifying: true,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    let ssbr = seg.itemized_reliefs.iter().find(|r| r.relief_code == "SSBR");
+    assert!(ssbr.is_some(), "Expected SSBR to be awarded in 2026/27");
+    assert_eq!(ssbr.unwrap().relief_name, "Supporting Small Business Relief");
+    assert_eq!(seg.net_segment_payable, dec!(800.00));
+}
+
+#[tokio::test]
+async fn test_england_transitional_relief_opt_out() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    let base_req = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2027, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::ENGLAND,
+            scat_code: "249".to_string(),
+            rateable_value_history: vec![
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                    effective_to: Some(NaiveDate::from_ymd_opt(2026, 3, 31).unwrap()),
+                    rateable_value: dec!(10000.00),
+                },
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(16000.00),
+                },
+            ],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            apply_transitional_relief: Some(false),
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+
+    let res = engine.calculate(base_req);
+    let seg = &res.annual_billing_segments[0];
+
+    assert_eq!(seg.transitional_adjustment.adjustment_type, "NONE");
+    assert_eq!(seg.transitional_adjustment.amount, dec!(0.00));
+    // Gross unphased: £16,000 * 0.432 = £6,912.00
+    assert_eq!(seg.gross_liability, dec!(6912.00));
+    assert_eq!(seg.net_segment_payable, dec!(6912.00));
+}
+
 
 
 

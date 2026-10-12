@@ -63,6 +63,8 @@ pub struct QualifyingReliefFlags {
     #[serde(default)]
     pub is_small_business_sole_property: bool,
     #[serde(default)]
+    pub is_small_business_second_property_grace: bool,
+    #[serde(default)]
     pub is_charitable_purposes: bool,
     #[serde(default)]
     pub is_rhl_qualifying: bool,
@@ -84,6 +86,16 @@ pub struct QualifyingReliefFlags {
     pub is_artificial_avoidance_suspected: bool,
     #[serde(default)]
     pub holiday_let_actual_days_let: Option<i64>,
+    #[serde(default)]
+    pub is_sbbs_tr_qualifying: bool,
+    #[serde(default)]
+    pub is_ssbr_qualifying: bool,
+    #[serde(default = "default_true_opt")]
+    pub apply_transitional_relief: Option<bool>,
+}
+
+fn default_true_opt() -> Option<bool> {
+    Some(true)
 }
 
 fn default_occupancy_type() -> OccupancyType {

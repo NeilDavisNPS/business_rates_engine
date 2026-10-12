@@ -66,6 +66,33 @@ pub struct SectorReliefResolution {
     pub cash_cap_gbp: Option<Decimal>,
 }
 
+/// Cap mechanism for Scottish Small Business Bonus Scheme Transitional Relief (SBBS TR)
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum SbbsTrCapType {
+    /// Fixed cash increase limit in GBP (e.g. £600 in 2023/24, £1,200 in 2024/25, £1,800 in 2025/26 under SSI 2023/31)
+    FixedCash(Decimal),
+    /// Percentage of the unmitigated bill increase payable by ratepayer (e.g. 25% in 2026/27 under SSI 2026)
+    PercentageOfIncrease(Decimal),
+}
+
+/// Resolution result for Scottish SBBS Transitional Relief
+#[derive(Debug, Clone)]
+pub struct SbbsTrResolution {
+    pub relief_code: String,
+    pub relief_name: String,
+    pub statutory_authority: String,
+    pub cap_type: SbbsTrCapType,
+}
+
+/// Resolution result for English Supporting Small Business Relief (SSBR)
+#[derive(Debug, Clone)]
+pub struct SsbrResolution {
+    pub relief_code: String,
+    pub relief_name: String,
+    pub statutory_authority: String,
+    pub annual_cap: Decimal,
+}
+
 /// Represents a row in the param_transitional_cap table (Suite 7)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ParamTransitionalCap {
@@ -206,6 +233,11 @@ impl ParameterRepository {
 
     /// Dynamically resolves the statutory multiplier by querying in-memory parameter tables
     pub fn resolve_multiplier(&self, jurisdiction: Jurisdiction, financial_year: &str, rv: Decimal) -> MultiplierInfo {
+        self.resolve_multiplier_ex(jurisdiction, financial_year, rv, false)
+    }
+
+    /// Dynamically resolves the statutory multiplier, accounting for RHL sector qualifications in 2026/27 (5-multiplier system)
+    pub fn resolve_multiplier_ex(&self, jurisdiction: Jurisdiction, financial_year: &str, rv: Decimal, is_rhl: bool) -> MultiplierInfo {
         let matches: Vec<&ParamMultiplier> = self.multipliers.iter()
             .filter(|m| m.jurisdiction == jurisdiction && m.financial_year == financial_year)
             .collect();
@@ -225,7 +257,21 @@ impl ParameterRepository {
             };
         }
 
-        // 2. Small Business / Basic rate threshold check
+        // 2. Retail, Hospitality & Leisure (RHL) permanent lower multipliers (England 2026/27)
+        if is_rhl {
+            if let Some(m) = matches.iter().find(|m| {
+                (m.multiplier_type == "SMALL_BUSINESS_RHL" || m.multiplier_type == "STANDARD_RHL")
+                    && rv >= m.rv_threshold_min
+                    && m.rv_threshold_max.map_or(true, |max| rv <= max)
+            }) {
+                return MultiplierInfo {
+                    multiplier_type: m.multiplier_type.clone(),
+                    rate: m.multiplier_rate,
+                };
+            }
+        }
+
+        // 3. Small Business / Basic rate threshold check
         for m in &matches {
             if m.multiplier_type == "SMALL_BUSINESS" || m.multiplier_type == "BASIC" {
                 let min_ok = rv >= m.rv_threshold_min;
@@ -239,7 +285,7 @@ impl ParameterRepository {
             }
         }
 
-        // 3. Intermediate / Welsh Differential check
+        // 4. Intermediate / Welsh Differential check
         for m in &matches {
             if m.multiplier_type == "INTERMEDIATE" || m.multiplier_type == "WELSH_DIFFERENTIAL" {
                 let min_ok = rv >= m.rv_threshold_min;
@@ -253,7 +299,7 @@ impl ParameterRepository {
             }
         }
 
-        // 4. Fallback to Standard or first available multiplier in matches
+        // 5. Fallback to Standard or first available multiplier in matches
         let standard = matches.iter()
             .find(|m| m.multiplier_type == "STANDARD" || m.multiplier_type == "WELSH_DIFFERENTIAL")
             .unwrap_or(&matches[0]);
@@ -402,6 +448,66 @@ impl ParameterRepository {
         })
     }
 
+    /// Resolves Scottish Small Business Bonus Scheme Transitional Relief (SBBS TR)
+    pub fn resolve_sbbs_tr(&self, financial_year: &str) -> Option<SbbsTrResolution> {
+        let (cap_type, authority) = match financial_year {
+            "2023/24" => (
+                SbbsTrCapType::FixedCash(dec!(600.00)),
+                "Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2023 (SSI 2023/31) Part 3",
+            ),
+            "2024/25" => (
+                SbbsTrCapType::FixedCash(dec!(1200.00)),
+                "Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2023 (SSI 2023/31) Part 3",
+            ),
+            "2025/26" => (
+                SbbsTrCapType::FixedCash(dec!(1800.00)),
+                "Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2023 (SSI 2023/31) Part 3",
+            ),
+            "2026/27" => (
+                SbbsTrCapType::PercentageOfIncrease(dec!(25.00)),
+                "Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2026 (SSI 2026/50) Part 3",
+            ),
+            "2027/28" => (
+                SbbsTrCapType::PercentageOfIncrease(dec!(50.00)),
+                "Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2026 (SSI 2026/50) Part 3",
+            ),
+            "2028/29" => (
+                SbbsTrCapType::PercentageOfIncrease(dec!(75.00)),
+                "Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2026 (SSI 2026/50) Part 3",
+            ),
+            _ => return None,
+        };
+
+        Some(SbbsTrResolution {
+            relief_code: "SBBS_TR".to_string(),
+            relief_name: "Small Business Bonus Scheme Transitional Relief".to_string(),
+            statutory_authority: authority.to_string(),
+            cap_type,
+        })
+    }
+
+    /// Resolves English Supporting Small Business Relief (SSBR) under LGFA 1988 s.47
+    pub fn resolve_ssbr(&self, financial_year: &str) -> Option<SsbrResolution> {
+        let (annual_cap, authority) = match financial_year {
+            "2023/24" | "2024/25" | "2025/26" => (
+                dec!(600.00),
+                "LGFA 1988 s.47 / Supporting Small Business Scheme (2023 Revaluation)",
+            ),
+            "2026/27" => (
+                dec!(800.00),
+                "LGFA 1988 s.47 / Supporting Small Business Scheme (2026 Revaluation)",
+            ),
+            _ => return None,
+        };
+
+        Some(SsbrResolution {
+            relief_code: "SSBR".to_string(),
+            relief_name: "Supporting Small Business Relief".to_string(),
+            statutory_authority: authority.to_string(),
+            annual_cap,
+        })
+    }
+
     // --- Private Seeders ---
 
     fn seed_multipliers(&mut self) {
@@ -509,10 +615,12 @@ impl ParameterRepository {
         add("m_sco_i_2025", "2025/26", Jurisdiction::SCOTLAND, "INTERMEDIATE", dec!(51000.01), Some(dec!(100000.00)), dec!(0.545), "2025-04-01", "2026-03-31");
         add("m_sco_h_2025", "2025/26", Jurisdiction::SCOTLAND, "HIGHER", dec!(100000.01), None, dec!(0.559), "2025-04-01", "2026-03-31");
 
-        // 2026/27 (Revaluation Year — NDRA 2023 & LGF(W)A 2024)
-        add("m_eng_hv_2026", "2026/27", Jurisdiction::ENGLAND, "HIGH_VALUE", dec!(500000.00), None, dec!(0.568), "2026-04-01", "2027-03-31");
-        add("m_eng_sm_2026", "2026/27", Jurisdiction::ENGLAND, "SMALL_BUSINESS", dec!(0.00), Some(dec!(51000.00)), dec!(0.522), "2026-04-01", "2027-03-31");
-        add("m_eng_st_2026", "2026/27", Jurisdiction::ENGLAND, "STANDARD", dec!(51000.01), Some(dec!(499999.99)), dec!(0.554), "2026-04-01", "2027-03-31");
+        // 2026/27 (Revaluation Year — NDRA 2023 5-multiplier system for England)
+        add("m_eng_hv_2026", "2026/27", Jurisdiction::ENGLAND, "HIGH_VALUE", dec!(500000.00), None, dec!(0.508), "2026-04-01", "2027-03-31");
+        add("m_eng_sm_rhl_2026", "2026/27", Jurisdiction::ENGLAND, "SMALL_BUSINESS_RHL", dec!(0.00), Some(dec!(51000.00)), dec!(0.382), "2026-04-01", "2027-03-31");
+        add("m_eng_sm_2026", "2026/27", Jurisdiction::ENGLAND, "SMALL_BUSINESS", dec!(0.00), Some(dec!(51000.00)), dec!(0.432), "2026-04-01", "2027-03-31");
+        add("m_eng_st_rhl_2026", "2026/27", Jurisdiction::ENGLAND, "STANDARD_RHL", dec!(51000.01), Some(dec!(499999.99)), dec!(0.430), "2026-04-01", "2027-03-31");
+        add("m_eng_st_2026", "2026/27", Jurisdiction::ENGLAND, "STANDARD", dec!(51000.01), Some(dec!(499999.99)), dec!(0.480), "2026-04-01", "2027-03-31");
 
         add("m_wal_diff_2026", "2026/27", Jurisdiction::WALES, "WELSH_DIFFERENTIAL", dec!(0.00), None, dec!(0.562), "2026-04-01", "2027-03-31");
 
@@ -785,15 +893,37 @@ impl ParameterRepository {
         add("tc_eng_med_2025", 2023, "2025/26", Jurisdiction::ENGLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(40.00));
         add("tc_eng_lg_2025", 2023, "2025/26", Jurisdiction::ENGLAND, "LARGE", dec!(100000.01), None, dec!(55.00));
 
-        // 2026 Revaluation List (NDRA 2023 3-year cycle) — England 2026/27
-        add("tc_eng_sm_2026", 2026, "2026/27", Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(10.00));
-        add("tc_eng_med_2026", 2026, "2026/27", Jurisdiction::ENGLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(25.00));
-        add("tc_eng_lg_2026", 2026, "2026/27", Jurisdiction::ENGLAND, "LARGE", dec!(100000.01), None, dec!(40.00));
+        // 2026 Revaluation List (NDRA 2023 3-year cycle) — England 2026/27: Small (+5%), Medium (+15%), Large (+30%)
+        add("tc_eng_sm_2026", 2026, "2026/27", Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(5.00));
+        add("tc_eng_med_2026", 2026, "2026/27", Jurisdiction::ENGLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(15.00));
+        add("tc_eng_lg_2026", 2026, "2026/27", Jurisdiction::ENGLAND, "LARGE", dec!(100000.01), None, dec!(30.00));
 
         // Wales Transitional Relief (Local Government Finance (Wales) Act 2024)
         add("tc_wal_sm_2026", 2026, "2026/27", Jurisdiction::WALES, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(10.00));
         add("tc_wal_med_2026", 2026, "2026/27", Jurisdiction::WALES, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(25.00));
         add("tc_wal_lg_2026", 2026, "2026/27", Jurisdiction::WALES, "LARGE", dec!(100000.01), None, dec!(40.00));
+
+        // 2023 Revaluation List — Scotland (The Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2023 / SSI 2023/31)
+        // 2023/24: Small (+12.5%), Medium (+25%), Large (+37.5%)
+        add("tc_sco_sm_2023", 2023, "2023/24", Jurisdiction::SCOTLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(12.50));
+        add("tc_sco_med_2023", 2023, "2023/24", Jurisdiction::SCOTLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(25.00));
+        add("tc_sco_lg_2023", 2023, "2023/24", Jurisdiction::SCOTLAND, "LARGE", dec!(100000.01), None, dec!(37.50));
+
+        // 2024/25: Small (+25%), Medium (+50%), Large (+75%)
+        add("tc_sco_sm_2024", 2023, "2024/25", Jurisdiction::SCOTLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(25.00));
+        add("tc_sco_med_2024", 2023, "2024/25", Jurisdiction::SCOTLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(50.00));
+        add("tc_sco_lg_2024", 2023, "2024/25", Jurisdiction::SCOTLAND, "LARGE", dec!(100000.01), None, dec!(75.00));
+
+        // 2025/26: Small (+37.5%), Medium (+75%), Large (+112.5%)
+        add("tc_sco_sm_2025", 2023, "2025/26", Jurisdiction::SCOTLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(37.50));
+        add("tc_sco_med_2025", 2023, "2025/26", Jurisdiction::SCOTLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(75.00));
+        add("tc_sco_lg_2025", 2023, "2025/26", Jurisdiction::SCOTLAND, "LARGE", dec!(100000.01), None, dec!(112.50));
+
+        // 2026 Revaluation List — Scotland (The Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2026)
+        // 2026/27: Small (+12.5%), Medium (+25%), Large (+37.5%)
+        add("tc_sco_sm_2026", 2026, "2026/27", Jurisdiction::SCOTLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(12.50));
+        add("tc_sco_med_2026", 2026, "2026/27", Jurisdiction::SCOTLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(25.00));
+        add("tc_sco_lg_2026", 2026, "2026/27", Jurisdiction::SCOTLAND, "LARGE", dec!(100000.01), None, dec!(37.50));
     }
 
     fn seed_reference_codes(&mut self) {
@@ -846,5 +976,7 @@ impl ParameterRepository {
         add("RELIEF_CODE", "LAVATORY", "Public Lavatories Relief", "100% statutory rating exemption under Rating (Coronavirus and Public Lavatories) Act 2021.", Some("ENGLAND"), 9);
         add("RELIEF_CODE", "HEAT_NET", "Heat Network Relief", "100% relief for low-carbon district heating distribution hereditaments under NDRA 2023 (England).", Some("ENGLAND"), 10);
         add("RELIEF_CODE", "WELSH_AVOIDANCE", "Anti-Avoidance Statutory Penalty", "Statutory penalty under Welsh Statutory Instrument 2026/43 (£500 fixed + 3% rateable value) for artificial avoidance.", Some("WALES"), 11);
+        add("RELIEF_CODE", "SBBS_TR", "Small Business Bonus Scheme Transitional Relief", "Scottish statutory protection capping net bill increases for properties losing or seeing reduced SBBS (£600 in 2023/24 to £1,800 in 2025/26; 25% bill increase limit in 2026/27).", Some("SCOTLAND"), 12);
+        add("RELIEF_CODE", "SSBR", "Supporting Small Business Relief", "English statutory protection capping net bill increases for properties losing or seeing reduced SBRR, rural rate relief, or RHL relief (£600 annual increase cap in 2023–2025; £800 annual increase cap in 2026/27).", Some("ENGLAND"), 13);
     }
 }
