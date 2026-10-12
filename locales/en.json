@@ -1,0 +1,326 @@
+{
+  "narrative": {
+    "header_title": "STATUTORY CALCULATION NARRATIVE & AUDIT TRAIL",
+    "divider": "=============================================",
+    "frameworks": {
+      "england": "Local Government Finance Act 1988 (as amended by Non-Domestic Rating Act 2023) for England",
+      "wales": "Local Government Finance Act 1988 and Local Government Finance (Wales) Act 2024 for Wales",
+      "scotland": "Local Government Finance Act 1988 / Council Tax and Rating Acts for Scotland"
+    },
+    "framework_intro": "1. Statutory Framework: Calculated under {framework}.",
+    "liability_period": "2. Liability Period: {start_date} to {end_date} (Sliced into {segments_count} billing segments).",
+    "financial_year_header": "3.{index} Financial Year {financial_year}:",
+    "occupancy_status": {
+      "occupied": "Occupied (Full Occupation)",
+      "unoccupied": "Unoccupied (Empty Property)",
+      "part_occupied": "Part-Occupied (Section 44A)"
+    },
+    "lines": {
+      "occupancy_status": "    - Occupancy Status: {status}",
+      "rateable_value": "    - Rateable Value: £{rateable_value}",
+      "multiplier": "    - Multiplier ({multiplier_type}): {rate}",
+      "segment_duration": "    - Segment Duration: {days} days ({start_date} to {end_date})",
+      "gross_liability": "    - Gross Liability: £{gross_liability}",
+      "transitional_adjustment": "    - Transitional Adjustment [{type}]: -£{amount} [LGFA 1988 s.57A / NDR Chargeable Amounts Regs]",
+      "transitional_relief_label": "RELIEF",
+      "transitional_premium_label": "PREMIUM",
+      "applied_reliefs_none": "    - Applied Reliefs: None",
+      "applied_relief_item": "    - Relief [{relief_code}] {relief_name} ({discount_percentage}%): -£{amount_deducted} [{statutory_authority}]",
+      "audit_header": "    - Relief Assessment Audit (Unawarded Reliefs):",
+      "audit_item": "        * {note}",
+      "statutory_penalty_item": "    - Statutory Penalty [{penalty_type}] +£{amount} [{calculation_formula} - {statutory_authority}]",
+      "net_segment_payable": "    - Net Segment Payable: £{net_segment_payable}"
+    },
+    "holiday_let": {
+      "header": "4. Statutory Borderline Verification (SCAT 249 Holiday Accommodation):",
+      "disqualified_actual": "    - Assessed under statutory criteria: actually let for {actual} days (below statutory minimum {threshold} days).",
+      "disqualified_status": "    - Status: Disqualified from Non-Domestic Rating List; transferred to Domestic Council Tax Valuation List (£0 NDR liability).",
+      "qualified_actual": "    - Assessed under statutory criteria: actually let for {actual} days (meets minimum {threshold} days).",
+      "qualified_status": "    - Status: Qualified commercial holiday let; retained on Non-Domestic Rating List.",
+      "default_actual": "    - Assessed under The Council Tax (Dwellings) (Scotland) Regs 2026 / English 140/70 day rule.",
+      "default_status": "    - Status: Qualified commercial holiday let; retained on Non-Domestic Rating List."
+    },
+    "total_net_payable": "TOTAL NET AMOUNT PAYABLE: £{total_net}",
+    "disqualifications": {
+      "rural_unoccupied": "Rural Settlement Relief: Disqualified — property is unoccupied (mandatory rural settlement relief requires qualifying occupation) [LGFA 1988 s.43(6B) / Local Government (Scotland) Act 1975 Sched 1A].",
+      "rural_rv_cap": "Rural Settlement Relief: Disqualified — Rateable Value (£{rv}) exceeds statutory cap of {cap_str} for {cat} [{authority}].",
+      "rural_cat_pub_petrol": "qualifying public houses / petrol filling stations",
+      "rural_cat_general": "commercial/general hereditaments",
+      "rural_authority_eng_wal": "LGFA 1988 s.43(6B) / LGFA 1997",
+      "rural_authority_sco": "Local Government (Scotland) Act 1975 Sched 1A / LGFA 1997",
+      "rural_zero_net": "Rural Settlement Relief: Not applied — prior mandatory reliefs reduced net payable liability to £0.00.",
+      "rural_default": "Rural Settlement Relief: Disqualified — statutory qualification criteria not satisfied [{authority}].",
+      "sbrr_unoccupied": "Small Business Rate Relief: Disqualified — unoccupied property (SBRR/SBBS requires active qualifying occupation) [LGFA 1988 s.43(4B) / LGF(W)A 2024 / Local Government (Scotland) Act 1975].",
+      "sbrr_england_rv_cap": "Small Business Rate Relief: Disqualified — Rateable Value (£{rv}) exceeds £15,000 statutory taper ceiling [LGFA 1988 s.43(4B) / S.I. 2017/411].",
+      "sbrr_england_zero_net": "Small Business Rate Relief: Not applied — prior reliefs reduced net payable liability to £0.00.",
+      "sbrr_england_default": "Small Business Rate Relief: Disqualified — rateable value exceeds threshold for rating list period.",
+      "sbrr_wales_rv_cap": "Small Business Rate Relief (Wales): Disqualified — Rateable Value (£{rv}) exceeds £12,000 statutory ceiling [LGF(W)A 2024 / W.S.I. Regs].",
+      "sbrr_wales_zero_net": "Small Business Rate Relief (Wales): Not applied — prior reliefs reduced net payable liability to £0.00.",
+      "sbrr_wales_default": "Small Business Rate Relief (Wales): Disqualified — rateable value exceeds threshold for rating list period.",
+      "sbrr_scotland_rv_cap": "Small Business Bonus Scheme (SBBS): Disqualified — Rateable Value (£{rv}) exceeds £20,000 statutory taper ceiling [Non-Domestic Rates (Scotland) Act 2020 / SSI 2023/45].",
+      "sbrr_scotland_zero_net": "Small Business Bonus Scheme (SBBS): Not applied — prior reliefs reduced net payable liability to £0.00.",
+      "sbrr_scotland_default": "Small Business Bonus Scheme (SBBS): Disqualified — rateable value exceeds threshold for rating list period.",
+      "rhl_unoccupied": "Retail, Hospitality & Leisure Relief: Disqualified — unoccupied property (RHL requires active qualifying occupation).",
+      "rhl_england_2026_plus": "Retail, Hospitality & Leisure: Replaced by permanent lower high-street multiplier ({rate} applied above) — temporary percentage discount ended 31 March 2026 [Non-Domestic Rating Act 2023].",
+      "rhl_england_zero_net": "Retail, Hospitality & Leisure Relief: Not applied — 100% relief already granted by prior reliefs.",
+      "rhl_england_default": "Retail, Hospitality & Leisure Relief: Not eligible under scheme rules for this rating period.",
+      "rhl_wales_petrol_excluded": "Welsh Food & Drink Hospitality Relief: Disqualified — petrol filling stations (SCAT 211) are statutory exclusions under Welsh scheme rules [LGF(W)A 2024].",
+      "rhl_wales_zero_net": "Welsh Hospitality Relief: Not applied — prior reliefs reduced net payable liability to £0.00.",
+      "rhl_wales_default": "Welsh Hospitality Relief: Disqualified — hereditament already receives 100% small business rate relief or not qualifying.",
+      "rhl_scotland_rv_cap": "Scottish Retail, Hospitality & Leisure Relief: Disqualified — Rateable Value (£{rv}) exceeds Scottish mainland £100,000 cap [Non-Domestic Rates (Scotland) Act 2020].",
+      "rhl_scotland_not_island": "Scottish Retail, Hospitality & Leisure Relief: Disqualified — property is not situated on a Scottish island (100% relief restricted to islands) [Islands (Scotland) Act 2018].",
+      "rhl_scotland_zero_net": "Scottish RHL Relief: Not applied — prior reliefs reduced net liability to £0.00.",
+      "rhl_scotland_default": "Scottish RHL Relief: Not eligible under scheme rules for this financial year.",
+      "charity_unoccupied": "Mandatory Charitable Relief: Disqualified — unoccupied property (mandatory 80% charitable relief requires qualifying occupation) [LGFA 1988 s.43(5) / 1962 Act s.4(2)].",
+      "charity_zero_net": "Mandatory Charitable Relief: Not applied — prior reliefs reduced net payable liability to £0.00.",
+      "charity_default": "Mandatory Charitable Relief: Not applied under statutory rules.",
+      "charity_topup_not_qualifying": "Discretionary Charitable Top-Up: Disqualified — requires qualification for 80% Mandatory Charitable Relief [LGFA 1988 s.47(2)(a) / 1962 Act s.4(5)].",
+      "charity_topup_zero_net": "Discretionary Charitable Top-Up: Not applied — net liability already reduced to £0.00.",
+      "charity_topup_default": "Discretionary Charitable Top-Up: Disqualified — mandatory relief not active.",
+      "improvement_not_england": "Improvement Relief (G-Factor): Disqualified — Improvement Relief applies only in England [Non-Domestic Rating Act 2023 s.1 / LGFA 1988 Sched 4ZA].",
+      "improvement_before_2024": "Improvement Relief (G-Factor): Disqualified — Statutory relief takes effect from 1 April 2024 [Non-Domestic Rating Act 2023].",
+      "improvement_unoccupied": "Improvement Relief (G-Factor): Disqualified — requires qualifying continuing occupation.",
+      "improvement_zero_net": "Improvement Relief (G-Factor): Not applied — net liability already reduced to £0.00.",
+      "improvement_default": "Improvement Relief (G-Factor): Not qualifying under statutory rules.",
+      "heat_network_not_england": "Heat Network Exemption: Disqualified — 100% exemption applies only in England [Non-Domestic Rating Act 2023 s.2].",
+      "heat_network_unoccupied": "Heat Network Exemption: Disqualified — requires active qualifying occupation.",
+      "heat_network_zero_net": "Heat Network Exemption: Not applied — net liability already reduced to £0.00.",
+      "heat_network_default": "Heat Network Exemption: Not qualifying under statutory rules.",
+      "public_lavatory_scotland": "Public Lavatory Relief: Disqualified — 100% relief applies under Rating (Public Lavatories) Act 2021 (England and Wales only).",
+      "public_lavatory_unoccupied": "Public Lavatory Relief: Disqualified — requires qualifying occupation.",
+      "public_lavatory_zero_net": "Public Lavatory Relief: Not applied — net liability already reduced to £0.00.",
+      "public_lavatory_default": "Public Lavatory Relief: Not qualifying under statutory rules.",
+      "renewable_energy_not_scotland": "Renewable Energy Generation Relief: Disqualified — applies only in Scotland [SSI 2010/336].",
+      "renewable_energy_rv_cap": "Renewable Energy Generation Relief: Disqualified — Rateable Value (£{rv}) exceeds Scottish £1,000,000 statutory limit [SSI 2010/336].",
+      "renewable_energy_unoccupied": "Renewable Energy Generation Relief: Disqualified — requires qualifying occupation.",
+      "renewable_energy_zero_net": "Renewable Energy Generation Relief: Not applied — net liability already reduced to £0.00.",
+      "renewable_energy_default": "Renewable Energy Generation Relief: Disqualified under scheme rules.",
+      "telecom_unoccupied": "Telecommunications Infrastructure Relief: Disqualified — requires active qualifying occupation.",
+      "telecom_zero_net": "Telecommunications Infrastructure Relief: Not applied — net liability already reduced to £0.00.",
+      "telecom_default": "Telecommunications Infrastructure Relief: Not qualifying under statutory rules.",
+      "sbbs_tr_not_scotland": "SBBS Transitional Relief: Disqualified — applies only in Scotland [SSI 2023/45].",
+      "sbbs_tr_default": "SBBS Transitional Relief: Not applicable — bill increase did not exceed statutory cap over previous year.",
+      "ssbr_not_england": "Supporting Small Business Relief: Disqualified — applies only in England [LGFA 1988 s.47].",
+      "ssbr_default": "Supporting Small Business Relief: Not applicable — bill increase did not exceed statutory annual cap (£600/£800) over previous financial year [LGFA 1988 s.47].",
+      "empty_property_expired": "Empty Property Rate-Free Period: Expired — initial statutory rate-free period (3 months commercial / 6 months industrial) has elapsed [LGFA 1988 s.45 / SI 2008/386 / 1975 Act s.7A]."
+    }
+  },
+  "relief_names": {
+    "Mandatory Charitable Rate Relief": "Mandatory Charitable Rate Relief",
+    "Small Business Rate Relief": "Small Business Rate Relief",
+    "Small Business Bonus Scheme": "Small Business Bonus Scheme",
+    "Retail, Hospitality & Leisure Relief": "Retail, Hospitality & Leisure Relief",
+    "Public Lavatory Relief": "Public Lavatory Relief",
+    "Rural Settlement Relief": "Rural Settlement Relief",
+    "Improvement Relief": "Improvement Relief",
+    "Improvement Relief (G-Factor)": "Improvement Relief (G-Factor)",
+    "Empty Property Low RV Exemption": "Empty Property Low RV Exemption",
+    "Empty Industrial Rate-Free Period (6 Months)": "Empty Industrial Rate-Free Period (6 Months)",
+    "Empty Property Rate-Free Period (3 Months)": "Empty Property Rate-Free Period (3 Months)",
+    "Section 44A Part-Occupied Relief": "Section 44A Part-Occupied Relief",
+    "Heat Network Relief": "Heat Network Relief",
+    "Heat Network Exemption": "Heat Network Exemption",
+    "Anti-Avoidance Statutory Penalty": "Anti-Avoidance Statutory Penalty",
+    "Small Business Bonus Scheme Transitional Relief": "Small Business Bonus Scheme Transitional Relief",
+    "Supporting Small Business Relief": "Supporting Small Business Relief",
+    "Welsh Transitional Relief": "Welsh Transitional Relief",
+    "Welsh Food & Drink Hospitality Relief": "Welsh Food & Drink Hospitality Relief",
+    "Telecommunications Infrastructure Relief": "Telecommunications Infrastructure Relief",
+    "Discretionary Charitable Rate Relief Top-Up": "Discretionary Charitable Rate Relief Top-Up",
+    "Renewable Energy Generation Relief": "Renewable Energy Generation Relief",
+    "Empty Industrial Rate Relief (50% for 6 Months)": "Empty Industrial Rate Relief (50% for 6 Months)",
+    "Empty Property Rate Relief (50% for 3 Months)": "Empty Property Rate Relief (50% for 3 Months)",
+    "Council Tax Transfer (Holiday Let Disqualification)": "Council Tax Transfer (Holiday Let Disqualification)"
+  },
+  "errors": {
+    "invalid_occupation_period": "Occupation end date ({end}) cannot precede start date ({start})",
+    "payload_deserialization": "Payload Deserialization Error: {msg}"
+  },
+  "reference_codes": {
+    "JURISDICTION": {
+      "ENGLAND": {
+        "label": "England",
+        "description": "Statutory non-domestic rating under LGFA 1988 & NDRA 2023. Standard multiplier applies for RV > £51,000."
+      },
+      "WALES": {
+        "label": "Wales",
+        "description": "Devolved rating under Local Government Finance (Wales) Act 2024 & Welsh Statutory Instruments (WSI)."
+      },
+      "SCOTLAND": {
+        "label": "Scotland",
+        "description": "Devolved rating under Non-Domestic Rates (Scotland) Act 2020. Three-tier multiplier structure and SBBS."
+      }
+    },
+    "PARTY_TYPE": {
+      "CORPORATE": {
+        "label": "Corporate Entity / Company",
+        "description": "A limited company (Ltd), PLC, LLP, or other incorporated commercial entity liable for non-domestic rates."
+      },
+      "INDIVIDUAL": {
+        "label": "Individual / Sole Proprietor",
+        "description": "A natural person, sole trader, or unincorporated commercial partnership."
+      },
+      "CHARITY": {
+        "label": "Registered Charity",
+        "description": "Registered charity or trustees holding property for charitable purposes, eligible for 80% mandatory relief under LGFA 1988 s.43(5)."
+      },
+      "CASC": {
+        "label": "Community Amateur Sports Club",
+        "description": "HMRC-registered CASC eligible for 80% mandatory non-domestic rate relief under LGFA 1988 s.43(6)."
+      },
+      "LOCAL_AUTHORITY": {
+        "label": "Local Authority / Public Body",
+        "description": "Billing authority, municipal council, or other statutory public body occupier."
+      }
+    },
+    "OCCUPANCY_TYPE": {
+      "OCCUPIED": {
+        "label": "Occupied Premises",
+        "description": "Hereditament is actively occupied for business/commercial operations (s.43 liability)."
+      },
+      "UNOCCUPIED": {
+        "label": "Unoccupied / Empty",
+        "description": "Hereditament is vacant/empty (s.45 liability applies after statutory 3-month or 6-month exemption)."
+      },
+      "PART_OCCUPIED": {
+        "label": "Partially Occupied",
+        "description": "Hereditament is temporarily partially vacant, subject to s.44A apportionment certificates."
+      }
+    },
+    "SCAT_CODE": {
+      "003": {
+        "label": "003 - Airport / Major Aviation Infrastructure",
+        "description": "Airport / high-value complex requiring standard national multiplier. Explicitly excluded from small business relief."
+      },
+      "091": {
+        "label": "091 - General Offices / Commercial Premises",
+        "description": "Standard commercial office accommodation. Entitled to 3 months 100% empty property relief."
+      },
+      "096": {
+        "label": "096 - Industrial Hereditament / Warehouse / Factory",
+        "description": "Industrial property qualifying for 6 months 100% empty property exemption under S.I. 2008/386."
+      },
+      "209": {
+        "label": "209 - Public House / Bar / Licensed Premises",
+        "description": "Licensed premises eligible for Retail, Hospitality & Leisure (RHL) relief schemes."
+      },
+      "211": {
+        "label": "211 - Petrol Filling Station & Forecourt",
+        "description": "Automotive fuel sales and forecourt shop. Explicitly excluded from retail discount in Wales under 2026/27 rules."
+      },
+      "225": {
+        "label": "225 - Retail Shop / High Street Unit",
+        "description": "Standard retail shop or store eligible for SBRR and RHL discount schemes."
+      },
+      "249": {
+        "label": "249 - Self-Catering Holiday Accommodation",
+        "description": "Holiday let subject to statutory minimum letting criteria (minimum 70 actual days let / 140 days available in Scotland)."
+      }
+    },
+    "RELIEF_CODE": {
+      "SBRR": {
+        "label": "Small Business Rate Relief",
+        "description": "100% discount up to £12,000 RV, with linear taper up to £15,000 RV for single property occupiers (England)."
+      },
+      "WALES_SBRR": {
+        "label": "Small Business Rate Relief (Wales)",
+        "description": "100% relief up to £6,000 RV, with linear taper up to £12,000 RV under LGF(W)A 2024."
+      },
+      "SBBS": {
+        "label": "Small Business Bonus Scheme",
+        "description": "Scottish rating relief for small businesses up to £12,000 RV (2023-2026) or £11,500 RV (2026+)."
+      },
+      "RHL": {
+        "label": "Retail, Hospitality & Leisure Relief",
+        "description": "Statutory sector discount (40% in England 2025/26, expired 2026/27; 15% in Wales 2026/27; 15% mainland / 100% islands in Scotland 2026/27 up to £110,000 cash cap)."
+      },
+      "CHARITY": {
+        "label": "Mandatory Charitable Relief",
+        "description": "80% mandatory relief under LGFA 1988 s.43(5) where property is used wholly or mainly for charitable purposes."
+      },
+      "IMPROV": {
+        "label": "Improvement Relief (G-Factor)",
+        "description": "100% relief for 12 months on rateable value increases resulting from physical property improvements under NDRA 2023 (England)."
+      },
+      "EMPTY": {
+        "label": "Empty Property Exemption",
+        "description": "100% relief for initial 3 months (commercial) or 6 months (industrial) unoccupied periods under LGFA 1988 s.45."
+      },
+      "RURAL": {
+        "label": "Rural Settlement Relief",
+        "description": "100% mandatory relief for sole general stores, food shops, or post offices in designated rural settlements."
+      },
+      "LAVATORY": {
+        "label": "Public Lavatories Relief",
+        "description": "100% statutory rating exemption under Rating (Coronavirus and Public Lavatories) Act 2021."
+      },
+      "HEAT_NET": {
+        "label": "Heat Network Relief",
+        "description": "100% relief for low-carbon district heating distribution hereditaments under NDRA 2023 (England)."
+      },
+      "WELSH_AVOIDANCE": {
+        "label": "Anti-Avoidance Statutory Penalty",
+        "description": "Statutory penalty under Welsh Statutory Instrument 2026/43 (£500 fixed + 3% rateable value) for artificial avoidance."
+      },
+      "SBBS_TR": {
+        "label": "Small Business Bonus Scheme Transitional Relief",
+        "description": "Scottish statutory protection capping net bill increases for properties losing or seeing reduced SBBS (£600 in 2023/24 to £1,800 in 2025/26; 25% bill increase limit in 2026/27)."
+      },
+      "SSBR": {
+        "label": "Supporting Small Business Relief",
+        "description": "English statutory protection capping net bill increases for properties losing or seeing reduced SBRR, rural rate relief, or RHL relief (£600 annual increase cap in 2023–2025; £800 annual increase cap in 2026/27)."
+      },
+      "WALES_TR": {
+        "label": "Welsh Transitional Relief",
+        "description": "Statutory two-year transitional phasing scheme under W.S.I. 2025/1371 / W.S.I. 2022/1350 (67% relief on bill increases > £300 in Year 1, 34% in Year 2)."
+      },
+      "TELECOM": {
+        "label": "Telecommunications Infrastructure Relief",
+        "description": "100% statutory relief for new fibre telecommunications infrastructure under Telecommunications Infrastructure Act 2018 / SSI 2019/111."
+      },
+      "CHARITY_TOPUP": {
+        "label": "Discretionary Charitable Relief Top-Up",
+        "description": "Up to 20% discretionary top-up relief by billing authorities under LGFA 1988 s.47(2)(a) / 1962 Act s.4(5)."
+      },
+      "RENEWABLE": {
+        "label": "Renewable Energy Generation Relief",
+        "description": "Tiered relief for renewable energy generation hereditaments under SSI 2010/336 (100% up to £145k RV, scaling to 10% up to £1m RV)."
+      },
+      "COUNCIL_TAX_TRANSFER": {
+        "label": "Council Tax Transfer (Holiday Let Disqualification)",
+        "description": "Disqualification from non-domestic rating list where self-catering accommodation fails statutory actual letting days threshold (182 days Scotland, 70 days England/Wales)."
+      }
+    },
+    "MULTIPLIER_TYPE": {
+      "STANDARD": {
+        "label": "Standard Multiplier",
+        "description": "National baseline non-domestic rating multiplier."
+      },
+      "SMALL_BUSINESS": {
+        "label": "Small Business Multiplier",
+        "description": "Reduced multiplier for qualifying small businesses."
+      },
+      "HIGH_VALUE": {
+        "label": "High-Value Multiplier",
+        "description": "Higher rating multiplier for high-value properties (e.g. RV >= £500,000 in England)."
+      },
+      "SMALL_BUSINESS_RHL": {
+        "label": "Small Business RHL Multiplier",
+        "description": "Permanent reduced multiplier for qualifying retail, hospitality, leisure under £51k RV in England."
+      },
+      "STANDARD_RHL": {
+        "label": "Standard RHL Multiplier",
+        "description": "Permanent reduced multiplier for qualifying retail, hospitality, leisure £51k-£500k RV in England."
+      },
+      "RETAIL": {
+        "label": "Welsh Retail Multiplier",
+        "description": "Lower statutory multiplier for small retail premises under £51k RV in Wales under LGF(W)A 2024 (35.0p in 2026/27)."
+      },
+      "HIGHER": {
+        "label": "Higher Multiplier (Wales)",
+        "description": "Higher statutory multiplier for properties exceeding £100k RV in Wales under LGF(W)A 2024 (51.5p in 2026/27)."
+      }
+    }
+  }
+}
+

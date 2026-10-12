@@ -1,0 +1,198 @@
+{
+  "narrative": {
+    "header_title": "AITHRIS REACHDAIL AIR ÀIREAMHACHADH ÌREAN & SLIGHE SGRÙDAIDH",
+    "divider": "=============================================",
+    "frameworks": {
+      "england": "Achd Ionmhais Riaghaltas Ionadail 1988 (mar a chaidh atharrachadh le NDRA 2023) airson Shasainn",
+      "wales": "Achd Ionmhais Riaghaltas Ionadail 1988 agus Achd 2024 airson na Cuimrigh",
+      "scotland": "Achd nan Ìrean Neo-Dachaigheil (Alba) 2020 / Achdan Ìrean na h-Alba"
+    },
+    "framework_intro": "1. Frèam Reachdail: Air a thomhas fo {framework}.",
+    "liability_period": "2. Ùine Buailteachd: {start_date} gu {end_date} (Air a roinn ann an {segments_count} earrannan bileachaidh).",
+    "financial_year_header": "3.{index} Bliadhna Ionmhais {financial_year}:",
+    "occupancy_status": {
+      "occupied": "Gabhailte (Làn Gabhail)",
+      "unoccupied": "Gun Ghabhail (Togalach Falamh)",
+      "part_occupied": "Pàirt-Ghabhailte (Earrann 44A)"
+    },
+    "lines": {
+      "occupancy_status": "    - Inbhe Gabhaltais: {status}",
+      "rateable_value": "    - Luach Measaidh (RV): £{rateable_value}",
+      "multiplier": "    - Iomadair ({multiplier_type}): {rate}",
+      "segment_duration": "    - Fad an Earrann: {days} làithean ({start_date} gu {end_date})",
+      "gross_liability": "    - Buailteachd Làn: £{gross_liability}",
+      "transitional_adjustment": "    - Atharrachadh Eadar-amail [{type}]: -£{amount} [LGFA 1988 e.57A / Riaghailtean Ìrean]",
+      "transitional_relief_label": "RELIEF",
+      "transitional_premium_label": "PREMIUM",
+      "applied_reliefs_none": "    - Faochaidhean an Sàs: Chan eil gin",
+      "applied_relief_item": "    - Faochadh [{relief_code}] {relief_name} ({discount_percentage}%): -£{amount_deducted} [{statutory_authority}]",
+      "audit_header": "    - Sgrùdadh Measaidh Faochaidhean (Faochaidhean gun Dleastanas):",
+      "audit_item": "        * {note}",
+      "statutory_penalty_item": "    - Peanas Reachdail [{penalty_type}] +£{amount} [{calculation_formula} - {statutory_authority}]",
+      "net_segment_payable": "    - Glan an Earrann ri Phàigheadh: £{net_segment_payable}"
+    },
+    "holiday_let": {
+      "header": "4. Dearbhadh Crìochan Reachdail (SCAT 249 Àite-fuirich Saor-làithean):",
+      "disqualified_actual": "    - Aseswyd fo shlatan-tomhais reachdail: air mhàl airson {actual} làithean (nas lugha na an ìre as lugha de {threshold} làithean).",
+      "disqualified_status": "    - Inbhe: Dì-cheadaichte bhon Liosta Ìrean Neo-Dachaigheil; air a ghluasad gu Liosta Luachaidh Cìs Comhairle (£0 buailteachd NDR).",
+      "qualified_actual": "    - Aseswyd fo shlatan-tomhais reachdail: air mhàl airson {actual} làithean (a' coinneachadh ris an ìre as lugha de {threshold} làithean).",
+      "qualified_status": "    - Inbhe: Màl saor-làithean malairteach barrantaichte air a chumail air an Liosta Ìrean.",
+      "default_actual": "    - Air a mheasadh fo Riaghailtean Cìs Comhairle (Alba) 2026 / riaghailt 140/70 latha.",
+      "default_status": "    - Inbhe: Màl saor-làithean malairteach barrantaichte air a chumail air an Liosta Ìrean."
+    },
+    "total_net_payable": "IOMLAN GLAN RI PHÀIGHEADH: £{total_net}",
+    "disqualifications": {
+      "rural_unoccupied": "Faochadh Tuineachaidh Dùthchail: Dì-cheadaichte — togalach gun ghabhail (feumaidh faochadh dùthchail èigneachail gabhaltas barrantaichte) [LGFA 1988 e.43(6B) / Achd 1975 Clàr 1A].",
+      "rural_rv_cap": "Faochadh Tuineachaidh Dùthchail: Dì-cheadaichte — tha Luach Measaidh (£{rv}) a' dol thairis air a' chrìoch reachdail de {cap_str} airson {cat} [{authority}].",
+      "rural_cat_pub_petrol": "taighean-seinnse / stèiseanan peatrail",
+      "rural_cat_general": "togalaichean malairteach/coitcheann",
+      "rural_authority_eng_wal": "LGFA 1988 s.43(6B) / LGFA 1997",
+      "rural_authority_sco": "Local Government (Scotland) Act 1975 Sched 1A / LGFA 1997",
+      "rural_zero_net": "Faochadh Tuineachaidh Dùthchail: Gun a chur an sàs — lughdaich faochaidhean roimhe a' bhuailteachd ghlan gu £0.00.",
+      "rural_default": "Rural Settlement Relief: Disqualified — statutory qualification criteria not satisfied [{authority}].",
+      "sbrr_unoccupied": "Sgeama Bònas Gnìomhachasan Beaga: Dì-cheadaichte — togalach falamh (feumaidh SBBS gabhaltas gnìomhach barrantaichte) [Achd Riaghaltas Ionadail (Alba) 1975 / SSI 2023/45].",
+      "sbrr_england_rv_cap": "Faochadh Ìrean Gnìomhachasan Beaga: Dì-cheadaichte — tha Luach Measaidh (£{rv}) a' dol thairis air mullach reachdail £15,000 [LGFA 1988 e.43(4B) / S.I. 2017/411].",
+      "sbrr_england_zero_net": "Small Business Rate Relief: Not applied — prior reliefs reduced net payable liability to £0.00.",
+      "sbrr_england_default": "Small Business Rate Relief: Disqualified — rateable value exceeds threshold for rating list period.",
+      "sbrr_wales_rv_cap": "Faochadh Gnìomhachasan Beaga na Cuimrigh: Dì-cheadaichte — tha Luach Measaidh (£{rv}) a' dol thairis air mullach reachdail £12,000 [DCLL(C) 2024].",
+      "sbrr_wales_zero_net": "Small Business Rate Relief (Wales): Not applied — prior reliefs reduced net payable liability to £0.00.",
+      "sbrr_wales_default": "Small Business Rate Relief (Wales): Disqualified — rateable value exceeds threshold for rating list period.",
+      "sbrr_scotland_rv_cap": "Sgeama Bònas Gnìomhachasan Beaga (SBBS): Dì-cheadaichte — tha Luach Measaidh (£{rv}) a' dol thairis air mullach reachdail £20,000 [Achd Ìrean Neo-Dachaigheil (Alba) 2020 / SSI 2023/45].",
+      "sbrr_scotland_zero_net": "Small Business Bonus Scheme (SBBS): Not applied — prior reliefs reduced net payable liability to £0.00.",
+      "sbrr_scotland_default": "Small Business Bonus Scheme (SBBS): Disqualified — rateable value exceeds threshold for rating list period.",
+      "rhl_unoccupied": "Faochadh Reic, Aoigheachd agus Cur-seachad: Dì-cheadaichte — togalach falamh (feumaidh gabhaltas gnìomhach).",
+      "rhl_england_2026_plus": "Reic, Aoigheachd agus Cur-seachad: Air a chur an àite iomadair sràide àrd reachdail nas ìsle ({rate} air a chur an sàs gu h-àrd) — thàinig an lasachadh ceudad gu crìch 31 Màrt 2026 [NDRA 2023].",
+      "rhl_england_zero_net": "Retail, Hospitality & Leisure Relief: Not applied — 100% relief already granted by prior reliefs.",
+      "rhl_england_default": "Retail, Hospitality & Leisure Relief: Not eligible under scheme rules for this rating period.",
+      "rhl_wales_petrol_excluded": "Faochadh Aoigheachd na Cuimrigh: Dì-cheadaichte — tha stèiseanan peatrail (SCAT 211) air an dùnadh a-mach fo riaghailtean na Cuimrigh [DCLL(C) 2024].",
+      "rhl_wales_zero_net": "Welsh Hospitality Relief: Not applied — prior reliefs reduced net payable liability to £0.00.",
+      "rhl_wales_default": "Welsh Hospitality Relief: Disqualified — hereditament already receives 100% small business rate relief or not qualifying.",
+      "rhl_scotland_rv_cap": "Faochadh RHL na h-Alba: Dì-cheadaichte — tha Luach Measaidh (£{rv}) a' dol thairis air crìoch tìr-mòr na h-Alba de £100,000 [Achd Ìrean 2020].",
+      "rhl_scotland_not_island": "Faochadh RHL na h-Alba: Dì-cheadaichte — chan eil an togalach air eilean Albannach (faochadh 100% cuibhrichte gu eileanan) [Achd nan Eilean (Alba) 2018].",
+      "rhl_scotland_zero_net": "Scottish RHL Relief: Not applied — prior reliefs reduced net liability to £0.00.",
+      "rhl_scotland_default": "Scottish RHL Relief: Not eligible under scheme rules for this financial year.",
+      "charity_unoccupied": "Faochadh Carthannais Èigneachail: Dì-cheadaichte — togalach falamh (feumaidh faochadh carthannais 80% gabhaltas barrantaichte) [Achd 1962 e.4(2)].",
+      "charity_zero_net": "Mandatory Charitable Relief: Not applied — prior reliefs reduced net payable liability to £0.00.",
+      "charity_default": "Mandatory Charitable Relief: Not applied under statutory rules.",
+      "charity_topup_not_qualifying": "Top-Up Carthannais Fo Ùghdarras: Dì-cheadaichte — feumaidh teisteanas airson Faochadh Carthannais Èigneachail 80% [LGFA 1988 e.47(2)(a)].",
+      "charity_topup_zero_net": "Discretionary Charitable Top-Up: Not applied — net liability already reduced to £0.00.",
+      "charity_topup_default": "Discretionary Charitable Top-Up: Disqualified — mandatory relief not active.",
+      "improvement_not_england": "Improvement Relief (G-Factor): Disqualified — Improvement Relief applies only in England [Non-Domestic Rating Act 2023 s.1 / LGFA 1988 Sched 4ZA].",
+      "improvement_before_2024": "Improvement Relief (G-Factor): Disqualified — Statutory relief takes effect from 1 April 2024 [Non-Domestic Rating Act 2023].",
+      "improvement_unoccupied": "Improvement Relief (G-Factor): Disqualified — requires qualifying continuing occupation.",
+      "improvement_zero_net": "Improvement Relief (G-Factor): Not applied — net liability already reduced to £0.00.",
+      "improvement_default": "Improvement Relief (G-Factor): Not qualifying under statutory rules.",
+      "heat_network_not_england": "Heat Network Exemption: Disqualified — 100% exemption applies only in England [Non-Domestic Rating Act 2023 s.2].",
+      "heat_network_unoccupied": "Heat Network Exemption: Disqualified — requires active qualifying occupation.",
+      "heat_network_zero_net": "Heat Network Exemption: Not applied — net liability already reduced to £0.00.",
+      "heat_network_default": "Heat Network Exemption: Not qualifying under statutory rules.",
+      "public_lavatory_scotland": "Public Lavatory Relief: Disqualified — 100% relief applies under Rating (Public Lavatories) Act 2021 (England and Wales only).",
+      "public_lavatory_unoccupied": "Public Lavatory Relief: Disqualified — requires qualifying occupation.",
+      "public_lavatory_zero_net": "Public Lavatory Relief: Not applied — net liability already reduced to £0.00.",
+      "public_lavatory_default": "Public Lavatory Relief: Not qualifying under statutory rules.",
+      "renewable_energy_not_scotland": "Renewable Energy Generation Relief: Disqualified — applies only in Scotland [SSI 2010/336].",
+      "renewable_energy_rv_cap": "Renewable Energy Generation Relief: Disqualified — Rateable Value (£{rv}) exceeds Scottish £1,000,000 statutory limit [SSI 2010/336].",
+      "renewable_energy_unoccupied": "Renewable Energy Generation Relief: Disqualified — requires qualifying occupation.",
+      "renewable_energy_zero_net": "Renewable Energy Generation Relief: Not applied — net liability already reduced to £0.00.",
+      "renewable_energy_default": "Renewable Energy Generation Relief: Disqualified under scheme rules.",
+      "telecom_unoccupied": "Telecommunications Infrastructure Relief: Disqualified — requires active qualifying occupation.",
+      "telecom_zero_net": "Telecommunications Infrastructure Relief: Not applied — net liability already reduced to £0.00.",
+      "telecom_default": "Telecommunications Infrastructure Relief: Not qualifying under statutory rules.",
+      "sbbs_tr_not_scotland": "SBBS Transitional Relief: Disqualified — applies only in Scotland [SSI 2023/45].",
+      "sbbs_tr_default": "SBBS Transitional Relief: Not applicable — bill increase did not exceed statutory cap over previous year.",
+      "ssbr_not_england": "Supporting Small Business Relief: Disqualified — applies only in England [LGFA 1988 s.47].",
+      "ssbr_default": "Supporting Small Business Relief: Not applicable — bill increase did not exceed statutory annual cap (£600/£800) over previous financial year [LGFA 1988 s.47].",
+      "empty_property_expired": "Ùine Saor bho Ìrean Togalach Falamh: Dh'fhalbh an ùine — tha an ùine reachdail (3 mìosan malairteach / 6 mìosan gnìomhachais) seachad [Achd 1975 e.7A]."
+    }
+  },
+  "relief_names": {
+    "Mandatory Charitable Rate Relief": "Faochadh Ìrean Carthannais Èigneachail",
+    "Small Business Rate Relief": "Faochadh Ìrean Gnìomhachais Bheaga",
+    "Small Business Bonus Scheme": "Sgeama Bònas Ghnìomhachasan Beaga",
+    "Retail, Hospitality & Leisure Relief": "Faochadh Mion-reic, Aoigheachd & Cur-seachad",
+    "Public Lavatory Relief": "Faochadh Taighean-beaga Poblach",
+    "Rural Settlement Relief": "Faochadh Tuineachaidh Dùthchail",
+    "Improvement Relief": "Faochadh Leasachaidh (Fachtor-G)",
+    "Improvement Relief (G-Factor)": "Faochadh Leasachaidh (Fachtor-G)",
+    "Empty Property Low RV Exemption": "Saoradh Togalaich Fhalamh Luach Ìosal",
+    "Empty Industrial Rate-Free Period (6 Months)": "Ùine Saor bho Ìrean Togalaich Ghnìomhachais Fhalamh (6 Mìosan)",
+    "Empty Property Rate-Free Period (3 Months)": "Ùine Saor bho Ìrean Togalaich Fhalamh (3 Mìosan)",
+    "Section 44A Part-Occupied Relief": "Faochadh Pàirt-ghabhailte Earrann 44A",
+    "Heat Network Relief": "Faochadh Lìonra Teasa",
+    "Heat Network Exemption": "Faochadh Lìonra Teasa",
+    "Anti-Avoidance Statutory Penalty": "Peanas Reachdail an-aghaidh Seachnadh",
+    "Small Business Bonus Scheme Transitional Relief": "Faochadh Gluasaid Sgeama Bònas Ghnìomhachasan Beaga",
+    "Supporting Small Business Relief": "Faochadh Taic do Ghnìomhachasan Beaga",
+    "Welsh Transitional Relief": "Faochadh Gluasaid na Cuimrigh",
+    "Welsh Food & Drink Hospitality Relief": "Faochadh Aoigheachd Bidhe is Deoch na Cuimrigh",
+    "Telecommunications Infrastructure Relief": "Faochadh Bun-structair Tele-conaltraidh",
+    "Discretionary Charitable Rate Relief Top-Up": "Barr-suim Roghainneil Faochadh Carthannais",
+    "Renewable Energy Generation Relief": "Faochadh Gineadh Lùth Ath-nuadhachail",
+    "Empty Industrial Rate Relief (50% for 6 Months)": "Faochadh Togalaich Ghnìomhachais Fhalamh (50% airson 6 Mìosan)",
+    "Empty Property Rate Relief (50% for 3 Months)": "Faochadh Togalaich Fhalamh (50% airson 3 Mìosan)",
+    "Council Tax Transfer (Holiday Let Disqualification)": "Gluasad gu Cìs Comhairle (Dì-cheadachadh Togalaich Saor-làithean)"
+  },
+  "errors": {
+    "invalid_occupation_period": "Chan urrainn do cheann-latha crìochnachaidh gabhaltais ({end}) a bhith ro cheann-latha tòiseachaidh ({start})",
+    "payload_deserialization": "Mearachd dì-shreathachadh luchd-pàighidh: {msg}"
+  },
+  "reference_codes": {
+    "JURISDICTION": {
+      "ENGLAND": {
+        "label": "Sasainn",
+        "description": "Ìrean neo-dachaigheil reachdail fo Achd Ionmhais Riaghaltas Ionadail 1988 agus Achd nan Ìrean Neo-Dachaigheil 2023."
+      },
+      "WALES": {
+        "label": "A' Chuimrigh",
+        "description": "Ìrean tiomnaichte fo Achd Ionmhais Riaghaltas Ionadail (A' Chuimrigh) 2024 agus Innealan Reachdail na Cuimrigh."
+      },
+      "SCOTLAND": {
+        "label": "Alba",
+        "description": "Ìrean tiomnaichte fo Achd nan Ìrean Neo-Dachaigheil (Alba) 2020. Siostam iomadair trì-ìre agus SBBS."
+      }
+    },
+    "PARTY_TYPE": {
+      "CORPORATE": {
+        "label": "Buidheann Corporra / Companaidh",
+        "description": "Companaidh earranta (Ltd/PLC/LLP) buailteach airson ìrean neo-dachaigheil reachdail."
+      },
+      "INDIVIDUAL": {
+        "label": "Neach Fa leth / Neach-malairt Aonar",
+        "description": "Neach nàdarra, neach-malairt aonar, no com-pàirteachas neo-chorporra."
+      },
+      "CHARITY": {
+        "label": "Carthannas Clàraichte",
+        "description": "Carthannas clàraichte le OSCR/CC le còir air faochadh èigneachail 80% fo reachd."
+      }
+    },
+    "OCCUPANCY_TYPE": {
+      "OCCUPIED": {
+        "label": "Gabhailte (Làn)",
+        "description": "Tha an togalach air a ghabhail gu gnìomhach airson gnìomhachas."
+      },
+      "UNOCCUPIED": {
+        "label": "Falamh / Gun Ghabhail",
+        "description": "Tha an togalach falamh (buailteachd reachdail an sàs às deidh saoradh)."
+      },
+      "PART_OCCUPIED": {
+        "label": "Pàirt-ghabhailte (e.44A)",
+        "description": "Tha an togalach falamh gu sealach ann am pàirt, fo theisteanasan apportionment."
+      }
+    },
+    "RELIEF_CODE": {
+      "SBBS": {
+        "label": "Sgeama Bònas Ghnìomhachasan Beaga (Alba)",
+        "description": "Faochadh ìrean Albannach airson gnìomhachasan beaga suas gu £12,000/£11,500 RV."
+      },
+      "SBRR": {
+        "label": "Faochadh Ìrean Gnìomhachais Bheaga (Sasainn)",
+        "description": "Lasachadh 100% suas gu £12,000 RV le teip loidhneach gu £15,000 RV."
+      },
+      "CHARITY": {
+        "label": "Faochadh Carthannais Èigneachail",
+        "description": "Faochadh èigneachail 80% fo LGFA 1988 e.43(5) no Achd 1962 e.4 airson adhbharan carthannach."
+      }
+    }
+  }
+}
+

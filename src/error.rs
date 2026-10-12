@@ -41,32 +41,22 @@ impl AppError {
 
     /// Returns the localized human-readable message for the requested language
     pub fn localized_message(&self, lang: crate::i18n::Language) -> String {
-        match lang {
-            crate::i18n::Language::En => self.to_string(),
-            crate::i18n::Language::Cy => match self {
-                Self::InvalidOccupationPeriod { start, end } => {
-                    format!("Ni all dyddiad gorffen meddiannaeth ({end}) fod cyn y dyddiad cychwyn ({start})")
-                }
-                Self::PayloadDeserialization(msg) => {
-                    format!("Gwall Dad-gyfresoli Llwyth Tâl: {msg}")
-                }
-            },
-            crate::i18n::Language::Sco => match self {
-                Self::InvalidOccupationPeriod { start, end } => {
-                    format!("End date for occupancy ({end}) canna be afore start date ({start})")
-                }
-                Self::PayloadDeserialization(msg) => {
-                    format!("Payload Deserialization Misgaed: {msg}")
-                }
-            },
-            crate::i18n::Language::Gd => match self {
-                Self::InvalidOccupationPeriod { start, end } => {
-                    format!("Chan urrainn do cheann-latha crìochnachaidh gabhaltais ({end}) a bhith ro cheann-latha tòiseachaidh ({start})")
-                }
-                Self::PayloadDeserialization(msg) => {
-                    format!("Mearachd dì-shreathachadh luchd-pàighidh: {msg}")
-                }
-            },
+        let bundle = crate::i18n::get_locale(lang);
+        match self {
+            Self::InvalidOccupationPeriod { start, end } => {
+                let s_str = start.to_string();
+                let e_str = end.to_string();
+                crate::i18n::format_template(
+                    &bundle.errors.invalid_occupation_period,
+                    &[("start", &s_str), ("end", &e_str)],
+                )
+            }
+            Self::PayloadDeserialization(msg) => {
+                crate::i18n::format_template(
+                    &bundle.errors.payload_deserialization,
+                    &[("msg", msg)],
+                )
+            }
         }
     }
 

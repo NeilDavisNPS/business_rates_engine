@@ -190,10 +190,6 @@ impl ParameterRepository {
     }
 
     pub fn all_reference_codes_localized(&self, lang: crate::i18n::Language) -> Vec<ParamReferenceCode> {
-        if lang == crate::i18n::Language::En {
-            return self.reference_codes.clone();
-        }
-
         self.reference_codes.iter().map(|rc| {
             let (label, desc) = crate::i18n::localize_reference_code(
                 &rc.category,

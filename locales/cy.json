@@ -1,0 +1,268 @@
+{
+  "narrative": {
+    "header_title": "ADRODDIAD STATUDOL AR GYFRIFO TRETHI BUSNES & LLWYBR ARCHWILIO",
+    "divider": "=============================================",
+    "frameworks": {
+      "england": "Deddf Cyllid Llywodraeth Leol 1988 (fel y'i diwygiwyd gan Ddeddf Ardrethi Annomestig 2023) ar gyfer Lloegr",
+      "wales": "Deddf Cyllid Llywodraeth Leol 1988 a Deddf Cyllid Llywodraeth Leol (Cymru) 2024 ar gyfer Cymru",
+      "scotland": "Deddf Cyllid Llywodraeth Leol 1988 / Deddfau Treth Gyngor ac Ardrethu ar gyfer yr Alban"
+    },
+    "framework_intro": "1. Fframwaith Statudol: Cyfrifwyd o dan {framework}.",
+    "liability_period": "2. Cyfnod Meddiannu / Atebolrwydd: {start_date} i {end_date} (Rhanwyd yn {segments_count} segment bilio).",
+    "financial_year_header": "3.{index} Blwyddyn Ariannol {financial_year}:",
+    "occupancy_status": {
+      "occupied": "Wedi'i Feddiannu (Meddiannaeth Lawn)",
+      "unoccupied": "Heb ei Feddiannu (Gwag)",
+      "part_occupied": "Rhan-Feddiant (Adran 44A)"
+    },
+    "lines": {
+      "occupancy_status": "    - Statws Meddiannaeth: {status}",
+      "rateable_value": "    - Gwerth Trethiannol (RV): £{rateable_value}",
+      "multiplier": "    - Lluosydd ({multiplier_type}): {rate}",
+      "segment_duration": "    - Dyddiau Meddiannu: {days} diwrnod ({start_date} i {end_date})",
+      "gross_liability": "    - Atebolrwydd Crynswth: £{gross_liability}",
+      "transitional_adjustment": "    - Rhyddhad Trosiannol [{type}]: -£{amount} [DCLL 1988 adr. 57A / Rheoliadau Symiau Ardrethi Annomestig]",
+      "transitional_relief_label": "RHYDDHAD",
+      "transitional_premium_label": "PREMIWM",
+      "applied_reliefs_none": "    - Rhyddhadau a Gymhwyswyd: Dim",
+      "applied_relief_item": "    - Rhyddhad [{relief_code}] {relief_name} ({discount_percentage}%): -£{amount_deducted} [{statutory_authority}]",
+      "audit_header": "    - Archwiliad Asesu Rhyddhadau (Rhyddhadau heb eu Dyfarnu):",
+      "audit_item": "        * {note}",
+      "statutory_penalty_item": "    - Cosb Statudol [{penalty_type}] +£{amount} [{calculation_formula} - {statutory_authority}]",
+      "net_segment_payable": "    - Swm Net y Segment i'w Dalu: £{net_segment_payable}"
+    },
+    "holiday_let": {
+      "header": "4. Dilysu Ffiniau Statudol (SCAT 249 Llety Gwyliau):",
+      "disqualified_actual": "    - Aseswyd o dan feini prawf statudol: wedi'i osod am {actual} diwrnod (llai na'r isafswm statudol o {threshold} diwrnod).",
+      "disqualified_status": "    - Statws: Wedi'i anghymhwyso o'r Rhestr Ardrethu Annomestig; trosglwyddwyd i Restr Brisio'r Dreth Gyngor (£0 o atebolrwydd NDR).",
+      "qualified_actual": "    - Aseswyd o dan feini prawf statudol: wedi'i osod am {actual} diwrnod (yn cyrraedd yr isafswm statudol o {threshold} diwrnod).",
+      "qualified_status": "    - Statws: Llety gwyliau masnachol cymwys; cadwyd ar y Rhestr Ardrethu Annomestig.",
+      "default_actual": "    - Aseswyd o dan Reoliadau Treth y Cyngor (Anheddau) (Yr Alban) 2026 / Rheol 140/70 diwrnod Lloegr.",
+      "default_status": "    - Statws: Llety gwyliau masnachol cymwys; cadwyd ar y Rhestr Ardrethu Annomestig."
+    },
+    "total_net_payable": "CYFANSWM Y SWM NET I'W DALU: £{total_net}",
+    "disqualifications": {
+      "rural_unoccupied": "Rhyddhad Anheddiad Gwledig: Wedi'i anghymhwyso — eiddo'n wag (mae angen meddiannaeth weithredol ar gyfer rhyddhad gwledig gorfodol) [DCLL 1988 adr. 43(6B)].",
+      "rural_rv_cap": "Rhyddhad Anheddiad Gwledig: Wedi'i anghymhwyso — mae'r Gwerth Trethiannol (£{rv}) yn fwy na'r cap statudol o {cap_str} ar gyfer {cat} [{authority}].",
+      "rural_cat_pub_petrol": "dafarnau / gorsafoedd petrol cymwys",
+      "rural_cat_general": "hereditamentau masnachol/cyffredinol",
+      "rural_authority_eng_wal": "LGFA 1988 s.43(6B) / LGFA 1997",
+      "rural_authority_sco": "Local Government (Scotland) Act 1975 Sched 1A / LGFA 1997",
+      "rural_zero_net": "Rhyddhad Anheddiad Gwledig: Heb ei gymhwyso — gostyngodd rhyddhadau blaenorol yr atebolrwydd net i £0.00.",
+      "rural_default": "Rural Settlement Relief: Disqualified — statutory qualification criteria not satisfied [{authority}].",
+      "sbrr_unoccupied": "Rhyddhad Ardrethi Busnes Bach: Wedi'i anghymhwyso — eiddo gwag (mae SBRR yn gofyn am feddiant gweithredol cymwys) [DCLL 1988 adr. 43(4B) / DCLL(C) 2024].",
+      "sbrr_england_rv_cap": "Rhyddhad Ardrethi Busnes Bach: Wedi'i anghymhwyso — mae'r Gwerth Trethiannol (£{rv}) yn fwy na throthwy statudol o £15,000 [DCLL 1988 adr. 43(4B) / S.I. 2017/411].",
+      "sbrr_england_zero_net": "Small Business Rate Relief: Not applied — prior reliefs reduced net payable liability to £0.00.",
+      "sbrr_england_default": "Small Business Rate Relief: Disqualified — rateable value exceeds threshold for rating list period.",
+      "sbrr_wales_rv_cap": "Rhyddhad Ardrethi Busnes Bach: Wedi'i anghymhwyso — mae'r Gwerth Trethiannol (£{rv}) yn fwy na throthwy uchaf statudol o £12,000 [DCLL(C) 2024 / Rheoliadau W.S.I.].",
+      "sbrr_wales_zero_net": "Small Business Rate Relief (Wales): Not applied — prior reliefs reduced net payable liability to £0.00.",
+      "sbrr_wales_default": "Small Business Rate Relief (Wales): Disqualified — rateable value exceeds threshold for rating list period.",
+      "sbrr_scotland_rv_cap": "Sgeam Bonws Busnes Bach (SBBS): Wedi'i anghymhwyso — mae'r Gwerth Trethiannol (£{rv}) yn fwy na throthwy uchaf o £20,000 [Deddf 2020 yr Alban / SSI 2023/45].",
+      "sbrr_scotland_zero_net": "Small Business Bonus Scheme (SBBS): Not applied — prior reliefs reduced net payable liability to £0.00.",
+      "sbrr_scotland_default": "Small Business Bonus Scheme (SBBS): Disqualified — rateable value exceeds threshold for rating list period.",
+      "rhl_unoccupied": "Rhyddhad Manwerthu, Lletygarwch a Hamdden: Wedi'i anghymhwyso — eiddo gwag (mae angen meddiannaeth weithredol).",
+      "rhl_england_2026_plus": "Manwerthu, Lletygarwch a Hamdden: Disodlwyd gan luosydd stryd fawr statudol is ({rate} a gymhwyswyd uchod) — daeth y disgownt canran i ben 31 Mawrth 2026 [Deddf Ardrethi Annomestig 2023].",
+      "rhl_england_zero_net": "Retail, Hospitality & Leisure Relief: Not applied — 100% relief already granted by prior reliefs.",
+      "rhl_england_default": "Retail, Hospitality & Leisure Relief: Not eligible under scheme rules for this rating period.",
+      "rhl_wales_petrol_excluded": "Rhyddhad Lletygarwch Bwyd a Diod (Cymru): Wedi'i anghymhwyso — mae gorsafoedd petrol (SCAT 211) wedi'u heithrio'n statudol o dan reolau'r cynllun [DCLL(C) 2024].",
+      "rhl_wales_zero_net": "Welsh Hospitality Relief: Not applied — prior reliefs reduced net payable liability to £0.00.",
+      "rhl_wales_default": "Welsh Hospitality Relief: Disqualified — hereditament already receives 100% small business rate relief or not qualifying.",
+      "rhl_scotland_rv_cap": "Rhyddhad RHL yr Alban: Wedi'i anghymhwyso — mae'r Gwerth Trethiannol (£{rv}) yn fwy na chap tir mawr yr Alban o £100,000 [Deddf 2020 yr Alban].",
+      "rhl_scotland_not_island": "Rhyddhad RHL yr Alban: Wedi'i anghymhwyso — nid yw'r eiddo wedi'i leoli ar ynys yn yr Alban (cyfyngwyd rhyddhad 100% i ynysoedd) [Deddf Ynysoedd (Yr Alban) 2018].",
+      "rhl_scotland_zero_net": "Scottish RHL Relief: Not applied — prior reliefs reduced net liability to £0.00.",
+      "rhl_scotland_default": "Scottish RHL Relief: Not eligible under scheme rules for this financial year.",
+      "charity_unoccupied": "Rhyddhad Elusennol Gorfodol: Wedi'i anghymhwyso — eiddo gwag (mae rhyddhad elusennol 80% yn gofyn am feddiannaeth weithredol) [DCLL 1988 adr. 43(5)].",
+      "charity_zero_net": "Mandatory Charitable Relief: Not applied — prior reliefs reduced net payable liability to £0.00.",
+      "charity_default": "Mandatory Charitable Relief: Not applied under statutory rules.",
+      "charity_topup_not_qualifying": "Top-Up Elusennol Dewisol: Wedi'i anghymhwyso — mae angen bod yn gymwys ar gyfer Rhyddhad Elusennol Gorfodol o 80% [DCLL 1988 adr. 47(2)(a)].",
+      "charity_topup_zero_net": "Discretionary Charitable Top-Up: Not applied — net liability already reduced to £0.00.",
+      "charity_topup_default": "Discretionary Charitable Top-Up: Disqualified — mandatory relief not active.",
+      "improvement_not_england": "Improvement Relief (G-Factor): Disqualified — Improvement Relief applies only in England [Non-Domestic Rating Act 2023 s.1 / LGFA 1988 Sched 4ZA].",
+      "improvement_before_2024": "Improvement Relief (G-Factor): Disqualified — Statutory relief takes effect from 1 April 2024 [Non-Domestic Rating Act 2023].",
+      "improvement_unoccupied": "Improvement Relief (G-Factor): Disqualified — requires qualifying continuing occupation.",
+      "improvement_zero_net": "Improvement Relief (G-Factor): Not applied — net liability already reduced to £0.00.",
+      "improvement_default": "Improvement Relief (G-Factor): Not qualifying under statutory rules.",
+      "heat_network_not_england": "Heat Network Exemption: Disqualified — 100% exemption applies only in England [Non-Domestic Rating Act 2023 s.2].",
+      "heat_network_unoccupied": "Heat Network Exemption: Disqualified — requires active qualifying occupation.",
+      "heat_network_zero_net": "Heat Network Exemption: Not applied — net liability already reduced to £0.00.",
+      "heat_network_default": "Heat Network Exemption: Not qualifying under statutory rules.",
+      "public_lavatory_scotland": "Public Lavatory Relief: Disqualified — 100% relief applies under Rating (Public Lavatories) Act 2021 (England and Wales only).",
+      "public_lavatory_unoccupied": "Public Lavatory Relief: Disqualified — requires qualifying occupation.",
+      "public_lavatory_zero_net": "Public Lavatory Relief: Not applied — net liability already reduced to £0.00.",
+      "public_lavatory_default": "Public Lavatory Relief: Not qualifying under statutory rules.",
+      "renewable_energy_not_scotland": "Renewable Energy Generation Relief: Disqualified — applies only in Scotland [SSI 2010/336].",
+      "renewable_energy_rv_cap": "Renewable Energy Generation Relief: Disqualified — Rateable Value (£{rv}) exceeds Scottish £1,000,000 statutory limit [SSI 2010/336].",
+      "renewable_energy_unoccupied": "Renewable Energy Generation Relief: Disqualified — requires qualifying occupation.",
+      "renewable_energy_zero_net": "Renewable Energy Generation Relief: Not applied — net liability already reduced to £0.00.",
+      "renewable_energy_default": "Renewable Energy Generation Relief: Disqualified under scheme rules.",
+      "telecom_unoccupied": "Telecommunications Infrastructure Relief: Disqualified — requires active qualifying occupation.",
+      "telecom_zero_net": "Telecommunications Infrastructure Relief: Not applied — net liability already reduced to £0.00.",
+      "telecom_default": "Telecommunications Infrastructure Relief: Not qualifying under statutory rules.",
+      "sbbs_tr_not_scotland": "SBBS Transitional Relief: Disqualified — applies only in Scotland [SSI 2023/45].",
+      "sbbs_tr_default": "SBBS Transitional Relief: Not applicable — bill increase did not exceed statutory cap over previous year.",
+      "ssbr_not_england": "Supporting Small Business Relief: Disqualified — applies only in England [LGFA 1988 s.47].",
+      "ssbr_default": "Supporting Small Business Relief: Not applicable — bill increase did not exceed statutory annual cap (£600/£800) over previous financial year [LGFA 1988 s.47].",
+      "empty_property_expired": "Cyfnod Di-dreth Eiddo Gwag: Wedi dod i ben — mae'r cyfnod statudol (3 mis masnachol / 6 mis diwydiannol) wedi dod i ben [DCLL 1988 adr. 45]."
+    }
+  },
+  "relief_names": {
+    "Mandatory Charitable Rate Relief": "Rhyddhad Elusennol Gorfodol",
+    "Small Business Rate Relief": "Rhyddhad Ardrethi Busnesau Bach",
+    "Small Business Bonus Scheme": "Cynllun Bonws Busnesau Bach",
+    "Retail, Hospitality & Leisure Relief": "Rhyddhad Manwerthu, Lletygarwch a Hamdden",
+    "Public Lavatory Relief": "Rhyddhad Toiledau Cyhoeddus",
+    "Rural Settlement Relief": "Rhyddhad Aneddiadau Gwledig",
+    "Improvement Relief": "Rhyddhad Gwelliannau (Ffactor-G)",
+    "Improvement Relief (G-Factor)": "Rhyddhad Gwelliannau (Ffactor-G)",
+    "Empty Property Low RV Exemption": "Eithriad Eiddo Gwag Gwerth Isel",
+    "Empty Industrial Rate-Free Period (6 Months)": "Cyfnod Di-dreth Eiddo Diwydiannol Gwag (6 Mis)",
+    "Empty Property Rate-Free Period (3 Months)": "Cyfnod Di-dreth Eiddo Gwag (3 Mis)",
+    "Section 44A Part-Occupied Relief": "Rhyddhad Rhan-Feddiant Adran 44A",
+    "Heat Network Relief": "Rhyddhad Rhwydwaith Gwres",
+    "Heat Network Exemption": "Rhyddhad Rhwydwaith Gwres",
+    "Anti-Avoidance Statutory Penalty": "Cosb Statudol Gwrth-osgoi",
+    "Small Business Bonus Scheme Transitional Relief": "Rhyddhad Trosiannol Cynllun Bonws Busnesau Bach",
+    "Supporting Small Business Relief": "Rhyddhad Cefnogi Busnesau Bach",
+    "Welsh Transitional Relief": "Rhyddhad Trosiannol Cymru",
+    "Welsh Food & Drink Hospitality Relief": "Rhyddhad Ardrethi Lletygarwch Bwyd a Diod Cymru",
+    "Telecommunications Infrastructure Relief": "Rhyddhad Seilwaith Telathrebu",
+    "Discretionary Charitable Rate Relief Top-Up": "Ychwanegiad Dewisol at Ryddhad Elusennol",
+    "Renewable Energy Generation Relief": "Rhyddhad Cynhyrchu Ynni Adnewyddadwy",
+    "Empty Industrial Rate Relief (50% for 6 Months)": "Rhyddhad Eiddo Diwydiannol Gwag (50% am 6 Mis)",
+    "Empty Property Rate Relief (50% for 3 Months)": "Rhyddhad Eiddo Gwag (50% am 3 Mis)",
+    "Council Tax Transfer (Holiday Let Disqualification)": "Trosglwyddo i'r Dreth Gyngor (Anghymhwyso Llety Gwyliau)"
+  },
+  "errors": {
+    "invalid_occupation_period": "Ni all dyddiad gorffen meddiannaeth ({end}) fod cyn y dyddiad cychwyn ({start})",
+    "payload_deserialization": "Gwall Dad-gyfresoli Llwyth Tâl: {msg}"
+  },
+  "reference_codes": {
+    "JURISDICTION": {
+      "ENGLAND": {
+        "label": "Lloegr",
+        "description": "Ardrethu annomestig statudol o dan Ddeddf Cyllid Llywodraeth Leol 1988 a Deddf Ardrethi Annomestig 2023. Mae'r lluosydd safonol yn berthnasol ar gyfer RV > £51,000."
+      },
+      "WALES": {
+        "label": "Cymru",
+        "description": "Ardrethu datganoledig o dan Ddeddf Cyllid Llywodraeth Leol (Cymru) 2024 ac Offerynnau Statudol Cymru (OSC)."
+      },
+      "SCOTLAND": {
+        "label": "Yr Alban",
+        "description": "Ardrethu datganoledig o dan Ddeddf Ardrethi Annomestig (Yr Alban) 2020. Strwythur lluosydd tair haen a Chynllun Bonws Busnesau Bach."
+      }
+    },
+    "PARTY_TYPE": {
+      "CORPORATE": {
+        "label": "Endid Corfforaethol / Cwmni",
+        "description": "Cwmni cyfyngedig (Cyf/Ltd), Ccc/PLC, PAC/LLP, neu endid masnachol corfforedig arall sy'n atebol am ardrethi annomestig."
+      },
+      "INDIVIDUAL": {
+        "label": "Unigolyn / Perchennog Unigol",
+        "description": "Person naturiol, unig fasnachwr, neu bartneriaeth fasnachol anghorfforedig."
+      },
+      "CHARITY": {
+        "label": "Elusen Gofrestredig",
+        "description": "Elusen gofrestredig neu ymddiriedolwyr sy'n dal eiddo at ddibenion elusennol, sy'n gymwys am ryddhad gorfodol o 80% o dan DCLL 1988 adr. 43(5)."
+      },
+      "CASC": {
+        "label": "Clwb Chwaraeon Amatur Cymunedol (CASC)",
+        "description": "CASC wedi'i gofrestru gyda CThEM sy'n gymwys am ryddhad ardrethi annomestig gorfodol o 80% o dan DCLL 1988 adr. 43(6)."
+      },
+      "LOCAL_AUTHORITY": {
+        "label": "Awdurdod Lleol / Corff Cyhoeddus",
+        "description": "Awdurdod bilio, cyngor bwrdeistrefol, neu feddiannydd corff cyhoeddus statudol arall."
+      }
+    },
+    "OCCUPANCY_TYPE": {
+      "OCCUPIED": {
+        "label": "Mangre a Feddienir",
+        "description": "Mae'r eiddo'n cael ei feddiannu'n weithredol ar gyfer gweithrediadau busnes/masnachol (atebolrwydd adr. 43)."
+      },
+      "UNOCCUPIED": {
+        "label": "Gwag / Heb ei Feddiannu",
+        "description": "Mae'r eiddo'n wag (mae atebolrwydd adr. 45 yn gymwys ar ôl eithriad statudol o 3 mis neu 6 mis)."
+      },
+      "PART_OCCUPIED": {
+        "label": "Wedi'i Rannol Feddiannu",
+        "description": "Mae'r eiddo'n wag dros dro yn rhannol, yn amodol ar dystysgrifau dosrannu adran 44A."
+      }
+    },
+    "SCAT_CODE": {
+      "003": {
+        "label": "003 - Maes Awyr / Seilwaith Hedfan Mawr",
+        "description": "Maes awyr / cyfadeilad gwerth uchel sy'n gofyn am luosydd cenedlaethol safonol. Wedi'i eithrio'n benodol o ryddhad busnesau bach."
+      },
+      "091": {
+        "label": "091 - Swyddfeydd Cyffredinol / Mangre Fasnachol",
+        "description": "Llety swyddfa fasnachol safonol. Hawl i 3 mis o ryddhad eiddo gwag 100%."
+      },
+      "096": {
+        "label": "096 - Eiddo Diwydiannol / Warws / Ffatri",
+        "description": "Eiddo diwydiannol sy'n gymwys am eithriad eiddo gwag 100% am 6 mis o dan O.S. 2008/386."
+      },
+      "209": {
+        "label": "209 - Tafarn / Bar / Safle Trwyddedig",
+        "description": "Mangre drwyddedig sy'n gymwys ar gyfer cynlluniau rhyddhad Manwerthu, Lletygarwch a Hamdden (RHL)."
+      },
+      "211": {
+        "label": "211 - Gorsaf Danwydd a Chwrt Blaen",
+        "description": "Gwerthu tanwydd modur a siop cwrt blaen. Wedi'i eithrio'n benodol o ddisgownt manwerthu yng Nghymru o dan reolau 2026/27."
+      },
+      "225": {
+        "label": "225 - Siop Fanwerthu / Uned Stryd Fawr",
+        "description": "Siop fanwerthu safonol sy'n gymwys ar gyfer cynlluniau disgownt SBRR a RHL."
+      },
+      "249": {
+        "label": "249 - Llety Gwyliau Hunan-ddarpar",
+        "description": "Llety gwyliau yn amodol ar feini prawf gosod statudol lleiaf (o leiaf 70 diwrnod gosod gwirioneddol / 140 diwrnod ar gael)."
+      }
+    },
+    "RELIEF_CODE": {
+      "SBRR": {
+        "label": "Rhyddhad Ardrethi Busnesau Bach (Lloegr)",
+        "description": "Disgownt o 100% hyd at £12,000 RV, gyda thapr llinol hyd at £15,000 RV ar gyfer meddianwyr un eiddo (Lloegr)."
+      },
+      "WALES_SBRR": {
+        "label": "Rhyddhad Ardrethi Busnesau Bach (Cymru)",
+        "description": "Rhyddhad o 100% hyd at £6,000 RV, gyda thapr llinol hyd at £12,000 RV o dan Ddeddf Cyllid Llywodraeth Leol (Cymru) 2024."
+      },
+      "SBBS": {
+        "label": "Cynllun Bonws Busnesau Bach (Yr Alban)",
+        "description": "Rhyddhad ardrethu'r Alban ar gyfer busnesau bach hyd at £12,000 RV (2023-2026) neu £11,500 RV (2026+)."
+      },
+      "RHL": {
+        "label": "Rhyddhad Manwerthu, Lletygarwch a Hamdden",
+        "description": "Disgownt sector statudol (40% yng Nghymru 2026/27, yn amodol ar gap arian parod o £110,000)."
+      },
+      "CHARITY": {
+        "label": "Rhyddhad Elusennol Gorfodol",
+        "description": "Rhyddhad gorfodol o 80% o dan DCLL 1988 adr. 43(5) lle defnyddir yr eiddo'n gyfan gwbl neu'n bennaf at ddibenion elusennol."
+      },
+      "IMPROV": {
+        "label": "Rhyddhad Gwelliannau (Ffactor-G)",
+        "description": "Rhyddhad o 100% am 12 mis ar gynnydd mewn gwerth trethiannol o ganlyniad i welliannau corfforol i eiddo o dan NDRA 2023."
+      },
+      "EMPTY": {
+        "label": "Eithriad Eiddo Gwag",
+        "description": "Rhyddhad o 100% am y 3 mis cyntaf (masnachol) neu 6 mis (diwydiannol) o gyfnodau heb eu meddiannu o dan DCLL 1988 adr. 45."
+      },
+      "RURAL": {
+        "label": "Rhyddhad Aneddiadau Gwledig",
+        "description": "Rhyddhad gorfodol o 100% ar gyfer unig siopau cyffredinol, siopau bwyd, neu swyddfeydd post mewn aneddiadau gwledig dynodedig."
+      },
+      "LAVATORY": {
+        "label": "Rhyddhad Toiledau Cyhoeddus",
+        "description": "Eithriad ardrethu statudol o 100% o dan Ddeddf Ardrethu (Coronafeirws a Thoiledau Cyhoeddus) 2021."
+      },
+      "HEAT_NET": {
+        "label": "Rhyddhad Rhwydwaith Gwres",
+        "description": "Rhyddhad o 100% ar gyfer eiddo dosbarthu gwres ardal carbon isel o dan NDRA 2023."
+      },
+      "WELSH_AVOIDANCE": {
+        "label": "Cosb Statudol Gwrth-osgoi (Cymru)",
+        "description": "Cosb statudol o dan Offeryn Statudol Cymru 2026/43 (£500 sefydlog + 3% gwerth trethiannol) am osgoi artiffisial."
+      }
+    }
+  }
+}
+
