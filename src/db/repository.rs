@@ -223,7 +223,7 @@ impl ParameterRepository {
                 c.jurisdiction == jurisdiction 
                     && c.financial_year == financial_year 
                     && rv >= c.rv_threshold_min 
-                    && c.rv_threshold_max.map_or(true, |max| rv <= max)
+                    && c.rv_threshold_max.is_none_or(|max| rv <= max)
             })
     }
 
@@ -284,7 +284,7 @@ impl ParameterRepository {
             if let Some(m) = matches.iter().find(|m| {
                 (m.multiplier_type == "SMALL_BUSINESS_RHL" || m.multiplier_type == "STANDARD_RHL")
                     && rv >= m.rv_threshold_min
-                    && m.rv_threshold_max.map_or(true, |max| rv <= max)
+                    && m.rv_threshold_max.is_none_or(|max| rv <= max)
             }) {
                 return MultiplierInfo {
                     multiplier_type: m.multiplier_type.clone(),
@@ -297,7 +297,7 @@ impl ParameterRepository {
         for m in &matches {
             if m.multiplier_type == "SMALL_BUSINESS" || m.multiplier_type == "BASIC" {
                 let min_ok = rv >= m.rv_threshold_min;
-                let max_ok = m.rv_threshold_max.map_or(true, |max| rv <= max);
+                let max_ok = m.rv_threshold_max.is_none_or(|max| rv <= max);
                 if min_ok && max_ok {
                     return MultiplierInfo {
                         multiplier_type: m.multiplier_type.clone(),
@@ -311,7 +311,7 @@ impl ParameterRepository {
         for m in &matches {
             if m.multiplier_type == "INTERMEDIATE" || m.multiplier_type == "WELSH_DIFFERENTIAL" {
                 let min_ok = rv >= m.rv_threshold_min;
-                let max_ok = m.rv_threshold_max.map_or(true, |max| rv <= max);
+                let max_ok = m.rv_threshold_max.is_none_or(|max| rv <= max);
                 if min_ok && max_ok {
                     return MultiplierInfo {
                         multiplier_type: m.multiplier_type.clone(),
@@ -325,7 +325,7 @@ impl ParameterRepository {
         for m in &matches {
             if m.multiplier_type == "HIGHER" || m.multiplier_type == "HIGH_VALUE" {
                 let min_ok = rv >= m.rv_threshold_min;
-                let max_ok = m.rv_threshold_max.map_or(true, |max| rv <= max);
+                let max_ok = m.rv_threshold_max.is_none_or(|max| rv <= max);
                 if min_ok && max_ok {
                     return MultiplierInfo {
                         multiplier_type: m.multiplier_type.clone(),

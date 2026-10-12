@@ -41,27 +41,6 @@ impl Language {
             Language::Gd => "gd",
         }
     }
-
-    pub fn is_welsh(&self) -> bool {
-        matches!(self, Language::Cy)
-    }
-
-    pub fn is_scots(&self) -> bool {
-        matches!(self, Language::Sco)
-    }
-
-    pub fn is_gaelic(&self) -> bool {
-        matches!(self, Language::Gd)
-    }
-
-    pub fn display_name(&self) -> &'static str {
-        match self {
-            Language::En => "English",
-            Language::Cy => "Cymraeg",
-            Language::Sco => "Scots",
-            Language::Gd => "Gàidhlig",
-        }
-    }
 }
 
 pub static EN_JSON: &str = include_str!("../locales/en.json");

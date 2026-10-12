@@ -6,7 +6,7 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use crate::models::AppState;
-use crate::models::calculation::{LiabilityCalculationRequest, LiabilityCalculationResponse};
+use crate::models::calculation::LiabilityCalculationRequest;
 use crate::engine::calculator::CalculationEngine;
 use crate::db::repository::{
     ParamMultiplier, ParamReferenceCode, ParamSbrrSbbsThreshold, ParamSectorRelief,
@@ -53,14 +53,14 @@ pub async fn calculate_liability_handler(
     Query(query): Query<LangQuery>,
     headers: HeaderMap,
     payload_res: Result<Json<LiabilityCalculationRequest>, JsonRejection>,
-) -> Result<Json<LiabilityCalculationResponse>, Response> {
+) -> Response {
     let initial_lang = resolve_language(&headers, query.lang.as_deref(), None);
 
     let Json(payload) = match payload_res {
         Ok(p) => p,
         Err(rejection) => {
             let err = AppError::PayloadDeserialization(rejection.body_text());
-            return Err(err.into_response_with_lang(initial_lang));
+            return err.into_response_with_lang(initial_lang);
         }
     };
 
@@ -72,12 +72,12 @@ pub async fn calculate_liability_handler(
                 start: period.start_date,
                 end: period.end_date,
             };
-            return Err(err.into_response_with_lang(effective_lang));
+            return err.into_response_with_lang(effective_lang);
         }
     }
 
     let engine = CalculationEngine::new(state.repo.clone());
-    Ok(Json(engine.calculate_with_language(payload, effective_lang)))
+    axum::response::IntoResponse::into_response(Json(engine.calculate_with_language(payload, effective_lang)))
 }
 
 /// Returns all pre-seeded reference codes from the database catalog localized in English, Welsh, Scots, or Gaelic.

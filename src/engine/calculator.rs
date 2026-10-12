@@ -22,7 +22,7 @@ impl CalculationEngine {
     fn resolve_rv_for_date(&self, history: &[RvEntry], date: NaiveDate) -> Decimal {
         history.iter()
             .find(|entry| {
-                entry.effective_from <= date && entry.effective_to.map_or(true, |end| date <= end)
+                entry.effective_from <= date && entry.effective_to.is_none_or(|end| date <= end)
             })
             .map(|e| e.rateable_value)
             .unwrap_or(dec!(0.00))
