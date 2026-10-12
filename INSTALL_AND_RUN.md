@@ -43,7 +43,7 @@ From the project root directory:
 # 1. Compile Tailwind styles and the Svelte 5 frontend into a single bundle
 ./build-frontend.sh
 
-# 2. Run the full automated integration test suite (45 tests)
+# 2. Run the full automated integration test suite (83 tests)
 cargo test
 
 # 3. Launch the application server
@@ -52,7 +52,8 @@ cargo run
 
 Once running, navigate your web browser to:
 👉 **[http://localhost:8080/](http://localhost:8080/)** (Interactive Calculation Sandbox)  
-👉 **[http://localhost:8080/docs](http://localhost:8080/docs)** (Interactive Scalar API Reference)
+👉 **[http://localhost:8080/docs](http://localhost:8080/docs)** (Interactive Scalar API Reference)  
+👉 **[http://localhost:8080/licenses](http://localhost:8080/licenses)** (Third-Party Software Licenses)
 
 ---
 
@@ -69,7 +70,7 @@ The user interface is a modern Single-Page Application (SPA) located in `fronten
 
 This compiles:
 1. Tailwind utility classes from `styles/input.css` into `frontend/src/tailwind.css`.
-2. Svelte 5 components and styles into a **single unified CSS bundle** (`dist/assets/index-[hash].css`) and JS bundle (`dist/assets/index-[hash].js`).
+2. Svelte 5 components and styles into a **unified stylesheet** (`dist/assets/app.css`) and JS bundle (`dist/assets/index-[hash].js`).
 3. Output directory: `frontend/dist/`.
 
 ### Step B: Build the Rust Backend
@@ -102,6 +103,7 @@ PORT=9090 cargo run
 | :--- | :--- | :--- |
 | `http://localhost:8080/` | Main Interactive Calculation Sandbox & Audit Interface | Public (GET) |
 | `http://localhost:8080/docs` | Interactive Scalar API Reference (zero-CDN self-hosted) | Public (GET) |
+| `http://localhost:8080/licenses` | Third-Party Software Licenses Web Page | Public (GET) |
 | `http://localhost:8080/assets/:filename` | Bundled Static Frontend & Scalar Assets | Public (GET) |
 | `http://localhost:8080/api/v1/calculate-liability` | Core Statutory Calculation REST Endpoint | Public (POST) |
 | `http://localhost:8080/api/v1/reference-codes` | Statutory Reference Codes & Allowable Values Catalog | Public (GET) |
@@ -110,10 +112,10 @@ PORT=9090 cargo run
 | `http://localhost:8080/api/v1/parameters/sbrr-thresholds` | SBRR / SBBS Statutory Thresholds Catalog | Public (GET) |
 | `http://localhost:8080/api/v1/parameters/sector-reliefs` | Devolved Sector Relief Schemes Catalog | Public (GET) |
 | `http://localhost:8080/api/v1/parameters/transitional-caps` | Statutory Transitional Phasing Caps Catalog | Public (GET) |
+| `http://localhost:8080/api/v1/licenses` | Third-Party Licenses (Markdown or JSON format) | Public (GET) |
 | `http://localhost:8080/api/v1/openapi.json` | OpenAPI 3.1.0 Specification (JSON format) | Public (GET) |
 | `http://localhost:8080/api/v1/openapi.yaml` | OpenAPI 3.1.0 Specification (YAML format) | Public (GET) |
-
-> **Migrating from an earlier version?** See [MIGRATION.md](MIGRATION.md) for route deprecation notices and canonical URL mappings.
+| `http://localhost:8080/healthz` | Service Health Check | Public (GET) |
 
 ---
 
@@ -139,7 +141,7 @@ For live code editing with instant Hot Module Replacement:
 Run the test suite verifying multi-jurisdiction calculations, multi-occupancy slicing, Section 44A apportionments, 4-language i18n, parameter endpoints, Scalar documentation, and OWASP security headers:
 
 ```bash
-# Run all 78 integration tests
+# Run all 83 integration tests
 cargo test
 
 # Run tests with detailed backtrace on failure
@@ -564,6 +566,18 @@ open http://localhost:8080/docs
 open "http://localhost:8080/docs?theme=kepler&layout=modern"
 ```
 
+### 6. Third-Party Licenses & Health Check
+```bash
+# Fetch third-party licenses web page
+curl -s http://localhost:8080/licenses
+
+# Fetch raw third-party licenses Markdown
+curl -s http://localhost:8080/api/v1/licenses
+
+# Check service health status
+curl -s http://localhost:8080/healthz
+```
+
 ---
 
 ## 10. Project Directory Structure
@@ -574,13 +588,14 @@ business_rates_engine/
 │   ├── openapi.yaml              # OpenAPI 3.1.0 specification (YAML)
 │   └── openapi.json              # OpenAPI 3.1.0 specification (JSON)
 ├── templates/                    # Server-rendered HTML templates
+│   ├── licenses.html             # CSP-compliant third-party licenses template
 │   └── scalar.html               # Configurable, offline Scalar UI template
 ├── frontend/                     # Modern Svelte 5 SPA framework
 │   ├── public/assets/            # Self-hosted static assets (scalar.js)
 │   ├── src/
 │   │   ├── components/           # UI Components (Navbar, S.44A Table, Matrix, Catalogs)
 │   │   ├── stores/               # Reactive calculation & form state ($state Runes)
-│   │   ├── i18n/                 # Dictionaries (en, cy, sco, gd)
+│   │   ├── locales/              # i18n Catalogs (en, cy, sco, gd JSON)
 │   │   └── types/                # TypeScript statutory interfaces
 │   ├── vite.config.ts            # Vite 6 configuration (with API proxy)
 │   └── package.json
@@ -594,15 +609,18 @@ business_rates_engine/
 │   ├── lib.rs
 │   └── main.rs                   # Server entrypoint (supports PORT env var)
 ├── tests/
-│   ├── fixtures/                 # Pre-configured test scenario JSON files (Scenarios 1-5)
-│   └── integration_tests.rs      # Complete test suite (45 passing tests)
-├── scripts/                      # Build & toolchain helper scripts
-│   └── ensure-tailwind.sh        # Pinned, verified standalone Tailwind CLI downloader
+│   ├── fixtures/                 # Pre-configured test scenario JSON files (Scenarios 1-11)
+│   └── integration_tests.rs      # Complete test suite (83 passing tests)
+├── scripts/                      # Build, licensing & toolchain helper scripts
+│   ├── check-licenses.js         # License compliance validator
+│   ├── generate-licenses.js      # License catalog & attribution generator
+│   ├── generate-sbom.sh          # CycloneDX SBOM generator script
+│   └── ensure-tailwind.sh        # Pinned standalone Tailwind CLI downloader
 ├── build-frontend.sh             # Build script for Svelte 5 frontend (Tailwind + Vite bundle)
 ├── watch-css.sh                  # Tailwind CSS watch mode for Vite development
 ├── setup-node.sh                 # Local Node.js environment setup helper
 ├── LICENSE.md                    # MIT License specification
-├── MIGRATION.md                  # Route deprecations & migration guide
+├── THIRD_PARTY_LICENSES.md       # Third-party open-source attribution notices
 ├── Dockerfile                    # Multi-stage production container build (Podman / Docker)
 └── Cargo.toml                    # Rust dependencies & package manifest
 ```

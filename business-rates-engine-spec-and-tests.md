@@ -151,14 +151,18 @@ The system operates with a decoupled modern architecture:
 │                                                                        │
 │   GET  /                                -> Svelte 5 SPA index.html     │
 │   GET  /docs                            -> Scalar API Reference (HTML) │
-│   GET  /assets/:filename                -> Vite Assets / scalar.js     │
+│   GET  /licenses                        -> Third-Party Licenses (HTML) │
+│   GET  /healthz                         -> Service Health Check (JSON) │
+│   GET  /assets/:filename                -> Bundled Assets / scalar.js  │
 │   POST /api/v1/calculate-liability      -> Statutory Calculation API   │
 │   GET  /api/v1/reference-codes          -> Statutory Reference Codes   │
 │   GET  /api/v1/parameters               -> Aggregated Parameter Repo   │
-│   GET  /api/v1/parameters/multipliers   -> Rating Multipliers (93-27)  │
+│   GET  /api/v1/parameters/multipliers   -> Rating Multipliers (90-27)  │
 │   GET  /api/v1/parameters/sbrr-thresholds                              │
 │   GET  /api/v1/parameters/sector-reliefs                               │
 │   GET  /api/v1/parameters/transitional-caps                            │
+│   GET  /api/v1/licenses                 -> Licenses Markdown / JSON    │
+│   GET  /api/v1/healthz                  -> Service Health Check (JSON) │
 │   GET  /api/v1/openapi.json             -> OpenAPI 3.1.0 Spec (JSON)   │
 │   GET  /api/v1/openapi.yaml             -> OpenAPI 3.1.0 Spec (YAML)   │
 │                                                                        │
@@ -214,7 +218,7 @@ All HTTP responses (HTML web pages, API JSON responses, static assets, and error
 | `Cross-Origin-Resource-Policy` | `same-origin` | Restricts cross-origin resource sharing. |
 | `X-Permitted-Cross-Domain-Policies` | `none` | Blocks Flash/PDF policy leaks. |
 
-> **Route-Scoped Style CSP Policy:** The `/docs` and `/scalar` reference routes scope `style-src 'self' 'unsafe-inline'` exclusively to accommodate Scalar's dynamic CSS variable theme injection, while strictly retaining `script-src 'self'` (zero `'unsafe-inline'` scripts and zero CDN origins).
+> **Route-Scoped Style CSP Policy:** The `/docs` reference route scopes `style-src 'self' 'unsafe-inline'` exclusively to accommodate Scalar's dynamic CSS variable theme injection, while strictly retaining `script-src 'self'` (zero `'unsafe-inline'` scripts and zero CDN origins). All other routes enforce strict `style-src 'self'`.
 
 ---
 
@@ -456,9 +460,9 @@ The in-memory parameter repository and statutory documentation are exposed direc
 
 ## 4. Test Cases Specification & Scenario Fixtures
 
-### Test Suite Overview (78 Passing Integration Tests)
+### Test Suite Overview (83 Passing Integration Tests)
 
-The test suite in [`tests/integration_tests.rs`](tests/integration_tests.rs) rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, and web security:
+The test suite in [`tests/integration_tests.rs`](tests/integration_tests.rs) rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security:
 
 - **Suite A: Canonical Multi-Jurisdiction Scenario Fixture Tests (Scenarios 1–11)**:
   - `test_scenario_1_england_sbrr_and_rhl_multi_year` (`scenario_1_sbrr_rhl_england.json`): Multi-year slicing (2025/26 & 2026/27), SBRR linear taper, England 2026/27 RHL expiration verification, and Transitional Relief caps.
@@ -492,15 +496,20 @@ The test suite in [`tests/integration_tests.rs`](tests/integration_tests.rs) rig
   - `test_http_calculate_liability_bad_payload_error`: Validates HTTP 422 `PAYLOAD_DESERIALIZATION_ERROR` response on malformed JSON payload.
   - `test_domain_error_status_codes_and_codes`: Verifies strongly-typed `AppError` status codes and error identifiers (`InvalidOccupationPeriod` -> 400 `INVALID_OCCUPATION_PERIOD`, `PayloadDeserialization` -> 422 `PAYLOAD_DESERIALIZATION_ERROR`).
 
-- **Suite D: Reference Codes, Parameter Resolution & Public API Access**:
+- **Suite D: Reference Codes, Parameter Resolution, Public API Access & Compliance**:
   - `test_app_state_repository_access`: Validates thread-safe parameter repository access on `AppState`.
   - `test_zero_hardcoding_historical_multipliers_1990_to_2026`: Complete verification of English, Welsh, and Scottish rating multipliers from 1990 to 2026.
   - `test_preseeded_reference_codes_and_allowable_values`: Pre-seeded values for jurisdictions, party types, and reliefs.
-  - `test_http_reference_codes_endpoints`: Validates public `GET /api/v1/reference-codes` and verifies legacy prefix path `/api/v1/business-rates/reference-codes` returns `404 NOT FOUND`.
-  - `test_http_calculate_liability_unauthenticated_access`: Verifies calculation succeeds on `POST /api/v1/calculate-liability` without requiring authorization headers, and confirms legacy path `/api/v1/business-rates/calculate-liability` returns `404 NOT FOUND`.
-  - `test_http_sso_endpoints`: Verifies removed SSO endpoints (`/api/v1/auth/sso/login`, `/api/v1/auth/sso/callback`) return `404 NOT FOUND`.
+  - `test_http_reference_codes_endpoints`: Validates public `GET /api/v1/reference-codes` and verifies unmapped prefix path `/api/v1/business-rates/reference-codes` returns `404 NOT FOUND`.
+  - `test_http_calculate_liability_unauthenticated_access`: Verifies calculation succeeds on `POST /api/v1/calculate-liability` without requiring authorization headers, and confirms unmapped path `/api/v1/business-rates/calculate-liability` returns `404 NOT FOUND`.
+  - `test_http_sso_endpoints`: Verifies unmapped SSO endpoints (`/api/v1/auth/sso/login`, `/api/v1/auth/sso/callback`) return `404 NOT FOUND`.
   - `test_http_parameters_endpoints`: Validates all 5 parameter catalog endpoints (`/api/v1/parameters`, `/api/v1/parameters/multipliers`, `/api/v1/parameters/sbrr-thresholds`, `/api/v1/parameters/sector-reliefs`, `/api/v1/parameters/transitional-caps`) return valid HTTP 200 JSON arrays.
   - `test_openapi_and_swagger_endpoints`: Validates OpenAPI 3.1.0 specifications (`/api/v1/openapi.json`, `/api/v1/openapi.yaml`), `/docs` Scalar HTML rendering with query parameter templating (`title`, `spec_url`, `theme`, `layout`), self-hosted zero-CDN `scalar.js`, and confirms unsupported documentation aliases (`/scalar`, `/api-reference`, `/swagger`, `/swagger-ui`) return `404 NOT FOUND`.
+  - `test_licenses_endpoint`: Validates `GET /licenses` serves the third-party software licenses HTML interface styled with unified `/assets/app.css` under CSP.
+  - `test_api_v1_licenses_endpoint`: Validates `GET /api/v1/licenses` serves third-party license data in JSON format or content-negotiated responses.
+  - `test_licenses_markdown_format`: Validates `GET /api/v1/licenses?format=markdown` returns the complete third-party licenses Markdown document.
+  - `test_health_check_endpoint`: Validates root `GET /healthz` returns `{"status":"ok"}`.
+  - `test_api_v1_health_check_endpoint`: Validates `GET /api/v1/healthz` returns `{"status":"ok"}`.
 
 - **Suite E: Statutory Relief Extensions & Devolved Sector Schemes**:
   - `test_statutory_heat_network_exemption`: NDRA 2023 s.2 100% heat network discount.
@@ -563,7 +572,7 @@ To build, verify, and run the project:
 # 1. Compile the Svelte 5 frontend component framework with Vite
 ./build-frontend.sh
 
-# 2. Run the automated test suite (78 integration tests)
+# 2. Run the automated test suite (83 integration tests)
 cargo test --test integration_tests
 
 # 3. Start the HTTP API & Single-Page Application server (default port 8080)
@@ -588,4 +597,7 @@ open http://localhost:8080/
 
 # 8. Access the Interactive Scalar API Reference in your browser
 open http://localhost:8080/docs
+
+# 9. Access Third-Party Software Licenses in your browser
+open http://localhost:8080/licenses
 ```
