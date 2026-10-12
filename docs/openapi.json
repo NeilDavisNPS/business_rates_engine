@@ -3,7 +3,7 @@
   "info": {
     "title": "Business Rates Statutory Calculation Engine API",
     "version": "1.0.0",
-    "description": "# Business Rates Statutory Calculation Engine (1993\u20132027)\n\nThe **Business Rates Statutory Calculation Engine** is a deterministic, microsecond-latency billing engine for non-domestic property rating across the United Kingdom, implementing primary and secondary legislation for:\n- **England**: *Local Government Finance Act 1988 (LGFA 1988)* & *Non-Domestic Rating Act 2023 (NDRA 2023)*\n- **Wales**: *Local Government Finance (Wales) Act 2024 (LGF(W)A 2024)* & Welsh Statutory Instruments\n- **Scotland**: *Non-Domestic Rates (Scotland) Act 2020*, Three-tier multipliers & Small Business Bonus Scheme (SBBS)\n\n## Key Capabilities\n- **Multi-Year Rating Liability**: Exact day-by-day leap-year calculation (365/366-day apportionments) from 1993/94 through 2026/27+.\n- **Multi-Occupancy Episodes**: Support for multiple successive occupiers, vacant periods, and Section 44A part-occupied apportionments on a single hereditament.\n- **Devolved Relief Schemes**:\n  - Mandatory Small Business Rate Relief (SBRR / SBBS) with non-linear/linear tapers.\n  - Mandatory 80% Charitable Relief and Community Amateur Sports Clubs (CASC) relief.\n  - Retail, Hospitality & Leisure (RHL) relief (75%, 40%, 35%) with statutory cash cap enforcement (\u00a3110,000.00).\n  - Rural Settlement Relief (100% mandatory).\n  - Heat Network & Public Lavatory statutory 100% exemptions.\n  - NDRA 2023 Improvement Relief G-factor RV exclusions.\n  - Section 45 Unoccupied property exemptions (3-month commercial, 6-month industrial, low-value \u00a32,900 threshold).\n  - Section 63B Welsh Artificial Avoidance punitive penalties.\n- **Multilingual Support**: First-class localized narrative auditing and error reporting in English (`en`), Welsh (`cy`), Scots (`sco`), and Scottish Gaelic (`gd`).\n",
+    "description": "# Business Rates Statutory Calculation Engine (1993–2027)\n\nThe **Business Rates Statutory Calculation Engine** is a deterministic, microsecond-latency billing engine for non-domestic property rating across the United Kingdom, implementing primary and secondary legislation for:\n- **England**: *Local Government Finance Act 1988 (LGFA 1988)* & *Non-Domestic Rating Act 2023 (NDRA 2023)*\n- **Wales**: *Local Government Finance (Wales) Act 2024 (LGF(W)A 2024)* & Welsh Statutory Instruments\n- **Scotland**: *Non-Domestic Rates (Scotland) Act 2020*, Three-tier multipliers & Small Business Bonus Scheme (SBBS)\n\n## Key Capabilities\n- **Multi-Year Rating Liability**: Exact day-by-day leap-year calculation (365/366-day apportionments) from 1993/94 through 2026/27+.\n- **Multi-Occupancy Episodes**: Support for multiple successive occupiers, vacant periods, and Section 44A part-occupied apportionments on a single hereditament.\n- **Devolved Relief Schemes**:\n  - Mandatory Small Business Rate Relief (SBRR / SBBS) with non-linear/linear tapers.\n  - Mandatory 80% Charitable Relief and Community Amateur Sports Clubs (CASC) relief.\n  - Retail, Hospitality & Leisure (RHL) relief (75%, 40%, 35%) with statutory cash cap enforcement (£110,000.00).\n  - Rural Settlement Relief (100% mandatory).\n  - Heat Network & Public Lavatory statutory 100% exemptions.\n  - NDRA 2023 Improvement Relief G-factor RV exclusions.\n  - Section 45 Unoccupied property exemptions (3-month commercial, 6-month industrial, low-value £2,900 threshold).\n  - Section 63B Welsh Artificial Avoidance punitive penalties.\n- **Multilingual Support**: First-class localized narrative auditing and error reporting in English (`en`), Welsh (`cy`), Scots (`sco`), and Scottish Gaelic (`gd`).\n",
     "contact": {
       "name": "Business Rates Engine Team",
       "email": "mark.st.stanley@gmail.com",
@@ -90,16 +90,72 @@
                     "occupancy_type": "OCCUPIED",
                     "qualifying_relief_flags": {
                       "is_small_business_sole_property": true,
+                      "is_small_business_second_property_grace": false,
                       "is_charitable_purposes": false,
                       "is_rhl_qualifying": false,
+                      "is_retail_premises": false,
+                      "is_island_property": false,
                       "is_rural_settlement": false,
+                      "is_telecommunications_infrastructure": false,
+                      "is_charity_discretionary_top_up": false,
+                      "is_renewable_energy_generation": false,
                       "is_public_lavatory": false,
                       "is_heat_network": false,
                       "qualifying_improvement_rv_increment": 0.0,
                       "is_industrial_hereditament": false,
                       "days_previously_unoccupied": null,
                       "is_artificial_avoidance_suspected": false,
-                      "holiday_let_actual_days_let": null
+                      "holiday_let_actual_days_let": null,
+                      "is_sbbs_tr_qualifying": false,
+                      "is_ssbr_qualifying": false,
+                      "payment_installments_count": 10,
+                      "apply_transitional_relief": true
+                    },
+                    "language": "en"
+                  }
+                },
+                "rural_settlement_audit": {
+                  "summary": "Rural Settlement Evaluation with 12 Monthly Statutory Installments Schedule",
+                  "value": {
+                    "party_type": "CORPORATE",
+                    "occupation_period": {
+                      "start_date": "2024-04-01",
+                      "end_date": "2027-03-31"
+                    },
+                    "hereditament": {
+                      "jurisdiction": "ENGLAND",
+                      "scat_code": "091",
+                      "rateable_value_history": [
+                        {
+                          "effective_from": "2023-04-01",
+                          "effective_to": null,
+                          "rateable_value": 45000.0
+                        }
+                      ]
+                    },
+                    "occupancy_type": "OCCUPIED",
+                    "qualifying_relief_flags": {
+                      "is_small_business_sole_property": false,
+                      "is_small_business_second_property_grace": false,
+                      "is_charitable_purposes": false,
+                      "is_rhl_qualifying": false,
+                      "is_retail_premises": false,
+                      "is_island_property": false,
+                      "is_rural_settlement": true,
+                      "is_telecommunications_infrastructure": false,
+                      "is_charity_discretionary_top_up": false,
+                      "is_renewable_energy_generation": false,
+                      "is_public_lavatory": false,
+                      "is_heat_network": false,
+                      "qualifying_improvement_rv_increment": 0.0,
+                      "is_industrial_hereditament": false,
+                      "days_previously_unoccupied": null,
+                      "is_artificial_avoidance_suspected": false,
+                      "holiday_let_actual_days_let": null,
+                      "is_sbbs_tr_qualifying": false,
+                      "is_ssbr_qualifying": false,
+                      "payment_installments_count": 12,
+                      "apply_transitional_relief": true
                     },
                     "language": "en"
                   }
@@ -188,7 +244,7 @@
     "/api/v1/parameters": {
       "get": {
         "summary": "Get All Seeded Statutory Parameters",
-        "description": "Retrieves all four seeded in-memory parameter catalogs (multipliers 1993\u20132027, SBRR/SBBS tapers, devolved sector reliefs, and transitional phasing caps) in a single fast JSON response.",
+        "description": "Retrieves all four seeded in-memory parameter catalogs (multipliers 1993–2027, SBRR/SBBS tapers, devolved sector reliefs, and transitional phasing caps) in a single fast JSON response.",
         "operationId": "getAllParameters",
         "tags": [
           "Reference Data & Parameters"
@@ -209,7 +265,7 @@
     },
     "/api/v1/parameters/multipliers": {
       "get": {
-        "summary": "Query Statutory Rating Multipliers (1993\u20132027)",
+        "summary": "Query Statutory Rating Multipliers (1993–2027)",
         "description": "Returns all statutory rating multipliers across England (Standard & Small Business), Wales (Standard & Differential), and Scotland (Basic, Intermediate/Standard, Higher) from 1993/94 through 2026/27.",
         "operationId": "getMultipliers",
         "tags": [
@@ -260,7 +316,7 @@
     "/api/v1/parameters/sector-reliefs": {
       "get": {
         "summary": "Query Devolved Sector Relief Schemes (RHL)",
-        "description": "Returns Retail, Hospitality & Leisure (RHL) relief schemes, discount percentages (75%, 40%, 35%), and statutory business cash caps (\u00a3110,000.00).",
+        "description": "Returns Retail, Hospitality & Leisure (RHL) relief schemes, discount percentages (75%, 40%, 35%), and statutory business cash caps (£110,000.00).",
         "operationId": "getSectorReliefs",
         "tags": [
           "Reference Data & Parameters"
@@ -300,6 +356,50 @@
                   "items": {
                     "$ref": "#/components/schemas/ParamTransitionalCap"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/openapi.json": {
+      "get": {
+        "summary": "Fetch OpenAPI 3.1 Specification in JSON Format",
+        "description": "Returns the formal OpenAPI 3.1.0 specification defining all schemas, parameters, endpoints, and error responses in JSON format.",
+        "operationId": "getOpenApiJson",
+        "tags": [
+          "Reference Data & Parameters"
+        ],
+        "responses": {
+          "200": {
+            "description": "OpenAPI 3.1.0 specification JSON document.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/openapi.yaml": {
+      "get": {
+        "summary": "Fetch OpenAPI 3.1 Specification in YAML Format",
+        "description": "Returns the formal OpenAPI 3.1.0 specification defining all schemas, parameters, endpoints, and error responses in YAML format.",
+        "operationId": "getOpenApiYaml",
+        "tags": [
+          "Reference Data & Parameters"
+        ],
+        "responses": {
+          "200": {
+            "description": "OpenAPI 3.1.0 specification YAML document.",
+            "content": {
+              "text/yaml": {
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -383,7 +483,7 @@
             "type": "number",
             "format": "double",
             "example": 45000.0,
-            "description": "Certified Rateable Value (\u00a3 GBP) as compiled on the local rating list."
+            "description": "Certified Rateable Value (£ GBP) as compiled on the local rating list."
           }
         }
       },
@@ -441,32 +541,62 @@
           "is_small_business_sole_property": {
             "type": "boolean",
             "default": false,
-            "description": "True if hereditament is the sole commercial property occupied in England/Wales."
+            "description": "True if hereditament is the sole commercial property occupied in England/Wales (LGFA 1988 s.43(4B))."
+          },
+          "is_small_business_second_property_grace": {
+            "type": "boolean",
+            "default": false,
+            "description": "True if hereditament qualifies for the 12-month small business second property grace period under SI 2017/411 art. 3(4)."
           },
           "is_charitable_purposes": {
             "type": "boolean",
             "default": false,
-            "description": "True if occupied by a registered charity wholly or mainly for charitable purposes (80% mandatory relief)."
+            "description": "True if occupied by a registered charity wholly or mainly for charitable purposes (80% mandatory relief under LGFA 1988 s.43(5) or LG(R)S 1962 s.4(2))."
           },
           "is_rhl_qualifying": {
             "type": "boolean",
             "default": false,
             "description": "True if property qualifies under Retail, Hospitality and Leisure scheme criteria."
           },
+          "is_retail_premises": {
+            "type": "boolean",
+            "default": false,
+            "description": "True if property qualifies as retail premises under NDRA 2023 for 2026/27 permanent lower multipliers in England."
+          },
+          "is_island_property": {
+            "type": "boolean",
+            "default": false,
+            "description": "True if hereditament is located on a Scottish island designated under Islands (Scotland) Act 2018 (qualifying for 100% island relief / RHL)."
+          },
           "is_rural_settlement": {
             "type": "boolean",
             "default": false,
-            "description": "True if situated in a designated rural settlement with population below 3,000 (sole village shop/pub)."
+            "description": "True if situated in a designated rural settlement with population below 3,000 (sole village shop, post office, food shop, or pub under LGFA 1988 s.43(6A))."
+          },
+          "is_telecommunications_infrastructure": {
+            "type": "boolean",
+            "default": false,
+            "description": "True if qualifying new telecommunications infrastructure under Telecommunications Infrastructure (Relief from Non-Domestic Rates) Act 2018 / SSI 2019/111 (100% mandatory relief)."
+          },
+          "is_charity_discretionary_top_up": {
+            "type": "boolean",
+            "default": false,
+            "description": "True if billing authority has awarded up to 20% discretionary top-up relief to a charity or CASC under LGFA 1988 s.47(2)(a) / 1962 Act s.4(5)."
+          },
+          "is_renewable_energy_generation": {
+            "type": "boolean",
+            "default": false,
+            "description": "True if qualifying renewable energy generation project in Scotland under Non-Domestic Rates (Renewable Energy Generation Relief) (Scotland) Regulations 2010 (SSI 2010/336)."
           },
           "is_public_lavatory": {
             "type": "boolean",
             "default": false,
-            "description": "True if exclusively used as a public lavatory (100% mandatory exemption)."
+            "description": "True if exclusively used as a public lavatory (100% mandatory statutory exemption under Non-Domestic Rating (Public Lavatories) Act 2021)."
           },
           "is_heat_network": {
             "type": "boolean",
             "default": false,
-            "description": "True if qualifying low-carbon district heating network hereditament (100% exemption)."
+            "description": "True if qualifying low-carbon district heating network hereditament (100% exemption under NDRA 2023 / SSI 2023/45)."
           },
           "qualifying_improvement_rv_increment": {
             "type": "number",
@@ -477,7 +607,7 @@
           "is_industrial_hereditament": {
             "type": "boolean",
             "default": false,
-            "description": "True if property is industrial or storage warehouse (qualifies for 6 months empty exemption)."
+            "description": "True if property is industrial or storage warehouse (qualifies for 6 months empty property exemption under SI 2008/386)."
           },
           "days_previously_unoccupied": {
             "type": "integer",
@@ -487,12 +617,37 @@
           "is_artificial_avoidance_suspected": {
             "type": "boolean",
             "default": false,
-            "description": "Wales Section 63B artificial avoidance trigger (imposes 50% statutory penalty)."
+            "description": "Wales Section 63B artificial avoidance trigger under LGF(W)A 2024 (imposes statutory penalty)."
           },
           "holiday_let_actual_days_let": {
             "type": "integer",
             "nullable": true,
-            "description": "Actual days let out in the preceding 12 months (Scotland self-catering 70/140 day test)."
+            "description": "Actual days let out in the preceding 12 months (Scotland self-catering 70/140 day statutory test)."
+          },
+          "is_sbbs_tr_qualifying": {
+            "type": "boolean",
+            "default": false,
+            "description": "True if qualifying for Scottish Small Business Bonus Scheme Transitional Relief (SBBS TR) capping bill increases under SSI 2023/45."
+          },
+          "is_ssbr_qualifying": {
+            "type": "boolean",
+            "default": false,
+            "description": "True if qualifying for Supporting Small Business Relief (SSBR) in England capping annual increases to £600/£800 under LGFA 1988 s.47."
+          },
+          "payment_installments_count": {
+            "type": "integer",
+            "nullable": true,
+            "enum": [
+              10,
+              12
+            ],
+            "description": "Statutory monthly installment schedule under Non-Domestic Rating (Collection and Enforcement) Regulations 1989 (SI 1989/1058, 10 installments default) or Local Government Act 2003 / SI 2014/466 (12 installments statutory right)."
+          },
+          "apply_transitional_relief": {
+            "type": "boolean",
+            "nullable": true,
+            "default": true,
+            "description": "Whether to apply statutory transitional phasing relief calculation under transitional relief regulations. Defaults to true."
           }
         }
       },
@@ -686,6 +841,33 @@
           }
         }
       },
+      "StatutoryInstallment": {
+        "type": "object",
+        "required": [
+          "installment_number",
+          "due_date",
+          "amount"
+        ],
+        "properties": {
+          "installment_number": {
+            "type": "integer",
+            "example": 1,
+            "description": "Sequential installment index (1 to 10, or 1 to 12)."
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date",
+            "example": "2024-05-01",
+            "description": "Statutory due date for the installment (YYYY-MM-DD)."
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "example": 563.2,
+            "description": "Statutory apportioned installment amount (£ GBP)."
+          }
+        }
+      },
       "AnnualBillingSegment": {
         "type": "object",
         "required": [
@@ -738,6 +920,14 @@
             "items": {
               "$ref": "#/components/schemas/StatutoryPenalty"
             }
+          },
+          "statutory_installments": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/StatutoryInstallment"
+            },
+            "description": "Schedule of statutory monthly installment payments apportioned over the billing segment under SI 1989/1058 or SI 2014/466."
           },
           "occupancy_type": {
             "$ref": "#/components/schemas/OccupancyType"
@@ -851,7 +1041,7 @@
           },
           "calculation_narrative": {
             "type": "string",
-            "description": "Statutory legal explanation and narrative breakdown of calculations."
+            "description": "Comprehensive statutory legal audit narrative detailing calculation breakdown, statutory citations (LGFA 1988, NDRA 2023, LGF(W)A 2024, NDR(S)A 2020), formula apportionments, applied reliefs, and statutory audit justification for unawarded or disqualified reliefs across all supported languages (English, Welsh, Scots, Scottish Gaelic)."
           }
         }
       },
