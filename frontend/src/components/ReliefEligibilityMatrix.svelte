@@ -378,21 +378,19 @@
       {/if}
 
       <!-- Statutory Installment Schedule Plan (SI 1989/1058 Sched 1 / LGA 2003) -->
-      <div class="p-2.5 rounded-lg border border-slate-200 space-y-1">
-        <div class="flex justify-between items-center">
-          <label for="installmentsPlanSelect" class="text-xs font-bold text-slate-900 block">
-            Statutory Installment Plan
-          </label>
-          <select
-            id="installmentsPlanSelect"
-            bind:value={calcStore.qualifyingReliefFlags.payment_installments_count}
-            onchange={onFlagChange}
-            class="px-2 py-1 text-xs border border-slate-300 rounded font-bold text-slate-800 bg-white"
-          >
-            <option value={10}>10 Monthly Installments (Default)</option>
-            <option value={12}>12 Monthly Installments (Statutory Right)</option>
-          </select>
-        </div>
+      <div class="p-2.5 rounded-lg border border-slate-200 space-y-1.5">
+        <label for="installmentsPlanSelect" class="text-xs font-bold text-slate-900 block">
+          Statutory Installment Plan
+        </label>
+        <select
+          id="installmentsPlanSelect"
+          bind:value={calcStore.qualifyingReliefFlags.payment_installments_count}
+          onchange={onFlagChange}
+          class="w-full max-w-full px-2 py-1 text-xs border border-slate-300 rounded font-bold text-slate-800 bg-white cursor-pointer focus:ring-1 focus:ring-blue-500"
+        >
+          <option value={10}>10 Monthly Installments (Default)</option>
+          <option value={12}>12 Monthly Installments (Statutory Right)</option>
+        </select>
         <p class="text-[11px] text-slate-500">
           Statutory payment schedule under SI 1989/1058 (10 months May–Feb) or ratepayer right to 12 months (Apr–Mar under LGA 2003 / SI 2014/466).
         </p>
