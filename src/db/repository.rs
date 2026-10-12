@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use crate::models::calculation::{MultiplierInfo, ParameterVersionIds};
 use crate::models::enums::Jurisdiction;
 
-/// Represents a row in the param_multiplier table (1993–2027)
+/// Represents a row in the param_multiplier table (1990–2027)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ParamMultiplier {
     pub parameter_id: String,
@@ -91,7 +91,7 @@ pub struct ParamReferenceCode {
     pub display_order: i32,
 }
 
-/// In-memory parameter repository seeded with GB rating parameters (1993–2027)
+/// In-memory parameter repository seeded with GB rating parameters (1990–2027)
 #[derive(Clone, Debug)]
 pub struct ParameterRepository {
     multipliers: Vec<ParamMultiplier>,
@@ -277,7 +277,7 @@ impl ParameterRepository {
                     if range.is_zero() {
                         record.relief_percentage
                     } else {
-                        ((record.max_rv - rv) / range * dec!(100.00)).round_dp(2)
+                        ((record.max_rv - rv) / range * record.relief_percentage).round_dp(2)
                     }
                 } else {
                     record.relief_percentage
@@ -287,17 +287,41 @@ impl ParameterRepository {
                     Jurisdiction::ENGLAND => (
                         "SBRR",
                         "Small Business Rate Relief",
-                        "LGFA 1988 s.43(4B) / NDRA 2023",
+                        if financial_year >= "2023/24" {
+                            "LGFA 1988 s.43(4B) / NDRA 2023"
+                        } else if financial_year >= "2017/18" {
+                            "LGFA 1988 s.43(4B) / SI 2017/411"
+                        } else if financial_year >= "2010/11" {
+                            "LGFA 1988 s.43(4B) / SI 2010/1959"
+                        } else {
+                            "LGFA 1988 s.43(4B) / SI 2004/3315"
+                        },
                     ),
                     Jurisdiction::WALES => (
                         "SBRR_WALES",
                         "Welsh Small Business Rates Relief",
-                        "Local Government Finance (Wales) Act 2024",
+                        if financial_year >= "2024/25" {
+                            "Local Government Finance (Wales) Act 2024"
+                        } else if financial_year >= "2018/19" {
+                            "WSI 2017/1229 (W.293)"
+                        } else if financial_year >= "2010/11" {
+                            "WSI 2010/248 (W.34)"
+                        } else {
+                            "WSI 2008/707 (W.75)"
+                        },
                     ),
                     Jurisdiction::SCOTLAND => (
                         "SBBS",
                         "Small Business Bonus Scheme",
-                        "Council Tax (Dwellings) (Scotland) Regs 2026",
+                        if financial_year >= "2023/24" {
+                            "Council Tax (Dwellings) (Scotland) Regs 2026"
+                        } else if financial_year >= "2017/18" {
+                            "SSI 2017/36"
+                        } else if financial_year >= "2010/11" {
+                            "SSI 2010/37"
+                        } else {
+                            "SSI 2008/106"
+                        },
                     ),
                 };
 
@@ -347,8 +371,12 @@ impl ParameterRepository {
             });
         };
 
-        // Historical 1993–2004 Standard Multipliers (England, Wales, Scotland)
+        // Historical 1989–2004 Standard Multipliers (England, Wales, Scotland)
         let hist_data = [
+            ("1989/90", dec!(0.348), dec!(0.368), dec!(0.410), "1989-04-01", "1990-03-31"),
+            ("1990/91", dec!(0.348), dec!(0.368), dec!(0.410), "1990-04-01", "1991-03-31"),
+            ("1991/92", dec!(0.386), dec!(0.386), dec!(0.448), "1991-04-01", "1992-03-31"),
+            ("1992/93", dec!(0.406), dec!(0.406), dec!(0.467), "1992-04-01", "1993-03-31"),
             ("1993/94", dec!(0.416), dec!(0.416), dec!(0.477), "1993-04-01", "1994-03-31"),
             ("1994/95", dec!(0.423), dec!(0.423), dec!(0.458), "1994-04-01", "1995-03-31"),
             ("1995/96", dec!(0.432), dec!(0.390), dec!(0.432), "1995-04-01", "1996-03-31"),
@@ -460,29 +488,83 @@ impl ParameterRepository {
             });
         };
 
-        // England SBRR (100% up to £12,000; tapered £12,001 to £15,000) for 2023/24 through 2026/27
+        // Note: Pre-2005 (1990/91 – 2004/05): SBRR did not exist in primary legislation
+        // (enacted by Local Government Act 2003 s.61, effective 1 April 2005).
+        // Pre-2005 calculations correctly resolve to None (0% discount).
+
+        // 2005 Revaluation List (2005/06 – 2009/10)
+        for fy in ["2005/06", "2006/07", "2007/08", "2008/09", "2009/10"] {
+            let start = format!("{}-04-01", &fy[0..4]);
+            let next_y: i32 = fy[0..4].parse::<i32>().unwrap() + 1;
+            let end = format!("{}-03-31", next_y);
+
+            // England (SI 2004/3315: 50% max relief up to £5,000; linear taper 50% to 0% between £5,001 and £10,000)
+            add(&format!("sbrr_eng_full_{}", fy), fy, Jurisdiction::ENGLAND, dec!(0.00), dec!(5000.00), dec!(50.00), false, &start, &end);
+            add(&format!("sbrr_eng_tap_{}", fy), fy, Jurisdiction::ENGLAND, dec!(5000.01), dec!(10000.00), dec!(50.00), true, &start, &end);
+
+            // Wales (WSI 2005/309 & WSI 2008/707: 50% up to £2,000; 25% for £2,001 to £5,000)
+            add(&format!("sbrr_wal_tier1_{}", fy), fy, Jurisdiction::WALES, dec!(0.00), dec!(2000.00), dec!(50.00), false, &start, &end);
+            add(&format!("sbrr_wal_tier2_{}", fy), fy, Jurisdiction::WALES, dec!(2000.01), dec!(5000.00), dec!(25.00), false, &start, &end);
+        }
+
+        // Scotland SBBS 2008/09 (SSI 2008/106: 80% <= £8k, 40% <= £10k, 20% <= £15k)
+        add("sbbs_sco_t1_2008/09", "2008/09", Jurisdiction::SCOTLAND, dec!(0.00), dec!(8000.00), dec!(80.00), false, "2008-04-01", "2009-03-31");
+        add("sbbs_sco_t2_2008/09", "2008/09", Jurisdiction::SCOTLAND, dec!(8000.01), dec!(10000.00), dec!(40.00), false, "2008-04-01", "2009-03-31");
+        add("sbbs_sco_t3_2008/09", "2008/09", Jurisdiction::SCOTLAND, dec!(10000.01), dec!(15000.00), dec!(20.00), false, "2008-04-01", "2009-03-31");
+
+        // Scotland SBBS 2009/10 (100% <= £8k, 50% <= £10k, 25% <= £15k)
+        add("sbbs_sco_t1_2009/10", "2009/10", Jurisdiction::SCOTLAND, dec!(0.00), dec!(8000.00), dec!(100.00), false, "2009-04-01", "2010-03-31");
+        add("sbbs_sco_t2_2009/10", "2009/10", Jurisdiction::SCOTLAND, dec!(8000.01), dec!(10000.00), dec!(50.00), false, "2009-04-01", "2010-03-31");
+        add("sbbs_sco_t3_2009/10", "2009/10", Jurisdiction::SCOTLAND, dec!(10000.01), dec!(15000.00), dec!(25.00), false, "2009-04-01", "2010-03-31");
+
+        // 2010 Revaluation List (2010/11 – 2016/17)
+        for fy in ["2010/11", "2011/12", "2012/13", "2013/14", "2014/15", "2015/16", "2016/17"] {
+            let start = format!("{}-04-01", &fy[0..4]);
+            let next_y: i32 = fy[0..4].parse::<i32>().unwrap() + 1;
+            let end = format!("{}-03-31", next_y);
+
+            // England (SI 2010/1959: statutory doubling to 100% up to £6,000; tapered £6,001 to £12,000)
+            add(&format!("sbrr_eng_full_{}", fy), fy, Jurisdiction::ENGLAND, dec!(0.00), dec!(6000.00), dec!(100.00), false, &start, &end);
+            add(&format!("sbrr_eng_tap_{}", fy), fy, Jurisdiction::ENGLAND, dec!(6000.01), dec!(12000.00), dec!(100.00), true, &start, &end);
+
+            // Wales (WSI 2010/248: 100% up to £6,000; tapered £6,001 to £12,000)
+            add(&format!("sbrr_wal_full_{}", fy), fy, Jurisdiction::WALES, dec!(0.00), dec!(6000.00), dec!(100.00), false, &start, &end);
+            add(&format!("sbrr_wal_tap_{}", fy), fy, Jurisdiction::WALES, dec!(6000.01), dec!(12000.00), dec!(100.00), true, &start, &end);
+
+            // Scotland SBBS (SSI 2010/37: 100% <= £10,000; 50% <= £12,000; 25% <= £18,000)
+            add(&format!("sbbs_sco_t1_{}", fy), fy, Jurisdiction::SCOTLAND, dec!(0.00), dec!(10000.00), dec!(100.00), false, &start, &end);
+            add(&format!("sbbs_sco_t2_{}", fy), fy, Jurisdiction::SCOTLAND, dec!(10000.01), dec!(12000.00), dec!(50.00), false, &start, &end);
+            add(&format!("sbbs_sco_t3_{}", fy), fy, Jurisdiction::SCOTLAND, dec!(12000.01), dec!(18000.00), dec!(25.00), false, &start, &end);
+        }
+
+        // 2017 Revaluation List (2017/18 – 2022/23)
+        for fy in ["2017/18", "2018/19", "2019/20", "2020/21", "2021/22", "2022/23"] {
+            let start = format!("{}-04-01", &fy[0..4]);
+            let next_y: i32 = fy[0..4].parse::<i32>().unwrap() + 1;
+            let end = format!("{}-03-31", next_y);
+
+            // England (SI 2017/411: 100% up to £12,000; tapered £12,001 to £15,000)
+            add(&format!("sbrr_eng_full_{}", fy), fy, Jurisdiction::ENGLAND, dec!(0.00), dec!(12000.00), dec!(100.00), false, &start, &end);
+            add(&format!("sbrr_eng_tap_{}", fy), fy, Jurisdiction::ENGLAND, dec!(12000.01), dec!(15000.00), dec!(100.00), true, &start, &end);
+
+            // Wales (WSI 2017/1229: 100% up to £6,000; tapered £6,001 to £12,000)
+            add(&format!("sbrr_wal_full_{}", fy), fy, Jurisdiction::WALES, dec!(0.00), dec!(6000.00), dec!(100.00), false, &start, &end);
+            add(&format!("sbrr_wal_tap_{}", fy), fy, Jurisdiction::WALES, dec!(6000.01), dec!(12000.00), dec!(100.00), true, &start, &end);
+
+            // Scotland SBBS (SSI 2017/36: 100% up to £15,000; 25% for £15,001 to £18,000)
+            add(&format!("sbbs_sco_full_{}", fy), fy, Jurisdiction::SCOTLAND, dec!(0.00), dec!(15000.00), dec!(100.00), false, &start, &end);
+            add(&format!("sbbs_sco_tap_{}", fy), fy, Jurisdiction::SCOTLAND, dec!(15000.01), dec!(18000.00), dec!(25.00), false, &start, &end);
+        }
+
+        // 2023 Revaluation List (2023/24 through 2026/27)
         for fy in ["2023/24", "2024/25", "2025/26", "2026/27"] {
             let start = format!("{}-04-01", &fy[0..4]);
             let next_y: i32 = fy[0..4].parse::<i32>().unwrap() + 1;
             let end = format!("{}-03-31", next_y);
             add(&format!("sbrr_eng_full_{}", fy), fy, Jurisdiction::ENGLAND, dec!(0.00), dec!(12000.00), dec!(100.00), false, &start, &end);
             add(&format!("sbrr_eng_tap_{}", fy), fy, Jurisdiction::ENGLAND, dec!(12000.01), dec!(15000.00), dec!(100.00), true, &start, &end);
-        }
-
-        // Wales SBRR (100% up to £6,000; tapered £6,001 to £12,000)
-        for fy in ["2023/24", "2024/25", "2025/26", "2026/27"] {
-            let start = format!("{}-04-01", &fy[0..4]);
-            let next_y: i32 = fy[0..4].parse::<i32>().unwrap() + 1;
-            let end = format!("{}-03-31", next_y);
             add(&format!("sbrr_wal_full_{}", fy), fy, Jurisdiction::WALES, dec!(0.00), dec!(6000.00), dec!(100.00), false, &start, &end);
             add(&format!("sbrr_wal_tap_{}", fy), fy, Jurisdiction::WALES, dec!(6000.01), dec!(12000.00), dec!(100.00), true, &start, &end);
-        }
-
-        // Scotland SBBS (100% up to £12,000; 25% for £12,001 to £15,000)
-        for fy in ["2023/24", "2024/25", "2025/26", "2026/27"] {
-            let start = format!("{}-04-01", &fy[0..4]);
-            let next_y: i32 = fy[0..4].parse::<i32>().unwrap() + 1;
-            let end = format!("{}-03-31", next_y);
             add(&format!("sbbs_sco_full_{}", fy), fy, Jurisdiction::SCOTLAND, dec!(0.00), dec!(12000.00), dec!(100.00), false, &start, &end);
             add(&format!("sbbs_sco_tap_{}", fy), fy, Jurisdiction::SCOTLAND, dec!(12000.01), dec!(15000.00), dec!(25.00), false, &start, &end);
         }
@@ -528,6 +610,110 @@ impl ParameterRepository {
                 upward_cap_percentage: cap,
             });
         };
+
+        // 1990 Revaluation List (1990/91 – 1994/95 under LGFA 1988)
+        // SI 1989/1358: Small <= £10,000 RV, Large > £10,000 RV
+        let list_1990 = [
+            ("1990/91", dec!(15.00), dec!(20.00)),
+            ("1991/92", dec!(15.00), dec!(20.00)),
+            ("1992/93", dec!(15.00), dec!(20.00)),
+            ("1993/94", dec!(15.00), dec!(20.00)),
+            ("1994/95", dec!(10.00), dec!(15.00)),
+        ];
+        for (fy, sm, lg) in list_1990 {
+            for jur in [Jurisdiction::ENGLAND, Jurisdiction::WALES] {
+                let pfx = if jur == Jurisdiction::ENGLAND { "eng" } else { "wal" };
+                add(&format!("tc_{}_sm_{}", pfx, fy), 1990, fy, jur, "SMALL", dec!(0.00), Some(dec!(10000.00)), sm);
+                add(&format!("tc_{}_lg_{}", pfx, fy), 1990, fy, jur, "LARGE", dec!(10000.01), None, lg);
+            }
+        }
+
+        // 1995 Revaluation List (1995/96 – 1999/00)
+        // SI 1994/3279: Small <= £10,000 RV, Large > £10,000 RV
+        let list_1995 = [
+            ("1995/96", dec!(10.00), dec!(20.00)),
+            ("1996/97", dec!(10.00), dec!(20.00)),
+            ("1997/98", dec!(15.00), dec!(20.00)),
+            ("1998/99", dec!(17.50), dec!(20.00)),
+            ("1999/00", dec!(20.00), dec!(20.00)),
+        ];
+        for (fy, sm, lg) in list_1995 {
+            for jur in [Jurisdiction::ENGLAND, Jurisdiction::WALES] {
+                let pfx = if jur == Jurisdiction::ENGLAND { "eng" } else { "wal" };
+                add(&format!("tc_{}_sm_{}", pfx, fy), 1995, fy, jur, "SMALL", dec!(0.00), Some(dec!(10000.00)), sm);
+                add(&format!("tc_{}_lg_{}", pfx, fy), 1995, fy, jur, "LARGE", dec!(10000.01), None, lg);
+            }
+        }
+
+        // 2000 Revaluation List (2000/01 – 2004/05)
+        // SI 1999/3379: Small <= £12,000 RV, Large > £12,000 RV
+        let list_2000 = [
+            ("2000/01", dec!(5.00), dec!(12.50)),
+            ("2001/02", dec!(7.50), dec!(15.00)),
+            ("2002/03", dec!(10.00), dec!(17.50)),
+            ("2003/04", dec!(12.50), dec!(20.00)),
+            ("2004/05", dec!(15.00), dec!(20.00)),
+        ];
+        for (fy, sm, lg) in list_2000 {
+            for jur in [Jurisdiction::ENGLAND, Jurisdiction::WALES] {
+                let pfx = if jur == Jurisdiction::ENGLAND { "eng" } else { "wal" };
+                add(&format!("tc_{}_sm_{}", pfx, fy), 2000, fy, jur, "SMALL", dec!(0.00), Some(dec!(12000.00)), sm);
+                add(&format!("tc_{}_lg_{}", pfx, fy), 2000, fy, jur, "LARGE", dec!(12000.01), None, lg);
+            }
+        }
+
+        // 2005 Revaluation List (2005/06 – 2009/10)
+        // SI 2004/3312 & WSI 2005/309: Small <= £15,000 RV, Large > £15,000 RV
+        let list_2005 = [
+            ("2005/06", dec!(5.00), dec!(12.50)),
+            ("2006/07", dec!(7.50), dec!(17.50)),
+            ("2007/08", dec!(10.00), dec!(20.00)),
+            ("2008/09", dec!(15.00), dec!(25.00)),
+            ("2009/10", dec!(20.00), dec!(30.00)),
+        ];
+        for (fy, sm, lg) in list_2005 {
+            for jur in [Jurisdiction::ENGLAND, Jurisdiction::WALES] {
+                let pfx = if jur == Jurisdiction::ENGLAND { "eng" } else { "wal" };
+                add(&format!("tc_{}_sm_{}", pfx, fy), 2005, fy, jur, "SMALL", dec!(0.00), Some(dec!(15000.00)), sm);
+                add(&format!("tc_{}_lg_{}", pfx, fy), 2005, fy, jur, "LARGE", dec!(15000.01), None, lg);
+            }
+        }
+
+        // 2010 Revaluation List (2010/11 – 2016/17)
+        // SI 2009/3343 & WSI 2010/248: Small <= £18k, Medium <= £50k, Large > £50k
+        let list_2010 = [
+            ("2010/11", dec!(5.00), dec!(12.50), dec!(12.50)),
+            ("2011/12", dec!(7.50), dec!(17.50), dec!(17.50)),
+            ("2012/13", dec!(10.00), dec!(20.00), dec!(20.00)),
+            ("2013/14", dec!(15.00), dec!(25.00), dec!(25.00)),
+            ("2014/15", dec!(15.00), dec!(25.00), dec!(25.00)),
+            ("2015/16", dec!(15.00), dec!(25.00), dec!(25.00)),
+            ("2016/17", dec!(15.00), dec!(25.00), dec!(25.00)),
+        ];
+        for (fy, sm, med, lg) in list_2010 {
+            for jur in [Jurisdiction::ENGLAND, Jurisdiction::WALES] {
+                let pfx = if jur == Jurisdiction::ENGLAND { "eng" } else { "wal" };
+                add(&format!("tc_{}_sm_{}", pfx, fy), 2010, fy, jur, "SMALL", dec!(0.00), Some(dec!(18000.00)), sm);
+                add(&format!("tc_{}_med_{}", pfx, fy), 2010, fy, jur, "MEDIUM", dec!(18000.01), Some(dec!(50000.00)), med);
+                add(&format!("tc_{}_lg_{}", pfx, fy), 2010, fy, jur, "LARGE", dec!(50000.01), None, lg);
+            }
+        }
+
+        // 2017 Revaluation List (2017/18 – 2022/23)
+        // SI 2016/1265: Small <= £20k, Medium <= £100k, Large > £100k
+        let list_2017 = [
+            ("2017/18", dec!(5.00), dec!(12.50), dec!(42.00)),
+            ("2018/19", dec!(7.50), dec!(17.50), dec!(32.00)),
+            ("2019/20", dec!(10.00), dec!(20.00), dec!(49.00)),
+            ("2020/21", dec!(15.00), dec!(25.00), dec!(16.00)),
+            ("2021/22", dec!(15.00), dec!(25.00), dec!(16.00)),
+            ("2022/23", dec!(15.00), dec!(25.00), dec!(16.00)),
+        ];
+        for (fy, sm, med, lg) in list_2017 {
+            add(&format!("tc_eng_sm_{}", fy), 2017, fy, Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), sm);
+            add(&format!("tc_eng_med_{}", fy), 2017, fy, Jurisdiction::ENGLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), med);
+            add(&format!("tc_eng_lg_{}", fy), 2017, fy, Jurisdiction::ENGLAND, "LARGE", dec!(100000.01), None, lg);
+        }
 
         // 2023 Revaluation List — England (Non-Domestic Rating Chargeable Amounts Regs 2022)
         // 2023/24: Small (+5%), Medium (+15%), Large (+30%)

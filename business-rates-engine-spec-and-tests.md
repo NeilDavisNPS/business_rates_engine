@@ -1,13 +1,13 @@
 # Business Rates Calculation Engine — Specification, Test Cases & Source Index
 
 > **Target Environment:** Full-Stack Rust Workspace & Svelte 5 Component Framework  
-> **Backend Architecture:** Axum 0.7 + Tokio 1.38 + Built-In Parameter Repository (Seeded 1993–2027)  
+> **Backend Architecture:** Axum 0.7 + Tokio 1.38 + Built-In Parameter Repository (Seeded 1990–2027)  
 > **Frontend Architecture:** Svelte 5 (Runes `$state`, `$derived`) + Vite 6 + TypeScript 5.7 + Standalone Tailwind CSS (`frontend/`)  
 > **API Access Mode:** Public REST API  
 > **API Documentation:** Interactive Scalar API Reference (`/docs`) with Self-Hosted `scalar.js` (Zero CDN) & OpenAPI 3.1.0 (`/api/v1/openapi.json`)  
 > **Internationalization (i18n):** Native 4-language support: English (`en`), Welsh (`cy`), Scots (`sco`), and Scottish Gaelic (`gd`) across UI, statutory narratives, relief names, error payloads, and reference codes  
 > **Security Baseline:** OWASP-compliant HTTP security headers with strict Content Security Policy (zero `'unsafe-inline'` scripts, zero external CDNs)  
-> **Coverage Period:** 1 April 1993 – 31 March 2027 (England, Wales, and Scotland)  
+> **Coverage Period:** 1 April 1990 – 31 March 2027 (England, Wales, and Scotland)  
 
 ---
 
@@ -16,7 +16,7 @@
 The calculation engine's business logic, zero-hardcoding parameter tables, and statutory audit narrative rules are grounded in 13 primary legislation acts, secondary regulations, and executive guidance manuals across Great Britain:
 
 1. **Common Legislative Solutions: A Guide to Tackling Recurring Policy Issues** (Guidance) — Statutory drafting guidelines, licensing frameworks, and administrative powers.
-2. **Evolution and Statutory Architecture of UK Non-Domestic Rating (1993–2026)** (Architecture) — Devolved rating list mechanics, 3-year revaluations, contractor's basis, and digital compliance across Great Britain.
+2. **Evolution and Statutory Architecture of UK Non-Domestic Rating (1990–2026)** (Architecture) — Devolved rating list mechanics, 3-year revaluations, contractor's basis, and digital compliance across Great Britain.
 3. **Rating Manual Section 5a: Airports Guidance** (VOA Manual) — SCAT 003 Airport valuation rules; Receipts & Expenditure for major hubs vs Contractor's Basis for airfields.
 4. **Rating Manual Section 2: Domestic & Non-Domestic Borderline** (VOA Manual) — Composite hereditament rules, private garages, and holiday accommodation classification criteria.
 5. **The Non-Domestic Rating (Collection and Enforcement) Regulations 1989** (Secondary Regs) — Statutory billing notices, electronic service rules, and enforcement debt recovery frameworks.
@@ -285,7 +285,7 @@ The calculation engine operates with a self-contained, in-memory **Built-In Stat
 
 - **Zero External Infrastructure**: Operates independently with zero database services, connection strings, or migration scripts.
 - **Deterministic Sub-Millisecond Latency**: Microsecond in-memory indexing and lookups with zero network overhead.
-- **Statutory Parameter Immutability**: Exact legal parameters pre-seeded from primary acts and secondary regulations (1993–2027) across England, Wales, and Scotland.
+- **Statutory Parameter Immutability**: Exact legal parameters pre-seeded from primary acts and secondary regulations (1990–2027) across England, Wales, and Scotland.
 - **Turnkey Portability**: The single compiled release binary or OCI container (Podman / Docker) runs anywhere out of the box.
 
 ### 3.1 Repository Structure & Seeded Models
@@ -303,7 +303,7 @@ pub struct ParameterRepository {
 ```
 
 #### 1. Multipliers (`ParamMultiplier`)
-- **Coverage**: Complete temporal coverage from **1 April 1993 to 31 March 2027**.
+- **Coverage**: Complete temporal coverage from **1 April 1990 to 31 March 2027**.
 - **Devolved Disaggregation**:
   - **England**: Standard Multiplier, Small Business Multiplier, City of London Standard, City of London Small Business.
   - **Wales**: National Welsh Non-Domestic Multiplier.
@@ -349,7 +349,7 @@ impl ParameterRepository {
 
 The in-memory parameter repository and statutory documentation are exposed directly via dedicated REST endpoints:
 - `GET /api/v1/parameters`: Aggregated JSON payload containing all temporal multipliers, SBRR/SBBS thresholds, sector reliefs, and transitional caps.
-- `GET /api/v1/parameters/multipliers`: Temporal rating multipliers array (1993–2027) disaggregated by jurisdiction.
+- `GET /api/v1/parameters/multipliers`: Temporal rating multipliers array (1990–2027) disaggregated by jurisdiction.
 - `GET /api/v1/parameters/sbrr-thresholds`: SBRR / SBBS rateable value thresholds and statutory linear relief rules.
 - `GET /api/v1/parameters/sector-reliefs`: Devolved retail, hospitality, leisure, and special relief schemes.
 - `GET /api/v1/parameters/transitional-caps`: Statutory revaluation transitional phasing percentage caps.
@@ -360,7 +360,7 @@ The in-memory parameter repository and statutory documentation are exposed direc
 
 ## 4. Test Cases Specification & Scenario Fixtures
 
-### Test Suite Overview (45 Passing Integration Tests)
+### Test Suite Overview (53 Passing Integration Tests)
 
 The test suite in [`tests/integration_tests.rs`](tests/integration_tests.rs) rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, and web security:
 
@@ -396,7 +396,7 @@ The test suite in [`tests/integration_tests.rs`](tests/integration_tests.rs) rig
 
 - **Suite D: Reference Codes, Parameter Resolution & Public API Access**:
   - `test_app_state_repository_access`: Validates thread-safe parameter repository access on `AppState`.
-  - `test_zero_hardcoding_historical_multipliers_1993_to_2026`: Complete verification of English, Welsh, and Scottish rating multipliers from 1993 to 2026.
+  - `test_zero_hardcoding_historical_multipliers_1990_to_2026`: Complete verification of English, Welsh, and Scottish rating multipliers from 1990 to 2026.
   - `test_preseeded_reference_codes_and_allowable_values`: Pre-seeded values for jurisdictions, party types, and reliefs.
   - `test_http_reference_codes_endpoints`: Validates public `GET /api/v1/reference-codes` and verifies legacy prefix path `/api/v1/business-rates/reference-codes` returns `404 NOT FOUND`.
   - `test_http_calculate_liability_unauthenticated_access`: Verifies calculation succeeds on `POST /api/v1/calculate-liability` without requiring authorization headers, and confirms legacy path `/api/v1/business-rates/calculate-liability` returns `404 NOT FOUND`.
@@ -421,6 +421,16 @@ The test suite in [`tests/integration_tests.rs`](tests/integration_tests.rs) rig
   - `test_owasp_secure_headers_on_error_and_unauthorized_responses`: Verifies OWASP security headers on 422/404 error responses.
   - `test_static_assets_served_with_correct_content_types`: CSS and Vite assets served with proper MIME types; unmapped static asset paths return 404.
 
+- **Suite G: Historical Statutory Parameters & Revaluations (1990–2022)**:
+  - `test_historical_calculation_1990_91_inaugural_nndr`: Validates inaugural non-domestic rating calculation under LGFA 1988 (1990/91) with zero SBRR discount.
+  - `test_historical_transitional_phasing_1991_92`: Validates 1991/92 revaluation year 2 transitional upward cap (+15%) based on 1990/91 baseline.
+  - `test_historical_transitional_phasing_1993_94`: Validates 1993/94 revaluation upward cap (+15%) under SI 1989/1358 based on 1992/93 baseline.
+  - `test_historical_transitional_phasing_1995_list_revaluation`: Validates 1995/96 large property revaluation upward cap (+20%) under SI 1994/3279.
+  - `test_historical_sbrr_pre_2005_returns_no_relief`: Proves 2003/04 sole-property small business occupier receives 0% discount (prior to LGA 2003 s.61).
+  - `test_historical_sbrr_2005_list_england_full_and_taper`: Verifies 2007/08 full 50% discount and 25% linear taper under SI 2004/3315.
+  - `test_historical_sbrr_2010_list_england_and_scotland`: Verifies 2012/13 doubled 100% taper under SI 2010/1959 and Scottish 3-tier SBBS under SSI 2010/37.
+  - `test_historical_transitional_phasing_2017_list_revaluation`: Verifies 2017/18 large property revaluation upward cap (+42%) under SI 2016/1265.
+
 ---
 
 ## 5. Execution & Verification Guide
@@ -431,7 +441,7 @@ To build, verify, and run the project:
 # 1. Compile the Svelte 5 frontend component framework with Vite
 ./build-frontend.sh
 
-# 2. Run the automated test suite (45 integration tests)
+# 2. Run the automated test suite (53 integration tests)
 cargo test --test integration_tests
 
 # 3. Start the HTTP API & Single-Page Application server (default port 8080)

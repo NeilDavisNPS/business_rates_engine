@@ -31,7 +31,7 @@ Before getting started, ensure you have the following installed on your machine:
   *Verify:* `node -v` and `npm -v`  
   *(Note: In WSL/Linux environments without global Node, run `./setup-node.sh` to install a local portable Node binary into `./bin/`).*
 - **(Optional) Podman (or Docker)**: For rootless, daemonless containerized deployment using Podman with the multi-stage [`Dockerfile`](Dockerfile).  
-  *(Note: The calculation engine includes an in-memory repository pre-seeded with all 1993–2027 statutory parameters across Great Britain, operating with zero external database dependencies).*
+  *(Note: The calculation engine includes an in-memory repository pre-seeded with all 1990–2027 statutory parameters across Great Britain, operating with zero external database dependencies).*
 
 ---
 
@@ -106,7 +106,7 @@ PORT=9090 cargo run
 | `http://localhost:8080/api/v1/calculate-liability` | Core Statutory Calculation REST Endpoint | Public (POST) |
 | `http://localhost:8080/api/v1/reference-codes` | Statutory Reference Codes & Allowable Values Catalog | Public (GET) |
 | `http://localhost:8080/api/v1/parameters` | Aggregated Statutory Parameter Repository Catalog | Public (GET) |
-| `http://localhost:8080/api/v1/parameters/multipliers` | Rating Multipliers Catalog (1993–2027) | Public (GET) |
+| `http://localhost:8080/api/v1/parameters/multipliers` | Rating Multipliers Catalog (1990–2027) | Public (GET) |
 | `http://localhost:8080/api/v1/parameters/sbrr-thresholds` | SBRR / SBBS Statutory Thresholds Catalog | Public (GET) |
 | `http://localhost:8080/api/v1/parameters/sector-reliefs` | Devolved Sector Relief Schemes Catalog | Public (GET) |
 | `http://localhost:8080/api/v1/parameters/transitional-caps` | Statutory Transitional Phasing Caps Catalog | Public (GET) |
@@ -482,7 +482,7 @@ curl -s "http://localhost:8080/api/v1/reference-codes?lang=cy"
 # Full aggregated parameter repository catalog
 curl -s http://localhost:8080/api/v1/parameters
 
-# Rating Multipliers (1993–2027)
+# Rating Multipliers (1990–2027)
 curl -s http://localhost:8080/api/v1/parameters/multipliers
 
 # Small Business Rate Relief (SBRR / SBBS) thresholds
@@ -532,7 +532,7 @@ business_rates_engine/
 │   └── package.json
 ├── src/                          # High-performance Axum backend
 │   ├── api/                      # REST Handlers, Routers & OWASP middleware
-│   ├── db/                       # ParameterRepository (1993–2027 statutory parameters)
+│   ├── db/                       # ParameterRepository (1990–2027 statutory parameters)
 │   ├── engine/                   # CalculationEngine (Statutory slicer, multipliers, reliefs)
 │   ├── models/                   # Calculation requests, responses, enums
 │   ├── error.rs                  # Localized AppError handling

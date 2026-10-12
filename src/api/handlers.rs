@@ -110,7 +110,7 @@ pub async fn get_all_parameters_handler(
     })
 }
 
-/// Returns all statutory rating multipliers (1993–2027)
+/// Returns all statutory rating multipliers (1990–2027)
 pub async fn get_multipliers_handler(
     State(state): State<AppState>,
 ) -> Json<Vec<ParamMultiplier>> {

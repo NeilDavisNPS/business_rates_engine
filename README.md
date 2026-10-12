@@ -1,4 +1,4 @@
-# Business Rates Calculation Engine (1993–2027)
+# Business Rates Calculation Engine (1990–2027)
 
 > **High-Performance Rust Axum REST API and Modern Svelte 5 Component Framework for Statutory Non-Domestic Rating Calculations across England, Wales, and Scotland.**
 
@@ -6,7 +6,7 @@
 
 ## Key Features
 
-- **Zero Hardcoding Temporal Parameter Engine**: Covers rating rules and multipliers from 1 April 1993 to 31 March 2027.
+- **Zero Hardcoding Temporal Parameter Engine**: Covers rating rules and multipliers from 1 April 1990 to 31 March 2027.
 - **Cross-Financial-Year & Multi-Occupancy Slicing**: Slices complex liability periods into discrete billing segments; fully models Section 44A partial-occupancy dual apportionments and statutory 13-week/6-week empty property reset rules.
 - **Statutory Devolved Reliefs**: Small Business Rate Relief (SBRR England/Wales), Small Business Bonus Scheme (SBBS Scotland), Retail, Hospitality & Leisure (RHL), Mandatory Charitable Relief, NDRA 2023 Improvement Relief (G-factor), Rural Settlement Relief, Public Lavatories, and Heat Network exemptions.
 - **Devolved Anti-Avoidance Enforcement**: Implements Welsh Statutory Instrument 2026/43 artificial avoidance penalties (£500 fixed + 3% rateable value).
