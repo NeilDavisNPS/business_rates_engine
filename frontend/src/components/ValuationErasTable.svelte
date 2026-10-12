@@ -123,7 +123,14 @@
                   type="button"
                   onclick={() => calcStore.removeValuationEra(idx)}
                   disabled={calcStore.rateableValueHistory.length <= 1}
-                  class="text-xs px-2 py-0.5 text-red-700 dark:text-red-400 hover:text-red-950 dark:hover:text-red-100 disabled:opacity-30 disabled:cursor-not-allowed font-semibold"
+                  aria-label="{calcStore.t.btn_remove} — {calcStore.t.rv_history} #{idx + 1}"
+                  class="inline-flex items-center justify-center min-h-[32px] px-2.5 py-1 text-xs font-bold rounded-md border transition-colors
+                    bg-red-50 text-red-900 border-red-800
+                    hover:bg-red-800 hover:text-white hover:border-red-900
+                    focus:outline-hidden focus-visible:ring-2 focus-visible:ring-red-700 focus-visible:ring-offset-2
+                    dark:bg-red-950/80 dark:text-red-100 dark:border-red-400
+                    dark:hover:bg-red-800 dark:hover:text-white dark:hover:border-red-300
+                    disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-red-50 disabled:hover:text-red-900 dark:disabled:hover:bg-red-950/80 dark:disabled:hover:text-red-100"
                 >
                   {calcStore.t.btn_remove}
                 </button>
