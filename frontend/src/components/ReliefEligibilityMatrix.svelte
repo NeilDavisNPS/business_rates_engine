@@ -45,18 +45,32 @@
       </div>
     </label>
 
-    <!-- Retail, Hospitality & Leisure (England & Wales only) -->
-    {#if calcStore.jurisdiction !== 'SCOTLAND'}
-      <label class="flex items-start space-x-2.5 p-2 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+    <!-- Retail, Hospitality & Leisure / Food & Drink Hospitality (All nations) -->
+    <label class="flex items-start space-x-2.5 p-2 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+      <input
+        type="checkbox"
+        bind:checked={calcStore.qualifyingReliefFlags.is_rhl_qualifying}
+        onchange={onFlagChange}
+        class="mt-0.5 rounded text-blue-600 focus:ring-blue-500"
+      />
+      <div>
+        <span class="text-xs font-bold text-slate-900 block">{calcStore.jurisdictionInfo.rhlTitle}</span>
+        <span class="text-[11px] text-slate-500">{calcStore.jurisdictionInfo.rhlDesc}</span>
+      </div>
+    </label>
+
+    <!-- Scottish Island Property (Scotland only) -->
+    {#if calcStore.jurisdiction === 'SCOTLAND' && calcStore.qualifyingReliefFlags.is_rhl_qualifying}
+      <label class="flex items-start space-x-2.5 p-2 rounded-lg border border-purple-200 bg-purple-50/50 hover:bg-purple-50 cursor-pointer">
         <input
           type="checkbox"
-          bind:checked={calcStore.qualifyingReliefFlags.is_rhl_qualifying}
+          bind:checked={calcStore.qualifyingReliefFlags.is_island_property}
           onchange={onFlagChange}
-          class="mt-0.5 rounded text-blue-600 focus:ring-blue-500"
+          class="mt-0.5 rounded text-purple-600 focus:ring-purple-500"
         />
         <div>
-          <span class="text-xs font-bold text-slate-900 block">{calcStore.jurisdictionInfo.rhlTitle}</span>
-          <span class="text-[11px] text-slate-500">{calcStore.jurisdictionInfo.rhlDesc}</span>
+          <span class="text-xs font-bold text-purple-900 block">Scottish Island Property (100% RHL Relief)</span>
+          <span class="text-[11px] text-purple-700">Property located on a Scottish island under the Islands (Scotland) Act 2018 (100% relief capped at £110k).</span>
         </div>
       </label>
     {/if}

@@ -337,18 +337,66 @@ impl ParameterRepository {
     }
 
     /// Resolves Sector Relief (e.g. Retail, Hospitality & Leisure)
-    pub fn resolve_sector_relief(&self, jurisdiction: Jurisdiction, financial_year: &str, is_rhl: bool) -> Option<SectorReliefResolution> {
+    pub fn resolve_sector_relief(
+        &self,
+        jurisdiction: Jurisdiction,
+        financial_year: &str,
+        is_rhl: bool,
+        is_island: bool,
+    ) -> Option<SectorReliefResolution> {
         if !is_rhl {
             return None;
         }
 
-        let record = self.sector_reliefs.iter()
-            .find(|s| s.jurisdiction == jurisdiction && s.financial_year == financial_year && s.relief_code.starts_with("RHL"))?;
+        let record = self.sector_reliefs.iter().find(|s| {
+            if s.jurisdiction != jurisdiction || s.financial_year != financial_year {
+                return false;
+            }
+            if jurisdiction == Jurisdiction::SCOTLAND {
+                if is_island {
+                    s.relief_code.contains("ISLANDS")
+                } else {
+                    s.relief_code.contains("MAINLAND")
+                }
+            } else {
+                s.relief_code.starts_with("RHL")
+            }
+        })?;
+
+        let authority = match jurisdiction {
+            Jurisdiction::ENGLAND => "LGFA 1988 s.47".to_string(),
+            Jurisdiction::WALES => "LGFA 1988 s.47 / LGF(W)A 2024".to_string(),
+            Jurisdiction::SCOTLAND => {
+                if is_island {
+                    "Local Government (Financial Provisions) (Scotland) Act 1962 s.4 / Islands (Scotland) Act 2018".to_string()
+                } else {
+                    "Local Government (Financial Provisions) (Scotland) Act 1962 s.4".to_string()
+                }
+            }
+        };
+
+        let relief_name = match jurisdiction {
+            Jurisdiction::SCOTLAND => {
+                if is_island {
+                    "Scottish Islands Retail, Hospitality & Leisure Relief".to_string()
+                } else {
+                    "Scottish Retail, Hospitality & Leisure Relief".to_string()
+                }
+            }
+            Jurisdiction::WALES => {
+                if financial_year >= "2026/27" {
+                    "Welsh Food & Drink Hospitality Relief".to_string()
+                } else {
+                    "Retail, Leisure & Hospitality Relief".to_string()
+                }
+            }
+            _ => "Retail, Hospitality & Leisure Relief".to_string(),
+        };
 
         Some(SectorReliefResolution {
             relief_code: record.relief_code.clone(),
-            relief_name: "Retail, Hospitality & Leisure Relief".to_string(),
-            statutory_authority: "LGFA 1988 s.47".to_string(),
+            relief_name,
+            statutory_authority: authority,
             discount_percentage: record.discount_percentage,
             cash_cap_gbp: record.cash_cap_gbp,
         })
@@ -585,16 +633,22 @@ impl ParameterRepository {
         };
 
         // England Retail, Hospitality & Leisure Relief (RHL)
+        // Ceased on 31 March 2026; no percentage relief in 2026/27 (replaced by lower high-street multipliers)
         add("sec_eng_rhl_2023", "2023/24", Jurisdiction::ENGLAND, "RHL_2023", dec!(75.00), Some(dec!(110000.00)), "2023-04-01", "2024-03-31");
         add("sec_eng_rhl_2024", "2024/25", Jurisdiction::ENGLAND, "RHL_2024", dec!(75.00), Some(dec!(110000.00)), "2024-04-01", "2025-03-31");
         add("sec_eng_rhl_2025", "2025/26", Jurisdiction::ENGLAND, "RHL_2025", dec!(40.00), Some(dec!(110000.00)), "2025-04-01", "2026-03-31");
-        add("sec_eng_rhl_2026", "2026/27", Jurisdiction::ENGLAND, "RHL_2026", dec!(35.00), Some(dec!(110000.00)), "2026-04-01", "2027-03-31");
 
         // Wales Retail, Leisure & Hospitality
+        // 2026/27 transitions to 15% Food and Drink Hospitality scheme (capped at £110k)
         add("sec_wal_rhl_2023", "2023/24", Jurisdiction::WALES, "RHL_WALES_2023", dec!(75.00), Some(dec!(110000.00)), "2023-04-01", "2024-03-31");
         add("sec_wal_rhl_2024", "2024/25", Jurisdiction::WALES, "RHL_WALES_2024", dec!(40.00), Some(dec!(110000.00)), "2024-04-01", "2025-03-31");
         add("sec_wal_rhl_2025", "2025/26", Jurisdiction::WALES, "RHL_WALES_2025", dec!(40.00), Some(dec!(110000.00)), "2025-04-01", "2026-03-31");
-        add("sec_wal_rhl_2026", "2026/27", Jurisdiction::WALES, "RHL_WALES_2026", dec!(40.00), Some(dec!(110000.00)), "2026-04-01", "2027-03-31");
+        add("sec_wal_rhl_2026", "2026/27", Jurisdiction::WALES, "RHL_WALES_2026", dec!(15.00), Some(dec!(110000.00)), "2026-04-01", "2027-03-31");
+
+        // Scotland Retail, Hospitality & Leisure Relief
+        // 2026/27: 15% mainland (RV <= £100,000) or 100% on islands (Islands (Scotland) Act 2018), £110k cap
+        add("sec_sco_rhl_mainland_2026", "2026/27", Jurisdiction::SCOTLAND, "RHL_SCOTLAND_MAINLAND_2026", dec!(15.00), Some(dec!(110000.00)), "2026-04-01", "2027-03-31");
+        add("sec_sco_rhl_islands_2026", "2026/27", Jurisdiction::SCOTLAND, "RHL_SCOTLAND_ISLANDS_2026", dec!(100.00), Some(dec!(110000.00)), "2026-04-01", "2027-03-31");
     }
 
     fn seed_transitional_caps(&mut self) {
@@ -784,7 +838,7 @@ impl ParameterRepository {
         add("RELIEF_CODE", "SBRR", "Small Business Rate Relief", "100% discount up to £12,000 RV, with linear taper up to £15,000 RV for single property occupiers (England).", Some("ENGLAND"), 1);
         add("RELIEF_CODE", "WALES_SBRR", "Small Business Rate Relief (Wales)", "100% relief up to £6,000 RV, with linear taper up to £12,000 RV under LGF(W)A 2024.", Some("WALES"), 2);
         add("RELIEF_CODE", "SBBS", "Small Business Bonus Scheme", "Scottish rating relief for small businesses up to £12,000 RV (2023-2026) or £11,500 RV (2026+).", Some("SCOTLAND"), 3);
-        add("RELIEF_CODE", "RHL", "Retail, Hospitality & Leisure Relief", "Statutory sector discount (40% in England 2026/27, 40% in Wales 2026/27 subject to £110,000 cash cap).", Some("ENGLAND"), 4);
+        add("RELIEF_CODE", "RHL", "Retail, Hospitality & Leisure Relief", "Statutory sector discount (40% in England 2025/26, expired 2026/27; 15% in Wales 2026/27; 15% mainland / 100% islands in Scotland 2026/27 up to £110,000 cash cap).", None, 4);
         add("RELIEF_CODE", "CHARITY", "Mandatory Charitable Relief", "80% mandatory relief under LGFA 1988 s.43(5) where property is used wholly or mainly for charitable purposes.", None, 5);
         add("RELIEF_CODE", "IMPROV", "Improvement Relief (G-Factor)", "100% relief for 12 months on rateable value increases resulting from physical property improvements under NDRA 2023 (England).", Some("ENGLAND"), 6);
         add("RELIEF_CODE", "EMPTY", "Empty Property Exemption", "100% relief for initial 3 months (commercial) or 6 months (industrial) unoccupied periods under LGFA 1988 s.45.", None, 7);

@@ -224,22 +224,45 @@ impl CalculationEngine {
 
                     // 7. Dynamic Sector Relief (RHL) resolved from parameter repository tables
                     if flags.is_rhl_qualifying && segment_relief_total < gross_liability {
-                        if let Some(sec) = self.repo.resolve_sector_relief(req.hereditament.jurisdiction, &win.financial_year, true) {
-                            if rv > dec!(15000.00) || !flags.is_small_business_sole_property {
-                                let remaining = chargeable_before_reliefs - segment_relief_total;
-                                let mut amount = (remaining * (sec.discount_percentage / dec!(100.00))).round_dp(2);
-                                if let Some(cap) = sec.cash_cap_gbp {
-                                    amount = amount.min(cap);
-                                }
-                                if amount > dec!(0.00) {
-                                    segment_relief_total += amount;
-                                    reliefs.push(ItemizedRelief {
-                                        relief_code: sec.relief_code,
-                                        relief_name: crate::i18n::localize_relief_name(&sec.relief_name, lang),
-                                        statutory_authority: sec.statutory_authority,
-                                        discount_percentage: sec.discount_percentage,
-                                        amount_deducted: amount,
-                                    });
+                        let eligible_rv = if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND && !flags.is_island_property {
+                            rv <= dec!(100000.00)
+                        } else {
+                            true
+                        };
+
+                        if eligible_rv {
+                            if let Some(sec) = self.repo.resolve_sector_relief(
+                                req.hereditament.jurisdiction,
+                                &win.financial_year,
+                                true,
+                                flags.is_island_property,
+                            ) {
+                                let qualifies = match req.hereditament.jurisdiction {
+                                    Jurisdiction::SCOTLAND => true,
+                                    Jurisdiction::WALES => {
+                                        req.hereditament.scat_code != "211" && (rv > dec!(12000.00) || !flags.is_small_business_sole_property)
+                                    }
+                                    Jurisdiction::ENGLAND => {
+                                        rv > dec!(15000.00) || !flags.is_small_business_sole_property
+                                    }
+                                };
+
+                                if qualifies {
+                                    let remaining = chargeable_before_reliefs - segment_relief_total;
+                                    let mut amount = (remaining * (sec.discount_percentage / dec!(100.00))).round_dp(2);
+                                    if let Some(cap) = sec.cash_cap_gbp {
+                                        amount = amount.min(cap);
+                                    }
+                                    if amount > dec!(0.00) {
+                                        segment_relief_total += amount;
+                                        reliefs.push(ItemizedRelief {
+                                            relief_code: sec.relief_code,
+                                            relief_name: crate::i18n::localize_relief_name(&sec.relief_name, lang),
+                                            statutory_authority: sec.statutory_authority,
+                                            discount_percentage: sec.discount_percentage,
+                                            amount_deducted: amount,
+                                        });
+                                    }
                                 }
                             }
                         }

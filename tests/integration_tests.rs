@@ -62,7 +62,9 @@ async fn test_scenario_1_england_sbrr_and_rhl_multi_year() {
     assert_eq!(seg2.financial_year, "2026/27");
     assert_eq!(seg2.rateable_value, dec!(16000.00));
     assert_eq!(seg2.multiplier_used.rate, dec!(0.522));
-    assert!(seg2.itemized_reliefs.iter().any(|r| r.relief_code == "RHL_2026"));
+    // In England 2026/27, temporary RHL relief has ceased on 31 March 2026
+    assert!(!seg2.itemized_reliefs.iter().any(|r| r.relief_code.starts_with("RHL")));
+    assert_eq!(seg2.net_segment_payable, dec!(3990.43));
 
     assert!(response.calculation_narrative.contains("Local Government Finance Act 1988"));
 }
@@ -391,7 +393,7 @@ async fn test_preseeded_reference_codes_and_allowable_values() {
     let reliefs = repo.reference_codes_by_category("RELIEF_CODE");
     assert!(reliefs.iter().any(|c| c.code == "SBRR" && c.jurisdiction.as_deref() == Some("ENGLAND")));
     assert!(reliefs.iter().any(|c| c.code == "SBBS" && c.jurisdiction.as_deref() == Some("SCOTLAND")));
-    assert!(reliefs.iter().any(|c| c.code == "RHL" && c.jurisdiction.as_deref() == Some("ENGLAND")));
+    assert!(reliefs.iter().any(|c| c.code == "RHL"));
     assert!(reliefs.iter().any(|c| c.code == "WELSH_AVOIDANCE" && c.jurisdiction.as_deref() == Some("WALES")));
 }
 
@@ -2196,6 +2198,238 @@ async fn test_historical_transitional_phasing_1991_92() {
     assert_eq!(seg.transitional_adjustment.amount, dec!(1087.00));
     assert_eq!(seg.net_segment_payable, dec!(2001.00));
 }
+
+#[tokio::test]
+async fn test_sector_relief_england_2025_vs_2026() {
+    let repo = ParameterRepository::new_mock();
+    let engine = CalculationEngine::new(repo);
+
+    // High street shop (RV £30,000) occupied across 2025/26 and 2026/27 with RHL flag
+    let request = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2025, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2027, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::ENGLAND,
+            scat_code: "225".to_string(),
+            rateable_value_history: vec![
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(30000.00),
+                },
+            ],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_rhl_qualifying: true,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+
+    let response = engine.calculate(request);
+    assert_eq!(response.annual_billing_segments.len(), 2);
+
+    // Segment 1 (2025/26): 40% RHL relief applies
+    let seg1 = &response.annual_billing_segments[0];
+    assert_eq!(seg1.financial_year, "2025/26");
+    let rhl1 = seg1.itemized_reliefs.iter().find(|r| r.relief_code == "RHL_2025");
+    assert!(rhl1.is_some(), "Expected RHL_2025 in 2025/26");
+    assert_eq!(rhl1.unwrap().discount_percentage, dec!(40.00));
+
+    // Segment 2 (2026/27): Temporary RHL percentage relief ceased on 31 March 2026 in England
+    let seg2 = &response.annual_billing_segments[1];
+    assert_eq!(seg2.financial_year, "2026/27");
+    assert!(!seg2.itemized_reliefs.iter().any(|r| r.relief_code.starts_with("RHL")),
+        "Expected NO RHL relief in England 2026/27");
+}
+
+#[tokio::test]
+async fn test_sector_relief_scotland_mainland_vs_island_2026() {
+    let repo = ParameterRepository::new_mock();
+    let engine = CalculationEngine::new(repo);
+
+    // Case A: Mainland Scotland hotel/restaurant RV £50,000 in 2026/27 -> 15% relief
+    let req_mainland = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2027, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::SCOTLAND,
+            scat_code: "209".to_string(),
+            rateable_value_history: vec![
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(50000.00),
+                },
+            ],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_rhl_qualifying: true,
+            is_island_property: false,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+
+    let res_mainland = engine.calculate(req_mainland);
+    let seg_m = &res_mainland.annual_billing_segments[0];
+    let rhl_m = seg_m.itemized_reliefs.iter().find(|r| r.relief_code == "RHL_SCOTLAND_MAINLAND_2026");
+    assert!(rhl_m.is_some(), "Expected Mainland Scotland RHL relief in 2026/27");
+    assert_eq!(rhl_m.unwrap().discount_percentage, dec!(15.00));
+    assert!(rhl_m.unwrap().relief_name.contains("Scottish"));
+
+    // Case B: Island property in Scotland (Islands (Scotland) Act 2018) RV £50,000 -> 100% relief
+    let req_island = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2027, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::SCOTLAND,
+            scat_code: "209".to_string(),
+            rateable_value_history: vec![
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(50000.00),
+                },
+            ],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_rhl_qualifying: true,
+            is_island_property: true,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+
+    let res_island = engine.calculate(req_island);
+    let seg_i = &res_island.annual_billing_segments[0];
+    let rhl_i = seg_i.itemized_reliefs.iter().find(|r| r.relief_code == "RHL_SCOTLAND_ISLANDS_2026");
+    assert!(rhl_i.is_some(), "Expected Scottish Islands RHL relief in 2026/27");
+    assert_eq!(rhl_i.unwrap().discount_percentage, dec!(100.00));
+    assert_eq!(seg_i.net_segment_payable, dec!(0.00));
+    assert!(rhl_i.unwrap().statutory_authority.contains("Islands (Scotland) Act 2018"));
+
+    // Case C: Mainland property exceeding £100,000 RV does NOT qualify for 15% relief
+    let req_mainland_high = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2027, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::SCOTLAND,
+            scat_code: "209".to_string(),
+            rateable_value_history: vec![
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(150000.00),
+                },
+            ],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_rhl_qualifying: true,
+            is_island_property: false,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+
+    let res_mainland_high = engine.calculate(req_mainland_high);
+    let seg_mh = &res_mainland_high.annual_billing_segments[0];
+    assert!(!seg_mh.itemized_reliefs.iter().any(|r| r.relief_code.starts_with("RHL")),
+        "Mainland property over £100k RV must not receive RHL relief");
+}
+
+#[tokio::test]
+async fn test_sector_relief_wales_2026_food_drink_hospitality() {
+    let repo = ParameterRepository::new_mock();
+    let engine = CalculationEngine::new(repo);
+
+    // Case A: Welsh pub/restaurant (SCAT 209, RV £25,000) in 2026/27 receives 15% Food & Drink Hospitality relief
+    let request_pub = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2027, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::WALES,
+            scat_code: "209".to_string(),
+            rateable_value_history: vec![
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(25000.00),
+                },
+            ],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_rhl_qualifying: true,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+
+    let response_pub = engine.calculate(request_pub);
+    let seg = &response_pub.annual_billing_segments[0];
+    let rhl = seg.itemized_reliefs.iter().find(|r| r.relief_code == "RHL_WALES_2026");
+    assert!(rhl.is_some(), "Expected Welsh Food & Drink Hospitality relief in 2026/27");
+    assert_eq!(rhl.unwrap().discount_percentage, dec!(15.00));
+    assert_eq!(rhl.unwrap().relief_name, "Welsh Food & Drink Hospitality Relief");
+
+    // Case B: Petrol filling station (SCAT 211) in Wales is explicitly excluded
+    let request_petrol = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2027, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::WALES,
+            scat_code: "211".to_string(),
+            rateable_value_history: vec![
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(25000.00),
+                },
+            ],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_rhl_qualifying: true,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+
+    let response_petrol = engine.calculate(request_petrol);
+    let seg_p = &response_petrol.annual_billing_segments[0];
+    assert!(!seg_p.itemized_reliefs.iter().any(|r| r.relief_code.starts_with("RHL")),
+        "Petrol filling station in Wales must be excluded from RHL relief");
+}
+
 
 
 
