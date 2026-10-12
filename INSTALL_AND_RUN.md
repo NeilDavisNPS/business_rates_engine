@@ -113,6 +113,8 @@ PORT=9090 cargo run
 | `http://localhost:8080/api/v1/openapi.json` | OpenAPI 3.1.0 Specification (JSON format) | Public (GET) |
 | `http://localhost:8080/api/v1/openapi.yaml` | OpenAPI 3.1.0 Specification (YAML format) | Public (GET) |
 
+> **Migrating from an earlier version?** See [MIGRATION.md](MIGRATION.md) for route deprecation notices and canonical URL mappings.
+
 ---
 
 ## 5. Frontend Development Mode (Vite HMR)
@@ -406,7 +408,7 @@ rates.example.gov.uk {
 
 ## 9. REST API Endpoints & cURL Reference
 
-The REST API is a public, high-performance service; requests do not require API keys or bearer tokens.
+The REST API operates as an **unauthenticated public service**; requests do not require API keys (`X-API-Key`) or bearer tokens.
 
 ### 1. Calculate Liability (Standard Scenario)
 ```bash
@@ -512,10 +514,13 @@ business_rates_engine/
 ├── tests/
 │   ├── fixtures/                 # Pre-configured test scenario JSON files (Scenarios 1-5)
 │   └── integration_tests.rs      # Complete test suite (45 passing tests)
+├── scripts/                      # Build & toolchain helper scripts
+│   └── ensure-tailwind.sh        # Pinned, verified standalone Tailwind CLI downloader
 ├── build-frontend.sh             # Build script for Svelte 5 frontend (Tailwind + Vite bundle)
 ├── watch-css.sh                  # Tailwind CSS watch mode for Vite development
 ├── setup-node.sh                 # Local Node.js environment setup helper
 ├── LICENSE.md                    # MIT License specification
+├── MIGRATION.md                  # Route deprecations & migration guide
 ├── Dockerfile                    # Multi-stage production container build
 └── Cargo.toml                    # Rust dependencies & package manifest
 ```

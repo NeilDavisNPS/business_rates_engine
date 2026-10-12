@@ -131,7 +131,7 @@ All HTTP responses (HTML web pages, API JSON responses, static assets, and error
 
 ### 2.3 Internationalization (i18n) & Language Resolution
 
-The engine implements compile-time verified multi-lingual support via [`src/i18n.rs`](file:///c:/Users/mark__q2t877z/OneDrive/Documents/business_rates_engine/src/i18n.rs) and the frontend TypeScript dictionary store [`frontend/src/i18n/`](file:///c:/Users/mark__q2t877z/OneDrive/Documents/business_rates_engine/frontend/src/i18n/):
+The engine implements compile-time verified multi-lingual support via [`src/i18n.rs`](src/i18n.rs) and the frontend TypeScript dictionary store [`frontend/src/i18n/`](frontend/src/i18n/):
 
 **Precedence Order for Language Resolution:**
 1. Explicit request payload field: `"language": "cy"` / `"sco"` / `"gd"`
@@ -362,7 +362,7 @@ The in-memory parameter repository and statutory documentation are exposed direc
 
 ### Test Suite Overview (45 Passing Integration Tests)
 
-The test suite in [`tests/integration_tests.rs`](file:///c:/Users/mark__q2t877z/OneDrive/Documents/business_rates_engine/tests/integration_tests.rs) rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, and web security:
+The test suite in [`tests/integration_tests.rs`](tests/integration_tests.rs) rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, and web security:
 
 - **Suite A: Multi-Jurisdiction Scenario Tests**:
   - `test_scenario_1_england_sbrr_and_rhl_multi_year`: Multi-year slicing (2025/26 & 2026/27), SBRR linear taper, RHL 35% relief, and Transitional Relief caps.
@@ -398,11 +398,11 @@ The test suite in [`tests/integration_tests.rs`](file:///c:/Users/mark__q2t877z/
   - `test_app_state_repository_access`: Validates thread-safe parameter repository access on `AppState`.
   - `test_zero_hardcoding_historical_multipliers_1993_to_2026`: Complete verification of English, Welsh, and Scottish rating multipliers from 1993 to 2026.
   - `test_preseeded_reference_codes_and_allowable_values`: Pre-seeded values for jurisdictions, party types, and reliefs.
-  - `test_http_reference_codes_endpoints`: Validates public `GET /api/v1/reference-codes` and verifies unmapped endpoints return `404 NOT FOUND`.
-  - `test_http_calculate_liability_unauthenticated_access`: Verifies calculation succeeds on `POST /api/v1/calculate-liability` without requiring authorization headers, and confirms unmapped routes return `404 NOT FOUND`.
-  - `test_http_sso_endpoints`: Verifies unmapped auth endpoints return `404 NOT FOUND`.
+  - `test_http_reference_codes_endpoints`: Validates public `GET /api/v1/reference-codes` and verifies legacy prefix path `/api/v1/business-rates/reference-codes` returns `404 NOT FOUND`.
+  - `test_http_calculate_liability_unauthenticated_access`: Verifies calculation succeeds on `POST /api/v1/calculate-liability` without requiring authorization headers, and confirms legacy path `/api/v1/business-rates/calculate-liability` returns `404 NOT FOUND`.
+  - `test_http_sso_endpoints`: Verifies removed SSO endpoints (`/api/v1/auth/sso/login`, `/api/v1/auth/sso/callback`) return `404 NOT FOUND`.
   - `test_http_parameters_endpoints`: Validates all 5 parameter catalog endpoints (`/api/v1/parameters`, `/api/v1/parameters/multipliers`, `/api/v1/parameters/sbrr-thresholds`, `/api/v1/parameters/sector-reliefs`, `/api/v1/parameters/transitional-caps`) return valid HTTP 200 JSON arrays.
-  - `test_openapi_and_swagger_endpoints`: Validates OpenAPI 3.1.0 specifications (`/api/v1/openapi.json`, `/api/v1/openapi.yaml`), `/docs` Scalar HTML rendering with query parameter templating (`title`, `spec_url`, `theme`, `layout`), self-hosted zero-CDN `scalar.js`, and confirms unmapped documentation routes return `404 NOT FOUND`.
+  - `test_openapi_and_swagger_endpoints`: Validates OpenAPI 3.1.0 specifications (`/api/v1/openapi.json`, `/api/v1/openapi.yaml`), `/docs` Scalar HTML rendering with query parameter templating (`title`, `spec_url`, `theme`, `layout`), self-hosted zero-CDN `scalar.js`, and confirms unsupported documentation aliases (`/scalar`, `/api-reference`, `/swagger`, `/swagger-ui`) return `404 NOT FOUND`.
 
 - **Suite E: Statutory Relief Extensions**:
   - `test_statutory_heat_network_exemption`: NDRA 2023 s.2 100% heat network discount.
@@ -415,11 +415,11 @@ The test suite in [`tests/integration_tests.rs`](file:///c:/Users/mark__q2t877z/
 - **Suite F: Component UI Serving & OWASP Security**:
   - `test_root_ui_route_and_static_assets_with_owasp_headers`: Verifies `/` and bundled assets `/assets/*` serve with strict OWASP CSP headers.
   - `test_ui_html_rendering_english_default`: Verifies `/` serves the Svelte 5 single-page application mount `<div id="app">`.
-  - `test_ui_decommissioned_alias_routes_return_404`: Verifies unmapped UI routes return `404 NOT FOUND`.
+  - `test_ui_decommissioned_alias_routes_return_404`: Verifies unsupported UI alias routes (`/admin`, `/component-ui`, `/app`) return `404 NOT FOUND`.
   - `test_owasp_secure_headers_on_html_ui_response`: Verifies complete suite of OWASP headers on HTML responses.
   - `test_owasp_secure_headers_on_api_json_response`: Verifies OWASP security headers on API JSON responses.
   - `test_owasp_secure_headers_on_error_and_unauthorized_responses`: Verifies OWASP security headers on 422/404 error responses.
-  - `test_static_assets_served_with_correct_content_types`: CSS and Vite assets served with proper MIME types; unmapped static assets return 404.
+  - `test_static_assets_served_with_correct_content_types`: CSS and Vite assets served with proper MIME types; unmapped static asset paths return 404.
 
 ---
 

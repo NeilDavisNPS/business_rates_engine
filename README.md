@@ -37,3 +37,4 @@ cargo run
 
 - **[Installation & Running Guide (INSTALL_AND_RUN.md)](INSTALL_AND_RUN.md)** — Comprehensive installation, development workflow, cURL examples, and deployment guide.
 - **[Specification, Test Cases & Source Index (business-rates-engine-spec-and-tests.md)](business-rates-engine-spec-and-tests.md)** — In-depth statutory architecture, SRS, built-in parameter repository specification, test case breakdowns, and legal citations.
+- **[Migration & Route Deprecation Guide (MIGRATION.md)](MIGRATION.md)** — Guide for upgrading clients, route consolidations, and legacy endpoint deprecations.

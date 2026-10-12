@@ -1,12 +1,17 @@
 # =========================================================================
 # Stage 1: Build the Svelte 5 Frontend
 # =========================================================================
-FROM node:20-alpine AS frontend-builder
+FROM node:20-slim AS frontend-builder
 WORKDIR /app
 
-# Copy styles and frontend source
+RUN apt-get update && apt-get install -y ca-certificates curl && rm -rf /var/lib/apt/lists/*
+
+COPY scripts ./scripts
 COPY styles ./styles
 COPY frontend ./frontend
+
+RUN ./scripts/ensure-tailwind.sh && \
+    ./bin/tailwindcss -i styles/input.css -o frontend/src/tailwind.css --minify
 
 WORKDIR /app/frontend
 RUN npm ci || npm install

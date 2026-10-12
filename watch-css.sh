@@ -1,12 +1,9 @@
 #!/usr/bin/env bash
 set -e
-if [ ! -f "bin/tailwindcss" ]; then
-    echo "Downloading standalone Tailwind CLI..."
-    mkdir -p bin
-    curl -sL https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64 -o bin/tailwindcss
-    chmod +x bin/tailwindcss
-fi
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+"$ROOT_DIR/scripts/ensure-tailwind.sh"
 
 echo "Starting Tailwind watch mode (auto-rebuilding on template/source changes)..."
-./bin/tailwindcss -i ./styles/input.css -o ./frontend/src/tailwind.css --watch
+"$ROOT_DIR/bin/tailwindcss" -i "$ROOT_DIR/styles/input.css" -o "$ROOT_DIR/frontend/src/tailwind.css" --watch
 
