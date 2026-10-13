@@ -29,18 +29,25 @@ impl CalculationEngine {
             .unwrap_or(dec!(0.00))
     }
 
-    fn resolve_previous_rv(&self, history: &[RvEntry], date: NaiveDate) -> Option<Decimal> {
-        history.iter()
-            .filter(|entry| entry.effective_from < date)
-            .max_by_key(|entry| entry.effective_from)
-            .map(|entry| entry.rateable_value)
+    fn resolve_previous_rv(&self, history: &[RvEntry], prev_fy_end: NaiveDate) -> Option<Decimal> {
+        let rv_at_date = self.resolve_rv_for_date(history, prev_fy_end);
+        if rv_at_date > dec!(0.00) {
+            Some(rv_at_date)
+        } else {
+            history.iter()
+                .filter(|entry| entry.effective_from <= prev_fy_end)
+                .max_by_key(|entry| entry.effective_from)
+                .map(|entry| entry.rateable_value)
+        }
     }
 
-    fn get_previous_financial_year(&self, fy: &str) -> Option<String> {
+    fn get_previous_financial_year(&self, fy: &str) -> Option<(String, NaiveDate)> {
         let parts: Vec<&str> = fy.split('/').collect();
         if parts.len() == 2 {
             if let Ok(y) = parts[0].parse::<i32>() {
-                return Some(format!("{}/{:02}", y - 1, y % 100));
+                if let Some(date) = NaiveDate::from_ymd_opt(y, 3, 31) {
+                    return Some((format!("{}/{:02}", y - 1, y % 100), date));
+                }
             }
         }
         None
@@ -190,14 +197,14 @@ impl CalculationEngine {
             let mut segment_trans_relief = dec!(0.00);
 
             if win.period_relief_flags.apply_transitional_relief.unwrap_or(true) {
-                if let Some(prev_fy) = self.get_previous_financial_year(&win.financial_year) {
-                    if let Some(prev_rv) = self.resolve_previous_rv(&req.hereditament.rateable_value_history, win.period.start_date) {
+                if let Some((prev_fy, prev_fy_end)) = self.get_previous_financial_year(&win.financial_year) {
+                    if let Some(prev_rv) = self.resolve_previous_rv(&req.hereditament.rateable_value_history, prev_fy_end) {
                         if req.hereditament.jurisdiction == Jurisdiction::WALES {
                             // Welsh Transitional Relief (W.S.I. 2025/1371 / W.S.I. 2022/1350)
                             // 2-Year Phasing Scheme: 67% relief in Year 1, 34% relief in Year 2 on bill increases > £300
                             if let Some((relief_pct, _authority)) = self.repo.resolve_welsh_transitional_relief_rate(&win.financial_year) {
                                 let (base_fy, base_date) = self.resolve_welsh_base_fy_and_date(&win.financial_year)
-                                    .unwrap_or((prev_fy.as_str(), win.period.start_date));
+                                    .unwrap_or((prev_fy.as_str(), prev_fy_end));
                                 let base_rv = {
                                     let rv_at_date = self.resolve_rv_for_date(&req.hereditament.rateable_value_history, base_date);
                                     if rv_at_date > dec!(0.00) {
@@ -516,8 +523,8 @@ impl CalculationEngine {
                             && segment_relief_total < chargeable_before_reliefs
                         {
                             if let Some(sbbs_tr) = self.repo.resolve_sbbs_tr(&win.financial_year) {
-                                let prev_net_segment = if let Some(prev_fy) = self.get_previous_financial_year(&win.financial_year) {
-                                    if let Some(prev_rv) = self.resolve_previous_rv(&req.hereditament.rateable_value_history, win.period.start_date) {
+                                let prev_net_segment = if let Some((prev_fy, prev_fy_end)) = self.get_previous_financial_year(&win.financial_year) {
+                                    if let Some(prev_rv) = self.resolve_previous_rv(&req.hereditament.rateable_value_history, prev_fy_end) {
                                         let prev_mult = self.repo.resolve_multiplier(Jurisdiction::SCOTLAND, &prev_fy, prev_rv);
                                         let prev_gross_annual = prev_rv * prev_mult.rate;
                                         let prev_sbbs_pct = self.repo.resolve_sbrr(Jurisdiction::SCOTLAND, &prev_fy, prev_rv)
@@ -567,8 +574,8 @@ impl CalculationEngine {
                             && segment_relief_total < chargeable_before_reliefs
                         {
                             if let Some(ssbr) = self.repo.resolve_ssbr(&win.financial_year) {
-                                let prev_net_segment = if let Some(prev_fy) = self.get_previous_financial_year(&win.financial_year) {
-                                    if let Some(prev_rv) = self.resolve_previous_rv(&req.hereditament.rateable_value_history, win.period.start_date) {
+                                let prev_net_segment = if let Some((prev_fy, prev_fy_end)) = self.get_previous_financial_year(&win.financial_year) {
+                                    if let Some(prev_rv) = self.resolve_previous_rv(&req.hereditament.rateable_value_history, prev_fy_end) {
                                         let prev_mult = self.repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, &prev_fy, prev_rv, flags.is_rhl_qualifying);
                                         let prev_gross_annual = prev_rv * prev_mult.rate;
                                         let prev_sbrr_pct = self.repo.resolve_sbrr(Jurisdiction::ENGLAND, &prev_fy, prev_rv)

@@ -4238,6 +4238,49 @@ async fn test_calculate_liability_period_before_first_rv_returns_bad_request() {
     assert_eq!(err_json["error"], "RATEABLE_VALUE_MISSING_FOR_PERIOD");
 }
 
+#[test]
+fn test_transitional_relief_preserved_when_occupation_starts_partway_through_year() {
+    let repo = ParameterRepository::new_mock();
+    let engine = CalculationEngine::new(repo);
+
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2017-04-01",
+                    "effective_to": "2023-03-31",
+                    "rateable_value": 20000.00
+                },
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 40000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2023-06-01",
+            "end_date": "2024-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {}
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+
+    assert_eq!(response.annual_billing_segments.len(), 1);
+    let seg = &response.annual_billing_segments[0];
+
+    assert_eq!(seg.gross_liability, dec!(16633.33));
+    assert_eq!(seg.transitional_adjustment.adjustment_type, "RELIEF");
+    assert_eq!(seg.transitional_adjustment.amount, dec!(7069.16));
+    assert_eq!(seg.net_segment_payable, dec!(9564.17));
+}
+
 
 
 
