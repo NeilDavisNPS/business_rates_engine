@@ -145,7 +145,7 @@ impl CalculationEngine {
     pub fn calculate_with_language(&self, req: LiabilityCalculationRequest, lang: crate::i18n::Language) -> LiabilityCalculationResponse {
         let mut periods = req.resolve_occupancy_periods();
         periods.sort_by_key(|p| (p.start_date, p.end_date));
-        let windows = slice_occupancy_periods(&periods, &req.qualifying_relief_flags);
+        let windows = slice_occupancy_periods(&periods, &req.qualifying_relief_flags, &req.hereditament.rateable_value_history);
         let mut annual_segments = Vec::new();
 
         let mut total_gross = dec!(0.00);

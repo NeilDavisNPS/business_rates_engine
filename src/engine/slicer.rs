@@ -1,5 +1,5 @@
 use chrono::{Datelike, NaiveDate, Duration};
-use crate::models::calculation::{DateRange, SegmentPeriod, OccupancyPeriodInput, QualifyingReliefFlags, PartOccupiedApportionment};
+use crate::models::calculation::{DateRange, SegmentPeriod, OccupancyPeriodInput, QualifyingReliefFlags, PartOccupiedApportionment, RvEntry};
 use crate::models::enums::OccupancyType;
 
 #[derive(Debug, Clone)]
@@ -54,6 +54,7 @@ pub fn slice_occupation_period(range: &DateRange) -> Vec<BillingSegmentWindow> {
 pub fn slice_occupancy_periods(
     periods: &[OccupancyPeriodInput],
     global_flags: &QualifyingReliefFlags,
+    rv_history: &[RvEntry],
 ) -> Vec<SlicedPeriodWindow> {
     let mut result = Vec::new();
     for p in periods {
@@ -64,14 +65,64 @@ pub fn slice_occupancy_periods(
         let fy_windows = slice_occupation_period(&range);
         let flags = p.qualifying_relief_flags.clone().unwrap_or_else(|| global_flags.clone());
         for win in fy_windows {
-            result.push(SlicedPeriodWindow {
-                financial_year: win.financial_year,
-                period: win.period,
-                year_days: win.year_days,
-                occupancy_type: p.occupancy_type,
-                period_relief_flags: flags.clone(),
-                part_apportionment: p.part_occupied_apportionment.clone(),
-            });
+            // Find any mid-segment rateable value effective dates within (win.period.start_date, win.period.end_date]
+            let mut cut_dates = Vec::new();
+            for entry in rv_history {
+                if entry.effective_from > win.period.start_date && entry.effective_from <= win.period.end_date {
+                    cut_dates.push(entry.effective_from);
+                }
+                if let Some(end) = entry.effective_to {
+                    let next_day = end + Duration::days(1);
+                    if next_day > win.period.start_date && next_day <= win.period.end_date {
+                        cut_dates.push(next_day);
+                    }
+                }
+            }
+            cut_dates.sort();
+            cut_dates.dedup();
+
+            if cut_dates.is_empty() {
+                result.push(SlicedPeriodWindow {
+                    financial_year: win.financial_year,
+                    period: win.period,
+                    year_days: win.year_days,
+                    occupancy_type: p.occupancy_type,
+                    period_relief_flags: flags.clone(),
+                    part_apportionment: p.part_occupied_apportionment.clone(),
+                });
+            } else {
+                let mut cur_start = win.period.start_date;
+                for cut in cut_dates {
+                    let sub_end = cut - Duration::days(1);
+                    let sub_days = (sub_end - cur_start).num_days() + 1;
+                    result.push(SlicedPeriodWindow {
+                        financial_year: win.financial_year.clone(),
+                        period: SegmentPeriod {
+                            start_date: cur_start,
+                            end_date: sub_end,
+                            days: sub_days,
+                        },
+                        year_days: win.year_days,
+                        occupancy_type: p.occupancy_type,
+                        period_relief_flags: flags.clone(),
+                        part_apportionment: p.part_occupied_apportionment.clone(),
+                    });
+                    cur_start = cut;
+                }
+                let sub_days = (win.period.end_date - cur_start).num_days() + 1;
+                result.push(SlicedPeriodWindow {
+                    financial_year: win.financial_year,
+                    period: SegmentPeriod {
+                        start_date: cur_start,
+                        end_date: win.period.end_date,
+                        days: sub_days,
+                    },
+                    year_days: win.year_days,
+                    occupancy_type: p.occupancy_type,
+                    period_relief_flags: flags.clone(),
+                    part_apportionment: p.part_occupied_apportionment.clone(),
+                });
+            }
         }
     }
     result.sort_by_key(|w| w.period.start_date);

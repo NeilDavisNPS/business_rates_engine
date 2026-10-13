@@ -26,6 +26,12 @@ pub enum AppError {
         second_end: NaiveDate,
     },
 
+    #[error("Calculation period start date ({period_start}) precedes earliest rateable value effective date ({rv_start})")]
+    RateableValueMissingForPeriod {
+        period_start: NaiveDate,
+        rv_start: NaiveDate,
+    },
+
     #[error("Payload Deserialization Error: {0}")]
     PayloadDeserialization(String),
 }
@@ -34,7 +40,9 @@ impl AppError {
     /// Maps each error variant to an appropriate HTTP status code
     pub fn status_code(&self) -> StatusCode {
         match self {
-            Self::InvalidOccupationPeriod { .. } | Self::OverlappingOccupationPeriods { .. } => {
+            Self::InvalidOccupationPeriod { .. }
+            | Self::OverlappingOccupationPeriods { .. }
+            | Self::RateableValueMissingForPeriod { .. } => {
                 StatusCode::BAD_REQUEST
             }
             Self::PayloadDeserialization(_) => StatusCode::UNPROCESSABLE_ENTITY,
@@ -46,6 +54,7 @@ impl AppError {
         match self {
             Self::InvalidOccupationPeriod { .. } => "INVALID_OCCUPATION_PERIOD",
             Self::OverlappingOccupationPeriods { .. } => "OVERLAPPING_OCCUPATION_PERIODS",
+            Self::RateableValueMissingForPeriod { .. } => "RATEABLE_VALUE_MISSING_FOR_PERIOD",
             Self::PayloadDeserialization(_) => "PAYLOAD_DESERIALIZATION_ERROR",
         }
     }
@@ -80,6 +89,17 @@ impl AppError {
                         ("second_start", &ss),
                         ("second_end", &se),
                     ],
+                )
+            }
+            Self::RateableValueMissingForPeriod {
+                period_start,
+                rv_start,
+            } => {
+                let ps = period_start.to_string();
+                let rs = rv_start.to_string();
+                crate::i18n::format_template(
+                    &bundle.errors.rateable_value_missing_for_period,
+                    &[("period_start", &ps), ("rv_start", &rs)],
                 )
             }
             Self::PayloadDeserialization(msg) => {

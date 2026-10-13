@@ -135,6 +135,7 @@
   "errors": {
     "invalid_occupation_period": "Occupation end date ({end}) cannot precede start date ({start})",
     "overlapping_occupation_periods": "Occupancy periods overlap: {first_start} to {first_end} and {second_start} to {second_end}",
+    "rateable_value_missing_for_period": "Calculation period start date ({period_start}) precedes earliest rateable value effective date ({rv_start})",
     "payload_deserialization": "Payload Deserialization Error: {msg}"
   },
   "reference_codes": {

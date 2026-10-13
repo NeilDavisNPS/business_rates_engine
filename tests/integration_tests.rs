@@ -1201,6 +1201,22 @@ fn test_domain_error_status_codes_and_codes() {
     assert_eq!(err_period.status_code(), StatusCode::BAD_REQUEST);
     assert_eq!(err_period.error_code(), "INVALID_OCCUPATION_PERIOD");
 
+    let err_overlap = AppError::OverlappingOccupationPeriods {
+        first_start: NaiveDate::from_ymd_opt(2024, 4, 1).unwrap(),
+        first_end: NaiveDate::from_ymd_opt(2024, 8, 31).unwrap(),
+        second_start: NaiveDate::from_ymd_opt(2024, 8, 1).unwrap(),
+        second_end: NaiveDate::from_ymd_opt(2024, 12, 31).unwrap(),
+    };
+    assert_eq!(err_overlap.status_code(), StatusCode::BAD_REQUEST);
+    assert_eq!(err_overlap.error_code(), "OVERLAPPING_OCCUPATION_PERIODS");
+
+    let err_rv_missing = AppError::RateableValueMissingForPeriod {
+        period_start: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+        rv_start: NaiveDate::from_ymd_opt(2024, 4, 1).unwrap(),
+    };
+    assert_eq!(err_rv_missing.status_code(), StatusCode::BAD_REQUEST);
+    assert_eq!(err_rv_missing.error_code(), "RATEABLE_VALUE_MISSING_FOR_PERIOD");
+
     let err_payload = AppError::PayloadDeserialization("invalid json syntax".to_string());
     assert_eq!(err_payload.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
     assert_eq!(err_payload.error_code(), "PAYLOAD_DESERIALIZATION_ERROR");
@@ -4128,6 +4144,101 @@ fn test_welsh_artificial_avoidance_penalty_charged_once_across_segments() {
         "Welsh artificial avoidance penalty should only be charged once per determination (£2,000), not per segment"
     );
 }
+
+#[test]
+fn test_mid_year_rateable_value_change_splits_billing_segments() {
+    let repo = ParameterRepository::new_mock();
+    let engine = CalculationEngine::new(repo);
+
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": "2024-09-30",
+                    "rateable_value": 20000.00
+                },
+                {
+                    "effective_from": "2024-10-01",
+                    "effective_to": null,
+                    "rateable_value": 60000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": false
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+
+    // Must be split into 2 segments within 2024/25:
+    // Seg 1: 2024-04-01 to 2024-09-30 (183 days) @ RV £20,000
+    // Seg 2: 2024-10-01 to 2025-03-31 (182 days) @ RV £60,000
+    assert_eq!(response.annual_billing_segments.len(), 2);
+    let seg1 = &response.annual_billing_segments[0];
+    let seg2 = &response.annual_billing_segments[1];
+
+    assert_eq!(seg1.rateable_value, dec!(20000.00));
+    assert_eq!(seg1.segment_period.days, 183);
+    assert_eq!(seg2.rateable_value, dec!(60000.00));
+    assert_eq!(seg2.segment_period.days, 182);
+
+    // Multiplier for England 2024/25:
+    // Seg 1 at RV £20,000 -> Small Business Multiplier (0.499) -> (20,000 * 0.499) / 365 * 183 = £5,003.67
+    // Seg 2 at RV £60,000 -> Standard Multiplier (0.546) -> (60,000 * 0.546) / 365 * 182 = £16,335.12
+    assert_eq!(seg1.gross_liability, dec!(5003.67));
+    assert_eq!(seg2.gross_liability, dec!(16335.12));
+}
+
+#[tokio::test]
+async fn test_calculate_liability_period_before_first_rv_returns_bad_request() {
+    let app = create_test_app();
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2024-04-01",
+                    "effective_to": null,
+                    "rateable_value": 20000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2023-04-01",
+            "end_date": "2024-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {}
+    });
+
+    let req = Request::builder()
+        .uri("/api/v1/calculate-liability")
+        .method("POST")
+        .header(header::CONTENT_TYPE, "application/json")
+        .body(Body::from(serde_json::to_string(&json).unwrap()))
+        .unwrap();
+
+    let res = app.oneshot(req).await.unwrap();
+    assert_eq!(res.status(), StatusCode::BAD_REQUEST);
+    let body = body_to_string(res.into_body()).await;
+    let err_json: Value = serde_json::from_str(&body).unwrap();
+    assert_eq!(err_json["error"], "RATEABLE_VALUE_MISSING_FOR_PERIOD");
+}
+
+
 
 
 

@@ -135,6 +135,7 @@
   "errors": {
     "invalid_occupation_period": "Ni all dyddiad gorffen meddiannaeth ({end}) fod cyn y dyddiad cychwyn ({start})",
     "overlapping_occupation_periods": "Mae cyfnodau meddiannaeth yn gorgyffwrdd: {first_start} i {first_end} a {second_start} i {second_end}",
+    "rateable_value_missing_for_period": "Mae dyddiad dechrau'r cyfnod cyfrifo ({period_start}) yn digwydd cyn dyddiad effeithiol gwerth trethadwy cynharaf ({rv_start})",
     "payload_deserialization": "Gwall Dad-gyfresoli Llwyth Tâl: {msg}"
   },
   "reference_codes": {

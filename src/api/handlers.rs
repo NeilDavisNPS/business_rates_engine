@@ -122,6 +122,27 @@ pub async fn calculate_liability_handler(
         }
     }
 
+    let earliest_rv = payload.hereditament.rateable_value_history.iter().map(|e| e.effective_from).min();
+    for period in &periods {
+        match earliest_rv {
+            Some(earliest) if period.start_date < earliest => {
+                let err = AppError::RateableValueMissingForPeriod {
+                    period_start: period.start_date,
+                    rv_start: earliest,
+                };
+                return err.into_response_with_lang(effective_lang);
+            }
+            None => {
+                let err = AppError::RateableValueMissingForPeriod {
+                    period_start: period.start_date,
+                    rv_start: period.start_date,
+                };
+                return err.into_response_with_lang(effective_lang);
+            }
+            _ => {}
+        }
+    }
+
     let engine = CalculationEngine::new(state.repo.clone());
     axum::response::IntoResponse::into_response(Json(engine.calculate_with_language(payload, effective_lang)))
 }
