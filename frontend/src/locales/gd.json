@@ -743,5 +743,15 @@
   "flag_higher_multiplier_excepted_title": "Saoraichte bho Àrd-iomadair na Cuimrigh",
   "flag_higher_multiplier_excepted_desc": "Sgoil, ospadal, ionad slàinte, lann-lannsa, leabharlann, taigh-tasgaidh, stèisean sheirbheisean èiginn, ionad cur-seachad no cùirt saoraichte bhon àrd-iomadair (>£100k) fo Achd Ionmhais Riaghaltas Ionadail (A' Chuimrigh) 2024.",
   "flag_food_and_drink_title": "Cleachdadh Aoigheachd Bidhe is Deoch na Cuimrigh",
-  "flag_food_and_drink_desc": "Ionad bidhe is deoch iomchaidh (taigh-seinnse, taigh-bìdh, cafaidh, bàr, biadh ri thoirt leat, ionad ciùil beò) a tha airidh air Faochadh Aoigheachd Bidhe is Deoch na Cuimrigh 15% (2026/27+)."
+  "flag_food_and_drink_desc": "Ionad bidhe is deoch iomchaidh (taigh-seinnse, taigh-bìdh, cafaidh, bàr, biadh ri thoirt leat, ionad ciùil beò) a tha airidh air Faochadh Aoigheachd Bidhe is Deoch na Cuimrigh 15% (2026/27+).",
+  "flag_wales_second_prop_title": "Dàrna Seilbh Gnìomhachas Beag na Cuimrigh (Artaigil 12)",
+  "flag_wales_second_prop_desc": "Còir air faochadh air suas ri dà sheilbh iomchaidh gach ùghdarras bileachaidh fo W.S.I. 2017/1229 art. 12.",
+  "flag_wales_childcare_title": "Togalaichean Cùram Chloinne Clàraichte (100% gu £100k RV)",
+  "flag_wales_childcare_desc": "Faochadh 100% do thogalaichean air an cleachdadh gu tur airson cùram chloinne clàraichte suas ri £100,000 RV fo W.S.I. 2017/1229 art. 8 / W.S.I. 2018/1193.",
+  "flag_wales_post_office_title": "Faochadh Oifis a' Phuist (100% / 50%)",
+  "flag_wales_post_office_desc": "Faochadh 100% suas ri £9,000 RV agus faochadh 50% airson £9,001–£12,000 RV fo W.S.I. 2017/1229 art. 9 & 11(2).",
+  "scat_084": "084 - Sgoil-àraich Latha / Crèche / Cùram Chloinne Clàraichte",
+  "scat_227": "227 - Oifis a' Phuist",
+  "scat_024": "024 - Bothan Cladaich",
+  "scat_050": "050 - Pàirceadh Chàraichean (Uachdar / Ioma-làr)"
 }

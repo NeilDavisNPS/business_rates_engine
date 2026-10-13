@@ -743,5 +743,15 @@
   "flag_higher_multiplier_excepted_title": "Excepted from Welsh Higher Multiplier",
   "flag_higher_multiplier_excepted_desc": "School, hospital, health centre, surgery, library, museum, emergency service station, leisure centre or court excepted from the higher multiplier (>£100k) under Local Government Finance (Wales) Act 2024.",
   "flag_food_and_drink_title": "Welsh Food & Drink Hospitality Use",
-  "flag_food_and_drink_desc": "Qualifying food and drink establishment (pub, restaurant, café, bar, takeaway, live music venue) eligible for 15% Welsh Food & Drink Hospitality Relief (2026/27+)."
+  "flag_food_and_drink_desc": "Qualifying food and drink establishment (pub, restaurant, café, bar, takeaway, live music venue) eligible for 15% Welsh Food & Drink Hospitality Relief (2026/27+).",
+  "flag_wales_second_prop_title": "Welsh Small Business Second Property (Art. 12)",
+  "flag_wales_second_prop_desc": "Entitled to relief on up to two qualifying properties per billing authority under W.S.I. 2017/1229 art. 12.",
+  "flag_wales_childcare_title": "Registered Childcare Premises (100% to £100k RV)",
+  "flag_wales_childcare_desc": "100% relief for premises wholly used for registered child minding or day care up to £100,000 RV under W.S.I. 2017/1229 art. 8 / W.S.I. 2018/1193.",
+  "flag_wales_post_office_title": "Post Office Relief (100% / 50%)",
+  "flag_wales_post_office_desc": "100% relief up to £9,000 RV and 50% relief for £9,001–£12,000 RV under W.S.I. 2017/1229 art. 9 & 11(2).",
+  "scat_084": "084 - Day Nursery / Crèche / Registered Childcare",
+  "scat_227": "227 - Post Office",
+  "scat_024": "024 - Beach Hut",
+  "scat_050": "050 - Car Park (Surface / Multi-Storey)"
 }

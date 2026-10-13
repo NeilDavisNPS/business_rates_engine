@@ -72,6 +72,17 @@ impl CalculationEngine {
         }
     }
 
+    fn is_welsh_excepted_hereditament(scat_code: &str, flags: &QualifyingReliefFlags) -> bool {
+        let scat = scat_code.trim();
+        scat == "003"
+            || scat == "050"
+            || scat == "051"
+            || scat == "251"
+            || scat == "280"
+            || scat == "024"
+            || flags.is_telecommunications_infrastructure
+    }
+
     fn compute_statutory_installments(
         &self,
         net_payable: Decimal,
@@ -281,8 +292,14 @@ impl CalculationEngine {
                                                 win.period_relief_flags.is_higher_multiplier_excepted,
                                             )?;
                                             let reval_gross_annual = rv * reval_mult.rate;
-                                            let reval_sbrr_pct = if win.period_relief_flags.is_small_business_sole_property {
-                                                self.repo.resolve_sbrr(Jurisdiction::WALES, reval_fy, rv)
+                                            let is_childcare = win.period_relief_flags.is_registered_childcare || req.hereditament.scat_code.trim() == "084";
+                                            let is_post_office = win.period_relief_flags.is_post_office || req.hereditament.scat_code.trim() == "227";
+                                            let reval_sbrr_pct = if (win.period_relief_flags.is_small_business_sole_property
+                                                || win.period_relief_flags.is_small_business_second_property_grace
+                                                || win.period_relief_flags.is_small_business_second_property)
+                                                && !Self::is_welsh_excepted_hereditament(&req.hereditament.scat_code, &win.period_relief_flags)
+                                            {
+                                                self.repo.resolve_welsh_sbrr(reval_fy, rv, is_childcare, is_post_office)
                                                     .map(|s| s.discount_percentage)
                                                     .unwrap_or(dec!(0.00))
                                             } else {
@@ -664,15 +681,34 @@ impl CalculationEngine {
                         } else {
                             chargeable_before_reliefs
                         };
-                        if (flags.is_small_business_sole_property || flags.is_small_business_second_property_grace)
+                        let qualifies_sbrr_flags = flags.is_small_business_sole_property
+                            || flags.is_small_business_second_property_grace
+                            || flags.is_small_business_second_property;
+                        let is_wales = req.hereditament.jurisdiction == Jurisdiction::WALES;
+                        let is_welsh_excepted = is_wales && Self::is_welsh_excepted_hereditament(&req.hereditament.scat_code, flags);
+                        let is_welsh_charity = is_wales && (req.party_type == PartyType::CHARITY || req.party_type == PartyType::CASC || flags.is_charitable_purposes);
+
+                        if qualifies_sbrr_flags
+                            && !is_welsh_excepted
+                            && !is_welsh_charity
                             && segment_relief_total < sbrr_chargeable_base
                         {
-                            if let Some(sbrr) = self.repo.resolve_sbrr(req.hereditament.jurisdiction, &win.financial_year, rv) {
+                            let sbrr_opt = if is_wales {
+                                let is_childcare = flags.is_registered_childcare || req.hereditament.scat_code.trim() == "084";
+                                let is_post_office = flags.is_post_office || req.hereditament.scat_code.trim() == "227";
+                                self.repo.resolve_welsh_sbrr(&win.financial_year, rv, is_childcare, is_post_office)
+                            } else {
+                                self.repo.resolve_sbrr(req.hereditament.jurisdiction, &win.financial_year, rv)
+                            };
+
+                            if let Some(sbrr) = sbrr_opt {
                                 let remaining = (sbrr_chargeable_base - segment_relief_total).max(dec!(0.00));
                                 let amount = (remaining * (sbrr.discount_percentage / dec!(100.00))).round_dp(2);
                                 if amount > dec!(0.00) {
                                     segment_relief_total += amount;
-                                    let authority = if flags.is_small_business_second_property_grace && req.hereditament.jurisdiction == Jurisdiction::ENGLAND {
+                                    let authority = if (flags.is_small_business_second_property_grace || flags.is_small_business_second_property) && is_wales {
+                                        format!("{} / W.S.I. 2017/1229 art. 12 (Two Properties per Billing Authority)", sbrr.statutory_authority)
+                                    } else if flags.is_small_business_second_property_grace && req.hereditament.jurisdiction == Jurisdiction::ENGLAND {
                                         format!("{} / S.I. 2017/411 art. 3(4) (12-Month Grace Period)", sbrr.statutory_authority)
                                     } else {
                                         sbrr.statutory_authority
@@ -1048,7 +1084,8 @@ impl CalculationEngine {
                         }
                     }
 
-                    if (flags.is_small_business_sole_property || flags.is_small_business_second_property_grace)
+                    if req.hereditament.jurisdiction != Jurisdiction::WALES
+                        && (flags.is_small_business_sole_property || flags.is_small_business_second_property_grace || flags.is_small_business_second_property)
                         && occ_relief_total < occ_chargeable
                     {
                         if let Some(sbrr) = self.repo.resolve_sbrr(req.hereditament.jurisdiction, &win.financial_year, rv) {

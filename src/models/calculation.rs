@@ -65,6 +65,12 @@ pub struct QualifyingReliefFlags {
     #[serde(default)]
     pub is_small_business_second_property_grace: bool,
     #[serde(default)]
+    pub is_small_business_second_property: bool,
+    #[serde(default)]
+    pub is_registered_childcare: bool,
+    #[serde(default)]
+    pub is_post_office: bool,
+    #[serde(default)]
     pub is_charitable_purposes: bool,
     #[serde(default)]
     pub is_rhl_qualifying: bool,

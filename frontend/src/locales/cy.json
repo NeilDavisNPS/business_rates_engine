@@ -743,5 +743,15 @@
   "flag_higher_multiplier_excepted_title": "Wedi'i Eithrio o Uwch-luosydd Cymru",
   "flag_higher_multiplier_excepted_desc": "Ysgol, ysbyty, canolfan iechyd, meddygfa, llyfrgell, amgueddfa, gorsaf gwasanaethau brys, canolfan hamdden neu lys wedi'i eithrio o'r uwch-luosydd (>£100k) o dan Ddeddf Cyllid Llywodraeth Leol (Cymru) 2024.",
   "flag_food_and_drink_title": "Defnydd Lletygarwch Bwyd a Diod Cymru",
-  "flag_food_and_drink_desc": "Sefydliad bwyd a diod cymwys (tafarn, bwyty, caffi, bar, tecawê, lleoliad cerddoriaeth fyw) sy'n gymwys ar gyfer Rhyddhad Lletygarwch Bwyd a Diod Cymru 15% (2026/27+)."
+  "flag_food_and_drink_desc": "Sefydliad bwyd a diod cymwys (tafarn, bwyty, caffi, bar, tecawê, lleoliad cerddoriaeth fyw) sy'n gymwys ar gyfer Rhyddhad Lletygarwch Bwyd a Diod Cymru 15% (2026/27+).",
+  "flag_wales_second_prop_title": "Ail Eiddo Busnes Bach Cymru (Rhag. 12)",
+  "flag_wales_second_prop_desc": "Hawl i ryddhad ar hyd at ddau eiddo cymwys fesul awdurdod bilio o dan O.S.C. 2017/1229 rhag. 12.",
+  "flag_wales_childcare_title": "Mangreoedd Gofal Plant Cofrestredig (100% hyd at £100k RV)",
+  "flag_wales_childcare_desc": "Rhyddhad 100% ar gyfer mangreoedd a ddefnyddir yn gyfan gwbl ar gyfer gwarchod plant neu ofal dydd cofrestredig hyd at £100,000 RV o dan O.S.C. 2017/1229 rhag. 8 / O.S.C. 2018/1193.",
+  "flag_wales_post_office_title": "Rhyddhad Swyddfa'r Post (100% / 50%)",
+  "flag_wales_post_office_desc": "Rhyddhad 100% hyd at £9,000 RV a rhyddhad 50% ar gyfer £9,001–£12,000 RV o dan O.S.C. 2017/1229 rhag. 9 ac 11(2).",
+  "scat_084": "084 - Meithrinfa Ddydd / Crèche / Gofal Plant Cofrestredig",
+  "scat_227": "227 - Swyddfa'r Post",
+  "scat_024": "024 - Cwt Traeth",
+  "scat_050": "050 - Maes Parcio (Arwyneb / Aml-Lawr)"
 }

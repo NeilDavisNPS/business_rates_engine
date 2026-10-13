@@ -140,7 +140,10 @@
     "Renewable Energy Generation Relief": "Renewable Energy Generation Relief",
     "Empty Industrial Rate Relief (50% for 6 Months)": "Empty Industrial Rate Relief (50% for 6 Months)",
     "Empty Property Rate Relief (50% for 3 Months)": "Empty Property Rate Relief (50% for 3 Months)",
-    "Council Tax Transfer (Holiday Let Disqualification)": "Council Tax Transfer (Holiday Let Disqualification)"
+    "Council Tax Transfer (Holiday Let Disqualification)": "Council Tax Transfer (Holiday Let Disqualification)",
+    "Welsh Small Business Rates Relief": "Welsh Small Business Rates Relief",
+    "Welsh Small Business Rates Relief (Registered Childcare)": "Welsh Small Business Rates Relief (Registered Childcare)",
+    "Welsh Small Business Rates Relief (Post Office)": "Welsh Small Business Rates Relief (Post Office)"
   },
   "errors": {
     "invalid_occupation_period": "Occupation end date ({end}) cannot precede start date ({start})",
@@ -228,6 +231,22 @@
       "249": {
         "label": "249 - Self-Catering Holiday Accommodation",
         "description": "Holiday let subject to statutory minimum letting criteria (minimum 70 actual days let / 140 days available in Scotland)."
+      },
+      "084": {
+        "label": "084 - Day Nursery / Crèche / Registered Childcare",
+        "description": "Premises wholly used for childcare eligible for 100% SBRR up to £100,000 RV in Wales under W.S.I. 2017/1229 art. 8."
+      },
+      "227": {
+        "label": "227 - Post Office",
+        "description": "Post office premises eligible for 100% SBRR up to £9,000 RV and 50% relief up to £12,000 RV in Wales under W.S.I. 2017/1229 art. 9."
+      },
+      "024": {
+        "label": "024 - Beach Hut",
+        "description": "Beach hut. Explicitly excepted from Welsh small business rates relief under W.S.I. 2017/1229 art. 2."
+      },
+      "050": {
+        "label": "050 - Car Park (Surface / Multi-Storey)",
+        "description": "Vehicle parking premises. Explicitly excepted from Welsh small business rates relief under W.S.I. 2017/1229 art. 2."
       }
     },
     "RELIEF_CODE": {
@@ -237,7 +256,7 @@
       },
       "WALES_SBRR": {
         "label": "Small Business Rate Relief (Wales)",
-        "description": "100% relief up to £6,000 RV, with linear taper up to £12,000 RV under LGF(W)A 2024."
+        "description": "100% relief up to £6,000 RV, with linear taper up to £12,000 RV (childcare 100% to £100,000 RV; post office 100%/50%) under LGFA 1988 Sched 4ZA para 4 / W.S.I. 2017/1229."
       },
       "SBBS": {
         "label": "Small Business Bonus Scheme",
@@ -348,4 +367,3 @@
     }
   }
 }
-

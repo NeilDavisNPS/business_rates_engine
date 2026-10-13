@@ -140,7 +140,10 @@
     "Renewable Energy Generation Relief": "Faochadh Gineadh Lùth Ath-nuadhachail",
     "Empty Industrial Rate Relief (50% for 6 Months)": "Faochadh Togalaich Ghnìomhachais Fhalamh (50% airson 6 Mìosan)",
     "Empty Property Rate Relief (50% for 3 Months)": "Faochadh Togalaich Fhalamh (50% airson 3 Mìosan)",
-    "Council Tax Transfer (Holiday Let Disqualification)": "Gluasad gu Cìs Comhairle (Dì-cheadachadh Togalaich Saor-làithean)"
+    "Council Tax Transfer (Holiday Let Disqualification)": "Gluasad gu Cìs Comhairle (Dì-cheadachadh Togalaich Saor-làithean)",
+    "Welsh Small Business Rates Relief": "Faochadh Reataichean Gnìomhachasan Beaga na Cuimrigh",
+    "Welsh Small Business Rates Relief (Registered Childcare)": "Faochadh Reataichean Gnìomhachasan Beaga na Cuimrigh (Cùram Chloinne Clàraichte)",
+    "Welsh Small Business Rates Relief (Post Office)": "Faochadh Reataichean Gnìomhachasan Beaga na Cuimrigh (Oifis a' Phuist)"
   },
   "errors": {
     "invalid_occupation_period": "Chan urrainn do cheann-latha crìochnachaidh gabhaltais ({end}) a bhith ro cheann-latha tòiseachaidh ({start})",
@@ -215,7 +218,7 @@
       },
       "WALES_SBRR": {
         "label": "Small Business Rate Relief (Wales)",
-        "description": "100% relief up to £6,000 RV, with linear taper up to £12,000 RV under LGF(W)A 2024."
+        "description": "Faochadh 100% suas ri £6,000 RV, le lùghdachadh loidhneach gu £12,000 RV (cùram chloinne 100% gu £100,000 RV; oifis a' phuist 100%/50%) fo LGFA 1988 Clàr 4ZA para 4 / W.S.I. 2017/1229."
       },
       "RHL": {
         "label": "Retail, Hospitality & Leisure Relief",
@@ -302,6 +305,22 @@
       "249": {
         "label": "249 - Self-Catering Holiday Accommodation",
         "description": "Holiday let subject to statutory minimum letting criteria (minimum 70 actual days let / 140 days available in Scotland)."
+      },
+      "084": {
+        "label": "084 - Sgoil-àraich Latha / Crèche / Cùram Chloinne Clàraichte",
+        "description": "Togalaichean air an cleachdadh gu tur airson cùram chloinne a tha freagarrach airson 100% SBRR suas ri £100,000 RV anns a' Chuimrigh fo W.S.I. 2017/1229 art. 8."
+      },
+      "227": {
+        "label": "227 - Oifis a' Phuist",
+        "description": "Togalaichean oifis a' phuist a tha freagarrach airson 100% SBRR suas ri £9,000 RV agus faochadh 50% suas ri £12,000 RV anns a' Chuimrigh fo W.S.I. 2017/1229 art. 9."
+      },
+      "024": {
+        "label": "024 - Bothan Cladaich",
+        "description": "Bothan cladaich. Air a thoirmeasg gu sònraichte bho fhaochadh reataichean gnìomhachasan beaga na Cuimrigh fo W.S.I. 2017/1229 art. 2."
+      },
+      "050": {
+        "label": "050 - Pàirceadh Chàraichean (Uachdar / Ioma-làr)",
+        "description": "Togalaichean pàirceadh charbadan. Air an toirmeasg gu sònraichte bho fhaochadh reataichean gnìomhachasan beaga na Cuimrigh fo W.S.I. 2017/1229 art. 2."
       }
     },
     "MULTIPLIER_TYPE": {

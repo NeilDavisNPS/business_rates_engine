@@ -47,7 +47,7 @@
 
       <!-- Small Business Second Property Grace Period (England only - S.I. 2017/411 art 3(4)) -->
       {#if calcStore.jurisdiction === 'ENGLAND'}
-        <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-blue-200 bg-blue-50/40 hover:bg-blue-50 cursor-pointer transition-colors">
+        <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-blue-200 bg-blue-50/40 hover:bg-blue-50 cursor-pointer transition-colors min-h-[44px]">
           <input
             type="checkbox"
             bind:checked={calcStore.qualifyingReliefFlags.is_small_business_second_property_grace}
@@ -57,6 +57,51 @@
           <div>
             <span class="text-xs font-bold text-blue-950 block">{calcStore.t.flag_sbrr_grace_title}</span>
             <span class="text-[11px] text-blue-800">{calcStore.t.flag_sbrr_grace_desc}</span>
+          </div>
+        </label>
+      {/if}
+
+      <!-- Welsh Small Business Relief Rules (Wales only - W.S.I. 2017/1229) -->
+      {#if calcStore.jurisdiction === 'WALES'}
+        <!-- Small Business Second Property (Art. 12) -->
+        <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50 cursor-pointer transition-colors min-h-[44px]">
+          <input
+            type="checkbox"
+            bind:checked={calcStore.qualifyingReliefFlags.is_small_business_second_property}
+            onchange={onFlagChange}
+            class="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500"
+          />
+          <div>
+            <span class="text-xs font-bold text-emerald-950 block">{calcStore.t.flag_wales_second_prop_title}</span>
+            <span class="text-[11px] text-emerald-800">{calcStore.t.flag_wales_second_prop_desc}</span>
+          </div>
+        </label>
+
+        <!-- Registered Childcare Premises (Art. 8 / W.S.I. 2018/1193) -->
+        <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50 cursor-pointer transition-colors min-h-[44px]">
+          <input
+            type="checkbox"
+            bind:checked={calcStore.qualifyingReliefFlags.is_registered_childcare}
+            onchange={onFlagChange}
+            class="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500"
+          />
+          <div>
+            <span class="text-xs font-bold text-emerald-950 block">{calcStore.t.flag_wales_childcare_title}</span>
+            <span class="text-[11px] text-emerald-800">{calcStore.t.flag_wales_childcare_desc}</span>
+          </div>
+        </label>
+
+        <!-- Post Office Relief (Art. 9 & 11(2)) -->
+        <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50 cursor-pointer transition-colors min-h-[44px]">
+          <input
+            type="checkbox"
+            bind:checked={calcStore.qualifyingReliefFlags.is_post_office}
+            onchange={onFlagChange}
+            class="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500"
+          />
+          <div>
+            <span class="text-xs font-bold text-emerald-950 block">{calcStore.t.flag_wales_post_office_title}</span>
+            <span class="text-[11px] text-emerald-800">{calcStore.t.flag_wales_post_office_desc}</span>
           </div>
         </label>
       {/if}

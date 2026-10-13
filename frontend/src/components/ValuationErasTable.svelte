@@ -9,6 +9,10 @@
     { code: '211', label: calcStore.t.scat_211 },
     { code: '225', label: calcStore.t.scat_225 },
     { code: '249', label: calcStore.t.scat_249 },
+    { code: '084', label: calcStore.t.scat_084 },
+    { code: '227', label: calcStore.t.scat_227 },
+    { code: '024', label: calcStore.t.scat_024 },
+    { code: '050', label: calcStore.t.scat_050 },
   ]);
 </script>
 

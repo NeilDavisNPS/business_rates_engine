@@ -5822,6 +5822,205 @@ async fn test_wales_2005_list_no_transitional_relief() {
     assert_eq!(seg.transitional_adjustment.adjustment_type, "NONE");
 }
 
+#[tokio::test]
+async fn test_wales_sbrr_childcare_100_percent_up_to_100k() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Reproduction for Issue #24: Welsh Childcare SBRR (100% relief up to £100k RV under W.S.I. 2017/1229 art. 8 / W.S.I. 2018/1193)
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "084",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 45000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_small_business_sole_property": true,
+            "is_registered_childcare": true
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    // Under W.S.I. 2017/1229 art. 8, £45,000 childcare receives 100% relief (£0 net payable)
+    assert_eq!(seg.net_segment_payable, dec!(0.00));
+    let sbrr = seg.itemized_reliefs.iter().find(|r| r.relief_code.contains("SBRR")).expect("Welsh SBRR should apply to childcare");
+    assert_eq!(sbrr.discount_percentage, dec!(100.00));
+    assert!(sbrr.statutory_authority.contains("2017/1229"));
+}
+
+#[tokio::test]
+async fn test_wales_sbrr_post_office_tiered_relief() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Reproduction for Issue #24: Welsh Post Office SBRR: 100% up to £9,000 and 50% from £9,001 to £12,000 (W.S.I. 2017/1229 art. 9 & 11(2))
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "227",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 10000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_small_business_sole_property": true,
+            "is_post_office": true
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    // Under standard taper, £10,000 gets (12000-10000)/6000 = 33.33%. Under Post Office rule, it gets 50.00% (E = 2).
+    let sbrr = seg.itemized_reliefs.iter().find(|r| r.relief_code.contains("SBRR")).expect("Welsh SBRR should apply to post office");
+    assert_eq!(sbrr.discount_percentage, dec!(50.00));
+}
+
+#[tokio::test]
+async fn test_wales_sbrr_excepted_hereditaments_no_relief() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Reproduction for Issue #24: Excepted hereditaments (car parks SCAT 050, advert 003, beach huts 024) get no relief under W.S.I. 2017/1229 arts. 2 & 7(b)
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "050",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 5000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_small_business_sole_property": true
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    assert!(!seg.itemized_reliefs.iter().any(|r| r.relief_code.contains("SBRR")),
+        "Car park is an excepted hereditament under W.S.I. 2017/1229 art. 2 & 7(b) and must receive 0% Welsh SBRR");
+}
+
+#[tokio::test]
+async fn test_wales_sbrr_two_properties_in_billing_authority() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Reproduction for Issue #24: Two properties per billing authority under W.S.I. 2017/1229 art. 12
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "225",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 5000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_small_business_second_property_grace": true
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    let sbrr = seg.itemized_reliefs.iter().find(|r| r.relief_code.contains("SBRR")).expect("Second qualifying property in Wales must receive SBRR");
+    assert_eq!(sbrr.discount_percentage, dec!(100.00));
+    assert!(sbrr.statutory_authority.contains("art. 12"));
+}
+
+#[tokio::test]
+async fn test_wales_sbrr_part_occupied_excluded() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Reproduction for Issue #24: Welsh SBRR requires occupation of the whole hereditament (arts. 7(c), 8(c), 9(c)).
+    // Part-occupied (s.44A) apportionment properties are excluded from Welsh SBRR.
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "225",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 5000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "occupancy_type": "PART_OCCUPIED",
+        "part_occupied_apportionment": {
+            "occupied_rateable_value": 3000.00,
+            "unoccupied_rateable_value": 2000.00
+        },
+        "qualifying_relief_flags": {
+            "is_small_business_sole_property": true
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    assert!(!seg.itemized_reliefs.iter().any(|r| r.relief_code.contains("SBRR")),
+        "Part-occupied property in Wales must not receive SBRR under W.S.I. 2017/1229 art. 7(c)");
+}
+
+
+
 
 
 

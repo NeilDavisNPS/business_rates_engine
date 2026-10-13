@@ -396,10 +396,8 @@ impl ParameterRepository {
                     Jurisdiction::WALES => (
                         "SBRR_WALES",
                         "Welsh Small Business Rates Relief",
-                        if financial_year >= "2024/25" {
-                            "Local Government Finance (Wales) Act 2024"
-                        } else if financial_year >= "2018/19" {
-                            "WSI 2017/1229 (W.293)"
+                        if financial_year >= "2018/19" {
+                            "LGFA 1988 Sched 4ZA para 4 / W.S.I. 2017/1229"
                         } else if financial_year >= "2010/11" {
                             "WSI 2010/248 (W.34)"
                         } else {
@@ -430,6 +428,57 @@ impl ParameterRepository {
             }
         }
         None
+    }
+
+    /// Resolves Welsh Small Business Rates Relief, including Childcare and Post Office rules
+    /// under The Non-Domestic Rating (Small Business Relief) (Wales) Order 2017 (W.S.I. 2017/1229)
+    pub fn resolve_welsh_sbrr(
+        &self,
+        financial_year: &str,
+        rv: Decimal,
+        is_childcare: bool,
+        is_post_office: bool,
+    ) -> Option<SbrrResolution> {
+        if is_childcare {
+            // W.S.I. 2017/1229 art. 8 as amended by W.S.I. 2018/1193:
+            // 100% relief for premises wholly used for child minding or day care up to £100,000 RV (from 2019/20)
+            if financial_year >= "2019/20" {
+                if rv <= Decimal::from(100_000) {
+                    return Some(SbrrResolution {
+                        relief_code: "SBRR_WALES".to_string(),
+                        relief_name: "Welsh Small Business Rates Relief (Registered Childcare)".to_string(),
+                        statutory_authority: "W.S.I. 2017/1229 art. 8 / W.S.I. 2018/1193".to_string(),
+                        discount_percentage: Decimal::from(100),
+                    });
+                } else {
+                    return None;
+                }
+            }
+        }
+
+        if is_post_office {
+            // W.S.I. 2017/1229 art. 9 & 11(2):
+            // 100% relief up to £9,000 RV, 50% relief for £9,001 to £12,000 RV
+            if rv <= Decimal::from(9_000) {
+                return Some(SbrrResolution {
+                    relief_code: "SBRR_WALES".to_string(),
+                    relief_name: "Welsh Small Business Rates Relief (Post Office)".to_string(),
+                    statutory_authority: "W.S.I. 2017/1229 art. 9 & 11(2)".to_string(),
+                    discount_percentage: Decimal::from(100),
+                });
+            } else if rv <= Decimal::from(12_000) {
+                return Some(SbrrResolution {
+                    relief_code: "SBRR_WALES".to_string(),
+                    relief_name: "Welsh Small Business Rates Relief (Post Office)".to_string(),
+                    statutory_authority: "W.S.I. 2017/1229 art. 9 & 11(2)".to_string(),
+                    discount_percentage: Decimal::from(50),
+                });
+            } else {
+                return None;
+            }
+        }
+
+        self.resolve_sbrr(Jurisdiction::WALES, financial_year, rv)
     }
 
     /// Resolves Sector Relief (e.g. Retail, Hospitality & Leisure)
@@ -1082,10 +1131,14 @@ impl RepoData {
         add("SCAT_CODE", "211", "211 - Petrol Filling Station & Forecourt", "Automotive fuel sales and forecourt shop. Explicitly excluded from retail discount in Wales under 2026/27 rules.", None, 5);
         add("SCAT_CODE", "225", "225 - Retail Shop / High Street Unit", "Standard retail shop or store eligible for SBRR and RHL discount schemes.", None, 6);
         add("SCAT_CODE", "249", "249 - Self-Catering Holiday Accommodation", "Holiday let subject to statutory minimum letting criteria (minimum 70 actual days let / 140 days available in Scotland).", None, 7);
+        add("SCAT_CODE", "084", "084 - Day Nursery / Crèche / Registered Childcare", "Premises wholly used for childcare eligible for 100% SBRR up to £100,000 RV in Wales under W.S.I. 2017/1229 art. 8.", None, 8);
+        add("SCAT_CODE", "227", "227 - Post Office", "Post office premises eligible for 100% SBRR up to £9,000 RV and 50% relief up to £12,000 RV in Wales under W.S.I. 2017/1229 art. 9.", None, 9);
+        add("SCAT_CODE", "024", "024 - Beach Hut", "Beach hut. Explicitly excepted from Welsh small business rates relief under W.S.I. 2017/1229 art. 2.", None, 10);
+        add("SCAT_CODE", "050", "050 - Car Park (Surface / Multi-Storey)", "Vehicle parking premises. Explicitly excepted from Welsh small business rates relief under W.S.I. 2017/1229 art. 2.", None, 11);
 
         // RELIEF_CODE
         add("RELIEF_CODE", "SBRR", "Small Business Rate Relief", "100% discount up to £12,000 RV, with linear taper up to £15,000 RV for single property occupiers (England).", Some("ENGLAND"), 1);
-        add("RELIEF_CODE", "WALES_SBRR", "Small Business Rate Relief (Wales)", "100% relief up to £6,000 RV, with linear taper up to £12,000 RV under LGF(W)A 2024.", Some("WALES"), 2);
+        add("RELIEF_CODE", "WALES_SBRR", "Small Business Rate Relief (Wales)", "100% relief up to £6,000 RV, with linear taper up to £12,000 RV (childcare 100% to £100,000 RV; post office 100%/50%) under LGFA 1988 Sched 4ZA para 4 / W.S.I. 2017/1229.", Some("WALES"), 2);
         add("RELIEF_CODE", "SBBS", "Small Business Bonus Scheme", "Scottish rating relief for small businesses up to £12,000 RV (2023-2026) or £11,500 RV (2026+).", Some("SCOTLAND"), 3);
         add("RELIEF_CODE", "RHL", "Retail, Hospitality & Leisure Relief", "Statutory sector discount (40% in England 2025/26, expired 2026/27; 15% in Wales 2026/27; 15% mainland / 100% islands in Scotland 2026/27 up to £110,000 cash cap).", None, 4);
         add("RELIEF_CODE", "CHARITY", "Mandatory Charitable Relief", "80% mandatory relief under LGFA 1988 s.43(5) where property is used wholly or mainly for charitable purposes.", None, 5);

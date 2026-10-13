@@ -743,5 +743,15 @@
   "flag_higher_multiplier_excepted_title": "Exemptit frae Welsh Heicher Multiplier",
   "flag_higher_multiplier_excepted_desc": "Schuil, hospital, health centre, surgery, leebrary, museum, emergency service station, leisure centre or coort exemptit frae the heicher multiplier (>£100k) unner Local Government Finance (Wales) Act 2024.",
   "flag_food_and_drink_title": "Welsh Food & Drink Hospitality Uise",
-  "flag_food_and_drink_desc": "Qualifyin fuid an drink establishment (pub, restaurant, café, bar, takeaway, live music venue) eligible for 15% Welsh Food & Drink Hospitality Relief (2026/27+)."
+  "flag_food_and_drink_desc": "Qualifyin fuid an drink establishment (pub, restaurant, café, bar, takeaway, live music venue) eligible for 15% Welsh Food & Drink Hospitality Relief (2026/27+).",
+  "flag_wales_second_prop_title": "Welsh Sma Business Saicont Property (Airt. 12)",
+  "flag_wales_second_prop_desc": "Entitled tae relief on up tae twa qualifyin properties per billin authority unner W.S.I. 2017/1229 airt. 12.",
+  "flag_wales_childcare_title": "Registered Bairn-Care Premises (100% up tae £100k RV)",
+  "flag_wales_childcare_desc": "100% relief for premises hail used for registered bairn-mindin or day care up tae £100,000 RV unner W.S.I. 2017/1229 airt. 8 / W.S.I. 2018/1193.",
+  "flag_wales_post_office_title": "Post Office Relief (100% / 50%)",
+  "flag_wales_post_office_desc": "100% relief up tae £9,000 RV an 50% relief for £9,001–£12,000 RV unner W.S.I. 2017/1229 airt. 9 & 11(2).",
+  "scat_084": "084 - Day Nursery / Crèche / Registered Bairn-Care",
+  "scat_227": "227 - Post Office",
+  "scat_024": "024 - Beach Hut",
+  "scat_050": "050 - Caur Pairk (Surface / Multi-Storey)"
 }

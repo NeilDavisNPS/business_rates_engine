@@ -45,6 +45,9 @@ class CalculationStore {
   qualifyingReliefFlags = $state<QualifyingReliefFlags>({
     is_small_business_sole_property: false,
     is_small_business_second_property_grace: false,
+    is_small_business_second_property: false,
+    is_registered_childcare: false,
+    is_post_office: false,
     is_charitable_purposes: false,
     is_rhl_qualifying: false,
     is_retail_premises: false,
@@ -190,6 +193,9 @@ class CalculationStore {
     const flags: QualifyingReliefFlags = {
       is_small_business_sole_property: this.qualifyingReliefFlags.is_small_business_sole_property,
       is_small_business_second_property_grace: jur === 'ENGLAND' ? this.qualifyingReliefFlags.is_small_business_second_property_grace : false,
+      is_small_business_second_property: jur === 'WALES' ? this.qualifyingReliefFlags.is_small_business_second_property : false,
+      is_registered_childcare: jur === 'WALES' ? this.qualifyingReliefFlags.is_registered_childcare : false,
+      is_post_office: jur === 'WALES' ? this.qualifyingReliefFlags.is_post_office : false,
       is_charitable_purposes: this.qualifyingReliefFlags.is_charitable_purposes,
       is_rhl_qualifying: this.qualifyingReliefFlags.is_rhl_qualifying,
       is_retail_premises: this.qualifyingReliefFlags.is_retail_premises,
@@ -288,6 +294,9 @@ class CalculationStore {
         this.qualifyingReliefFlags = {
           is_small_business_sole_property: !!p.qualifying_relief_flags.is_small_business_sole_property,
           is_small_business_second_property_grace: !!p.qualifying_relief_flags.is_small_business_second_property_grace,
+          is_small_business_second_property: !!p.qualifying_relief_flags.is_small_business_second_property,
+          is_registered_childcare: !!p.qualifying_relief_flags.is_registered_childcare,
+          is_post_office: !!p.qualifying_relief_flags.is_post_office,
           is_charitable_purposes: !!p.qualifying_relief_flags.is_charitable_purposes,
           is_rhl_qualifying: !!p.qualifying_relief_flags.is_rhl_qualifying,
           is_retail_premises: !!p.qualifying_relief_flags.is_retail_premises,

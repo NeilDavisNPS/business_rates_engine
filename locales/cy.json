@@ -140,7 +140,10 @@
     "Renewable Energy Generation Relief": "Rhyddhad Cynhyrchu Ynni Adnewyddadwy",
     "Empty Industrial Rate Relief (50% for 6 Months)": "Rhyddhad Eiddo Diwydiannol Gwag (50% am 6 Mis)",
     "Empty Property Rate Relief (50% for 3 Months)": "Rhyddhad Eiddo Gwag (50% am 3 Mis)",
-    "Council Tax Transfer (Holiday Let Disqualification)": "Trosglwyddo i'r Dreth Gyngor (Anghymhwyso Llety Gwyliau)"
+    "Council Tax Transfer (Holiday Let Disqualification)": "Trosglwyddo i'r Dreth Gyngor (Anghymhwyso Llety Gwyliau)",
+    "Welsh Small Business Rates Relief": "Rhyddhad Ardrethi Busnesau Bach Cymru",
+    "Welsh Small Business Rates Relief (Registered Childcare)": "Rhyddhad Ardrethi Busnesau Bach Cymru (Gofal Plant Cofrestredig)",
+    "Welsh Small Business Rates Relief (Post Office)": "Rhyddhad Ardrethi Busnesau Bach Cymru (Swyddfa'r Post)"
   },
   "errors": {
     "invalid_occupation_period": "Ni all dyddiad gorffen meddiannaeth ({end}) fod cyn y dyddiad cychwyn ({start})",
@@ -228,6 +231,22 @@
       "249": {
         "label": "249 - Llety Gwyliau Hunan-ddarpar",
         "description": "Llety gwyliau yn amodol ar feini prawf gosod statudol lleiaf (o leiaf 70 diwrnod gosod gwirioneddol / 140 diwrnod ar gael)."
+      },
+      "084": {
+        "label": "084 - Meithrinfa Ddydd / Crèche / Gofal Plant Cofrestredig",
+        "description": "Mangreoedd a ddefnyddir yn gyfan gwbl ar gyfer gofal plant sy'n gymwys ar gyfer 100% SBRR hyd at £100,000 RV yng Nghymru o dan O.S.C. 2017/1229 rhag. 8."
+      },
+      "227": {
+        "label": "227 - Swyddfa'r Post",
+        "description": "Mangreoedd swyddfa'r post sy'n gymwys ar gyfer 100% SBRR hyd at £9,000 RV a 50% rhyddhad hyd at £12,000 RV yng Nghymru o dan O.S.C. 2017/1229 rhag. 9."
+      },
+      "024": {
+        "label": "024 - Cwt Traeth",
+        "description": "Cwt traeth. Wedi'i eithrio'n benodol o ryddhad ardrethi busnesau bach Cymru o dan O.S.C. 2017/1229 rhag. 2."
+      },
+      "050": {
+        "label": "050 - Maes Parcio (Arwyneb / Aml-Lawr)",
+        "description": "Mangreoedd parcio cerbydau. Wedi'u heithrio'n benodol o ryddhad ardrethi busnesau bach Cymru o dan O.S.C. 2017/1229 rhag. 2."
       }
     },
     "RELIEF_CODE": {
@@ -237,7 +256,7 @@
       },
       "WALES_SBRR": {
         "label": "Rhyddhad Ardrethi Busnesau Bach (Cymru)",
-        "description": "Rhyddhad o 100% hyd at £6,000 RV, gyda thapr llinol hyd at £12,000 RV o dan Ddeddf Cyllid Llywodraeth Leol (Cymru) 2024."
+        "description": "Rhyddhad 100% hyd at £6,000 RV, gyda thapr llinol hyd at £12,000 RV (gofal plant 100% hyd at £100,000 RV; swyddfa'r post 100%/50%) o dan LGFA 1988 Atodlen 4ZA para 4 / O.S.C. 2017/1229."
       },
       "SBBS": {
         "label": "Cynllun Bonws Busnesau Bach (Yr Alban)",

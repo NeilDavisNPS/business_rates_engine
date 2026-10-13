@@ -28,6 +28,9 @@ export interface PartOccupiedApportionment {
 export interface QualifyingReliefFlags {
   is_small_business_sole_property: boolean;
   is_small_business_second_property_grace?: boolean;
+  is_small_business_second_property?: boolean;
+  is_registered_childcare?: boolean;
+  is_post_office?: boolean;
   is_charitable_purposes: boolean;
   is_rhl_qualifying: boolean;
   is_retail_premises?: boolean;
