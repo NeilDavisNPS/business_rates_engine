@@ -67,6 +67,7 @@ class CalculationStore {
     is_food_and_drink: false,
     payment_installments_count: 10,
     apply_transitional_relief: true,
+    same_occupier_since_revaluation: true,
   });
 
   rawJsonRequest = $state<string>('');
@@ -211,6 +212,7 @@ class CalculationStore {
       is_sbbs_tr_qualifying: jur === 'SCOTLAND' ? this.qualifyingReliefFlags.is_sbbs_tr_qualifying : false,
       is_ssbr_qualifying: jur === 'ENGLAND' ? this.qualifyingReliefFlags.is_ssbr_qualifying : false,
       apply_transitional_relief: this.qualifyingReliefFlags.apply_transitional_relief,
+      same_occupier_since_revaluation: jur === 'WALES' ? this.qualifyingReliefFlags.same_occupier_since_revaluation !== false : undefined,
     };
 
     return {
@@ -308,6 +310,7 @@ class CalculationStore {
           is_food_and_drink: !!p.qualifying_relief_flags.is_food_and_drink,
           payment_installments_count: p.qualifying_relief_flags.payment_installments_count != null ? Number(p.qualifying_relief_flags.payment_installments_count) : 10,
           apply_transitional_relief: p.qualifying_relief_flags.apply_transitional_relief !== false,
+          same_occupier_since_revaluation: p.qualifying_relief_flags.same_occupier_since_revaluation !== false,
         };
       }
       this.isCalculationDue = true;

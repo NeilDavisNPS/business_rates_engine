@@ -108,6 +108,8 @@ pub struct QualifyingReliefFlags {
     pub payment_installments_count: Option<u32>,
     #[serde(default = "default_true_opt")]
     pub apply_transitional_relief: Option<bool>,
+    #[serde(default = "default_true_opt")]
+    pub same_occupier_since_revaluation: Option<bool>,
 }
 
 fn default_true_opt() -> Option<bool> {

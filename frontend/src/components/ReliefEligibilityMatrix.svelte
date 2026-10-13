@@ -210,6 +210,24 @@
         </div>
       </label>
 
+      <!-- Welsh Same Occupier Requirement (Wales only - W.S.I. 2022/1350 reg 9(b) / W.S.I. 2025/1371 reg 6(b)) -->
+      {#if calcStore.jurisdiction === 'WALES' && calcStore.qualifyingReliefFlags.apply_transitional_relief}
+        <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-amber-200 bg-amber-50/40 hover:bg-amber-50 cursor-pointer transition-colors">
+          <input
+            type="checkbox"
+            bind:checked={calcStore.qualifyingReliefFlags.same_occupier_since_revaluation}
+            onchange={onFlagChange}
+            class="mt-0.5 rounded text-amber-600 focus:ring-amber-500"
+          />
+          <div>
+            <span class="text-xs font-bold text-amber-950 block">{calcStore.t.flag_same_occupier_title}</span>
+            <span class="text-[11px] text-amber-950">
+              {calcStore.t.flag_same_occupier_desc}
+            </span>
+          </div>
+        </label>
+      {/if}
+
       <!-- Supporting Small Business Relief (SSBR) (England only - LGFA 1988 s.47) -->
       {#if calcStore.jurisdiction === 'ENGLAND'}
         <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-purple-200 bg-purple-50/40 hover:bg-purple-50 cursor-pointer transition-colors">

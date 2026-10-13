@@ -181,6 +181,8 @@
   "flag_tr_toggle_desc_wales": "Automatically caps revaluation bill increases ower £300 unner W.S.I. 2025/1371 (67% relief in 2026/27, 34% in 2027/28). Uncheck tae calculate unphased leeabeelity.",
   "flag_tr_toggle_desc_scotland": "Automatically caps revaluation bill increases unner Scots Transitional Relief Regulations. Uncheck tae calculate unphased leeabeelity.",
   "flag_tr_toggle_desc_england": "Automatically caps revaluation bill increases (e.g. Ingland 2026/27: +5% Smaw, +15% Middlin, +30% Muckle unner LGFA 1988 s.57A / NDRA 2023). Uncheck tae calculate unphased leeabeelity.",
+  "flag_same_occupier_title": "Same Occupier Syne Revaluation (Wales)",
+  "flag_same_occupier_desc": "Qualifies unner W.S.I. 2022/1350 reg. 9(b) / W.S.I. 2025/1371 reg. 6(b). Maun be the same ratepayer on 31 Mairch an relevant day.",
   "flag_ssbr_title": "Supportin Smaw Business Relief (SSBR)",
   "flag_ssbr_desc": "Discretionary s.47 protection cappin net bill increases tae £600/yr (2023–2025) an £800/yr (2026/27) for ratepeyers tyning or seein reduced SBRR, Kintra, or RHL relief.",
   "flag_island_title": "Scots Island Proaperty (100% RHL Relief)",

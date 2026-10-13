@@ -5425,6 +5425,208 @@ async fn test_wales_retail_shop_on_retail_multiplier_excluded_from_2026_27_food_
     );
 }
 
+#[tokio::test]
+async fn test_wales_2023_list_transitional_relief_2024_25_uses_2023_multiplier() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // RV £20,000 in 2022/23 -> £40,000 on 1 April 2023
+    // Year being calculated: 2024/25
+    // Under W.S.I. 2022/1350:
+    // BL (31 March 2023): £20,000 * 0.535 = £10,700.00
+    // NCA (1 April 2023): £40,000 * 0.535 (2023/24 multiplier) = £21,400.00
+    // Increase = £21,400.00 - £10,700.00 = £10,700.00
+    // Year 2 (2024/25) TR = 34% of £10,700.00 = £3,638.00
+    // 2024/25 Gross = £40,000 * 0.562 = £22,480.00
+    // Net payable = £22,480.00 - £3,638.00 = £18,842.00
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "096",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2020-04-01",
+                    "effective_to": "2023-03-31",
+                    "rateable_value": 20000.00
+                },
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 40000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": true,
+            "is_small_business_sole_property": false
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    assert_eq!(seg.gross_liability, dec!(22480.00));
+    assert_eq!(seg.transitional_adjustment.adjustment_type, "RELIEF");
+    assert_eq!(seg.transitional_adjustment.amount, dec!(3638.00));
+    assert_eq!(seg.net_segment_payable, dec!(18842.00));
+}
+
+#[tokio::test]
+async fn test_wales_transitional_relief_with_sbrr_on_both_sides() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // RV £8,000 on 31 March 2026 -> £11,000 on 1 April 2026
+    // Sole small business occupier
+    // Year 1 (2026/27): 67% of (NCA - BL)
+    // BL: £8,000 * 0.568 * (1/3) = £1,514.67 (Welsh SBRR 66.6667% taper on £8k)
+    // NCA: £11,000 * 0.502 * (5/6) = £4,601.67 (Welsh SBRR 16.6667% taper on £11k)
+    // Increase = £4,601.67 - £1,514.67 = £3,087.00 (> £300)
+    // Welsh TR = 67% of £3,087.00 = £2,068.29
+    // 2026/27 Gross = £11,000 * 0.502 = £5,522.00
+    // SBRR in 2026/27 = £920.33
+    // Net payable = £5,522.00 - £920.33 - £2,068.29 = £2,533.38
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "096",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": "2026-03-31",
+                    "rateable_value": 8000.00
+                },
+                {
+                    "effective_from": "2026-04-01",
+                    "effective_to": null,
+                    "rateable_value": 11000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2026-04-01",
+            "end_date": "2027-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": true,
+            "is_small_business_sole_property": true
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    assert_eq!(seg.gross_liability, dec!(5522.00));
+    assert_eq!(seg.transitional_adjustment.amount, dec!(2068.26));
+    assert_eq!(seg.net_segment_payable, dec!(2533.22));
+}
+
+#[tokio::test]
+async fn test_wales_transitional_relief_excluded_when_occupier_changed() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Reg 6(b),(c) of W.S.I. 2025/1371: Change of occupier ends transitional relief
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "096",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": "2026-03-31",
+                    "rateable_value": 4000.00
+                },
+                {
+                    "effective_from": "2026-04-01",
+                    "effective_to": null,
+                    "rateable_value": 10000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2026-04-01",
+            "end_date": "2027-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": true,
+            "same_occupier_since_revaluation": false
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    assert_eq!(seg.transitional_adjustment.amount, dec!(0.00));
+    assert_eq!(seg.transitional_adjustment.adjustment_type, "NONE");
+}
+
+#[tokio::test]
+async fn test_wales_transitional_relief_excluded_for_part_occupied_hereditament() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Reg 6(d) of W.S.I. 2025/1371: Section 44A apportionment excluded from Welsh TR
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "096",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": "2026-03-31",
+                    "rateable_value": 4000.00
+                },
+                {
+                    "effective_from": "2026-04-01",
+                    "effective_to": null,
+                    "rateable_value": 10000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2026-04-01",
+            "end_date": "2027-03-31"
+        },
+        "occupancy_type": "PART_OCCUPIED",
+        "occupancy_periods": [
+            {
+                "start_date": "2026-04-01",
+                "end_date": "2027-03-31",
+                "occupancy_type": "PART_OCCUPIED",
+                "part_occupied_apportionment": {
+                    "occupied_percentage": 60.00
+                }
+            }
+        ],
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": true
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    assert_eq!(seg.transitional_adjustment.amount, dec!(0.00));
+    assert_eq!(seg.transitional_adjustment.adjustment_type, "NONE");
+}
+
+
 
 
 

@@ -65,6 +65,17 @@ impl CalculationEngine {
         }
     }
 
+    fn resolve_welsh_reval_year_1_fy(&self, current_fy: &str) -> Option<&'static str> {
+        match current_fy {
+            "2026/27" | "2027/28" => Some("2026/27"),
+            "2023/24" | "2024/25" => Some("2023/24"),
+            "2017/18" | "2018/19" => Some("2017/18"),
+            "2010/11" | "2011/12" => Some("2010/11"),
+            "2005/06" | "2006/07" => Some("2005/06"),
+            _ => None,
+        }
+    }
+
     fn compute_statutory_installments(
         &self,
         net_payable: Decimal,
@@ -216,50 +227,83 @@ impl CalculationEngine {
                         if req.hereditament.jurisdiction == Jurisdiction::WALES {
                             // Welsh Transitional Relief (W.S.I. 2025/1371 / W.S.I. 2022/1350)
                             // 2-Year Phasing Scheme: 67% relief in Year 1, 34% relief in Year 2 on bill increases > £300
-                            if let Some((relief_pct, _authority)) = self.repo.resolve_welsh_transitional_relief_rate(&win.financial_year) {
-                                let (base_fy, base_date) = self.resolve_welsh_base_fy_and_date(&win.financial_year)
-                                    .unwrap_or((prev_fy.as_str(), prev_fy_end));
-                                let base_rv = {
-                                    let rv_at_date = self.resolve_rv_for_date(&req.hereditament.rateable_value_history, base_date);
-                                    if rv_at_date > dec!(0.00) {
-                                        rv_at_date
-                                    } else {
-                                        prev_rv
-                                    }
-                                };
+                            // Statutory exclusions:
+                            // 1. Reg 6(d) (2025) / Reg 10(b) (2022): Section 44A apportionment (part-occupied) excluded
+                            // 2. Reg 6(b),(c) (2025) / Reg 9(b) (2022): Same occupier on 31 March and relevant day
+                            let is_part_occupied = win.occupancy_type == OccupancyType::PART_OCCUPIED || win.part_apportionment.is_some();
+                            let same_occupier = win.period_relief_flags.same_occupier_since_revaluation.unwrap_or(true);
 
-                                let prev_is_retail = win.period_relief_flags.is_retail_premises || req.hereditament.scat_code == "225";
-                                let prev_is_rhl = win.period_relief_flags.is_rhl_qualifying || prev_is_retail;
-                                let prev_mult = self.repo.resolve_multiplier_ex(
-                                    Jurisdiction::WALES,
-                                    base_fy,
-                                    base_rv,
-                                    prev_is_rhl,
-                                    prev_is_retail,
-                                    win.period_relief_flags.is_higher_multiplier_excepted,
-                                )?;
-                                let prev_gross_annual = base_rv * prev_mult.rate;
-                                let prev_sbrr_pct = if win.period_relief_flags.is_small_business_sole_property {
-                                    self.repo.resolve_sbrr(Jurisdiction::WALES, base_fy, base_rv)
-                                        .map(|s| s.discount_percentage)
-                                        .unwrap_or(dec!(0.00))
-                                } else {
-                                    dec!(0.00)
-                                };
-                                let prev_net_annual = (prev_gross_annual * (dec!(1.00) - (prev_sbrr_pct / dec!(100.00)))).round_dp(2);
-                                let base_segment_liability = ((prev_net_annual / year_days_dec) * days_dec).round_dp(2);
+                            if !is_part_occupied && same_occupier {
+                                if let Some((relief_pct, _authority)) = self.repo.resolve_welsh_transitional_relief_rate(&win.financial_year) {
+                                    let (base_fy, base_date) = self.resolve_welsh_base_fy_and_date(&win.financial_year)
+                                        .unwrap_or((prev_fy.as_str(), prev_fy_end));
+                                    let base_rv = self.resolve_rv_for_date(&req.hereditament.rateable_value_history, base_date);
 
-                                if gross_liability > base_segment_liability {
-                                    let segment_increase = gross_liability - base_segment_liability;
-                                    let annual_increase = ((segment_increase / days_dec) * year_days_dec).round_dp(2);
-
-                                    // Statutory threshold: increase must exceed £300 to trigger transitional relief
-                                    if annual_increase > dec!(300.00) {
-                                        segment_trans_relief = (segment_increase * (relief_pct / dec!(100.00))).round_dp(2);
-                                        transitional_adj = TransitionalAdjustment {
-                                            adjustment_type: "RELIEF".to_string(),
-                                            amount: segment_trans_relief,
+                                    // Hereditament must be in the rating list on 31 March
+                                    if base_rv > dec!(0.00) {
+                                        // 1. Calculate Base Liability (BL) on 31 March
+                                        let prev_is_retail = win.period_relief_flags.is_retail_premises || req.hereditament.scat_code == "225";
+                                        let prev_is_rhl = win.period_relief_flags.is_rhl_qualifying || prev_is_retail;
+                                        let prev_mult = self.repo.resolve_multiplier_ex(
+                                            Jurisdiction::WALES,
+                                            base_fy,
+                                            base_rv,
+                                            prev_is_rhl,
+                                            prev_is_retail,
+                                            win.period_relief_flags.is_higher_multiplier_excepted,
+                                        )?;
+                                        let prev_gross_annual = base_rv * prev_mult.rate;
+                                        let prev_sbrr_pct = if win.period_relief_flags.is_small_business_sole_property {
+                                            self.repo.resolve_sbrr(Jurisdiction::WALES, base_fy, base_rv)
+                                                .map(|s| s.discount_percentage)
+                                                .unwrap_or(dec!(0.00))
+                                        } else {
+                                            dec!(0.00)
                                         };
+                                        let prev_charity_pct = if req.party_type == PartyType::CHARITY || req.party_type == PartyType::CASC || win.period_relief_flags.is_charitable_purposes {
+                                            dec!(80.00)
+                                        } else {
+                                            dec!(0.00)
+                                        };
+                                        let prev_mandatory_pct = (prev_sbrr_pct + prev_charity_pct).min(dec!(100.00));
+                                        let annual_bl = (prev_gross_annual * (dec!(1.00) - (prev_mandatory_pct / dec!(100.00)))).round_dp(2);
+
+                                        // 2. Calculate Notional Chargeable Amount (NCA) on 1 April of Revaluation List (at Year 1 multiplier)
+                                        let reval_fy = self.resolve_welsh_reval_year_1_fy(&win.financial_year).unwrap_or(win.financial_year.as_str());
+                                        let reval_mult = self.repo.resolve_multiplier_ex(
+                                            Jurisdiction::WALES,
+                                            reval_fy,
+                                            rv,
+                                            is_rhl,
+                                            is_retail,
+                                            win.period_relief_flags.is_higher_multiplier_excepted,
+                                        )?;
+                                        let reval_gross_annual = rv * reval_mult.rate;
+                                        let reval_sbrr_pct = if win.period_relief_flags.is_small_business_sole_property {
+                                            self.repo.resolve_sbrr(Jurisdiction::WALES, reval_fy, rv)
+                                                .map(|s| s.discount_percentage)
+                                                .unwrap_or(dec!(0.00))
+                                        } else {
+                                            dec!(0.00)
+                                        };
+                                        let reval_charity_pct = if req.party_type == PartyType::CHARITY || req.party_type == PartyType::CASC || win.period_relief_flags.is_charitable_purposes {
+                                            dec!(80.00)
+                                        } else {
+                                            dec!(0.00)
+                                        };
+                                        let reval_mandatory_pct = (reval_sbrr_pct + reval_charity_pct).min(dec!(100.00));
+                                        let annual_nca = (reval_gross_annual * (dec!(1.00) - (reval_mandatory_pct / dec!(100.00)))).round_dp(2);
+
+                                        // 3. Statutory threshold: NCA must exceed BL + £300
+                                        if annual_nca > annual_bl + dec!(300.00) {
+                                            let annual_increase = annual_nca - annual_bl;
+                                            let annual_trans_relief = (annual_increase * (relief_pct / dec!(100.00))).round_dp(2);
+                                            segment_trans_relief = ((annual_trans_relief / year_days_dec) * days_dec).round_dp(2);
+                                            transitional_adj = TransitionalAdjustment {
+                                                adjustment_type: "RELIEF".to_string(),
+                                                amount: segment_trans_relief,
+                                            };
+                                        }
                                     }
                                 }
                             }
@@ -416,7 +460,12 @@ impl CalculationEngine {
                             || req.party_type == PartyType::CASC 
                         {
                             let char_pct = dec!(80.00);
-                            let amount = (chargeable_before_reliefs * (char_pct / dec!(100.00))).round_dp(2);
+                            let char_base = if req.hereditament.jurisdiction == Jurisdiction::WALES {
+                                gross_liability
+                            } else {
+                                chargeable_before_reliefs
+                            };
+                            let amount = (char_base * (char_pct / dec!(100.00))).round_dp(2);
                             segment_relief_total += amount;
                             let auth = if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND {
                                 "Local Government (Financial Provisions) (Scotland) Act 1962 s.4(2)".to_string()
@@ -604,11 +653,16 @@ impl CalculationEngine {
                         }
 
                         // 6. Dynamic SBRR / SBBS logic resolved from parameter repository tables
+                        let sbrr_chargeable_base = if req.hereditament.jurisdiction == Jurisdiction::WALES {
+                            gross_liability
+                        } else {
+                            chargeable_before_reliefs
+                        };
                         if (flags.is_small_business_sole_property || flags.is_small_business_second_property_grace)
-                            && segment_relief_total < chargeable_before_reliefs
+                            && segment_relief_total < sbrr_chargeable_base
                         {
                             if let Some(sbrr) = self.repo.resolve_sbrr(req.hereditament.jurisdiction, &win.financial_year, rv) {
-                                let remaining = chargeable_before_reliefs - segment_relief_total;
+                                let remaining = (sbrr_chargeable_base - segment_relief_total).max(dec!(0.00));
                                 let amount = (remaining * (sbrr.discount_percentage / dec!(100.00))).round_dp(2);
                                 if amount > dec!(0.00) {
                                     segment_relief_total += amount;

@@ -50,6 +50,7 @@ export interface QualifyingReliefFlags {
   is_food_and_drink?: boolean;
   payment_installments_count?: number;
   apply_transitional_relief?: boolean;
+  same_occupier_since_revaluation?: boolean;
 }
 
 export interface OccupancyPeriodInput {

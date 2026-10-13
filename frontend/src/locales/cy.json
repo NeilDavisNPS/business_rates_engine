@@ -181,6 +181,8 @@
   "flag_tr_toggle_desc_wales": "Yn capio cynnydd mewn biliau ailbrisio dros £300 yn awtomatig o dan OSC 2025/1371 (rhyddhad 67% yn 2026/27, 34% yn 2027/28). Dad-diciwch i gyfrifo atebolrwydd heb raddoli.",
   "flag_tr_toggle_desc_scotland": "Yn capio cynnydd biliau ailbrisio yn awtomatig o dan Reoliadau Rhyddhad Trosiannol yr Alban. Dad-diciwch i gyfrifo atebolrwydd heb raddoli.",
   "flag_tr_toggle_desc_england": "Yn capio cynnydd biliau ailbrisio yn awtomatig (e.e. Lloegr 2026/27: +5% Bach, +15% Canolig, +30% Mawr o dan DCLL 1988 a.57A / NDRA 2023). Dad-diciwch i gyfrifo atebolrwydd heb raddoli.",
+  "flag_same_occupier_title": "Yr Un Meddiannydd Ers y Prisiad (Cymru)",
+  "flag_same_occupier_desc": "Yn gymwys o dan O.S.C. 2022/1350 rheol 9(b) / O.S.C. 2025/1371 rheol 6(b). Rhaid bod yr un trethdalwr ar 31 Mawrth a'r diwrnod perthnasol.",
   "flag_ssbr_title": "Rhyddhad Cefnogi Busnesau Bach (SSBR)",
   "flag_ssbr_desc": "Amddiffyniad dewisol a.47 sy'n capio cynnydd net biliau i £600/blwyddyn (2023–2025) a £800/blwyddyn (2026/27) ar gyfer trethdalwyr sy'n colli neu'n gweld gostyngiad yn SBRR, Gwledig, neu RHL.",
   "flag_island_title": "Eiddo Ynys yr Alban (Rhyddhad RHL 100%)",
