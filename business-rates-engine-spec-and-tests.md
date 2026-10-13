@@ -52,9 +52,7 @@ The calculation engine's business logic, zero-hardcoding parameter tables, and s
 - **Wales**:
   - [**The Non-Domestic Rating (Chargeable Amounts) (Wales) Regulations 2025 (W.S.I. 2025/1371 / W. 226)**](https://www.legislation.gov.uk/wsi/2025/1371/contents/made) — 2026 Revaluation List 2-Year Transitional Relief Scheme: applies to net bill increases exceeding **£300** over the 31 March 2026 baseline bill; grants **67% relief** on the excess in Year 1 (2026/27, ratepayer pays 33%), and **34% relief** on the excess in Year 2 (2027/28, ratepayer pays 66%).
   - [**The Non-Domestic Rating (Chargeable Amounts) (Wales) Regulations 2022 (W.S.I. 2022/1350 / W. 272)**](https://www.legislation.gov.uk/wsi/2022/1350/contents/made) — 2023 Revaluation List 2-Year Transitional Relief Scheme: 67% relief in 2023/24 and 34% relief in 2024/25 on net bill increases exceeding £300.
-  - [**The Non-Domestic Rating (Chargeable Amounts) (Wales) Regulations 2016 (W.S.I. 2016/1243 / W. 294)**](https://www.legislation.gov.uk/wsi/2016/1243/contents/made) — 2017 Revaluation List Welsh transitional scheme.
-  - [**The Non-Domestic Rating (Chargeable Amounts) (Wales) Regulations 2009 (W.S.I. 2009/3364 / W. 297)**](https://www.legislation.gov.uk/wsi/2009/3364/contents/made) — 2010 Revaluation List Welsh transitional scheme.
-  - [**The Non-Domestic Rating (Chargeable Amounts) (Wales) Regulations 2004 (W.S.I. 2004/3400 / W. 295)**](https://www.legislation.gov.uk/wsi/2004/3400/contents/made) — 2005 Revaluation List Welsh transitional scheme.
+  - [**The Non-Domestic Rating (Chargeable Amounts) (Wales) Regulations 2016 (W.S.I. 2016/1247 / W. 295)**](https://www.legislation.gov.uk/wsi/2016/1247/contents/made) — 2017 Revaluation List Welsh Small Business Transitional Relief Scheme (75% in 2017/18, 50% in 2018/19, 25% in 2019/20 on increases over £100 for ratepayers in receipt of SBRR on 31 March 2017).
 
 ### 1.3 Statutory Instruments — Small Business Rate Relief (SBRR & SBBS) & Multiplier Frameworks
 - **Scotland (SBBS & Property Rates)**:
@@ -539,7 +537,7 @@ The test suite in [`tests/integration_tests.rs`](tests/integration_tests.rs) rig
   - `test_rural_settlement_relief_rv_cap_enforcement`: Verifies statutory rateable value caps for mandatory rural settlement relief under *LGFA 1988 s.43(6A)–(6E)* (£8,500 for general stores, food shops, post offices; £12,500 for public houses and petrol filling stations).
   - `test_self_catering_holiday_let_letting_days_test`: Verifies statutory minimum commercial letting days thresholds (182 days in Scotland under *S.S.I. 2022/86* / *S.S.I. 2026/50*; 70 days in England and Wales under *Rating Lists Act 1992* / *LGFA 1988 s.66*), disqualifying sub-threshold properties to domestic Council Tax (£0 NDR).
   - `test_scottish_unoccupied_property_relief_50_percent`: Verifies Scottish unoccupied property relief under *S.S.I. 2018/77* (low value exemption threshold of £1,700; 50% rate relief for first 91 days of empty commercial property).
-  - `test_historical_welsh_transitional_relief_2017_list`: Verifies historical Welsh transitional relief for the 2017 Revaluation List under *W.S.I. 2016/1243* (67% relief on bill increases exceeding £300 in 2017/18).
+  - `test_historical_welsh_transitional_relief_2017_list`: Verifies historical Welsh transitional relief for the 2017 Revaluation List under *W.S.I. 2016/1247* (75% relief on bill increases exceeding £100 for qualifying small businesses in 2017/18).
   - `test_historical_transitional_phasing_2000_list`: Verifies historical English transitional phasing caps for the 2000 Revaluation List under *S.I. 1999/3379* (+5.0% upward cap for small properties).
   - `test_narrative_relief_assessment_audit_unawarded_reliefs`: Verifies localized statutory audit justification for disqualified/unawarded reliefs across English, Welsh, Scots, and Scottish Gaelic.
 

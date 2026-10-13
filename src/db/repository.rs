@@ -558,19 +558,16 @@ impl ParameterRepository {
         })
     }
 
-    /// Resolves Welsh Transitional Relief scheme parameters under W.S.I. 2025/1371 / W.S.I. 2022/1350 / W.S.I. 2016/1243 / W.S.I. 2009/3364 / W.S.I. 2004/3400
+    /// Resolves Welsh Transitional Relief scheme parameters under W.S.I. 2025/1371 / W.S.I. 2022/1350 / W.S.I. 2016/1247
     pub fn resolve_welsh_transitional_relief_rate(&self, financial_year: &str) -> Option<(Decimal, &'static str)> {
         match financial_year {
             "2026/27" => Some((dec!(67.00), "LGFA 1988 s.58 / S.I. 2025/1371 (W. 226) / LGF(W)A 2024")),
             "2027/28" => Some((dec!(34.00), "LGFA 1988 s.58 / S.I. 2025/1371 (W. 226) / LGF(W)A 2024")),
             "2023/24" => Some((dec!(67.00), "LGFA 1988 s.58 / S.I. 2022/1350 (W. 272)")),
             "2024/25" => Some((dec!(34.00), "LGFA 1988 s.58 / S.I. 2022/1350 (W. 272)")),
-            "2017/18" => Some((dec!(67.00), "LGFA 1988 s.58 / W.S.I. 2016/1243 (W. 297)")),
-            "2018/19" => Some((dec!(34.00), "LGFA 1988 s.58 / W.S.I. 2016/1243 (W. 297)")),
-            "2010/11" => Some((dec!(67.00), "LGFA 1988 s.58 / W.S.I. 2009/3364 (W. 299)")),
-            "2011/12" => Some((dec!(34.00), "LGFA 1988 s.58 / W.S.I. 2009/3364 (W. 299)")),
-            "2005/06" => Some((dec!(67.00), "LGFA 1988 s.58 / W.S.I. 2004/3400 (W. 295)")),
-            "2006/07" => Some((dec!(34.00), "LGFA 1988 s.58 / W.S.I. 2004/3400 (W. 295)")),
+            "2017/18" => Some((dec!(75.00), "LGFA 1988 s.58 / W.S.I. 2016/1247 (W. 295)")),
+            "2018/19" => Some((dec!(50.00), "LGFA 1988 s.58 / W.S.I. 2016/1247 (W. 295)")),
+            "2019/20" => Some((dec!(25.00), "LGFA 1988 s.58 / W.S.I. 2016/1247 (W. 295)")),
             _ => None,
         }
     }
@@ -664,8 +661,26 @@ impl RepoData {
         for (fy, sm, st, s, e) in sbrr_era_england {
             add(&format!("m_eng_sm_{}", fy), fy, Jurisdiction::ENGLAND, "SMALL_BUSINESS", dec!(0.00), Some(dec!(51000.00)), sm, s, e);
             add(&format!("m_eng_st_{}", fy), fy, Jurisdiction::ENGLAND, "STANDARD", dec!(51000.01), None, st, s, e);
-            add(&format!("m_wal_{}", fy), fy, Jurisdiction::WALES, "STANDARD", dec!(0.00), None, st, s, e);
             add(&format!("m_sco_{}", fy), fy, Jurisdiction::SCOTLAND, "STANDARD", dec!(0.00), None, sm, s, e);
+        }
+
+        // Wales Multipliers 2005/06 – 2016/17 (Official StatsWales single uniform multiplier)
+        let sbrr_era_wales = [
+            ("2005/06", dec!(0.421), "2005-04-01", "2006-03-31"),
+            ("2006/07", dec!(0.432), "2006-04-01", "2007-03-31"),
+            ("2007/08", dec!(0.448), "2007-04-01", "2008-03-31"),
+            ("2008/09", dec!(0.466), "2008-04-01", "2009-03-31"),
+            ("2009/10", dec!(0.489), "2009-04-01", "2010-03-31"),
+            ("2010/11", dec!(0.409), "2010-04-01", "2011-03-31"),
+            ("2011/12", dec!(0.428), "2011-04-01", "2012-03-31"),
+            ("2012/13", dec!(0.452), "2012-04-01", "2013-03-31"),
+            ("2013/14", dec!(0.464), "2013-04-01", "2014-03-31"),
+            ("2014/15", dec!(0.473), "2014-04-01", "2015-03-31"),
+            ("2015/16", dec!(0.482), "2015-04-01", "2016-03-31"),
+            ("2016/17", dec!(0.486), "2016-04-01", "2017-03-31"),
+        ];
+        for (fy, rate, s, e) in sbrr_era_wales {
+            add(&format!("m_wal_{}", fy), fy, Jurisdiction::WALES, "STANDARD", dec!(0.00), None, rate, s, e);
         }
 
         // 2017–2022 lists
@@ -936,8 +951,7 @@ impl RepoData {
             }
         }
 
-        // 2005 Revaluation List (2005/06 – 2009/10)
-        // SI 2004/3312 & WSI 2005/309: Small <= £15,000 RV, Large > £15,000 RV
+        // 2005 Revaluation List (2005/06 – 2009/10) — England only (SI 2004/3312)
         let list_2005 = [
             ("2005/06", dec!(5.00), dec!(12.50)),
             ("2006/07", dec!(7.50), dec!(17.50)),
@@ -946,15 +960,11 @@ impl RepoData {
             ("2009/10", dec!(20.00), dec!(30.00)),
         ];
         for (fy, sm, lg) in list_2005 {
-            for jur in [Jurisdiction::ENGLAND, Jurisdiction::WALES] {
-                let pfx = if jur == Jurisdiction::ENGLAND { "eng" } else { "wal" };
-                add(&format!("tc_{}_sm_{}", pfx, fy), 2005, fy, jur, "SMALL", dec!(0.00), Some(dec!(15000.00)), sm);
-                add(&format!("tc_{}_lg_{}", pfx, fy), 2005, fy, jur, "LARGE", dec!(15000.01), None, lg);
-            }
+            add(&format!("tc_eng_sm_{}", fy), 2005, fy, Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(15000.00)), sm);
+            add(&format!("tc_eng_lg_{}", fy), 2005, fy, Jurisdiction::ENGLAND, "LARGE", dec!(15000.01), None, lg);
         }
 
-        // 2010 Revaluation List (2010/11 – 2016/17)
-        // SI 2009/3343 & WSI 2010/248: Small <= £18k, Medium <= £50k, Large > £50k
+        // 2010 Revaluation List (2010/11 – 2016/17) — England only (SI 2009/3343)
         let list_2010 = [
             ("2010/11", dec!(5.00), dec!(12.50), dec!(12.50)),
             ("2011/12", dec!(7.50), dec!(17.50), dec!(17.50)),
@@ -965,12 +975,9 @@ impl RepoData {
             ("2016/17", dec!(15.00), dec!(25.00), dec!(25.00)),
         ];
         for (fy, sm, med, lg) in list_2010 {
-            for jur in [Jurisdiction::ENGLAND, Jurisdiction::WALES] {
-                let pfx = if jur == Jurisdiction::ENGLAND { "eng" } else { "wal" };
-                add(&format!("tc_{}_sm_{}", pfx, fy), 2010, fy, jur, "SMALL", dec!(0.00), Some(dec!(18000.00)), sm);
-                add(&format!("tc_{}_med_{}", pfx, fy), 2010, fy, jur, "MEDIUM", dec!(18000.01), Some(dec!(50000.00)), med);
-                add(&format!("tc_{}_lg_{}", pfx, fy), 2010, fy, jur, "LARGE", dec!(50000.01), None, lg);
-            }
+            add(&format!("tc_eng_sm_{}", fy), 2010, fy, Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(18000.00)), sm);
+            add(&format!("tc_eng_med_{}", fy), 2010, fy, Jurisdiction::ENGLAND, "MEDIUM", dec!(18000.01), Some(dec!(50000.00)), med);
+            add(&format!("tc_eng_lg_{}", fy), 2010, fy, Jurisdiction::ENGLAND, "LARGE", dec!(50000.01), None, lg);
         }
 
         // 2017 Revaluation List (2017/18 – 2022/23)

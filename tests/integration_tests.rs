@@ -160,6 +160,12 @@ async fn test_zero_hardcoding_historical_multipliers_1990_to_2026() {
     assert_eq!(m_10_std.rate, dec!(0.414));
     assert_eq!(m_10_std.multiplier_type, "STANDARD");
 
+    let m_10_wal = repo.resolve_multiplier(Jurisdiction::WALES, "2010/11", dec!(25000.00)).unwrap();
+    assert_eq!(m_10_wal.rate, dec!(0.409));
+
+    let m_16_wal = repo.resolve_multiplier(Jurisdiction::WALES, "2016/17", dec!(25000.00)).unwrap();
+    assert_eq!(m_16_wal.rate, dec!(0.486));
+
     // 2026/27 High-Value Threshold (£500k)
     let m_26_hv = repo.resolve_multiplier(Jurisdiction::ENGLAND, "2026/27", dec!(500000.00)).unwrap();
     assert_eq!(m_26_hv.rate, dec!(0.508));
@@ -3533,12 +3539,12 @@ async fn test_historical_welsh_transitional_relief_2017_list() {
     let repo = ParameterRepository::new_seeded();
     let engine = CalculationEngine::new(repo);
 
-    // Welsh 2017 List Revaluation (W.S.I. 2016/1243)
-    // Base 2016/17: RV £4,000 * 0.497 = £1,988.00
-    // 2017/18: RV £10,000 * 0.499 = £4,990.00
-    // Increase = £4,990.00 - £1,988.00 = £3,002.00 (> £300 statutory threshold)
-    // Year 1 (2017/18) Welsh TR = 67% of £3,002.00 = £2,011.34
-    // Net = £4,990.00 - £2,011.34 = £2,978.66
+    // Welsh 2017 List Revaluation (W.S.I. 2016/1247)
+    // Base 2016/17: RV £4,000 qualifies for 100% SBRR -> BL = £0.00
+    // 2017/18: RV £10,000 * 0.499 = £4,990.00 gross; SBRR taper (33.33% relief) = £1,663.17
+    // NCA = £4,990.00 - £1,663.17 = £3,326.83 (> £100 threshold under reg 9(b))
+    // Year 1 (2017/18) Welsh TR = 75% of £3,326.83 = £2,495.12
+    // Net = £4,990.00 - £1,663.17 - £2,495.12 = £831.71
     let req = LiabilityCalculationRequest {
         party_type: PartyType::CORPORATE,
         occupation_period: DateRange {
@@ -3564,7 +3570,7 @@ async fn test_historical_welsh_transitional_relief_2017_list() {
         occupancy_type: OccupancyType::OCCUPIED,
         qualifying_relief_flags: QualifyingReliefFlags {
             apply_transitional_relief: Some(true),
-            is_small_business_sole_property: false,
+            is_small_business_sole_property: true,
             ..Default::default()
         },
         occupancy_periods: None,
@@ -3576,8 +3582,8 @@ async fn test_historical_welsh_transitional_relief_2017_list() {
 
     assert_eq!(seg.gross_liability, dec!(4990.00));
     assert_eq!(seg.transitional_adjustment.adjustment_type, "RELIEF");
-    assert_eq!(seg.transitional_adjustment.amount, dec!(2011.34));
-    assert_eq!(seg.net_segment_payable, dec!(2978.66));
+    assert_eq!(seg.transitional_adjustment.amount, dec!(2495.12));
+    assert_eq!(seg.net_segment_payable, dec!(831.71));
 }
 
 #[tokio::test]
@@ -5613,6 +5619,196 @@ async fn test_wales_transitional_relief_excluded_for_part_occupied_hereditament(
                 }
             }
         ],
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": true
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    assert_eq!(seg.transitional_adjustment.amount, dec!(0.00));
+    assert_eq!(seg.transitional_adjustment.adjustment_type, "NONE");
+}
+
+#[tokio::test]
+async fn test_wales_2017_list_no_small_business_relief_gets_zero_transitional_relief() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Reproduction for Issue #23: Wales, RV £20,000 (2010 list) -> £40,000 (2017 list).
+    // Under W.S.I. 2016/1247 reg 9(a), property must have been receiving SBRR on 31 March 2017.
+    // Since RV £20,000 does not qualify for SBRR, no transitional relief is awarded.
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "096",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2010-04-01",
+                    "effective_to": "2017-03-31",
+                    "rateable_value": 20000.00
+                },
+                {
+                    "effective_from": "2017-04-01",
+                    "effective_to": null,
+                    "rateable_value": 40000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2017-04-01",
+            "end_date": "2018-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": true,
+            "is_small_business_sole_property": false
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    assert_eq!(seg.transitional_adjustment.amount, dec!(0.00));
+    assert_eq!(seg.transitional_adjustment.adjustment_type, "NONE");
+}
+
+#[tokio::test]
+async fn test_wales_2017_list_small_business_relief_75_50_25_phasing() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // W.S.I. 2016/1247: Small business occupier with RV £4,000 on 31 March 2017 -> £10,000 on 1 April 2017
+    // 31 March 2017: RV £4,000 qualifies for 100% SBRR -> BL = £0.00
+    // 1 April 2017: RV £10,000 * 0.499 = £4,990.00 gross; Welsh SBRR taper (33.33% relief) = £1,663.17
+    // NCA = £4,990.00 - £1,663.17 = £3,326.83
+    // NCA exceeds BL + £100 (threshold under reg 9(b))
+    // 2017/18: 75% relief = £3,326.83 * 0.75 = £2,495.12
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "096",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2010-04-01",
+                    "effective_to": "2017-03-31",
+                    "rateable_value": 4000.00
+                },
+                {
+                    "effective_from": "2017-04-01",
+                    "effective_to": null,
+                    "rateable_value": 10000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2017-04-01",
+            "end_date": "2020-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": true,
+            "is_small_business_sole_property": true
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    assert_eq!(response.annual_billing_segments.len(), 3);
+
+    // 2017/18: 75% relief
+    let seg1 = &response.annual_billing_segments[0];
+    assert_eq!(seg1.financial_year, "2017/18");
+    assert_eq!(seg1.transitional_adjustment.amount, dec!(2495.12));
+    assert_eq!(seg1.net_segment_payable, dec!(831.71));
+
+    // 2018/19: 50% relief
+    let seg2 = &response.annual_billing_segments[1];
+    assert_eq!(seg2.financial_year, "2018/19");
+    assert_eq!(seg2.transitional_adjustment.amount, dec!(1663.42));
+
+    // 2019/20: 25% relief
+    let seg3 = &response.annual_billing_segments[2];
+    assert_eq!(seg3.financial_year, "2019/20");
+    assert_eq!(seg3.transitional_adjustment.amount, dec!(831.71));
+}
+
+#[tokio::test]
+async fn test_wales_2010_list_no_transitional_relief() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Reproduction for Issue #23: Wales had no transitional relief scheme for the 2010 rating list
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "096",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2005-04-01",
+                    "effective_to": "2010-03-31",
+                    "rateable_value": 20000.00
+                },
+                {
+                    "effective_from": "2010-04-01",
+                    "effective_to": null,
+                    "rateable_value": 40000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2010-04-01",
+            "end_date": "2011-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": true
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    assert_eq!(seg.transitional_adjustment.amount, dec!(0.00));
+    assert_eq!(seg.transitional_adjustment.adjustment_type, "NONE");
+}
+
+#[tokio::test]
+async fn test_wales_2005_list_no_transitional_relief() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Reproduction for Issue #23: Wales had no transitional relief scheme for the 2005 rating list
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "096",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2000-04-01",
+                    "effective_to": "2005-03-31",
+                    "rateable_value": 20000.00
+                },
+                {
+                    "effective_from": "2005-04-01",
+                    "effective_to": null,
+                    "rateable_value": 40000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2005-04-01",
+            "end_date": "2006-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
         "qualifying_relief_flags": {
             "apply_transitional_relief": true
         }

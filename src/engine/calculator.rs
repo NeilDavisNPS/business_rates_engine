@@ -58,9 +58,7 @@ impl CalculationEngine {
         match current_fy {
             "2026/27" | "2027/28" => Some(("2025/26", NaiveDate::from_ymd_opt(2026, 3, 31).unwrap())),
             "2023/24" | "2024/25" => Some(("2022/23", NaiveDate::from_ymd_opt(2023, 3, 31).unwrap())),
-            "2017/18" | "2018/19" => Some(("2016/17", NaiveDate::from_ymd_opt(2017, 3, 31).unwrap())),
-            "2010/11" | "2011/12" => Some(("2009/10", NaiveDate::from_ymd_opt(2010, 3, 31).unwrap())),
-            "2005/06" | "2006/07" => Some(("2004/05", NaiveDate::from_ymd_opt(2005, 3, 31).unwrap())),
+            "2017/18" | "2018/19" | "2019/20" => Some(("2016/17", NaiveDate::from_ymd_opt(2017, 3, 31).unwrap())),
             _ => None,
         }
     }
@@ -69,9 +67,7 @@ impl CalculationEngine {
         match current_fy {
             "2026/27" | "2027/28" => Some("2026/27"),
             "2023/24" | "2024/25" => Some("2023/24"),
-            "2017/18" | "2018/19" => Some("2017/18"),
-            "2010/11" | "2011/12" => Some("2010/11"),
-            "2005/06" | "2006/07" => Some("2005/06"),
+            "2017/18" | "2018/19" | "2019/20" => Some("2017/18"),
             _ => None,
         }
     }
@@ -260,49 +256,59 @@ impl CalculationEngine {
                                         } else {
                                             dec!(0.00)
                                         };
-                                        let prev_charity_pct = if req.party_type == PartyType::CHARITY || req.party_type == PartyType::CASC || win.period_relief_flags.is_charitable_purposes {
-                                            dec!(80.00)
-                                        } else {
-                                            dec!(0.00)
-                                        };
-                                        let prev_mandatory_pct = (prev_sbrr_pct + prev_charity_pct).min(dec!(100.00));
-                                        let annual_bl = (prev_gross_annual * (dec!(1.00) - (prev_mandatory_pct / dec!(100.00)))).round_dp(2);
+                                        let is_2017_scheme = win.financial_year.starts_with("2017") || win.financial_year.starts_with("2018") || win.financial_year.starts_with("2019");
 
-                                        // 2. Calculate Notional Chargeable Amount (NCA) on 1 April of Revaluation List (at Year 1 multiplier)
-                                        let reval_fy = self.resolve_welsh_reval_year_1_fy(&win.financial_year).unwrap_or(win.financial_year.as_str());
-                                        let reval_mult = self.repo.resolve_multiplier_ex(
-                                            Jurisdiction::WALES,
-                                            reval_fy,
-                                            rv,
-                                            is_rhl,
-                                            is_retail,
-                                            win.period_relief_flags.is_higher_multiplier_excepted,
-                                        )?;
-                                        let reval_gross_annual = rv * reval_mult.rate;
-                                        let reval_sbrr_pct = if win.period_relief_flags.is_small_business_sole_property {
-                                            self.repo.resolve_sbrr(Jurisdiction::WALES, reval_fy, rv)
-                                                .map(|s| s.discount_percentage)
-                                                .unwrap_or(dec!(0.00))
-                                        } else {
-                                            dec!(0.00)
-                                        };
-                                        let reval_charity_pct = if req.party_type == PartyType::CHARITY || req.party_type == PartyType::CASC || win.period_relief_flags.is_charitable_purposes {
-                                            dec!(80.00)
-                                        } else {
-                                            dec!(0.00)
-                                        };
-                                        let reval_mandatory_pct = (reval_sbrr_pct + reval_charity_pct).min(dec!(100.00));
-                                        let annual_nca = (reval_gross_annual * (dec!(1.00) - (reval_mandatory_pct / dec!(100.00)))).round_dp(2);
+                                        // W.S.I. 2016/1247 reg 9(a): 2017 scheme applies strictly to hereditaments receiving SBRR on 31 March 2017
+                                        let qualifies_2017_sbrr = !is_2017_scheme || prev_sbrr_pct > dec!(0.00);
 
-                                        // 3. Statutory threshold: NCA must exceed BL + £300
-                                        if annual_nca > annual_bl + dec!(300.00) {
-                                            let annual_increase = annual_nca - annual_bl;
-                                            let annual_trans_relief = (annual_increase * (relief_pct / dec!(100.00))).round_dp(2);
-                                            segment_trans_relief = ((annual_trans_relief / year_days_dec) * days_dec).round_dp(2);
-                                            transitional_adj = TransitionalAdjustment {
-                                                adjustment_type: "RELIEF".to_string(),
-                                                amount: segment_trans_relief,
+                                        if qualifies_2017_sbrr {
+                                            let prev_charity_pct = if req.party_type == PartyType::CHARITY || req.party_type == PartyType::CASC || win.period_relief_flags.is_charitable_purposes {
+                                                dec!(80.00)
+                                            } else {
+                                                dec!(0.00)
                                             };
+                                            let prev_mandatory_pct = (prev_sbrr_pct + prev_charity_pct).min(dec!(100.00));
+                                            let annual_bl = (prev_gross_annual * (dec!(1.00) - (prev_mandatory_pct / dec!(100.00)))).round_dp(2);
+
+                                            // 2. Calculate Notional Chargeable Amount (NCA) on 1 April of Revaluation List (at Year 1 multiplier)
+                                            let reval_fy = self.resolve_welsh_reval_year_1_fy(&win.financial_year).unwrap_or(win.financial_year.as_str());
+                                            let reval_mult = self.repo.resolve_multiplier_ex(
+                                                Jurisdiction::WALES,
+                                                reval_fy,
+                                                rv,
+                                                is_rhl,
+                                                is_retail,
+                                                win.period_relief_flags.is_higher_multiplier_excepted,
+                                            )?;
+                                            let reval_gross_annual = rv * reval_mult.rate;
+                                            let reval_sbrr_pct = if win.period_relief_flags.is_small_business_sole_property {
+                                                self.repo.resolve_sbrr(Jurisdiction::WALES, reval_fy, rv)
+                                                    .map(|s| s.discount_percentage)
+                                                    .unwrap_or(dec!(0.00))
+                                            } else {
+                                                dec!(0.00)
+                                            };
+                                            let reval_charity_pct = if req.party_type == PartyType::CHARITY || req.party_type == PartyType::CASC || win.period_relief_flags.is_charitable_purposes {
+                                                dec!(80.00)
+                                            } else {
+                                                dec!(0.00)
+                                            };
+                                            let reval_mandatory_pct = (reval_sbrr_pct + reval_charity_pct).min(dec!(100.00));
+                                            let annual_nca = (reval_gross_annual * (dec!(1.00) - (reval_mandatory_pct / dec!(100.00)))).round_dp(2);
+
+                                            // 3. Statutory threshold:
+                                            // 2017 List (W.S.I. 2016/1247 reg 9(b)): threshold is £100
+                                            // 2023 & 2026 Lists: threshold is £300
+                                            let threshold = if is_2017_scheme { dec!(100.00) } else { dec!(300.00) };
+                                            if annual_nca > annual_bl + threshold {
+                                                let annual_increase = annual_nca - annual_bl;
+                                                let annual_trans_relief = (annual_increase * (relief_pct / dec!(100.00))).round_dp(2);
+                                                segment_trans_relief = ((annual_trans_relief / year_days_dec) * days_dec).round_dp(2);
+                                                transitional_adj = TransitionalAdjustment {
+                                                    adjustment_type: "RELIEF".to_string(),
+                                                    amount: segment_trans_relief,
+                                                };
+                                            }
                                         }
                                     }
                                 }
