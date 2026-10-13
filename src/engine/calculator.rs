@@ -9,6 +9,7 @@ use crate::models::enums::{Jurisdiction, OccupancyType, PartyType};
 use crate::db::repository::ParameterRepository;
 use super::slicer::slice_occupancy_periods;
 use super::narrative::generate_narrative;
+use crate::error::AppError;
 
 #[derive(Clone)]
 pub struct CalculationEngine {
@@ -144,12 +145,21 @@ impl CalculationEngine {
         Some(installments)
     }
 
+    pub fn try_calculate(&self, req: LiabilityCalculationRequest) -> Result<LiabilityCalculationResponse, AppError> {
+        let lang = req.language.as_deref().map(crate::i18n::Language::from_code).unwrap_or_default();
+        self.try_calculate_with_language(req, lang)
+    }
+
     pub fn calculate(&self, req: LiabilityCalculationRequest) -> LiabilityCalculationResponse {
         let lang = req.language.as_deref().map(crate::i18n::Language::from_code).unwrap_or_default();
         self.calculate_with_language(req, lang)
     }
 
     pub fn calculate_with_language(&self, req: LiabilityCalculationRequest, lang: crate::i18n::Language) -> LiabilityCalculationResponse {
+        self.try_calculate_with_language(req, lang).expect("Statutory liability calculation failed")
+    }
+
+    pub fn try_calculate_with_language(&self, req: LiabilityCalculationRequest, lang: crate::i18n::Language) -> Result<LiabilityCalculationResponse, AppError> {
         let mut periods = req.resolve_occupancy_periods();
         periods.sort_by_key(|p| (p.start_date, p.end_date));
         let windows = slice_occupancy_periods(&periods, &req.qualifying_relief_flags, &req.hereditament.rateable_value_history);
@@ -175,14 +185,17 @@ impl CalculationEngine {
 
         for win in &windows {
             let rv = self.resolve_rv_for_date(&req.hereditament.rateable_value_history, win.period.start_date);
-            let is_retail_or_rhl = win.period_relief_flags.is_retail_premises
-                || (win.period_relief_flags.is_rhl_qualifying && req.hereditament.scat_code != "209");
+            let is_retail = win.period_relief_flags.is_retail_premises || req.hereditament.scat_code == "225";
+            let is_rhl = win.period_relief_flags.is_rhl_qualifying || is_retail;
+            let is_higher_excepted = win.period_relief_flags.is_higher_multiplier_excepted;
             let mult = self.repo.resolve_multiplier_ex(
                 req.hereditament.jurisdiction,
                 &win.financial_year,
                 rv,
-                is_retail_or_rhl,
-            );
+                is_rhl,
+                is_retail,
+                is_higher_excepted,
+            )?;
 
             let days_dec = Decimal::from(win.period.days);
             let year_days_dec = Decimal::from(win.year_days);
@@ -215,14 +228,16 @@ impl CalculationEngine {
                                     }
                                 };
 
-                                let prev_is_retail = win.period_relief_flags.is_retail_premises
-                                    || (win.period_relief_flags.is_rhl_qualifying && req.hereditament.scat_code != "209");
+                                let prev_is_retail = win.period_relief_flags.is_retail_premises || req.hereditament.scat_code == "225";
+                                let prev_is_rhl = win.period_relief_flags.is_rhl_qualifying || prev_is_retail;
                                 let prev_mult = self.repo.resolve_multiplier_ex(
                                     Jurisdiction::WALES,
                                     base_fy,
                                     base_rv,
+                                    prev_is_rhl,
                                     prev_is_retail,
-                                );
+                                    win.period_relief_flags.is_higher_multiplier_excepted,
+                                )?;
                                 let prev_gross_annual = base_rv * prev_mult.rate;
                                 let prev_sbrr_pct = if win.period_relief_flags.is_small_business_sole_property {
                                     self.repo.resolve_sbrr(Jurisdiction::WALES, base_fy, base_rv)
@@ -249,12 +264,15 @@ impl CalculationEngine {
                                 }
                             }
                         } else if let Some(cap) = self.repo.resolve_transitional_cap(req.hereditament.jurisdiction, &win.financial_year, rv) {
+                            let prev_is_retail = win.period_relief_flags.is_retail_premises || req.hereditament.scat_code == "225";
                             let prev_mult = self.repo.resolve_multiplier_ex(
                                 req.hereditament.jurisdiction,
                                 &prev_fy,
                                 prev_rv,
-                                win.period_relief_flags.is_rhl_qualifying,
-                            );
+                                win.period_relief_flags.is_rhl_qualifying || prev_is_retail,
+                                prev_is_retail,
+                                win.period_relief_flags.is_higher_multiplier_excepted,
+                            )?;
                             let base_liability_annual = if let Some(&prev_capped) = fy_capped_annual.get(&prev_fy) {
                                 prev_capped
                             } else {
@@ -265,12 +283,15 @@ impl CalculationEngine {
                                     if let Some(list_start_date) = NaiveDate::from_ymd_opt(cap.revaluation_list_year, 3, 31) {
                                         if let Some(list_start_rv) = self.resolve_previous_rv(&req.hereditament.rateable_value_history, list_start_date) {
                                             let y0_fy = format!("{}/{:02}", cap.revaluation_list_year - 1, cap.revaluation_list_year % 100);
+                                            let y0_is_retail = win.period_relief_flags.is_retail_premises || req.hereditament.scat_code == "225";
                                             let y0_mult = self.repo.resolve_multiplier_ex(
                                                 req.hereditament.jurisdiction,
                                                 &y0_fy,
                                                 list_start_rv,
-                                                win.period_relief_flags.is_rhl_qualifying,
-                                            );
+                                                win.period_relief_flags.is_rhl_qualifying || y0_is_retail,
+                                                y0_is_retail,
+                                                win.period_relief_flags.is_higher_multiplier_excepted,
+                                            )?;
                                             let mut running = list_start_rv * y0_mult.rate;
                                             for y in cap.revaluation_list_year..fy_start_year {
                                                 let loop_fy = format!("{}/{:02}", y, (y + 1) % 100);
@@ -620,7 +641,7 @@ impl CalculationEngine {
                                 if let Some(baseline_date) = NaiveDate::from_ymd_opt(scheme_start_year, 3, 31) {
                                     if let Some(base_rv) = self.resolve_previous_rv(&req.hereditament.rateable_value_history, baseline_date) {
                                         let base_y0_fy = format!("{}/{:02}", scheme_start_year - 1, scheme_start_year % 100);
-                                        let base_mult = self.repo.resolve_multiplier(Jurisdiction::SCOTLAND, &base_y0_fy, base_rv);
+                                        let base_mult = self.repo.resolve_multiplier(Jurisdiction::SCOTLAND, &base_y0_fy, base_rv)?;
                                         let base_gross = base_rv * base_mult.rate;
                                         let base_sbbs_pct = self.repo.resolve_sbrr(Jurisdiction::SCOTLAND, &base_y0_fy, base_rv)
                                             .map(|r| r.discount_percentage)
@@ -673,7 +694,14 @@ impl CalculationEngine {
                                 if let Some(baseline_date) = NaiveDate::from_ymd_opt(scheme_start_year, 3, 31) {
                                     if let Some(base_rv) = self.resolve_previous_rv(&req.hereditament.rateable_value_history, baseline_date) {
                                         let base_y0_fy = format!("{}/{:02}", scheme_start_year - 1, scheme_start_year % 100);
-                                        let base_mult = self.repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, &base_y0_fy, base_rv, flags.is_rhl_qualifying);
+                                        let base_mult = self.repo.resolve_multiplier_ex(
+                                            Jurisdiction::ENGLAND,
+                                            &base_y0_fy,
+                                            base_rv,
+                                            flags.is_rhl_qualifying,
+                                            flags.is_retail_premises,
+                                            flags.is_higher_multiplier_excepted,
+                                        )?;
                                         let base_gross = base_rv * base_mult.rate;
                                         let base_sbrr_pct = self.repo.resolve_sbrr(Jurisdiction::ENGLAND, &base_y0_fy, base_rv)
                                             .map(|r| r.discount_percentage)
@@ -1031,7 +1059,7 @@ impl CalculationEngine {
 
         let narrative = generate_narrative(&req, &annual_segments, total_net, lang);
 
-        LiabilityCalculationResponse {
+        Ok(LiabilityCalculationResponse {
             calculation_id: Uuid::new_v4(),
             calculated_at: Utc::now().to_rfc3339(),
             parameter_version_ids: self.repo.get_versions().clone(),
@@ -1040,6 +1068,6 @@ impl CalculationEngine {
             summary_financials: summary,
             annual_billing_segments: annual_segments,
             calculation_narrative: narrative,
-        }
+        })
     }
 }

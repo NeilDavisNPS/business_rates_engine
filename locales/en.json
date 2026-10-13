@@ -106,7 +106,9 @@
       "sbbs_tr_default": "SBBS Transitional Relief: Not applicable — bill increase did not exceed statutory cap over previous year.",
       "ssbr_not_england": "Supporting Small Business Relief: Disqualified — applies only in England [LGFA 1988 s.47].",
       "ssbr_default": "Supporting Small Business Relief: Not applicable — bill increase did not exceed statutory annual cap (£600/£800) over previous financial year [LGFA 1988 s.47].",
-      "empty_property_expired": "Empty Property Rate-Free Period: Expired — initial statutory rate-free period (3 months commercial / 6 months industrial) has elapsed [LGFA 1988 s.45 / SI 2008/386 / 1975 Act s.7A]."
+      "empty_property_expired": "Empty Property Rate-Free Period: Expired — initial statutory rate-free period (3 months commercial / 6 months industrial) has elapsed [LGFA 1988 s.45 / SI 2008/386 / 1975 Act s.7A].",
+      "multiplier_wales_2027_provisional": "Welsh multipliers for 2027/28 are provisional estimates based on 2026/27 values pending enactment of statutory regulations.",
+      "multiplier_wales_higher_excepted": "Hereditament is excepted from the Welsh higher multiplier (>£100k RV); standard multiplier ({rate}) applied under Local Government Finance (Wales) Act 2024."
     }
   },
   "relief_names": {
@@ -140,6 +142,7 @@
     "invalid_occupation_period": "Occupation end date ({end}) cannot precede start date ({start})",
     "overlapping_occupation_periods": "Occupancy periods overlap: {first_start} to {first_end} and {second_start} to {second_end}",
     "rateable_value_missing_for_period": "Calculation period start date ({period_start}) precedes earliest rateable value effective date ({rv_start})",
+    "missing_multiplier_for_period": "No statutory rating multiplier published or available for financial year {financial_year} in jurisdiction {jurisdiction}",
     "payload_deserialization": "Payload Deserialization Error: {msg}"
   },
   "reference_codes": {
@@ -325,6 +328,18 @@
       "HIGHER": {
         "label": "Higher Multiplier (Wales)",
         "description": "Higher statutory multiplier for properties exceeding £100k RV in Wales under LGF(W)A 2024 (51.5p in 2026/27)."
+      },
+      "RETAIL_PROVISIONAL": {
+        "label": "Welsh Retail Multiplier (Provisional)",
+        "description": "Provisional lower statutory multiplier for small retail premises under £51k RV in Wales for 2027/28."
+      },
+      "STANDARD_PROVISIONAL": {
+        "label": "Standard Multiplier (Provisional)",
+        "description": "Provisional baseline non-domestic rating multiplier for 2027/28."
+      },
+      "HIGHER_PROVISIONAL": {
+        "label": "Higher Multiplier (Wales, Provisional)",
+        "description": "Provisional higher statutory multiplier for properties exceeding £100k RV in Wales for 2027/28."
       }
     }
   }

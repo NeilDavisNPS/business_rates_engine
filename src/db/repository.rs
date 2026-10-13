@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::models::calculation::{MultiplierInfo, ParameterVersionIds};
 use crate::models::enums::Jurisdiction;
+use crate::error::AppError;
 
 /// Represents a row in the param_multiplier table (1990–2027)
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -120,7 +121,7 @@ pub struct ParamReferenceCode {
 }
 
 /// In-memory parameter repository storage
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct RepoData {
     multipliers: Vec<ParamMultiplier>,
     sbrr_thresholds: Vec<ParamSbrrSbbsThreshold>,
@@ -158,6 +159,15 @@ impl ParameterRepository {
     pub fn new_seeded() -> Self {
         Self {
             data: Arc::new(RepoData::new_seeded()),
+        }
+    }
+
+    /// Extends the repository with an additional multiplier (useful for future year testing)
+    pub fn with_additional_multiplier(self, multiplier: ParamMultiplier) -> Self {
+        let mut data = (*self.data).clone();
+        data.multipliers.push(multiplier);
+        Self {
+            data: Arc::new(data),
         }
     }
 
@@ -224,53 +234,61 @@ impl ParameterRepository {
     }
 
     /// Dynamically resolves the statutory multiplier by querying in-memory parameter tables
-    pub fn resolve_multiplier(&self, jurisdiction: Jurisdiction, financial_year: &str, rv: Decimal) -> MultiplierInfo {
-        self.resolve_multiplier_ex(jurisdiction, financial_year, rv, false)
+    pub fn resolve_multiplier(&self, jurisdiction: Jurisdiction, financial_year: &str, rv: Decimal) -> Result<MultiplierInfo, AppError> {
+        self.resolve_multiplier_ex(jurisdiction, financial_year, rv, false, false, false)
     }
 
-    /// Dynamically resolves the statutory multiplier, accounting for RHL sector qualifications in 2026/27 (5-multiplier system)
-    pub fn resolve_multiplier_ex(&self, jurisdiction: Jurisdiction, financial_year: &str, rv: Decimal, is_rhl: bool) -> MultiplierInfo {
+    /// Dynamically resolves the statutory multiplier, accounting for retail and RHL sector qualifications and higher multiplier exceptions
+    pub fn resolve_multiplier_ex(
+        &self,
+        jurisdiction: Jurisdiction,
+        financial_year: &str,
+        rv: Decimal,
+        is_rhl: bool,
+        is_retail: bool,
+        is_higher_multiplier_excepted: bool,
+    ) -> Result<MultiplierInfo, AppError> {
         let matches: Vec<&ParamMultiplier> = self.multipliers.iter()
             .filter(|m| m.jurisdiction == jurisdiction && m.financial_year == financial_year)
             .collect();
 
         if matches.is_empty() {
-            return MultiplierInfo {
-                multiplier_type: "HISTORICAL_DEFAULT".to_string(),
-                rate: dec!(0.450),
-            };
+            return Err(AppError::MissingMultiplierForPeriod {
+                financial_year: financial_year.to_string(),
+                jurisdiction,
+            });
         }
 
         // 1. High-Value Multiplier (NDRA 2023 - England 2026/27, RV >= £500,000)
         if let Some(m) = matches.iter().find(|m| m.multiplier_type == "HIGH_VALUE" && rv >= m.rv_threshold_min) {
-            return MultiplierInfo {
+            return Ok(MultiplierInfo {
                 multiplier_type: m.multiplier_type.clone(),
                 rate: m.multiplier_rate,
-            };
+            });
         }
 
-        // 1b. Wales 2026/27 Differential Multipliers (Local Government Finance (Wales) Act 2024)
-        if jurisdiction == Jurisdiction::WALES && financial_year == "2026/27" {
-            if rv > dec!(100000.00) {
-                if let Some(m) = matches.iter().find(|m| m.multiplier_type == "HIGHER") {
-                    return MultiplierInfo {
+        // 1b. Wales Differential Multipliers (Local Government Finance (Wales) Act 2024 - 2026/27 & 2027/28)
+        if jurisdiction == Jurisdiction::WALES && (financial_year == "2026/27" || financial_year == "2027/28") {
+            if rv > dec!(100000.00) && !is_higher_multiplier_excepted {
+                if let Some(m) = matches.iter().find(|m| m.multiplier_type.starts_with("HIGHER")) {
+                    return Ok(MultiplierInfo {
                         multiplier_type: m.multiplier_type.clone(),
                         rate: m.multiplier_rate,
-                    };
+                    });
                 }
-            } else if is_rhl && rv < dec!(51000.00) {
-                if let Some(m) = matches.iter().find(|m| m.multiplier_type == "RETAIL") {
-                    return MultiplierInfo {
+            } else if is_retail && rv < dec!(51000.00) {
+                if let Some(m) = matches.iter().find(|m| m.multiplier_type.starts_with("RETAIL")) {
+                    return Ok(MultiplierInfo {
                         multiplier_type: m.multiplier_type.clone(),
                         rate: m.multiplier_rate,
-                    };
+                    });
                 }
             } else {
-                if let Some(m) = matches.iter().find(|m| m.multiplier_type == "STANDARD") {
-                    return MultiplierInfo {
+                if let Some(m) = matches.iter().find(|m| m.multiplier_type.starts_with("STANDARD")) {
+                    return Ok(MultiplierInfo {
                         multiplier_type: m.multiplier_type.clone(),
                         rate: m.multiplier_rate,
-                    };
+                    });
                 }
             }
         }
@@ -282,10 +300,10 @@ impl ParameterRepository {
                     && rv >= m.rv_threshold_min
                     && m.rv_threshold_max.is_none_or(|max| rv <= max)
             }) {
-                return MultiplierInfo {
+                return Ok(MultiplierInfo {
                     multiplier_type: m.multiplier_type.clone(),
                     rate: m.multiplier_rate,
-                };
+                });
             }
         }
 
@@ -295,10 +313,10 @@ impl ParameterRepository {
                 let min_ok = rv >= m.rv_threshold_min;
                 let max_ok = m.rv_threshold_max.is_none_or(|max| rv <= max);
                 if min_ok && max_ok {
-                    return MultiplierInfo {
+                    return Ok(MultiplierInfo {
                         multiplier_type: m.multiplier_type.clone(),
                         rate: m.multiplier_rate,
-                    };
+                    });
                 }
             }
         }
@@ -309,10 +327,10 @@ impl ParameterRepository {
                 let min_ok = rv >= m.rv_threshold_min;
                 let max_ok = m.rv_threshold_max.is_none_or(|max| rv <= max);
                 if min_ok && max_ok {
-                    return MultiplierInfo {
+                    return Ok(MultiplierInfo {
                         multiplier_type: m.multiplier_type.clone(),
                         rate: m.multiplier_rate,
-                    };
+                    });
                 }
             }
         }
@@ -323,10 +341,10 @@ impl ParameterRepository {
                 let min_ok = rv >= m.rv_threshold_min;
                 let max_ok = m.rv_threshold_max.is_none_or(|max| rv <= max);
                 if min_ok && max_ok {
-                    return MultiplierInfo {
+                    return Ok(MultiplierInfo {
                         multiplier_type: m.multiplier_type.clone(),
                         rate: m.multiplier_rate,
-                    };
+                    });
                 }
             }
         }
@@ -336,10 +354,10 @@ impl ParameterRepository {
             .find(|m| m.multiplier_type == "STANDARD" || m.multiplier_type == "WELSH_DIFFERENTIAL")
             .unwrap_or(&matches[0]);
 
-        MultiplierInfo {
+        Ok(MultiplierInfo {
             multiplier_type: standard.multiplier_type.clone(),
             rate: standard.multiplier_rate,
-        }
+        })
     }
 
     /// Resolves SBRR / SBBS discount percentage and statutory authority
@@ -686,7 +704,7 @@ impl RepoData {
         // 2025/26
         add("m_eng_sm_2025", "2025/26", Jurisdiction::ENGLAND, "SMALL_BUSINESS", dec!(0.00), Some(dec!(51000.00)), dec!(0.499), "2025-04-01", "2026-03-31");
         add("m_eng_st_2025", "2025/26", Jurisdiction::ENGLAND, "STANDARD", dec!(51000.01), None, dec!(0.546), "2025-04-01", "2026-03-31");
-        add("m_wal_2025", "2025/26", Jurisdiction::WALES, "STANDARD", dec!(0.00), None, dec!(0.562), "2025-04-01", "2026-03-31");
+        add("m_wal_2025", "2025/26", Jurisdiction::WALES, "STANDARD", dec!(0.00), None, dec!(0.568), "2025-04-01", "2026-03-31");
         add("m_sco_b_2025", "2025/26", Jurisdiction::SCOTLAND, "BASIC", dec!(0.00), Some(dec!(51000.00)), dec!(0.498), "2025-04-01", "2026-03-31");
         add("m_sco_i_2025", "2025/26", Jurisdiction::SCOTLAND, "INTERMEDIATE", dec!(51000.01), Some(dec!(100000.00)), dec!(0.545), "2025-04-01", "2026-03-31");
         add("m_sco_h_2025", "2025/26", Jurisdiction::SCOTLAND, "HIGHER", dec!(100000.01), None, dec!(0.559), "2025-04-01", "2026-03-31");
@@ -714,9 +732,9 @@ impl RepoData {
         add("m_eng_st_rhl_2027", "2027/28", Jurisdiction::ENGLAND, "STANDARD_RHL", dec!(51000.01), Some(dec!(499999.99)), dec!(0.430), "2027-04-01", "2028-03-31");
         add("m_eng_st_2027", "2027/28", Jurisdiction::ENGLAND, "STANDARD", dec!(51000.01), Some(dec!(499999.99)), dec!(0.480), "2027-04-01", "2028-03-31");
 
-        add("m_wal_ret_2027", "2027/28", Jurisdiction::WALES, "RETAIL", dec!(0.00), Some(dec!(51000.00)), dec!(0.350), "2027-04-01", "2028-03-31");
-        add("m_wal_std_2027", "2027/28", Jurisdiction::WALES, "STANDARD", dec!(0.00), Some(dec!(100000.00)), dec!(0.502), "2027-04-01", "2028-03-31");
-        add("m_wal_hgh_2027", "2027/28", Jurisdiction::WALES, "HIGHER", dec!(100000.01), None, dec!(0.515), "2027-04-01", "2028-03-31");
+        add("m_wal_ret_2027", "2027/28", Jurisdiction::WALES, "RETAIL_PROVISIONAL", dec!(0.00), Some(dec!(51000.00)), dec!(0.350), "2027-04-01", "2028-03-31");
+        add("m_wal_std_2027", "2027/28", Jurisdiction::WALES, "STANDARD_PROVISIONAL", dec!(0.00), Some(dec!(100000.00)), dec!(0.502), "2027-04-01", "2028-03-31");
+        add("m_wal_hgh_2027", "2027/28", Jurisdiction::WALES, "HIGHER_PROVISIONAL", dec!(100000.01), None, dec!(0.515), "2027-04-01", "2028-03-31");
 
         add("m_sco_b_2027", "2027/28", Jurisdiction::SCOTLAND, "BASIC", dec!(0.00), Some(dec!(12000.00)), dec!(0.498), "2027-04-01", "2028-03-31");
         add("m_sco_st_2027", "2027/28", Jurisdiction::SCOTLAND, "STANDARD", dec!(12000.01), Some(dec!(100000.00)), dec!(0.545), "2027-04-01", "2028-03-31");

@@ -131,37 +131,37 @@ async fn test_zero_hardcoding_historical_multipliers_1990_to_2026() {
     let repo = ParameterRepository::new_seeded();
 
     // 1990/91 Statutory Multipliers (Inaugural NNDR under LGFA 1988)
-    let m_90_eng = repo.resolve_multiplier(Jurisdiction::ENGLAND, "1990/91", dec!(25000.00));
+    let m_90_eng = repo.resolve_multiplier(Jurisdiction::ENGLAND, "1990/91", dec!(25000.00)).unwrap();
     assert_eq!(m_90_eng.rate, dec!(0.348));
 
-    let m_90_wal = repo.resolve_multiplier(Jurisdiction::WALES, "1990/91", dec!(25000.00));
+    let m_90_wal = repo.resolve_multiplier(Jurisdiction::WALES, "1990/91", dec!(25000.00)).unwrap();
     assert_eq!(m_90_wal.rate, dec!(0.368));
 
-    let m_90_sco = repo.resolve_multiplier(Jurisdiction::SCOTLAND, "1990/91", dec!(25000.00));
+    let m_90_sco = repo.resolve_multiplier(Jurisdiction::SCOTLAND, "1990/91", dec!(25000.00)).unwrap();
     assert_eq!(m_90_sco.rate, dec!(0.410));
 
     // 1993/94 Statutory Multipliers
-    let m_93_eng = repo.resolve_multiplier(Jurisdiction::ENGLAND, "1993/94", dec!(25000.00));
+    let m_93_eng = repo.resolve_multiplier(Jurisdiction::ENGLAND, "1993/94", dec!(25000.00)).unwrap();
     assert_eq!(m_93_eng.rate, dec!(0.416));
 
-    let m_93_sco = repo.resolve_multiplier(Jurisdiction::SCOTLAND, "1993/94", dec!(25000.00));
+    let m_93_sco = repo.resolve_multiplier(Jurisdiction::SCOTLAND, "1993/94", dec!(25000.00)).unwrap();
     assert_eq!(m_93_sco.rate, dec!(0.477));
 
     // 2000/01 Revaluation List
-    let m_00_eng = repo.resolve_multiplier(Jurisdiction::ENGLAND, "2000/01", dec!(10000.00));
+    let m_00_eng = repo.resolve_multiplier(Jurisdiction::ENGLAND, "2000/01", dec!(10000.00)).unwrap();
     assert_eq!(m_00_eng.rate, dec!(0.416));
 
     // 2010/11 Revaluation List (Small Business vs Standard)
-    let m_10_small = repo.resolve_multiplier(Jurisdiction::ENGLAND, "2010/11", dec!(12000.00));
+    let m_10_small = repo.resolve_multiplier(Jurisdiction::ENGLAND, "2010/11", dec!(12000.00)).unwrap();
     assert_eq!(m_10_small.rate, dec!(0.407));
     assert_eq!(m_10_small.multiplier_type, "SMALL_BUSINESS");
 
-    let m_10_std = repo.resolve_multiplier(Jurisdiction::ENGLAND, "2010/11", dec!(60000.00));
+    let m_10_std = repo.resolve_multiplier(Jurisdiction::ENGLAND, "2010/11", dec!(60000.00)).unwrap();
     assert_eq!(m_10_std.rate, dec!(0.414));
     assert_eq!(m_10_std.multiplier_type, "STANDARD");
 
     // 2026/27 High-Value Threshold (£500k)
-    let m_26_hv = repo.resolve_multiplier(Jurisdiction::ENGLAND, "2026/27", dec!(500000.00));
+    let m_26_hv = repo.resolve_multiplier(Jurisdiction::ENGLAND, "2026/27", dec!(500000.00)).unwrap();
     assert_eq!(m_26_hv.rate, dec!(0.508));
     assert_eq!(m_26_hv.multiplier_type, "HIGH_VALUE");
 }
@@ -2669,27 +2669,27 @@ async fn test_england_2026_five_multipliers_rhl_vs_non_rhl() {
     let repo = ParameterRepository::new_seeded();
 
     // 1. Small Business RHL (< £51k with RHL)
-    let m1 = repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, "2026/27", dec!(30000.00), true);
+    let m1 = repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, "2026/27", dec!(30000.00), true, true, false).unwrap();
     assert_eq!(m1.rate, dec!(0.382));
     assert_eq!(m1.multiplier_type, "SMALL_BUSINESS_RHL");
 
     // 2. Small Business non-RHL (< £51k without RHL)
-    let m2 = repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, "2026/27", dec!(30000.00), false);
+    let m2 = repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, "2026/27", dec!(30000.00), false, false, false).unwrap();
     assert_eq!(m2.rate, dec!(0.432));
     assert_eq!(m2.multiplier_type, "SMALL_BUSINESS");
 
     // 3. Standard RHL (£51k <= RV < £500k with RHL)
-    let m3 = repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, "2026/27", dec!(100000.00), true);
+    let m3 = repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, "2026/27", dec!(100000.00), true, true, false).unwrap();
     assert_eq!(m3.rate, dec!(0.430));
     assert_eq!(m3.multiplier_type, "STANDARD_RHL");
 
     // 4. Standard non-RHL (£51k <= RV < £500k without RHL)
-    let m4 = repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, "2026/27", dec!(100000.00), false);
+    let m4 = repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, "2026/27", dec!(100000.00), false, false, false).unwrap();
     assert_eq!(m4.rate, dec!(0.480));
     assert_eq!(m4.multiplier_type, "STANDARD");
 
     // 5. High-Value (RV >= £500k)
-    let m5 = repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, "2026/27", dec!(600000.00), false);
+    let m5 = repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, "2026/27", dec!(600000.00), false, false, false).unwrap();
     assert_eq!(m5.rate, dec!(0.508));
     assert_eq!(m5.multiplier_type, "HIGH_VALUE");
 }
@@ -2939,10 +2939,10 @@ async fn test_wales_transitional_relief_2026_year_1_67_percent() {
     let repo = ParameterRepository::new_seeded();
     let engine = CalculationEngine::new(repo);
 
-    // Baseline 2025/26: RV £4,000 * 0.562 = £2,248.00
+    // Baseline 2025/26: RV £4,000 * 0.568 = £2,272.00
     // 2026/27: RV £10,000 * 0.502 = £5,020.00
-    // Increase = £5,020.00 - £2,248.00 = £2,772.00 (> £300 statutory threshold)
-    // Year 1 (2026/27) Welsh TR = 67% of £2,772.00 = £1,857.24 (W.S.I. 2025/1371)
+    // Increase = £5,020.00 - £2,272.00 = £2,748.00 (> £300 statutory threshold)
+    // Year 1 (2026/27) Welsh TR = 67% of £2,748.00 = £1,841.16 (W.S.I. 2025/1371)
     let req = LiabilityCalculationRequest {
         party_type: PartyType::CORPORATE,
         occupation_period: DateRange {
@@ -2980,8 +2980,8 @@ async fn test_wales_transitional_relief_2026_year_1_67_percent() {
 
     assert_eq!(seg.gross_liability, dec!(5020.00));
     assert_eq!(seg.transitional_adjustment.adjustment_type, "RELIEF");
-    assert_eq!(seg.transitional_adjustment.amount, dec!(1857.24));
-    assert_eq!(seg.net_segment_payable, dec!(3162.76));
+    assert_eq!(seg.transitional_adjustment.amount, dec!(1841.16));
+    assert_eq!(seg.net_segment_payable, dec!(3178.84));
 }
 
 #[tokio::test]
@@ -2989,10 +2989,10 @@ async fn test_wales_transitional_relief_2027_year_2_34_percent() {
     let repo = ParameterRepository::new_seeded();
     let engine = CalculationEngine::new(repo);
 
-    // Baseline 2025/26: RV £4,000 * 0.562 = £2,248.00
+    // Baseline 2025/26: RV £4,000 * 0.568 = £2,272.00
     // 2027/28: RV £10,000 * 0.502 = £5,020.00
-    // Increase = £5,020.00 - £2,248.00 = £2,772.00 (> £300 statutory threshold)
-    // Year 2 (2027/28) Welsh TR = 34% of £2,772.00 = £942.48 (W.S.I. 2025/1371)
+    // Increase = £5,020.00 - £2,272.00 = £2,748.00 (> £300 statutory threshold)
+    // Year 2 (2027/28) Welsh TR = 34% of £2,748.00 = £934.32 (W.S.I. 2025/1371)
     let req = LiabilityCalculationRequest {
         party_type: PartyType::CORPORATE,
         occupation_period: DateRange {
@@ -3030,8 +3030,8 @@ async fn test_wales_transitional_relief_2027_year_2_34_percent() {
 
     assert_eq!(seg.gross_liability, dec!(5020.00));
     assert_eq!(seg.transitional_adjustment.adjustment_type, "RELIEF");
-    assert_eq!(seg.transitional_adjustment.amount, dec!(942.48));
-    assert_eq!(seg.net_segment_payable, dec!(4077.52));
+    assert_eq!(seg.transitional_adjustment.amount, dec!(934.32));
+    assert_eq!(seg.net_segment_payable, dec!(4085.68));
 }
 
 #[tokio::test]
@@ -3039,9 +3039,9 @@ async fn test_wales_transitional_relief_under_300_no_relief() {
     let repo = ParameterRepository::new_seeded();
     let engine = CalculationEngine::new(repo);
 
-    // Baseline 2025/26: RV £8,600 * 0.562 = £4,833.20
+    // Baseline 2025/26: RV £8,600 * 0.568 = £4,884.80
     // 2026/27: RV £10,000 * 0.502 = £5,020.00
-    // Increase = £5,020.00 - £4,833.20 = £186.80 (<= £300 statutory threshold)
+    // Increase = £5,020.00 - £4,884.80 = £135.20 (<= £300 statutory threshold)
     // No Welsh TR awarded under W.S.I. 2025/1371
     let req = LiabilityCalculationRequest {
         party_type: PartyType::CORPORATE,
@@ -4524,7 +4524,19 @@ async fn test_improvement_relief_not_granted_before_1_april_2024() {
 
 #[tokio::test]
 async fn test_improvement_relief_not_granted_on_or_after_1_april_2029() {
-    let repo = ParameterRepository::new_seeded();
+    let repo = ParameterRepository::new_seeded().with_additional_multiplier(
+        business_rates_engine::db::repository::ParamMultiplier {
+            parameter_id: "m_eng_test_2029".to_string(),
+            financial_year: "2029/30".to_string(),
+            jurisdiction: Jurisdiction::ENGLAND,
+            multiplier_type: "STANDARD".to_string(),
+            rv_threshold_min: dec!(0.00),
+            rv_threshold_max: None,
+            multiplier_rate: dec!(0.500),
+            effective_from: NaiveDate::from_ymd_opt(2029, 4, 1).unwrap(),
+            effective_to: NaiveDate::from_ymd_opt(2030, 3, 31).unwrap(),
+        },
+    );
     let engine = CalculationEngine::new(repo);
 
     let json = serde_json::json!({
@@ -4598,7 +4610,19 @@ async fn test_heat_network_relief_not_granted_before_1_april_2024() {
 
 #[tokio::test]
 async fn test_heat_network_relief_not_granted_on_or_after_1_april_2035() {
-    let repo = ParameterRepository::new_seeded();
+    let repo = ParameterRepository::new_seeded().with_additional_multiplier(
+        business_rates_engine::db::repository::ParamMultiplier {
+            parameter_id: "m_eng_test_2035".to_string(),
+            financial_year: "2035/36".to_string(),
+            jurisdiction: Jurisdiction::ENGLAND,
+            multiplier_type: "STANDARD".to_string(),
+            rv_threshold_min: dec!(0.00),
+            rv_threshold_max: None,
+            multiplier_rate: dec!(0.500),
+            effective_from: NaiveDate::from_ymd_opt(2035, 4, 1).unwrap(),
+            effective_to: NaiveDate::from_ymd_opt(2036, 3, 31).unwrap(),
+        },
+    );
     let engine = CalculationEngine::new(repo);
 
     let json = serde_json::json!({
@@ -5019,6 +5043,217 @@ async fn test_wales_telecoms_infrastructure_relief_not_granted() {
     // 30,000 * 0.562 = £16,860.00
     assert_eq!(seg.net_segment_payable, dec!(16860.00));
 }
+
+#[tokio::test]
+async fn test_wales_multiplier_2025_26_is_0568() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Wales 2025/26: RV £50,000 * 0.568 = £28,400.00 (not 0.562 / £28,100.00)
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "096",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 50000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2025-04-01",
+            "end_date": "2026-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": false
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+    assert_eq!(seg.multiplier_used.rate, dec!(0.568), "2025/26 Welsh multiplier must be 0.568 (+1% over 2024/25)");
+    assert_eq!(seg.gross_liability, dec!(28400.00));
+}
+
+#[tokio::test]
+async fn test_wales_retail_multiplier_not_given_to_holiday_let_or_pub_with_rhl_flag() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Wales 2026/27: Holiday let (SCAT 249) or pub with RV £40,000 flagged is_rhl_qualifying: true
+    // Welsh 2026/27 retail multiplier (0.350) is restricted to small retail shops (< £51k),
+    // and must NOT be awarded to holiday accommodation, pubs, restaurants, cafes or gyms.
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2026-04-01",
+                    "effective_to": null,
+                    "rateable_value": 40000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2026-04-01",
+            "end_date": "2027-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_rhl_qualifying": true,
+            "is_retail_premises": false,
+            "apply_transitional_relief": false
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+    assert_eq!(seg.multiplier_used.multiplier_type, "STANDARD");
+    assert_eq!(seg.multiplier_used.rate, dec!(0.502), "Holiday let must receive standard multiplier 0.502, not retail 0.350");
+    assert_eq!(seg.gross_liability, dec!(20080.00));
+}
+
+#[tokio::test]
+async fn test_wales_higher_multiplier_exception_pays_standard_rate() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Wales 2026/27: Hereditament with RV £150,000 (> £100,000).
+    // Normally pays HIGHER multiplier (0.515).
+    // With is_higher_multiplier_excepted: true (school, hospital, surgery, library, court, etc.),
+    // it must pay STANDARD multiplier (0.502).
+    let mut req_higher = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2027, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::WALES,
+            scat_code: "096".to_string(),
+            rateable_value_history: vec![
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(150000.00),
+                },
+            ],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            apply_transitional_relief: Some(false),
+            is_higher_multiplier_excepted: false,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+
+    let res_higher = engine.calculate(req_higher.clone());
+    let seg_higher = &res_higher.annual_billing_segments[0];
+    assert_eq!(seg_higher.multiplier_used.multiplier_type, "HIGHER");
+    assert_eq!(seg_higher.multiplier_used.rate, dec!(0.515));
+    assert_eq!(seg_higher.gross_liability, dec!(77250.00));
+
+    // Now test with exception
+    req_higher.qualifying_relief_flags.is_higher_multiplier_excepted = true;
+    let res_excepted = engine.calculate(req_higher);
+    let seg_excepted = &res_excepted.annual_billing_segments[0];
+    assert_eq!(seg_excepted.multiplier_used.multiplier_type, "STANDARD");
+    assert_eq!(seg_excepted.multiplier_used.rate, dec!(0.502));
+    assert_eq!(seg_excepted.gross_liability, dec!(75300.00));
+}
+
+#[tokio::test]
+async fn test_wales_retail_multiplier_given_to_retail_shop() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Wales 2026/27: Retail shop with RV £40,000 and is_retail_premises: true
+    // Receives Welsh retail multiplier (0.350) under LGF(W)A 2024
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "225",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2026-04-01",
+                    "effective_to": null,
+                    "rateable_value": 40000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2026-04-01",
+            "end_date": "2027-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_retail_premises": true,
+            "apply_transitional_relief": false
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+    assert_eq!(seg.multiplier_used.multiplier_type, "RETAIL");
+    assert_eq!(seg.multiplier_used.rate, dec!(0.350));
+    assert_eq!(seg.gross_liability, dec!(14000.00));
+}
+
+#[tokio::test]
+async fn test_unseeded_year_raises_error_not_045_default() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // A calculation for a year without seeded multiplier (e.g. 2028/29)
+    // Must return an Err(AppError::MissingMultiplierForPeriod), NOT silently calculate with 0.450
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "096",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2028-04-01",
+                    "effective_to": null,
+                    "rateable_value": 50000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2028-04-01",
+            "end_date": "2029-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": false
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let result = engine.try_calculate(request);
+    assert!(result.is_err(), "Calculation for unseeded 2028/29 must return Err, not silent 0.45 default");
+    match result.unwrap_err() {
+        AppError::MissingMultiplierForPeriod { financial_year, jurisdiction } => {
+            assert_eq!(financial_year, "2028/29");
+            assert_eq!(jurisdiction, Jurisdiction::WALES);
+        }
+        other => panic!("Expected MissingMultiplierForPeriod error, got: {:?}", other),
+    }
+}
+
+
 
 
 

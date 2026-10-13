@@ -81,6 +81,8 @@ pub struct QualifyingReliefFlags {
     #[serde(default)]
     pub is_renewable_energy_generation: bool,
     #[serde(default)]
+    pub is_higher_multiplier_excepted: bool,
+    #[serde(default)]
     pub is_public_lavatory: bool,
     #[serde(default)]
     pub is_heat_network: bool,

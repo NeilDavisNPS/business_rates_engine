@@ -429,6 +429,20 @@
             <span class="text-[11px] text-red-700">{calcStore.t.flag_avoidance_desc}</span>
           </div>
         </label>
+
+        <!-- Welsh Higher Multiplier Exception (>£100k RV - LGF(W)A 2024) -->
+        <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-blue-200 bg-blue-50/50 hover:bg-blue-50 cursor-pointer transition-colors">
+          <input
+            type="checkbox"
+            bind:checked={calcStore.qualifyingReliefFlags.is_higher_multiplier_excepted}
+            onchange={onFlagChange}
+            class="mt-0.5 rounded text-blue-600 focus:ring-blue-500"
+          />
+          <div>
+            <span class="text-xs font-bold text-blue-950 block">{calcStore.t.flag_higher_multiplier_excepted_title}</span>
+            <span class="text-[11px] text-blue-800">{calcStore.t.flag_higher_multiplier_excepted_desc}</span>
+          </div>
+        </label>
       {/if}
     </div>
   </div>

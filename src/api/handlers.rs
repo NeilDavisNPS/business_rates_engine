@@ -144,7 +144,10 @@ pub async fn calculate_liability_handler(
     }
 
     let engine = CalculationEngine::new(state.repo.clone());
-    axum::response::IntoResponse::into_response(Json(engine.calculate_with_language(payload, effective_lang)))
+    match engine.try_calculate_with_language(payload, effective_lang) {
+        Ok(res) => axum::response::IntoResponse::into_response(Json(res)),
+        Err(err) => err.into_response_with_lang(effective_lang),
+    }
 }
 
 /// Returns all pre-seeded reference codes from the database catalog localized in English, Welsh, Scots, or Gaelic.

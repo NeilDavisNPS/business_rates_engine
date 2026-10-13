@@ -63,6 +63,7 @@ class CalculationStore {
     is_telecommunications_infrastructure: false,
     is_charity_discretionary_top_up: false,
     is_renewable_energy_generation: false,
+    is_higher_multiplier_excepted: false,
     payment_installments_count: 10,
     apply_transitional_relief: true,
   });
@@ -201,6 +202,7 @@ class CalculationStore {
       is_telecommunications_infrastructure: this.qualifyingReliefFlags.is_telecommunications_infrastructure,
       is_charity_discretionary_top_up: this.qualifyingReliefFlags.is_charity_discretionary_top_up,
       is_renewable_energy_generation: jur === 'SCOTLAND' ? this.qualifyingReliefFlags.is_renewable_energy_generation : false,
+      is_higher_multiplier_excepted: jur === 'WALES' ? !!this.qualifyingReliefFlags.is_higher_multiplier_excepted : false,
       payment_installments_count: this.qualifyingReliefFlags.payment_installments_count ? Number(this.qualifyingReliefFlags.payment_installments_count) : 10,
       holiday_let_actual_days_let: this.qualifyingReliefFlags.holiday_let_actual_days_let != null ? Number(this.qualifyingReliefFlags.holiday_let_actual_days_let) : null,
       holiday_let_days_available: this.qualifyingReliefFlags.holiday_let_days_available != null ? Number(this.qualifyingReliefFlags.holiday_let_days_available) : null,
@@ -300,6 +302,7 @@ class CalculationStore {
           is_telecommunications_infrastructure: !!p.qualifying_relief_flags.is_telecommunications_infrastructure,
           is_charity_discretionary_top_up: !!p.qualifying_relief_flags.is_charity_discretionary_top_up,
           is_renewable_energy_generation: !!p.qualifying_relief_flags.is_renewable_energy_generation,
+          is_higher_multiplier_excepted: !!p.qualifying_relief_flags.is_higher_multiplier_excepted,
           payment_installments_count: p.qualifying_relief_flags.payment_installments_count != null ? Number(p.qualifying_relief_flags.payment_installments_count) : 10,
           apply_transitional_relief: p.qualifying_relief_flags.apply_transitional_relief !== false,
         };

@@ -106,7 +106,9 @@
       "sbbs_tr_default": "SBBS Transitional Relief: Not applicable — bill increase did not exceed statutory cap over previous year.",
       "ssbr_not_england": "Supporting Small Business Relief: Disqualified — applies only in England [LGFA 1988 s.47].",
       "ssbr_default": "Supporting Small Business Relief: Not applicable — bill increase did not exceed statutory annual cap (£600/£800) over previous financial year [LGFA 1988 s.47].",
-      "empty_property_expired": "Ùine Saor bho Ìrean Togalach Falamh: Dh'fhalbh an ùine — tha an ùine reachdail (3 mìosan malairteach / 6 mìosan gnìomhachais) seachad [Achd 1975 e.7A]."
+      "empty_property_expired": "Ùine Saor bho Ìrean Togalach Falamh: Dh'fhalbh an ùine — tha an ùine reachdail (3 mìosan malairteach / 6 mìosan gnìomhachais) seachad [Achd 1975 e.7A].",
+      "multiplier_wales_2027_provisional": "Tha iomadairean na Cuimrigh airson 2027/28 nan tuairmsean sealach stèidhichte air luachan 2026/27 a' feitheamh ri reachdachadh riaghailtean reachdail.",
+      "multiplier_wales_higher_excepted": "Tha an oighreachd air a saoradh bho àrd-iomadair na Cuimrigh (>£100k RV); chaidh iomadair àbhaisteach ({rate}) a chur an gnìomh fo Achd Ionmhais Riaghaltas Ionadail (A' Chuimrigh) 2024."
     }
   },
   "relief_names": {
@@ -140,7 +142,8 @@
     "invalid_occupation_period": "Chan urrainn do cheann-latha crìochnachaidh gabhaltais ({end}) a bhith ro cheann-latha tòiseachaidh ({start})",
     "overlapping_occupation_periods": "Tha amannan gabhaltais a' dol thairis air a chèile: {first_start} gu {first_end} agus {second_start} gu {second_end}",
     "rateable_value_missing_for_period": "Tha ceann-latha tòiseachaidh na h-ùine àireamhachaidh ({period_start}) ro cheann-latha èifeachdach an luach reataichte as tràithe ({rv_start})",
-    "payload_deserialization": "Mearachd dì-shreathachadh luchd-pàighidh: {msg}"
+    "payload_deserialization": "Mearachd dì-shreathachadh luchd-pàighidh: {msg}",
+    "missing_multiplier_for_period": "Chan eil iomadair rangachaidh reachdail fhoillseachadh no ri fhaighinn airson a' bhliadhna-ionmhais {financial_year} ann an uachdranas {jurisdiction}"
   },
   "reference_codes": {
     "JURISDICTION": {
@@ -169,6 +172,14 @@
       "CHARITY": {
         "label": "Carthannas Clàraichte",
         "description": "Carthannas clàraichte le OSCR/CC le còir air faochadh èigneachail 80% fo reachd."
+      },
+      "CASC": {
+        "label": "CASC (Club Spòrs Neo-dhreuchdail Coimhearsnachd)",
+        "description": "CASC clàraichte le HMRC a tha airidh air faochadh èigneachail 80%."
+      },
+      "LOCAL_AUTHORITY": {
+        "label": "Ùghdarras Ionadail / Comhairle",
+        "description": "Ùghdarras bileachaidh, comhairle baile, no buidheann poblach reachdail."
       }
     },
     "OCCUPANCY_TYPE": {
@@ -197,8 +208,139 @@
       "CHARITY": {
         "label": "Faochadh Carthannais Èigneachail",
         "description": "Faochadh èigneachail 80% fo LGFA 1988 e.43(5) no Achd 1962 e.4 airson adhbharan carthannach."
+      },
+      "WALES_SBRR": {
+        "label": "Small Business Rate Relief (Wales)",
+        "description": "100% relief up to £6,000 RV, with linear taper up to £12,000 RV under LGF(W)A 2024."
+      },
+      "RHL": {
+        "label": "Retail, Hospitality & Leisure Relief",
+        "description": "Statutory sector discount (40% in England 2025/26, expired 2026/27; 15% in Wales 2026/27; 15% mainland / 100% islands in Scotland 2026/27 up to £110,000 cash cap)."
+      },
+      "IMPROV": {
+        "label": "Improvement Relief (G-Factor)",
+        "description": "100% relief for 12 months on rateable value increases resulting from physical property improvements under NDRA 2023 (England)."
+      },
+      "EMPTY": {
+        "label": "Empty Property Exemption",
+        "description": "100% relief for initial 3 months (commercial) or 6 months (industrial) unoccupied periods under LGFA 1988 s.45."
+      },
+      "RURAL": {
+        "label": "Rural Settlement Relief",
+        "description": "100% mandatory relief for sole general stores, food shops, or post offices in designated rural settlements."
+      },
+      "LAVATORY": {
+        "label": "Public Lavatories Relief",
+        "description": "100% statutory rating exemption under Rating (Coronavirus and Public Lavatories) Act 2021."
+      },
+      "HEAT_NET": {
+        "label": "Heat Network Relief",
+        "description": "100% relief for low-carbon district heating distribution hereditaments under NDRA 2023 (England)."
+      },
+      "WELSH_AVOIDANCE": {
+        "label": "Anti-Avoidance Statutory Penalty",
+        "description": "Statutory penalty under Welsh Statutory Instrument 2026/43 (£500 fixed + 3% rateable value) for artificial avoidance."
+      },
+      "SBBS_TR": {
+        "label": "Small Business Bonus Scheme Transitional Relief",
+        "description": "Scottish statutory protection capping net bill increases for properties losing or seeing reduced SBBS (£600 in 2023/24 to £1,800 in 2025/26; 25% bill increase limit in 2026/27)."
+      },
+      "SSBR": {
+        "label": "Supporting Small Business Relief",
+        "description": "English statutory protection capping net bill increases for properties losing or seeing reduced SBRR, rural rate relief, or RHL relief (£600 annual increase cap in 2023–2025; £800 annual increase cap in 2026/27)."
+      },
+      "WALES_TR": {
+        "label": "Welsh Transitional Relief",
+        "description": "Statutory two-year transitional phasing scheme under W.S.I. 2025/1371 / W.S.I. 2022/1350 (67% relief on bill increases > £300 in Year 1, 34% in Year 2)."
+      },
+      "TELECOM": {
+        "label": "Telecommunications Infrastructure Relief",
+        "description": "100% statutory relief for new fibre telecommunications infrastructure under Telecommunications Infrastructure Act 2018 / SSI 2019/111."
+      },
+      "CHARITY_TOPUP": {
+        "label": "Discretionary Charitable Relief Top-Up",
+        "description": "Up to 20% discretionary top-up relief by billing authorities under LGFA 1988 s.47(2)(a) / 1962 Act s.4(5)."
+      },
+      "RENEWABLE": {
+        "label": "Renewable Energy Generation Relief",
+        "description": "Tiered relief for renewable energy generation hereditaments under SSI 2010/336 (100% up to £145k RV, scaling to 10% up to £1m RV)."
+      },
+      "COUNCIL_TAX_TRANSFER": {
+        "label": "Council Tax Transfer (Holiday Let Disqualification)",
+        "description": "Disqualification from non-domestic rating list where self-catering accommodation fails statutory actual letting days threshold (182 days Scotland, 70 days England/Wales)."
+      }
+    },
+    "SCAT_CODE": {
+      "003": {
+        "label": "003 - Airport / Major Aviation Infrastructure",
+        "description": "Airport / high-value complex requiring standard national multiplier. Explicitly excluded from small business relief."
+      },
+      "091": {
+        "label": "091 - General Offices / Commercial Premises",
+        "description": "Standard commercial office accommodation. Entitled to 3 months 100% empty property relief."
+      },
+      "096": {
+        "label": "096 - Industrial Hereditament / Warehouse / Factory",
+        "description": "Industrial property qualifying for 6 months 100% empty property exemption under S.I. 2008/386."
+      },
+      "209": {
+        "label": "209 - Public House / Bar / Licensed Premises",
+        "description": "Licensed premises eligible for Retail, Hospitality & Leisure (RHL) relief schemes."
+      },
+      "211": {
+        "label": "211 - Petrol Filling Station & Forecourt",
+        "description": "Automotive fuel sales and forecourt shop. Explicitly excluded from retail discount in Wales under 2026/27 rules."
+      },
+      "225": {
+        "label": "225 - Retail Shop / High Street Unit",
+        "description": "Standard retail shop or store eligible for SBRR and RHL discount schemes."
+      },
+      "249": {
+        "label": "249 - Self-Catering Holiday Accommodation",
+        "description": "Holiday let subject to statutory minimum letting criteria (minimum 70 actual days let / 140 days available in Scotland)."
+      }
+    },
+    "MULTIPLIER_TYPE": {
+      "STANDARD": {
+        "label": "Iomadair Àbhaisteach",
+        "description": "Iomadair rangachaidh neo-dachaigheil bun-loidhne nàiseanta."
+      },
+      "SMALL_BUSINESS": {
+        "label": "Iomadair Gnothachais Bheag",
+        "description": "Iomadair lùghdaichte airson gnìomhachasan beaga freagarrach."
+      },
+      "HIGH_VALUE": {
+        "label": "Iomadair Àrd-luach",
+        "description": "Iomadair rangachaidh nas àirde airson togalaichean àrd-luach (e.e. RV >= £500,000 ann an Sasainn)."
+      },
+      "SMALL_BUSINESS_RHL": {
+        "label": "Iomadair Gnothachais Bheag RHL",
+        "description": "Iomadair lùghdaichte maireannach airson mion-reic, aoigheachd, cur-seachad fo £51k RV ann an Sasainn."
+      },
+      "STANDARD_RHL": {
+        "label": "Iomadair Àbhaisteach RHL",
+        "description": "Iomadair lùghdaichte maireannach airson mion-reic, aoigheachd, cur-seachad £51k-£500k RV ann an Sasainn."
+      },
+      "RETAIL": {
+        "label": "Iomadair Mion-reic na Cuimrigh",
+        "description": "Iomadair reachdail nas ìsle airson togalaichean beaga mion-reic fo £51k RV anns a' Chuimrigh fo LGF(W)A 2024 (35.0p ann an 2026/27)."
+      },
+      "HIGHER": {
+        "label": "Àrd-iomadair (A' Chuimrigh)",
+        "description": "Àrd-iomadair reachdail airson togalaichean os cionn £100k RV anns a' Chuimrigh fo LGF(W)A 2024 (51.5p ann an 2026/27)."
+      },
+      "RETAIL_PROVISIONAL": {
+        "label": "Iomadair Mion-reic na Cuimrigh (Sealach)",
+        "description": "Iomadair reachdail nas ìsle sealach airson togalaichean beaga mion-reic fo £51k RV anns a' Chuimrigh airson 2027/28."
+      },
+      "STANDARD_PROVISIONAL": {
+        "label": "Iomadair Àbhaisteach (Sealach)",
+        "description": "Iomadair bun-loidhne neo-dachaigheil sealach airson 2027/28."
+      },
+      "HIGHER_PROVISIONAL": {
+        "label": "Àrd-iomadair (A' Chuimrigh, Sealach)",
+        "description": "Àrd-iomadair reachdail sealach airson togalaichean os cionn £100k RV anns a' Chuimrigh airson 2027/28."
       }
     }
   }
 }
-

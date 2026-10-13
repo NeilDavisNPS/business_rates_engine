@@ -71,6 +71,8 @@ pub struct ErrorLocale {
     pub overlapping_occupation_periods: String,
     #[serde(default)]
     pub rateable_value_missing_for_period: String,
+    #[serde(default)]
+    pub missing_multiplier_for_period: String,
     pub payload_deserialization: String,
 }
 

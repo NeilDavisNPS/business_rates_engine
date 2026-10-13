@@ -7,6 +7,7 @@ use axum::{
 use chrono::NaiveDate;
 use serde_json::json;
 use thiserror::Error;
+use crate::models::enums::Jurisdiction;
 
 /// Strongly-typed domain and API errors for the Business Rates Engine.
 /// Uses `thiserror` to define centralized, consistent error messages without string literals in handlers.
@@ -32,6 +33,12 @@ pub enum AppError {
         rv_start: NaiveDate,
     },
 
+    #[error("No statutory rating multiplier published or available for financial year {financial_year} in jurisdiction {jurisdiction:?}")]
+    MissingMultiplierForPeriod {
+        financial_year: String,
+        jurisdiction: Jurisdiction,
+    },
+
     #[error("Payload Deserialization Error: {0}")]
     PayloadDeserialization(String),
 }
@@ -42,7 +49,8 @@ impl AppError {
         match self {
             Self::InvalidOccupationPeriod { .. }
             | Self::OverlappingOccupationPeriods { .. }
-            | Self::RateableValueMissingForPeriod { .. } => {
+            | Self::RateableValueMissingForPeriod { .. }
+            | Self::MissingMultiplierForPeriod { .. } => {
                 StatusCode::BAD_REQUEST
             }
             Self::PayloadDeserialization(_) => StatusCode::UNPROCESSABLE_ENTITY,
@@ -55,6 +63,7 @@ impl AppError {
             Self::InvalidOccupationPeriod { .. } => "INVALID_OCCUPATION_PERIOD",
             Self::OverlappingOccupationPeriods { .. } => "OVERLAPPING_OCCUPATION_PERIODS",
             Self::RateableValueMissingForPeriod { .. } => "RATEABLE_VALUE_MISSING_FOR_PERIOD",
+            Self::MissingMultiplierForPeriod { .. } => "MISSING_MULTIPLIER_FOR_PERIOD",
             Self::PayloadDeserialization(_) => "PAYLOAD_DESERIALIZATION_ERROR",
         }
     }
@@ -100,6 +109,16 @@ impl AppError {
                 crate::i18n::format_template(
                     &bundle.errors.rateable_value_missing_for_period,
                     &[("period_start", &ps), ("rv_start", &rs)],
+                )
+            }
+            Self::MissingMultiplierForPeriod {
+                financial_year,
+                jurisdiction,
+            } => {
+                let j_str = format!("{:?}", jurisdiction);
+                crate::i18n::format_template(
+                    &bundle.errors.missing_multiplier_for_period,
+                    &[("financial_year", financial_year), ("jurisdiction", &j_str)],
                 )
             }
             Self::PayloadDeserialization(msg) => {

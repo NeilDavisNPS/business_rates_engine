@@ -1,5 +1,6 @@
 use chrono::NaiveDate;
 use rust_decimal::Decimal;
+use rust_decimal_macros::dec;
 use crate::models::calculation::{LiabilityCalculationRequest, AnnualBillingSegment, QualifyingReliefFlags};
 use crate::models::enums::{Jurisdiction, OccupancyType, PartyType};
 use crate::i18n::{Language, LocaleBundle};
@@ -54,6 +55,21 @@ pub fn generate_narrative(
             &n.lines.multiplier,
             &[("multiplier_type", &seg.multiplier_used.multiplier_type), ("rate", &rate_str)],
         ));
+
+        if seg.multiplier_used.multiplier_type.ends_with("_PROVISIONAL") {
+            if let Some(note) = n.disqualifications.get("multiplier_wales_2027_provisional") {
+                lines.push(format!("    - {}", note));
+            }
+        }
+        if req.qualifying_relief_flags.is_higher_multiplier_excepted
+            && req.hereditament.jurisdiction == Jurisdiction::WALES
+            && seg.rateable_value > dec!(100000.00)
+        {
+            if let Some(note) = n.disqualifications.get("multiplier_wales_higher_excepted") {
+                let note_formatted = crate::i18n::format_template(note, &[("rate", &rate_str)]);
+                lines.push(format!("    - {}", note_formatted));
+            }
+        }
 
         let days_str = seg.segment_period.days.to_string();
         let s_str = seg.segment_period.start_date.to_string();

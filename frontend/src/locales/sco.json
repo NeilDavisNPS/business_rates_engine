@@ -737,5 +737,7 @@
         }
       ]
     }
-  }
+  },
+  "flag_higher_multiplier_excepted_title": "Exemptit frae Welsh Heicher Multiplier",
+  "flag_higher_multiplier_excepted_desc": "Schuil, hospital, health centre, surgery, leebrary, museum, emergency service station, leisure centre or coort exemptit frae the heicher multiplier (>£100k) unner Local Government Finance (Wales) Act 2024."
 }

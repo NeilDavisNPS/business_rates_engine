@@ -737,5 +737,7 @@
         }
       ]
     }
-  }
+  },
+  "flag_higher_multiplier_excepted_title": "Excepted from Welsh Higher Multiplier",
+  "flag_higher_multiplier_excepted_desc": "School, hospital, health centre, surgery, library, museum, emergency service station, leisure centre or court excepted from the higher multiplier (>£100k) under Local Government Finance (Wales) Act 2024."
 }
