@@ -32,6 +32,8 @@ RUN mkdir -p src && echo "fn main() {}" > src/main.rs && echo "" > src/lib.rs &&
 COPY src ./src
 COPY docs ./docs
 COPY templates ./templates
+COPY locales ./locales
+COPY THIRD_PARTY_LICENSES.md ./
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 
 RUN touch src/main.rs src/lib.rs && cargo build --release
