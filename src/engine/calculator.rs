@@ -558,46 +558,47 @@ impl CalculationEngine {
                             && segment_relief_total < chargeable_before_reliefs
                         {
                             if let Some(sbbs_tr) = self.repo.resolve_sbbs_tr(&win.financial_year) {
-                                let prev_net_segment = if let Some((prev_fy, prev_fy_end)) = self.get_previous_financial_year(&win.financial_year) {
-                                    if let Some(prev_rv) = self.resolve_previous_rv(&req.hereditament.rateable_value_history, prev_fy_end) {
-                                        let prev_mult = self.repo.resolve_multiplier(Jurisdiction::SCOTLAND, &prev_fy, prev_rv);
-                                        let prev_gross_annual = prev_rv * prev_mult.rate;
-                                        let prev_sbbs_pct = self.repo.resolve_sbrr(Jurisdiction::SCOTLAND, &prev_fy, prev_rv)
+                                let fy_start_year = win.financial_year.split('/').next()
+                                    .and_then(|y| y.parse::<i32>().ok())
+                                    .unwrap_or(0);
+                                let scheme_start_year = if fy_start_year >= 2026 { 2026 } else { 2023 };
+                                if let Some(baseline_date) = NaiveDate::from_ymd_opt(scheme_start_year, 3, 31) {
+                                    if let Some(base_rv) = self.resolve_previous_rv(&req.hereditament.rateable_value_history, baseline_date) {
+                                        let base_y0_fy = format!("{}/{:02}", scheme_start_year - 1, scheme_start_year % 100);
+                                        let base_mult = self.repo.resolve_multiplier(Jurisdiction::SCOTLAND, &base_y0_fy, base_rv);
+                                        let base_gross = base_rv * base_mult.rate;
+                                        let base_sbbs_pct = self.repo.resolve_sbrr(Jurisdiction::SCOTLAND, &base_y0_fy, base_rv)
                                             .map(|r| r.discount_percentage)
                                             .unwrap_or(dec!(0.00));
-                                        let prev_net_annual = (prev_gross_annual * (dec!(1.00) - (prev_sbbs_pct / dec!(100.00)))).round_dp(2);
-                                        ((prev_net_annual / year_days_dec) * days_dec).round_dp(2)
-                                    } else {
-                                        dec!(0.00)
-                                    }
-                                } else {
-                                    dec!(0.00)
-                                };
+                                        let base_net_annual = (base_gross * (dec!(1.00) - (base_sbbs_pct / dec!(100.00)))).round_dp(2);
+                                        let prev_net_segment = ((base_net_annual / year_days_dec) * days_dec).round_dp(2);
 
-                                let current_net_before_tr = chargeable_before_reliefs - segment_relief_total;
-                                if current_net_before_tr > prev_net_segment {
-                                    let unmitigated_increase = current_net_before_tr - prev_net_segment;
-                                    let tr_deduction = match sbbs_tr.cap_type {
-                                        crate::db::repository::SbbsTrCapType::FixedCash(annual_cap) => {
-                                            let segment_cap = ((annual_cap / year_days_dec) * days_dec).round_dp(2);
-                                            (unmitigated_increase - segment_cap).max(dec!(0.00))
-                                        }
-                                        crate::db::repository::SbbsTrCapType::PercentageOfIncrease(payable_pct) => {
-                                            let relief_pct = (dec!(100.00) - payable_pct) / dec!(100.00);
-                                            (unmitigated_increase * relief_pct).round_dp(2)
-                                        }
-                                    };
+                                        let current_net_before_tr = chargeable_before_reliefs - segment_relief_total;
+                                        if current_net_before_tr > prev_net_segment {
+                                            let unmitigated_increase = current_net_before_tr - prev_net_segment;
+                                            let tr_deduction = match sbbs_tr.cap_type {
+                                                crate::db::repository::SbbsTrCapType::FixedCash(annual_cap) => {
+                                                    let segment_cap = ((annual_cap / year_days_dec) * days_dec).round_dp(2);
+                                                    (unmitigated_increase - segment_cap).max(dec!(0.00))
+                                                }
+                                                crate::db::repository::SbbsTrCapType::PercentageOfIncrease(payable_pct) => {
+                                                    let relief_pct = (dec!(100.00) - payable_pct) / dec!(100.00);
+                                                    (unmitigated_increase * relief_pct).round_dp(2)
+                                                }
+                                            };
 
-                                    if tr_deduction > dec!(0.00) {
-                                        segment_relief_total += tr_deduction;
-                                        let effective_pct = ((tr_deduction / current_net_before_tr) * dec!(100.00)).round_dp(2);
-                                        reliefs.push(ItemizedRelief {
-                                            relief_code: sbbs_tr.relief_code,
-                                            relief_name: crate::i18n::localize_relief_name(&sbbs_tr.relief_name, lang),
-                                            statutory_authority: sbbs_tr.statutory_authority,
-                                            discount_percentage: effective_pct,
-                                            amount_deducted: tr_deduction,
-                                        });
+                                            if tr_deduction > dec!(0.00) {
+                                                segment_relief_total += tr_deduction;
+                                                let effective_pct = ((tr_deduction / current_net_before_tr) * dec!(100.00)).round_dp(2);
+                                                reliefs.push(ItemizedRelief {
+                                                    relief_code: sbbs_tr.relief_code,
+                                                    relief_name: crate::i18n::localize_relief_name(&sbbs_tr.relief_name, lang),
+                                                    statutory_authority: sbbs_tr.statutory_authority,
+                                                    discount_percentage: effective_pct,
+                                                    amount_deducted: tr_deduction,
+                                                });
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -606,41 +607,42 @@ impl CalculationEngine {
                         // 6c. Supporting Small Business Relief (SSBR) in England (LGFA 1988 s.47)
                         if req.hereditament.jurisdiction == Jurisdiction::ENGLAND
                             && flags.is_ssbr_qualifying
+                            && req.party_type != PartyType::CHARITY
                             && segment_relief_total < chargeable_before_reliefs
                         {
                             if let Some(ssbr) = self.repo.resolve_ssbr(&win.financial_year) {
-                                let prev_net_segment = if let Some((prev_fy, prev_fy_end)) = self.get_previous_financial_year(&win.financial_year) {
-                                    if let Some(prev_rv) = self.resolve_previous_rv(&req.hereditament.rateable_value_history, prev_fy_end) {
-                                        let prev_mult = self.repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, &prev_fy, prev_rv, flags.is_rhl_qualifying);
-                                        let prev_gross_annual = prev_rv * prev_mult.rate;
-                                        let prev_sbrr_pct = self.repo.resolve_sbrr(Jurisdiction::ENGLAND, &prev_fy, prev_rv)
+                                let fy_start_year = win.financial_year.split('/').next()
+                                    .and_then(|y| y.parse::<i32>().ok())
+                                    .unwrap_or(0);
+                                let scheme_start_year = if fy_start_year >= 2026 { 2026 } else { 2023 };
+                                if let Some(baseline_date) = NaiveDate::from_ymd_opt(scheme_start_year, 3, 31) {
+                                    if let Some(base_rv) = self.resolve_previous_rv(&req.hereditament.rateable_value_history, baseline_date) {
+                                        let base_y0_fy = format!("{}/{:02}", scheme_start_year - 1, scheme_start_year % 100);
+                                        let base_mult = self.repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, &base_y0_fy, base_rv, flags.is_rhl_qualifying);
+                                        let base_gross = base_rv * base_mult.rate;
+                                        let base_sbrr_pct = self.repo.resolve_sbrr(Jurisdiction::ENGLAND, &base_y0_fy, base_rv)
                                             .map(|r| r.discount_percentage)
                                             .unwrap_or(dec!(0.00));
-                                        let prev_net_annual = (prev_gross_annual * (dec!(1.00) - (prev_sbrr_pct / dec!(100.00)))).round_dp(2);
-                                        ((prev_net_annual / year_days_dec) * days_dec).round_dp(2)
-                                    } else {
-                                        dec!(0.00)
-                                    }
-                                } else {
-                                    dec!(0.00)
-                                };
+                                        let base_net_annual = (base_gross * (dec!(1.00) - (base_sbrr_pct / dec!(100.00)))).round_dp(2);
+                                        let years_elapsed = Decimal::from((fy_start_year - scheme_start_year + 1).max(1));
+                                        let max_annual_bill = base_net_annual + (ssbr.annual_cap * years_elapsed);
+                                        let segment_max_bill = ((max_annual_bill / year_days_dec) * days_dec).round_dp(2);
 
-                                let current_net_before_ssbr = chargeable_before_reliefs - segment_relief_total;
-                                if current_net_before_ssbr > prev_net_segment {
-                                    let unmitigated_increase = current_net_before_ssbr - prev_net_segment;
-                                    let segment_cap = ((ssbr.annual_cap / year_days_dec) * days_dec).round_dp(2);
-                                    let ssbr_deduction = (unmitigated_increase - segment_cap).max(dec!(0.00));
-
-                                    if ssbr_deduction > dec!(0.00) {
-                                        segment_relief_total += ssbr_deduction;
-                                        let effective_pct = ((ssbr_deduction / current_net_before_ssbr) * dec!(100.00)).round_dp(2);
-                                        reliefs.push(ItemizedRelief {
-                                            relief_code: ssbr.relief_code,
-                                            relief_name: crate::i18n::localize_relief_name(&ssbr.relief_name, lang),
-                                            statutory_authority: ssbr.statutory_authority,
-                                            discount_percentage: effective_pct,
-                                            amount_deducted: ssbr_deduction,
-                                        });
+                                        let current_net_before_ssbr = chargeable_before_reliefs - segment_relief_total;
+                                        if current_net_before_ssbr > segment_max_bill {
+                                            let ssbr_deduction = current_net_before_ssbr - segment_max_bill;
+                                            if ssbr_deduction > dec!(0.00) {
+                                                segment_relief_total += ssbr_deduction;
+                                                let effective_pct = ((ssbr_deduction / current_net_before_ssbr) * dec!(100.00)).round_dp(2);
+                                                reliefs.push(ItemizedRelief {
+                                                    relief_code: ssbr.relief_code,
+                                                    relief_name: crate::i18n::localize_relief_name(&ssbr.relief_name, lang),
+                                                    statutory_authority: ssbr.statutory_authority,
+                                                    discount_percentage: effective_pct,
+                                                    amount_deducted: ssbr_deduction,
+                                                });
+                                            }
+                                        }
                                     }
                                 }
                             }

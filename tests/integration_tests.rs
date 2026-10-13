@@ -4354,6 +4354,137 @@ fn test_english_transitional_relief_compounding_across_multiple_years() {
     assert_eq!(seg_y2.net_segment_payable, dec!(14346.25));
 }
 
+#[test]
+fn test_ssbr_not_awarded_for_new_property_without_baseline() {
+    let repo = ParameterRepository::new_mock();
+    let engine = CalculationEngine::new(repo);
+
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2024-04-01",
+                    "effective_to": null,
+                    "rateable_value": 40000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_ssbr_qualifying": true
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+
+    assert_eq!(response.annual_billing_segments.len(), 1);
+    let seg = &response.annual_billing_segments[0];
+
+    assert!(!seg.itemized_reliefs.iter().any(|r| r.relief_code == "SSBR"), "New property without 31 March 2023 bill must not receive SSBR");
+    assert_eq!(seg.gross_liability, dec!(19960.00));
+    assert_eq!(seg.net_segment_payable, dec!(19960.00));
+}
+
+#[test]
+fn test_ssbr_compounds_into_year_2() {
+    let repo = ParameterRepository::new_mock();
+    let engine = CalculationEngine::new(repo);
+
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2017-04-01",
+                    "effective_to": "2023-03-31",
+                    "rateable_value": 10000.00
+                },
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 16000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2023-04-01",
+            "end_date": "2025-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_small_business_sole_property": true,
+            "is_ssbr_qualifying": true
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+
+    assert_eq!(response.annual_billing_segments.len(), 2);
+
+    // Year 1 (2023/24): Previous bill = £0 (100% SBRR on £10k RV). Capped to £600.
+    let seg1 = &response.annual_billing_segments[0];
+    assert_eq!(seg1.financial_year, "2023/24");
+    assert_eq!(seg1.net_segment_payable, dec!(600.00));
+    assert!(seg1.itemized_reliefs.iter().any(|r| r.relief_code == "SSBR"));
+
+    // Year 2 (2024/25): Previous capped bill = £600. Capped to £600 + £600 = £1,200.
+    let seg2 = &response.annual_billing_segments[1];
+    assert_eq!(seg2.financial_year, "2024/25");
+    assert_eq!(seg2.net_segment_payable, dec!(1200.00));
+    assert!(seg2.itemized_reliefs.iter().any(|r| r.relief_code == "SSBR"));
+}
+
+#[test]
+fn test_ssbr_not_awarded_to_charities() {
+    let repo = ParameterRepository::new_mock();
+    let engine = CalculationEngine::new(repo);
+
+    let json = serde_json::json!({
+        "party_type": "CHARITY",
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2017-04-01",
+                    "effective_to": "2023-03-31",
+                    "rateable_value": 10000.00
+                },
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 16000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2023-04-01",
+            "end_date": "2024-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_ssbr_qualifying": true
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+
+    let seg = &response.annual_billing_segments[0];
+    assert!(!seg.itemized_reliefs.iter().any(|r| r.relief_code == "SSBR"), "Charity must not receive SSBR");
+}
+
 
 
 
