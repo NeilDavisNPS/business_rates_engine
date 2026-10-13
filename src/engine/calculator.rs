@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
 use uuid::Uuid;
@@ -161,6 +162,7 @@ impl CalculationEngine {
             .unwrap_or(0);
         let mut cumulative_unoccupied_days = initial_prior_unoccupied;
         let mut consecutive_occupied_days: i64 = 0;
+        let mut rhl_awarded_by_financial_year: HashMap<String, Decimal> = HashMap::new();
 
         for win in &windows {
             let rv = self.resolve_rv_for_date(&req.hereditament.rateable_value_history, win.period.start_date);
@@ -630,9 +632,17 @@ impl CalculationEngine {
                                         let remaining = chargeable_before_reliefs - segment_relief_total;
                                         let mut amount = (remaining * (sec.discount_percentage / dec!(100.00))).round_dp(2);
                                         if let Some(cap) = sec.cash_cap_gbp {
-                                            amount = amount.min(cap);
+                                            let already_awarded = rhl_awarded_by_financial_year
+                                                .get(&win.financial_year)
+                                                .copied()
+                                                .unwrap_or(dec!(0.00));
+                                            let cap_remaining = (cap - already_awarded).max(dec!(0.00));
+                                            amount = amount.min(cap_remaining);
                                         }
                                         if amount > dec!(0.00) {
+                                            *rhl_awarded_by_financial_year
+                                                .entry(win.financial_year.clone())
+                                                .or_insert(dec!(0.00)) += amount;
                                             segment_relief_total += amount;
                                             reliefs.push(ItemizedRelief {
                                                 relief_code: sec.relief_code,

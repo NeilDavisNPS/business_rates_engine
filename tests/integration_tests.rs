@@ -3944,6 +3944,75 @@ fn test_part_occupied_charity_reliefs_capped_at_occupied_chargeable() {
     );
 }
 
+#[test]
+fn test_rhl_cash_cap_enforced_per_financial_year_across_segments() {
+    let repo = ParameterRepository::new_mock();
+    let engine = CalculationEngine::new(repo);
+
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "rateable_value": 600000.00
+                }
+            ]
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_rhl_qualifying": true,
+            "apply_transitional_relief": false
+        },
+        "occupancy_periods": [
+            {
+                "start_date": "2024-04-01",
+                "end_date": "2024-09-30",
+                "occupancy_type": "OCCUPIED",
+                "qualifying_relief_flags": {
+                    "is_rhl_qualifying": true,
+                    "apply_transitional_relief": false
+                }
+            },
+            {
+                "start_date": "2024-10-01",
+                "end_date": "2025-03-31",
+                "occupancy_type": "OCCUPIED",
+                "qualifying_relief_flags": {
+                    "is_rhl_qualifying": true,
+                    "apply_transitional_relief": false
+                }
+            }
+        ]
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+
+    assert_eq!(response.annual_billing_segments.len(), 2);
+    let total_rhl_relief: rust_decimal::Decimal = response
+        .annual_billing_segments
+        .iter()
+        .flat_map(|seg| seg.itemized_reliefs.iter())
+        .filter(|r| r.relief_code.starts_with("RHL"))
+        .map(|r| r.amount_deducted)
+        .sum();
+
+    // RHL cash cap in 2024/25 is £110,000 per business per year
+    assert_eq!(
+        total_rhl_relief,
+        dec!(110000.00),
+        "Total RHL relief across segments in 2024/25 must not exceed £110,000 cash cap"
+    );
+}
+
+
 
 
 
