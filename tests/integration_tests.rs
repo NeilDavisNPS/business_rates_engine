@@ -4485,6 +4485,273 @@ fn test_ssbr_not_awarded_to_charities() {
     assert!(!seg.itemized_reliefs.iter().any(|r| r.relief_code == "SSBR"), "Charity must not receive SSBR");
 }
 
+#[tokio::test]
+async fn test_improvement_relief_not_granted_before_1_april_2024() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 30000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2023-04-01",
+            "end_date": "2024-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "qualifying_improvement_rv_increment": 5000.00
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+    assert!(
+        !seg.itemized_reliefs.iter().any(|r| r.relief_code == "IMPROVEMENT_G_FACTOR"),
+        "Improvement relief must not be granted before 1 April 2024"
+    );
+}
+
+#[tokio::test]
+async fn test_improvement_relief_not_granted_on_or_after_1_april_2029() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 30000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2029-04-01",
+            "end_date": "2030-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "qualifying_improvement_rv_increment": 5000.00
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+    assert!(
+        !seg.itemized_reliefs.iter().any(|r| r.relief_code == "IMPROVEMENT_G_FACTOR"),
+        "Improvement relief must not be granted on or after 1 April 2029"
+    );
+}
+
+#[tokio::test]
+async fn test_heat_network_relief_not_granted_before_1_april_2024() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "096",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 40000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2023-04-01",
+            "end_date": "2024-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_heat_network": true
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+    assert!(
+        !seg.itemized_reliefs.iter().any(|r| r.relief_code == "HEAT_NETWORK"),
+        "Heat network relief must not be granted before 1 April 2024"
+    );
+}
+
+#[tokio::test]
+async fn test_heat_network_relief_not_granted_on_or_after_1_april_2035() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "096",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 40000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2035-04-01",
+            "end_date": "2036-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_heat_network": true
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+    assert!(
+        !seg.itemized_reliefs.iter().any(|r| r.relief_code == "HEAT_NETWORK"),
+        "Heat network relief must not be granted on or after 1 April 2035"
+    );
+}
+
+#[tokio::test]
+async fn test_improvement_and_heat_network_not_granted_to_scotland() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "SCOTLAND",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 30000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "qualifying_improvement_rv_increment": 5000.00,
+            "is_heat_network": true
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+    assert!(
+        !seg.itemized_reliefs.iter().any(|r| r.relief_code == "IMPROVEMENT_G_FACTOR"),
+        "Improvement relief (LGFA 1988 Sched 4ZA) must not be granted in Scotland"
+    );
+    assert!(
+        !seg.itemized_reliefs.iter().any(|r| r.relief_code == "HEAT_NETWORK"),
+        "Heat network relief (NDRA 2023 s.2) must not be granted in Scotland"
+    );
+}
+
+#[tokio::test]
+async fn test_improvement_and_heat_network_granted_in_wales_from_2024() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 30000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "qualifying_improvement_rv_increment": 5000.00
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+    assert!(
+        seg.itemized_reliefs.iter().any(|r| r.relief_code == "IMPROVEMENT_G_FACTOR"),
+        "Improvement relief must be granted in Wales from 1 April 2024"
+    );
+}
+
+#[tokio::test]
+async fn test_heat_network_granted_in_wales_from_2024() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "096",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 40000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_heat_network": true
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+    let relief = seg.itemized_reliefs.iter().find(|r| r.relief_code == "HEAT_NETWORK");
+    assert!(relief.is_some(), "Heat network relief must be granted in Wales from 1 April 2024");
+    assert_eq!(
+        relief.unwrap().statutory_authority,
+        "Non-Domestic Rating (Heat Networks Relief) (Wales) Regulations 2024"
+    );
+}
+
+
 
 
 

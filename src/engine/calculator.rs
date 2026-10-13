@@ -423,7 +423,15 @@ impl CalculationEngine {
                         }
 
                         // 2. NDRA 2023 Improvement Relief (G-factor) - 100% relief on RV increment
-                        if flags.qualifying_improvement_rv_increment > dec!(0.00) && segment_relief_total < chargeable_before_reliefs {
+                        // Applies in England & Wales from 1 April 2024 to 31 March 2029 (NDRA 2023 s.1 / LGFA 1988 Sched 4ZA para 3)
+                        let improvement_start = NaiveDate::from_ymd_opt(2024, 4, 1).unwrap();
+                        let improvement_end = NaiveDate::from_ymd_opt(2029, 4, 1).unwrap();
+                        if flags.qualifying_improvement_rv_increment > dec!(0.00)
+                            && (req.hereditament.jurisdiction == Jurisdiction::ENGLAND || req.hereditament.jurisdiction == Jurisdiction::WALES)
+                            && win.period.start_date >= improvement_start
+                            && win.period.end_date < improvement_end
+                            && segment_relief_total < chargeable_before_reliefs
+                        {
                             let inc = flags.qualifying_improvement_rv_increment;
                             let g_amount = ((inc * mult.rate) / year_days_dec * days_dec).round_dp(2).min(chargeable_before_reliefs - segment_relief_total);
                             segment_relief_total += g_amount;
@@ -436,15 +444,28 @@ impl CalculationEngine {
                             });
                         }
 
-                        // 3. Heat Networks Exemption (100%) - NDRA 2023 s.2
-                        if flags.is_heat_network && segment_relief_total < chargeable_before_reliefs {
+                        // 3. Heat Networks Exemption (100%) - NDRA 2023 s.2 / LGFA 1988 Sched 4ZA para 6
+                        // Applies in England & Wales from 1 April 2024 to 31 March 2035
+                        let heat_net_start = NaiveDate::from_ymd_opt(2024, 4, 1).unwrap();
+                        let heat_net_end = NaiveDate::from_ymd_opt(2035, 4, 1).unwrap();
+                        if flags.is_heat_network
+                            && (req.hereditament.jurisdiction == Jurisdiction::ENGLAND || req.hereditament.jurisdiction == Jurisdiction::WALES)
+                            && win.period.start_date >= heat_net_start
+                            && win.period.end_date < heat_net_end
+                            && segment_relief_total < chargeable_before_reliefs
+                        {
                             let amount = chargeable_before_reliefs - segment_relief_total;
                             if amount > dec!(0.00) {
                                 segment_relief_total += amount;
+                                let auth = if req.hereditament.jurisdiction == Jurisdiction::WALES {
+                                    "Non-Domestic Rating (Heat Networks Relief) (Wales) Regulations 2024".to_string()
+                                } else {
+                                    "Non-Domestic Rating Act 2023 s.2".to_string()
+                                };
                                 reliefs.push(ItemizedRelief {
                                     relief_code: "HEAT_NETWORK".to_string(),
                                     relief_name: crate::i18n::localize_relief_name("Heat Network Exemption", lang),
-                                    statutory_authority: "Non-Domestic Rating Act 2023 s.2".to_string(),
+                                    statutory_authority: auth,
                                     discount_percentage: dec!(100.00),
                                     amount_deducted: amount,
                                 });

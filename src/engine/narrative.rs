@@ -344,10 +344,13 @@ fn get_relief_non_award_explanations(
 
     // 6. Improvement Relief (G-Factor)
     if flags.qualifying_improvement_rv_increment > Decimal::ZERO && !seg.itemized_reliefs.iter().any(|r| r.relief_code == "IMPROVEMENT_G_FACTOR") {
-        let note = if jurisdiction != Jurisdiction::ENGLAND {
+        let fy_start = seg.financial_year.split('/').next().and_then(|y| y.parse::<i32>().ok()).unwrap_or(0);
+        let note = if jurisdiction != Jurisdiction::ENGLAND && jurisdiction != Jurisdiction::WALES {
             get_disqualification(bundle, "improvement_not_england", &[])
-        } else if seg.financial_year.starts_with("19") || seg.financial_year.starts_with("200") || seg.financial_year.starts_with("201") || seg.financial_year.starts_with("2020") || seg.financial_year.starts_with("2021") || seg.financial_year.starts_with("2022") || seg.financial_year.starts_with("2023") {
+        } else if fy_start < 2024 {
             get_disqualification(bundle, "improvement_before_2024", &[])
+        } else if fy_start >= 2029 {
+            get_disqualification(bundle, "improvement_after_2029", &[])
         } else if is_unoccupied {
             get_disqualification(bundle, "improvement_unoccupied", &[])
         } else if zero_net {
@@ -360,8 +363,13 @@ fn get_relief_non_award_explanations(
 
     // 7. Heat Network Exemption
     if flags.is_heat_network && !seg.itemized_reliefs.iter().any(|r| r.relief_code == "HEAT_NETWORK") {
-        let note = if jurisdiction != Jurisdiction::ENGLAND {
+        let fy_start = seg.financial_year.split('/').next().and_then(|y| y.parse::<i32>().ok()).unwrap_or(0);
+        let note = if jurisdiction != Jurisdiction::ENGLAND && jurisdiction != Jurisdiction::WALES {
             get_disqualification(bundle, "heat_network_not_england", &[])
+        } else if fy_start < 2024 {
+            get_disqualification(bundle, "heat_network_before_2024", &[])
+        } else if fy_start >= 2035 {
+            get_disqualification(bundle, "heat_network_after_2035", &[])
         } else if is_unoccupied {
             get_disqualification(bundle, "heat_network_unoccupied", &[])
         } else if zero_net {
