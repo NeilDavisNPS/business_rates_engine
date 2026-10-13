@@ -1,7 +1,7 @@
 # =========================================================================
 # Stage 1: Build the Svelte 5 Frontend
 # =========================================================================
-FROM node:20-slim AS frontend-builder
+FROM node:24-slim AS frontend-builder
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y ca-certificates curl && rm -rf /var/lib/apt/lists/*

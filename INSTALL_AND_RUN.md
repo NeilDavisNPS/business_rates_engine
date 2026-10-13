@@ -27,7 +27,7 @@ Before getting started, ensure you have the following installed on your machine:
 
 - **Rust & Cargo**: Rust 1.82+ (2021 Edition; Recommended: Latest Stable)  
   *Install:* `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
-- **Node.js & npm**: Node.js 18+ or 20+ (LTS)  
+- **Node.js & npm**: Node.js 20+ or 24+ (LTS)  
   *Verify:* `node -v` and `npm -v`  
   *(Note: In WSL/Linux environments without global Node, run `./setup-node.sh` to install a local portable Node binary into `./bin/`).*
 - **(Optional) Podman (or Docker)**: For rootless, daemonless containerized deployment using Podman with the multi-stage [`Dockerfile`](Dockerfile).  
@@ -210,8 +210,8 @@ curl -f -s http://staging-server:8080/docs | grep -q 'scalar.js' && echo "Scalar
 
 ### Option A: Multi-Stage Container Deployment (Podman / Docker / Kubernetes)
 
-A production-ready [`Dockerfile`](Dockerfile) is provided in the root directory. It uses a **3-stage multi-stage build**:
-1. **Frontend Builder (`node:20-slim`)**: Automatically fetches verified standalone Tailwind CLI and compiles Svelte 5 frontend assets via Vite.
+A production-ready [`Containerfile`](Containerfile) is provided in the root directory. It uses a **3-stage multi-stage build**:
+1. **Frontend Builder (`node:24-slim`)**: Automatically fetches verified standalone Tailwind CLI and compiles Svelte 5 frontend assets via Vite.
 2. **Backend Builder (`rust:1-slim-bookworm`)**: Compiles the Rust binary with `--release` optimizations, baking OpenAPI definitions and Scalar templates directly into the binary.
 3. **Runtime (`debian:bookworm-slim`)**: Minimal (~90 MB) secure runtime executing as an **unprivileged non-root service account** (`appuser`, UID/GID 1001).
 
@@ -219,10 +219,10 @@ Podman is daemonless and rootless by default, requiring no root privileges or ba
 
 #### 1. Build the Container Image with Podman
 ```bash
-# Build using rootless Podman (automatically detects Dockerfile):
+# Build using rootless Podman (automatically detects Containerfile):
 podman build -t business-rates-engine:latest .
 ```
-*(Docker drop-in equivalent: `docker build -t business-rates-engine:latest .`)*
+*(Docker drop-in equivalent: `docker build -f Containerfile -t business-rates-engine:latest .`)*
 
 #### 2. Run the Container
 ```bash
