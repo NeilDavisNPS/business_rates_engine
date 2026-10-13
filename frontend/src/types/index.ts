@@ -40,6 +40,7 @@ export interface QualifyingReliefFlags {
   days_previously_unoccupied: number | null;
   is_artificial_avoidance_suspected: boolean;
   holiday_let_actual_days_let: number | null;
+  holiday_let_days_available?: number | null;
   is_sbbs_tr_qualifying: boolean;
   is_ssbr_qualifying?: boolean;
   is_telecommunications_infrastructure?: boolean;

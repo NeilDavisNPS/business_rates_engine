@@ -4751,6 +4751,155 @@ async fn test_heat_network_granted_in_wales_from_2024() {
     );
 }
 
+#[tokio::test]
+async fn test_welsh_holiday_let_70_days_disqualified_post_2023() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Wales 2023/24 onwards requires >= 182 days actually let (LGFA 1988 s.66(2BB) / W.S.I. 2022/563)
+    // 100 days let is >= 70 (English threshold) but < 182 (Welsh threshold), so MUST be disqualified
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 20000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "holiday_let_actual_days_let": 100
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+    assert_eq!(seg.net_segment_payable, dec!(0.00), "Disqualified holiday let must pay £0 NDR");
+    let transfer = seg.itemized_reliefs.iter().find(|r| r.relief_code == "COUNCIL_TAX_TRANSFER");
+    assert!(transfer.is_some(), "Must transfer to Council Tax under W.S.I. 2022/563");
+    assert_eq!(transfer.unwrap().statutory_authority, "LGFA 1988 s.66(2BB) / W.S.I. 2022/563");
+}
+
+#[tokio::test]
+async fn test_welsh_holiday_let_182_days_qualifies_post_2023() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Wales 2024/25 with 182 days actually let and 252 days available qualifies
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 20000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "holiday_let_actual_days_let": 182,
+            "holiday_let_days_available": 252
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+    assert!(!seg.itemized_reliefs.iter().any(|r| r.relief_code == "COUNCIL_TAX_TRANSFER"), "182 days qualifies in Wales");
+    assert!(seg.net_segment_payable > dec!(0.00));
+}
+
+#[tokio::test]
+async fn test_welsh_holiday_let_70_days_qualifies_pre_2023() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Prior to 1 April 2023, Welsh threshold was 70 days actually let
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2017-04-01",
+                    "effective_to": null,
+                    "rateable_value": 20000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2022-04-01",
+            "end_date": "2023-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "holiday_let_actual_days_let": 70
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+    assert!(!seg.itemized_reliefs.iter().any(|r| r.relief_code == "COUNCIL_TAX_TRANSFER"), "70 days qualified before 1 April 2023");
+}
+
+#[tokio::test]
+async fn test_welsh_holiday_let_availability_threshold_disqualification() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // In Wales post-2023, let for 200 days (>= 182) but only available for 200 days (< 252) -> Disqualified
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 20000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "holiday_let_actual_days_let": 200,
+            "holiday_let_days_available": 200
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+    assert_eq!(seg.net_segment_payable, dec!(0.00));
+    assert!(seg.itemized_reliefs.iter().any(|r| r.relief_code == "COUNCIL_TAX_TRANSFER"));
+}
+
+
 
 
 

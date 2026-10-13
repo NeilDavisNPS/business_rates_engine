@@ -353,9 +353,9 @@
         <p class="text-[11px] text-slate-500">{calcStore.t.flag_unoccupied_days_desc}</p>
       </div>
 
-      <!-- Self-Catering Holiday Accommodation Actual Days Let (All nations - 182 days Scotland, 70 days England/Wales) -->
+      <!-- Self-Catering Holiday Accommodation Actual Days Let & Available (182 let / 140 avail Scotland; 182 let / 252 avail Wales post-2023; 70 let / 140 avail England) -->
       {#if calcStore.scatCode === '249' || calcStore.jurisdiction === 'SCOTLAND'}
-        <div class="p-2.5 rounded-lg border border-purple-200 bg-purple-50/50 space-y-1">
+        <div class="p-2.5 rounded-lg border border-purple-200 bg-purple-50/50 space-y-2">
           <div class="flex justify-between items-center">
             <label for="holidayDaysInput" class="text-xs font-bold text-purple-900 block">
               {calcStore.t.flag_holiday_title}
@@ -368,11 +368,30 @@
               placeholder={calcStore.t.placeholder_holiday_days}
               bind:value={calcStore.qualifyingReliefFlags.holiday_let_actual_days_let}
               oninput={onFlagChange}
-              class="w-24 px-2 py-1 text-xs border border-purple-300 rounded font-bold text-purple-900"
+              class="w-24 px-2 py-1 text-xs border border-purple-300 rounded font-bold text-purple-900 bg-white"
             />
           </div>
-          <p class="text-[11px] text-purple-700">
-            {calcStore.jurisdiction === 'SCOTLAND' ? calcStore.t.holiday_desc_scotland : calcStore.t.holiday_desc_eng_wales}
+          <div class="flex justify-between items-center">
+            <label for="holidayDaysAvailableInput" class="text-xs font-bold text-purple-900 block">
+              {calcStore.t.flag_holiday_available_title}
+            </label>
+            <input
+              id="holidayDaysAvailableInput"
+              type="number"
+              min="0"
+              max="365"
+              placeholder={calcStore.t.placeholder_holiday_available_days}
+              bind:value={calcStore.qualifyingReliefFlags.holiday_let_days_available}
+              oninput={onFlagChange}
+              class="w-24 px-2 py-1 text-xs border border-purple-300 rounded font-bold text-purple-900 bg-white"
+            />
+          </div>
+          <p class="text-[11px] text-purple-950 font-medium">
+            {calcStore.jurisdiction === 'SCOTLAND'
+              ? calcStore.t.holiday_desc_scotland
+              : calcStore.jurisdiction === 'WALES'
+              ? calcStore.t.holiday_desc_wales
+              : calcStore.t.holiday_desc_england}
           </p>
         </div>
       {/if}

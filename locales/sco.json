@@ -37,7 +37,7 @@
       "disqualified_status": "    - Status: Disqualified frae Non-Domestic Rating Leet; transferred tae Domestic Council Tax Valuation Leet (£0 NDR leeabeelity).",
       "qualified_actual": "    - Assessed unner statutary criteria: actually let for {actual} days (meets minimum {threshold} days).",
       "qualified_status": "    - Status: Qualified commercial halyday let; retainit on Non-Domestic Rating Leet.",
-      "default_actual": "    - Assessed unner Council Tax (Dwellings) (Scotland) Regs 2026 / 140/70 day rule.",
+      "default_actual": "    - Assessed unner Council Tax (Dwellings) (Scotland) Regs 2026 / Inglis 140/70 day rule / Welsh 252/182 day rule (W.S.I. 2022/563).",
       "default_status": "    - Status: Qualified commercial halyday let; retainit on Non-Domestic Rating Leet."
     },
     "total_net_payable": "HALE NET AMOUNT TAE PAY: £{total_net}",

@@ -95,6 +95,8 @@ pub struct QualifyingReliefFlags {
     #[serde(default)]
     pub holiday_let_actual_days_let: Option<i64>,
     #[serde(default)]
+    pub holiday_let_days_available: Option<i64>,
+    #[serde(default)]
     pub is_sbbs_tr_qualifying: bool,
     #[serde(default)]
     pub is_ssbr_qualifying: bool,

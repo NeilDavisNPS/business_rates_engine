@@ -37,7 +37,7 @@
       "disqualified_status": "    - Statws: Wedi'i anghymhwyso o'r Rhestr Ardrethu Annomestig; trosglwyddwyd i Restr Brisio'r Dreth Gyngor (£0 o atebolrwydd NDR).",
       "qualified_actual": "    - Aseswyd o dan feini prawf statudol: wedi'i osod am {actual} diwrnod (yn cyrraedd yr isafswm statudol o {threshold} diwrnod).",
       "qualified_status": "    - Statws: Llety gwyliau masnachol cymwys; cadwyd ar y Rhestr Ardrethu Annomestig.",
-      "default_actual": "    - Aseswyd o dan Reoliadau Treth y Cyngor (Anheddau) (Yr Alban) 2026 / Rheol 140/70 diwrnod Lloegr.",
+      "default_actual": "    - Aseswyd o dan Reoliadau Treth y Cyngor (Anheddau) (Yr Alban) 2026 / Rheol 140/70 diwrnod Lloegr / Rheol 252/182 diwrnod Cymru (O.S.C. 2022/563).",
       "default_status": "    - Statws: Llety gwyliau masnachol cymwys; cadwyd ar y Rhestr Ardrethu Annomestig."
     },
     "total_net_payable": "CYFANSWM Y SWM NET I'W DALU: £{total_net}",

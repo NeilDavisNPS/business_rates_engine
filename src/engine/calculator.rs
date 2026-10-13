@@ -327,18 +327,42 @@ impl CalculationEngine {
                         cumulative_unoccupied_days = 0;
                     }
 
-                    // Priority 5: Self-Catering Holiday Accommodation Letting Days Test
+                    // Priority 5: Self-Catering Holiday Accommodation Letting Days Test (LGFA 1988 s.66 / W.S.I. 2022/563 / SSI 2022/86)
                     let holiday_let_disqualified = if req.hereditament.scat_code == "249" {
-                        if let Some(actual_days) = flags.holiday_let_actual_days_let {
-                            let min_required = if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND {
-                                182
-                            } else {
-                                70
-                            };
-                            actual_days < min_required
+                        let mut disqualified = false;
+                        let is_wales_post_2023 = req.hereditament.jurisdiction == Jurisdiction::WALES
+                            && win.period.start_date >= NaiveDate::from_ymd_opt(2023, 4, 1).unwrap();
+
+                        // 1. Minimum actual letting days:
+                        // Wales post-2023: 182 days (LGFA 1988 s.66(2BB)(d) / W.S.I. 2022/563)
+                        // Scotland: 182 days (SSI 2022/86)
+                        // England & pre-2023 Wales: 70 days (LGFA 1988 s.66(2B) / SI 2022/1098)
+                        let min_let_days = if is_wales_post_2023 || req.hereditament.jurisdiction == Jurisdiction::SCOTLAND {
+                            182
                         } else {
-                            false
+                            70
+                        };
+                        if let Some(actual_days) = flags.holiday_let_actual_days_let {
+                            if actual_days < min_let_days {
+                                disqualified = true;
+                            }
                         }
+
+                        // 2. Minimum commercial availability days:
+                        // Wales post-2023: 252 days (LGFA 1988 s.66(2BB)(a), (c) / W.S.I. 2022/563)
+                        // Scotland & England & pre-2023 Wales: 140 days
+                        let min_available_days = if is_wales_post_2023 {
+                            252
+                        } else {
+                            140
+                        };
+                        if let Some(available_days) = flags.holiday_let_days_available {
+                            if available_days < min_available_days {
+                                disqualified = true;
+                            }
+                        }
+
+                        disqualified
                     } else {
                         false
                     };
@@ -348,8 +372,14 @@ impl CalculationEngine {
                         segment_relief_total += amount;
                         let auth = if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND {
                             "Local Government (Scotland) Act 1975 / SSI 2022/86 reg. 2".to_string()
+                        } else if req.hereditament.jurisdiction == Jurisdiction::WALES {
+                            if win.period.start_date >= NaiveDate::from_ymd_opt(2023, 4, 1).unwrap() {
+                                "LGFA 1988 s.66(2BB) / W.S.I. 2022/563".to_string()
+                            } else {
+                                "LGFA 1988 s.66(2B) / SI 2022/1098".to_string()
+                            }
                         } else {
-                            "LGFA 1988 s.66 / SI 2022/1098 / NDR (Alteration of Lists) Regs".to_string()
+                            "LGFA 1988 s.66(2B) / SI 2022/1098".to_string()
                         };
                         reliefs.push(ItemizedRelief {
                             relief_code: "COUNCIL_TAX_TRANSFER".to_string(),

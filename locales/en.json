@@ -37,7 +37,7 @@
       "disqualified_status": "    - Status: Disqualified from Non-Domestic Rating List; transferred to Domestic Council Tax Valuation List (£0 NDR liability).",
       "qualified_actual": "    - Assessed under statutory criteria: actually let for {actual} days (meets minimum {threshold} days).",
       "qualified_status": "    - Status: Qualified commercial holiday let; retained on Non-Domestic Rating List.",
-      "default_actual": "    - Assessed under The Council Tax (Dwellings) (Scotland) Regs 2026 / English 140/70 day rule.",
+      "default_actual": "    - Assessed under The Council Tax (Dwellings) (Scotland) Regs 2026 / English 140/70 day rule / Welsh 252/182 day rule (W.S.I. 2022/563).",
       "default_status": "    - Status: Qualified commercial holiday let; retained on Non-Domestic Rating List."
     },
     "total_net_payable": "TOTAL NET AMOUNT PAYABLE: £{total_net}",

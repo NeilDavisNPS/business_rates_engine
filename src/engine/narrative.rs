@@ -1,3 +1,4 @@
+use chrono::NaiveDate;
 use rust_decimal::Decimal;
 use crate::models::calculation::{LiabilityCalculationRequest, AnnualBillingSegment, QualifyingReliefFlags};
 use crate::models::enums::{Jurisdiction, OccupancyType, PartyType};
@@ -124,17 +125,37 @@ pub fn generate_narrative(
 
     if req.hereditament.scat_code == "249" {
         lines.push(n.holiday_let.header.clone());
-        let threshold = if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND { 182 } else { 70 };
-        if let Some(actual) = req.qualifying_relief_flags.holiday_let_actual_days_let {
-            let act_str = actual.to_string();
-            let thr_str = threshold.to_string();
-            if actual < threshold {
+        let period_start = req.occupation_period.start_date;
+        let is_wales_post_2023 = req.hereditament.jurisdiction == Jurisdiction::WALES
+            && period_start >= NaiveDate::from_ymd_opt(2023, 4, 1).unwrap();
+        let threshold = if is_wales_post_2023 || req.hereditament.jurisdiction == Jurisdiction::SCOTLAND {
+            182
+        } else {
+            70
+        };
+        let avail_threshold = if is_wales_post_2023 { 252 } else { 140 };
+
+        let actual_disqualified = req.qualifying_relief_flags.holiday_let_actual_days_let
+            .map(|act| act < threshold)
+            .unwrap_or(false);
+        let avail_disqualified = req.qualifying_relief_flags.holiday_let_days_available
+            .map(|av| av < avail_threshold)
+            .unwrap_or(false);
+
+        if req.qualifying_relief_flags.holiday_let_actual_days_let.is_some() || req.qualifying_relief_flags.holiday_let_days_available.is_some() {
+            if actual_disqualified || avail_disqualified {
+                let actual = req.qualifying_relief_flags.holiday_let_actual_days_let.unwrap_or(0);
+                let act_str = actual.to_string();
+                let thr_str = threshold.to_string();
                 lines.push(crate::i18n::format_template(
                     &n.holiday_let.disqualified_actual,
                     &[("actual", &act_str), ("threshold", &thr_str)],
                 ));
                 lines.push(n.holiday_let.disqualified_status.clone());
             } else {
+                let actual = req.qualifying_relief_flags.holiday_let_actual_days_let.unwrap_or(threshold);
+                let act_str = actual.to_string();
+                let thr_str = threshold.to_string();
                 lines.push(crate::i18n::format_template(
                     &n.holiday_let.qualified_actual,
                     &[("actual", &act_str), ("threshold", &thr_str)],
