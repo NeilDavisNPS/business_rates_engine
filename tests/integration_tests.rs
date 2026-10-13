@@ -1130,6 +1130,68 @@ async fn test_statutory_empty_property_prior_unoccupied_days() {
     assert!(seg.net_segment_payable > dec!(0.00));
 }
 
+#[tokio::test]
+async fn test_empty_property_prior_unoccupied_days_out_of_order_periods() {
+    let repo = ParameterRepository::new_mock();
+    let engine = CalculationEngine::new(repo);
+
+    // List periods out of order:
+    // Period 1 (listed first): 2025/26 UNOCCUPIED with days_previously_unoccupied = 91
+    // Period 2 (listed second): 2024/25 UNOCCUPIED with days_previously_unoccupied = 0
+    let request = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2024, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2026, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::ENGLAND,
+            scat_code: "091".to_string(), // 91 days max exemption
+            rateable_value_history: vec![RvEntry {
+                effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                effective_to: None,
+                rateable_value: dec!(20000.00),
+            }],
+        },
+        occupancy_type: OccupancyType::UNOCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags::default(),
+        occupancy_periods: Some(vec![
+            OccupancyPeriodInput {
+                start_date: NaiveDate::from_ymd_opt(2025, 4, 1).unwrap(),
+                end_date: NaiveDate::from_ymd_opt(2025, 6, 30).unwrap(), // 91 days
+                occupancy_type: OccupancyType::UNOCCUPIED,
+                qualifying_relief_flags: Some(QualifyingReliefFlags {
+                    days_previously_unoccupied: Some(91),
+                    ..Default::default()
+                }),
+                part_occupied_apportionment: None,
+            },
+            OccupancyPeriodInput {
+                start_date: NaiveDate::from_ymd_opt(2024, 4, 1).unwrap(),
+                end_date: NaiveDate::from_ymd_opt(2024, 6, 30).unwrap(), // 91 days
+                occupancy_type: OccupancyType::UNOCCUPIED,
+                qualifying_relief_flags: Some(QualifyingReliefFlags {
+                    days_previously_unoccupied: Some(0),
+                    ..Default::default()
+                }),
+                part_occupied_apportionment: None,
+            },
+        ]),
+        language: None,
+    };
+
+    let response = engine.calculate(request);
+    // Chronologically first segment should be 2024/25, which should get full 91 days exemption (net = 0)
+    assert_eq!(response.annual_billing_segments[0].financial_year, "2024/25");
+    let r2024 = response.annual_billing_segments[0]
+        .itemized_reliefs
+        .iter()
+        .find(|r| r.relief_code == "EMPTY_PROPERTY_EXEMPTION");
+    assert!(r2024.is_some(), "2024/25 should receive empty property exemption");
+    assert_eq!(r2024.unwrap().discount_percentage, dec!(100.00));
+    assert_eq!(response.annual_billing_segments[0].net_segment_payable, dec!(0.00));
+}
+
 #[test]
 fn test_domain_error_status_codes_and_codes() {
     let err_period = AppError::InvalidOccupationPeriod {
