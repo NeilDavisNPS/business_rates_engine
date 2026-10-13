@@ -6,12 +6,15 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  NODE_OPTIONS: "--disable-warning=DEP0040"
+
 jobs:
   backend-and-licenses:
     name: Rust Backend & License Guardrails
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -34,7 +37,7 @@ jobs:
           command-arguments: licenses advisories
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24
 
@@ -45,10 +48,12 @@ jobs:
         run: node scripts/generate-licenses.js
 
       - name: Generate CycloneDX Software Bill of Materials (SBOM)
-        run: npx --yes @cyclonedx/cdxgen -o sbom.cdx.json
+        run: npx --yes --loglevel error @cyclonedx/cdxgen -o sbom.cdx.json
+        env:
+          npm_config_loglevel: error
 
       - name: Upload SBOM & License Attribution Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: sbom-and-attribution
           path: |
@@ -59,10 +64,10 @@ jobs:
     name: Frontend Build & Diagnostics
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm

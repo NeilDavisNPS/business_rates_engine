@@ -16,6 +16,6 @@ fi
 
 echo "Generating CycloneDX Software Bill of Materials (SBOM)..."
 cd "$ROOT_DIR"
-npx --yes @cyclonedx/cdxgen -o "$ROOT_DIR/sbom.cdx.json"
+npx --yes --loglevel error @cyclonedx/cdxgen -o "$ROOT_DIR/sbom.cdx.json"
 echo "SBOM successfully generated: $ROOT_DIR/sbom.cdx.json"
 
