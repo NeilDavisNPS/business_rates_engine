@@ -18,6 +18,14 @@ pub enum AppError {
         end: NaiveDate,
     },
 
+    #[error("Occupancy periods overlap: {first_start} to {first_end} and {second_start} to {second_end}")]
+    OverlappingOccupationPeriods {
+        first_start: NaiveDate,
+        first_end: NaiveDate,
+        second_start: NaiveDate,
+        second_end: NaiveDate,
+    },
+
     #[error("Payload Deserialization Error: {0}")]
     PayloadDeserialization(String),
 }
@@ -26,7 +34,9 @@ impl AppError {
     /// Maps each error variant to an appropriate HTTP status code
     pub fn status_code(&self) -> StatusCode {
         match self {
-            Self::InvalidOccupationPeriod { .. } => StatusCode::BAD_REQUEST,
+            Self::InvalidOccupationPeriod { .. } | Self::OverlappingOccupationPeriods { .. } => {
+                StatusCode::BAD_REQUEST
+            }
             Self::PayloadDeserialization(_) => StatusCode::UNPROCESSABLE_ENTITY,
         }
     }
@@ -35,6 +45,7 @@ impl AppError {
     pub fn error_code(&self) -> &'static str {
         match self {
             Self::InvalidOccupationPeriod { .. } => "INVALID_OCCUPATION_PERIOD",
+            Self::OverlappingOccupationPeriods { .. } => "OVERLAPPING_OCCUPATION_PERIODS",
             Self::PayloadDeserialization(_) => "PAYLOAD_DESERIALIZATION_ERROR",
         }
     }
@@ -49,6 +60,26 @@ impl AppError {
                 crate::i18n::format_template(
                     &bundle.errors.invalid_occupation_period,
                     &[("start", &s_str), ("end", &e_str)],
+                )
+            }
+            Self::OverlappingOccupationPeriods {
+                first_start,
+                first_end,
+                second_start,
+                second_end,
+            } => {
+                let fs = first_start.to_string();
+                let fe = first_end.to_string();
+                let ss = second_start.to_string();
+                let se = second_end.to_string();
+                crate::i18n::format_template(
+                    &bundle.errors.overlapping_occupation_periods,
+                    &[
+                        ("first_start", &fs),
+                        ("first_end", &fe),
+                        ("second_start", &ss),
+                        ("second_end", &se),
+                    ],
                 )
             }
             Self::PayloadDeserialization(msg) => {

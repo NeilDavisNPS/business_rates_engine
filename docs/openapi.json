@@ -281,7 +281,7 @@
             }
           },
           "400": {
-            "description": "Invalid request parameters (e.g. occupation end date precedes start date).",
+            "description": "Invalid request parameters (e.g. occupation end date precedes start date, or occupancy periods overlap).",
             "content": {
               "application/json": {
                 "schema": {
@@ -1443,6 +1443,7 @@
             "type": "string",
             "enum": [
               "INVALID_OCCUPATION_PERIOD",
+              "OVERLAPPING_OCCUPATION_PERIODS",
               "PAYLOAD_DESERIALIZATION_ERROR"
             ],
             "example": "INVALID_OCCUPATION_PERIOD",

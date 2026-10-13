@@ -134,6 +134,7 @@
   },
   "errors": {
     "invalid_occupation_period": "Chan urrainn do cheann-latha crìochnachaidh gabhaltais ({end}) a bhith ro cheann-latha tòiseachaidh ({start})",
+    "overlapping_occupation_periods": "Tha amannan gabhaltais a' dol thairis air a chèile: {first_start} gu {first_end} agus {second_start} gu {second_end}",
     "payload_deserialization": "Mearachd dì-shreathachadh luchd-pàighidh: {msg}"
   },
   "reference_codes": {

@@ -67,6 +67,8 @@ pub struct LocaleBundle {
 #[derive(Debug, Clone, Deserialize, Default)]
 pub struct ErrorLocale {
     pub invalid_occupation_period: String,
+    #[serde(default)]
+    pub overlapping_occupation_periods: String,
     pub payload_deserialization: String,
 }
 

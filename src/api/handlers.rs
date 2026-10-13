@@ -34,16 +34,47 @@ pub fn resolve_language(
         return Language::from_code(l);
     }
     if let Some(al) = headers.get("Accept-Language").and_then(|v| v.to_str().ok()) {
-        let low = al.to_lowercase();
-        if low.contains("cy") {
-            return Language::Cy;
-        } else if low.contains("sco") {
-            return Language::Sco;
-        } else if low.contains("gd") || low.contains("gla") {
-            return Language::Gd;
+        if let Some(lang) = parse_accept_language(al) {
+            return lang;
         }
     }
     Language::En
+}
+
+/// Picks the most preferred supported language from an Accept-Language header (RFC 9110 §12.5.4).
+/// Tags are matched on their primary subtag, `q=0` excludes a tag, and ties keep header order.
+fn parse_accept_language(header: &str) -> Option<Language> {
+    let mut ranges: Vec<(String, f32)> = header
+        .split(',')
+        .filter_map(|item| {
+            let mut parts = item.split(';');
+            let tag = parts.next()?.trim().to_ascii_lowercase();
+            if tag.is_empty() {
+                return None;
+            }
+            let mut q = 1.0_f32;
+            for param in parts {
+                if let Some((k, v)) = param.split_once('=') {
+                    if k.trim().eq_ignore_ascii_case("q") {
+                        q = v.trim().parse().ok().filter(|q: &f32| (0.0..=1.0).contains(q))?;
+                    }
+                }
+            }
+            (q > 0.0).then_some((tag, q))
+        })
+        .collect();
+    // Stable sort keeps header order for equal q-values
+    ranges.sort_by(|a, b| b.1.total_cmp(&a.1));
+
+    ranges.iter().find_map(|(tag, _)| {
+        match tag.split('-').next().unwrap_or_default() {
+            "en" => Some(Language::En),
+            "cy" => Some(Language::Cy),
+            "sco" => Some(Language::Sco),
+            "gd" | "gla" => Some(Language::Gd),
+            _ => None,
+        }
+    })
 }
 
 /// Statutory liability calculation API endpoint (Unauthenticated Data Plane).
@@ -66,11 +97,26 @@ pub async fn calculate_liability_handler(
 
     let effective_lang = resolve_language(&headers, query.lang.as_deref(), payload.language.as_deref());
 
-    for period in payload.resolve_occupancy_periods() {
+    let mut periods = payload.resolve_occupancy_periods();
+    for period in &periods {
         if period.end_date < period.start_date {
             let err = AppError::InvalidOccupationPeriod {
                 start: period.start_date,
                 end: period.end_date,
+            };
+            return err.into_response_with_lang(effective_lang);
+        }
+    }
+
+    // End dates are inclusive, so a period must start after the previous one ends
+    periods.sort_by_key(|p| (p.start_date, p.end_date));
+    for pair in periods.windows(2) {
+        if pair[1].start_date <= pair[0].end_date {
+            let err = AppError::OverlappingOccupationPeriods {
+                first_start: pair[0].start_date,
+                first_end: pair[0].end_date,
+                second_start: pair[1].start_date,
+                second_end: pair[1].end_date,
             };
             return err.into_response_with_lang(effective_lang);
         }
@@ -220,18 +266,54 @@ pub async fn openapi_yaml_handler() -> ([(axum::http::HeaderName, &'static str);
     )
 }
 
+const SCALAR_THEMES: &[&str] = &[
+    "default", "alternate", "moon", "purple", "solarized", "bluePlanet", "saturn",
+    "kepler", "mars", "deepSpace", "laserwave", "elysiajs", "fastify", "none",
+];
+const SCALAR_LAYOUTS: &[&str] = &["modern", "classic"];
+
+/// Escapes text for use in HTML element content and quoted attribute values
+fn escape_html(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for c in s.chars() {
+        match c {
+            '&' => out.push_str("&amp;"),
+            '<' => out.push_str("&lt;"),
+            '>' => out.push_str("&gt;"),
+            '"' => out.push_str("&quot;"),
+            '\'' => out.push_str("&#39;"),
+            _ => out.push(c),
+        }
+    }
+    out
+}
+
 /// Serves interactive Scalar API reference interface rendered from templates/scalar.html
 pub async fn scalar_ui_handler(
     Query(params): Query<DocQueryParams>,
 ) -> ([(axum::http::HeaderName, &'static str); 1], String) {
     let title = params.title.as_deref().unwrap_or("Business Rates Statutory Engine — API Reference (Scalar)");
-    let spec_url = params.spec_url.as_deref().unwrap_or("/api/v1/openapi.json");
-    let theme = params.theme.as_deref().unwrap_or("solarized");
-    let layout = params.layout.as_deref().unwrap_or("modern");
+    // Only same-origin paths; "//host" and "/\host" are protocol-relative in browsers
+    let spec_url = params
+        .spec_url
+        .as_deref()
+        .filter(|u| u.starts_with('/') && !u.starts_with("//") && !u.contains('\\'))
+        .unwrap_or("/api/v1/openapi.json");
+    // Theme and layout sit inside a JSON string in a single-quoted attribute, so only known values are accepted
+    let theme = params
+        .theme
+        .as_deref()
+        .filter(|t| SCALAR_THEMES.contains(t))
+        .unwrap_or("solarized");
+    let layout = params
+        .layout
+        .as_deref()
+        .filter(|l| SCALAR_LAYOUTS.contains(l))
+        .unwrap_or("modern");
 
     let rendered = SCALAR_TEMPLATE
-        .replace("{{TITLE}}", title)
-        .replace("{{SPEC_URL}}", spec_url)
+        .replace("{{TITLE}}", &escape_html(title))
+        .replace("{{SPEC_URL}}", &escape_html(spec_url))
         .replace("{{THEME}}", theme)
         .replace("{{LAYOUT}}", layout)
         .replace("{{CUSTOM_CSS}}", "");

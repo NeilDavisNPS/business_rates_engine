@@ -134,6 +134,7 @@
   },
   "errors": {
     "invalid_occupation_period": "End date for occupancy ({end}) canna be afore start date ({start})",
+    "overlapping_occupation_periods": "Occupancy periods owerlap: {first_start} tae {first_end} an {second_start} tae {second_end}",
     "payload_deserialization": "Payload Deserialization Misgaed: {msg}"
   },
   "reference_codes": {

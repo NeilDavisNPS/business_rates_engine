@@ -839,6 +839,75 @@ fn test_language_resolution_precedence() {
         resolve_language(&h4, None, None),
         Language::En
     );
+
+    // 5. q=0 excludes a language, and English preferred over Welsh stays English
+    for (al, expected) in [
+        ("en-GB,en;q=0.9,cy;q=0", Language::En),
+        ("en-GB,cy;q=0.5", Language::En),
+        ("cy;q=0.5,gd", Language::Gd),
+        ("fr,sco;q=0.4,cy;q=0.4", Language::Sco),
+        ("gd-GB;q=0.8,cy-GB;q=0.9", Language::Cy),
+        // Only the primary subtag counts: "fr-cy" is French; a malformed q-value drops the tag
+        ("fr-cy,de", Language::En),
+        ("cy;q=abc", Language::En),
+    ] {
+        let mut h = HeaderMap::new();
+        h.insert(header::ACCEPT_LANGUAGE, al.parse().unwrap());
+        assert_eq!(resolve_language(&h, None, None), expected, "Accept-Language: {al}");
+    }
+}
+
+#[tokio::test]
+async fn test_overlapping_occupancy_periods_rejected() {
+    let app = create_test_app();
+    let body = |periods: Value| serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "249",
+            "rateable_value_history": [{"effective_from": "2023-04-01", "rateable_value": 50000.0}]
+        },
+        "occupancy_periods": periods,
+        "qualifying_relief_flags": {}
+    });
+
+    for periods in [
+        // Exact duplicate
+        serde_json::json!([
+            {"start_date": "2024-04-01", "end_date": "2025-03-31", "occupancy_type": "OCCUPIED"},
+            {"start_date": "2024-04-01", "end_date": "2025-03-31", "occupancy_type": "OCCUPIED"}
+        ]),
+        // Listed out of order, sharing one day (end dates are inclusive)
+        serde_json::json!([
+            {"start_date": "2024-10-01", "end_date": "2025-03-31", "occupancy_type": "OCCUPIED"},
+            {"start_date": "2024-04-01", "end_date": "2024-10-01", "occupancy_type": "UNOCCUPIED"}
+        ]),
+    ] {
+        let req = Request::builder()
+            .uri("/api/v1/calculate-liability?lang=cy")
+            .method("POST")
+            .header(header::CONTENT_TYPE, "application/json")
+            .body(Body::from(serde_json::to_vec(&body(periods)).unwrap()))
+            .unwrap();
+        let res = app.clone().oneshot(req).await.unwrap();
+        assert_eq!(res.status(), StatusCode::BAD_REQUEST);
+        let json: Value = serde_json::from_str(&body_to_string(res.into_body()).await).unwrap();
+        assert_eq!(json["error"], "OVERLAPPING_OCCUPATION_PERIODS");
+        assert!(json["message"].as_str().unwrap().contains("gorgyffwrdd"));
+    }
+
+    // Contiguous periods are still accepted
+    let req = Request::builder()
+        .uri("/api/v1/calculate-liability")
+        .method("POST")
+        .header(header::CONTENT_TYPE, "application/json")
+        .body(Body::from(serde_json::to_vec(&body(serde_json::json!([
+            {"start_date": "2024-04-01", "end_date": "2024-09-30", "occupancy_type": "UNOCCUPIED"},
+            {"start_date": "2024-10-01", "end_date": "2025-03-31", "occupancy_type": "OCCUPIED"}
+        ]))).unwrap()))
+        .unwrap();
+    let res = app.oneshot(req).await.unwrap();
+    assert_eq!(res.status(), StatusCode::OK);
 }
 
 // =========================================================================
@@ -1601,6 +1670,32 @@ async fn test_openapi_and_swagger_endpoints() {
     assert!(body_html.contains("<title>Westminster API</title>"));
     assert!(body_html.contains("data-url=\"/custom/openapi.json\""));
     assert!(body_html.contains("\"theme\":\"purple\""));
+
+    // 4c. GET /docs escapes title and spec_url, and rejects unknown theme/layout and off-site spec URLs
+    let req = Request::builder()
+        .uri("/docs?title=%3C/title%3E%3Cmeta%20http-equiv%3Drefresh%3E&theme=x%22%7D%27%3E%3Cb%3E&layout=%3Ci%3E&spec_url=//evil.example/spec.json")
+        .method("GET")
+        .body(Body::empty())
+        .unwrap();
+    let res = app.clone().oneshot(req).await.unwrap();
+    assert_eq!(res.status(), StatusCode::OK);
+    let body_html = body_to_string(res.into_body()).await;
+    assert!(body_html.contains("<title>&lt;/title&gt;&lt;meta http-equiv=refresh&gt;</title>"));
+    assert!(!body_html.contains("<meta http-equiv"));
+    assert!(!body_html.contains("<b>") && !body_html.contains("<i>"));
+    assert!(body_html.contains("\"theme\":\"solarized\""));
+    assert!(body_html.contains("\"layout\":\"modern\""));
+    assert!(body_html.contains("data-url=\"/api/v1/openapi.json\""));
+    assert!(!body_html.contains("evil.example"));
+
+    let req = Request::builder()
+        .uri("/docs?spec_url=/spec.json%22%20onload%3D%22x")
+        .method("GET")
+        .body(Body::empty())
+        .unwrap();
+    let res = app.clone().oneshot(req).await.unwrap();
+    let body_html = body_to_string(res.into_body()).await;
+    assert!(body_html.contains("data-url=\"/spec.json&quot; onload=&quot;x\""));
 
     // 5. GET /assets/scalar.js (Verify local lazy-loaded asset)
     let req = Request::builder()
