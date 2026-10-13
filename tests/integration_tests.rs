@@ -4281,6 +4281,79 @@ fn test_transitional_relief_preserved_when_occupation_starts_partway_through_yea
     assert_eq!(seg.net_segment_payable, dec!(9564.17));
 }
 
+#[test]
+fn test_english_transitional_relief_compounding_across_multiple_years() {
+    let repo = ParameterRepository::new_mock();
+    let engine = CalculationEngine::new(repo);
+
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2017-04-01",
+                    "effective_to": "2023-03-31",
+                    "rateable_value": 20000.00
+                },
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 40000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2023-04-01",
+            "end_date": "2026-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {}
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json.clone()).unwrap();
+    let response = engine.calculate(request);
+
+    assert_eq!(response.annual_billing_segments.len(), 3);
+
+    // Year 1 (2023/24): Base = £20,000 * 0.499 = £9,980. Capped (+15%) = £11,477. TR = £19,960 - £11,477 = £8,483.
+    let seg1 = &response.annual_billing_segments[0];
+    assert_eq!(seg1.financial_year, "2023/24");
+    assert_eq!(seg1.gross_liability, dec!(19960.00));
+    assert_eq!(seg1.transitional_adjustment.adjustment_type, "RELIEF");
+    assert_eq!(seg1.transitional_adjustment.amount, dec!(8483.00));
+    assert_eq!(seg1.net_segment_payable, dec!(11477.00));
+
+    // Year 2 (2024/25): Base = £11,477. Capped (+25%) = £14,346.25. TR = £19,960 - £14,346.25 = £5,613.75.
+    let seg2 = &response.annual_billing_segments[1];
+    assert_eq!(seg2.financial_year, "2024/25");
+    assert_eq!(seg2.gross_liability, dec!(19960.00));
+    assert_eq!(seg2.transitional_adjustment.adjustment_type, "RELIEF");
+    assert_eq!(seg2.transitional_adjustment.amount, dec!(5613.75));
+    assert_eq!(seg2.net_segment_payable, dec!(14346.25));
+
+    // Year 3 (2025/26): Base = £14,346.25. Capped (+40%) = £20,084.75. Gross £19,960 < £20,084.75 -> TR = £0.
+    let seg3 = &response.annual_billing_segments[2];
+    assert_eq!(seg3.financial_year, "2025/26");
+    assert_eq!(seg3.gross_liability, dec!(19960.00));
+    assert_eq!(seg3.transitional_adjustment.amount, dec!(0.00));
+    assert_eq!(seg3.net_segment_payable, dec!(19960.00));
+
+    // Standalone Year 2 (2024/25) calculation must yield the exact same compounded transitional relief
+    let mut json_y2 = json.clone();
+    json_y2["occupation_period"] = serde_json::json!({
+        "start_date": "2024-04-01",
+        "end_date": "2025-03-31"
+    });
+    let request_y2: LiabilityCalculationRequest = serde_json::from_value(json_y2).unwrap();
+    let response_y2 = engine.calculate(request_y2);
+    assert_eq!(response_y2.annual_billing_segments.len(), 1);
+    let seg_y2 = &response_y2.annual_billing_segments[0];
+    assert_eq!(seg_y2.transitional_adjustment.amount, dec!(5613.75));
+    assert_eq!(seg_y2.net_segment_payable, dec!(14346.25));
+}
+
 
 
 
