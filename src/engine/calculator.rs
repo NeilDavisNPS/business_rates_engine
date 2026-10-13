@@ -620,12 +620,8 @@ impl CalculationEngine {
                                 ) {
                                     let qualifies = match req.hereditament.jurisdiction {
                                         Jurisdiction::SCOTLAND => true,
-                                        Jurisdiction::WALES => {
-                                            req.hereditament.scat_code != "211" && (rv > dec!(12000.00) || !flags.is_small_business_sole_property)
-                                        }
-                                        Jurisdiction::ENGLAND => {
-                                            rv > dec!(15000.00) || !flags.is_small_business_sole_property
-                                        }
+                                        Jurisdiction::WALES => req.hereditament.scat_code != "211",
+                                        Jurisdiction::ENGLAND => true,
                                     };
 
                                     if qualifies {

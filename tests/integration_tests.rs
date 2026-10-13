@@ -4012,6 +4012,83 @@ fn test_rhl_cash_cap_enforced_per_financial_year_across_segments() {
     );
 }
 
+#[test]
+fn test_rhl_relief_applies_in_sbrr_taper_band_england_and_wales() {
+    let repo = ParameterRepository::new_mock();
+    let engine = CalculationEngine::new(repo);
+
+    // 1. England: RV £14,000 in 2024/25. SBRR partial (33.33%), RHL 75% applies to remainder.
+    let json_england = serde_json::json!({
+        "party_type": "CORPORATE",
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "rateable_value": 14000.00
+                }
+            ]
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_small_business_sole_property": true,
+            "is_rhl_qualifying": true,
+            "apply_transitional_relief": false
+        }
+    });
+
+    let request_eng: LiabilityCalculationRequest = serde_json::from_value(json_england).unwrap();
+    let resp_eng = engine.calculate(request_eng);
+    let seg_eng = &resp_eng.annual_billing_segments[0];
+
+    let sbrr_eng = seg_eng.itemized_reliefs.iter().find(|r| r.relief_code == "SBRR").expect("SBRR must be present");
+    let rhl_eng = seg_eng.itemized_reliefs.iter().find(|r| r.relief_code.starts_with("RHL")).expect("RHL relief must be present in taper band");
+    assert_eq!(sbrr_eng.amount_deducted, dec!(2328.43));
+    assert_eq!(rhl_eng.amount_deducted, dec!(3493.18));
+    assert_eq!(seg_eng.net_segment_payable, dec!(1164.39));
+
+    // 2. Wales: RV £9,000 in 2024/25. SBRR 50%, RHL 40% applies to remainder.
+    let json_wales = serde_json::json!({
+        "party_type": "CORPORATE",
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "rateable_value": 9000.00
+                }
+            ]
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_small_business_sole_property": true,
+            "is_rhl_qualifying": true,
+            "apply_transitional_relief": false
+        }
+    });
+
+    let request_wal: LiabilityCalculationRequest = serde_json::from_value(json_wales).unwrap();
+    let resp_wal = engine.calculate(request_wal);
+    let seg_wal = &resp_wal.annual_billing_segments[0];
+
+    let sbrr_wal = seg_wal.itemized_reliefs.iter().find(|r| r.relief_code == "SBRR_WALES").expect("Welsh SBRR must be present");
+    let rhl_wal = seg_wal.itemized_reliefs.iter().find(|r| r.relief_code.starts_with("RHL")).expect("Welsh RHL must be present in taper band");
+    assert_eq!(sbrr_wal.amount_deducted, dec!(2529.00));
+    assert_eq!(rhl_wal.amount_deducted, dec!(1011.60));
+    assert_eq!(seg_wal.net_segment_payable, dec!(1517.40));
+}
+
+
 
 
 
