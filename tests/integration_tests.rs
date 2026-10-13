@@ -4899,6 +4899,127 @@ async fn test_welsh_holiday_let_availability_threshold_disqualification() {
     assert!(seg.itemized_reliefs.iter().any(|r| r.relief_code == "COUNCIL_TAX_TRANSFER"));
 }
 
+#[tokio::test]
+async fn test_wales_empty_property_between_2200_and_2900_not_exempt() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Wales 2024/25 empty property with RV £2,500.
+    // In England, £2,500 is exempt (< £2,900).
+    // In Wales, threshold is £2,200 under W.S.I. 2008/2499 reg 4(g), so £2,500 is NOT exempt.
+    // Over a full year (365 days), it gets 91 days rate-free and pays for 274 days.
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 2500.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "occupancy_type": "UNOCCUPIED",
+        "qualifying_relief_flags": {}
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+    assert!(
+        !seg.itemized_reliefs.iter().any(|r| r.relief_code == "EMPTY_LOW_VALUE"),
+        "Wales empty property with RV £2,500 must not receive low-value exemption (< £2,200)"
+    );
+    // 2500 * 0.562 / 365 * 274 = £1,054.49 payable
+    assert!(seg.net_segment_payable > dec!(1000.00));
+}
+
+#[tokio::test]
+async fn test_wales_empty_property_under_2200_is_exempt() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 2000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "occupancy_type": "UNOCCUPIED",
+        "qualifying_relief_flags": {}
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+    let relief = seg.itemized_reliefs.iter().find(|r| r.relief_code == "EMPTY_LOW_VALUE");
+    assert!(relief.is_some(), "Wales empty property with RV £2,000 must receive low-value exemption");
+    assert_eq!(
+        relief.unwrap().statutory_authority,
+        "LGFA 1988 s.45 / W.S.I. 2008/2499 reg. 4(g)"
+    );
+    assert_eq!(seg.net_segment_payable, dec!(0.00));
+}
+
+#[tokio::test]
+async fn test_wales_telecoms_infrastructure_relief_not_granted() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Wales 2024/25 with is_telecommunications_infrastructure.
+    // Wales has no statutory regulations under the 2018 Act, so no relief can be granted.
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "096",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 30000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_telecommunications_infrastructure": true,
+            "apply_transitional_relief": false
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+    assert!(
+        !seg.itemized_reliefs.iter().any(|r| r.relief_code == "TELECOM_FIBRE_RELIEF"),
+        "Telecoms infrastructure relief must not be granted in Wales"
+    );
+    // 30,000 * 0.562 = £16,860.00
+    assert_eq!(seg.net_segment_payable, dec!(16860.00));
+}
+
 
 
 

@@ -434,7 +434,9 @@ fn get_relief_non_award_explanations(
 
     // 10. Telecommunications Infrastructure Relief
     if flags.is_telecommunications_infrastructure && !seg.itemized_reliefs.iter().any(|r| r.relief_code == "TELECOM_FIBRE_RELIEF") {
-        let note = if is_unoccupied {
+        let note = if jurisdiction == Jurisdiction::WALES {
+            get_disqualification(bundle, "telecom_wales_no_scheme", &[])
+        } else if is_unoccupied {
             get_disqualification(bundle, "telecom_unoccupied", &[])
         } else if zero_net {
             get_disqualification(bundle, "telecom_zero_net", &[])

@@ -98,6 +98,7 @@
       "renewable_energy_unoccupied": "Renewable Energy Generation Relief: Disqualified — requires qualifying occupation.",
       "renewable_energy_zero_net": "Renewable Energy Generation Relief: Not applied — net liability already reduced to £0.00.",
       "renewable_energy_default": "Renewable Energy Generation Relief: Disqualified under scheme rules.",
+      "telecom_wales_no_scheme": "Telecommunications Infrastructure Relief: Disqualified — No statutory relief regulations enacted in Wales [LGFA 1988 s.43(4F)].",
       "telecom_unoccupied": "Telecommunications Infrastructure Relief: Disqualified — requires active qualifying occupation.",
       "telecom_zero_net": "Telecommunications Infrastructure Relief: Not applied — net liability already reduced to £0.00.",
       "telecom_default": "Telecommunications Infrastructure Relief: Not qualifying under statutory rules.",

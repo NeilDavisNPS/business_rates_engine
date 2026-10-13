@@ -433,14 +433,18 @@ impl CalculationEngine {
                         }
 
                         // Priority 1: Telecommunications Infrastructure Relief (100%) - Telecommunications Infrastructure (Relief from Non-Domestic Rates) Act 2018 / SSI 2019/111
-                        if flags.is_telecommunications_infrastructure && segment_relief_total < chargeable_before_reliefs {
+                        // Applies in England & Scotland only (no statutory relief regulations enacted in Wales under the 2018 Act)
+                        if flags.is_telecommunications_infrastructure
+                            && req.hereditament.jurisdiction != Jurisdiction::WALES
+                            && segment_relief_total < chargeable_before_reliefs
+                        {
                             let amount = chargeable_before_reliefs - segment_relief_total;
                             if amount > dec!(0.00) {
                                 segment_relief_total += amount;
                                 let auth = match req.hereditament.jurisdiction {
                                     Jurisdiction::ENGLAND => "Telecommunications Infrastructure (Relief from Non-Domestic Rates) Act 2018 / SI 2018/715".to_string(),
                                     Jurisdiction::SCOTLAND => "Non-Domestic Rates (Telecommunication New Fibre Infrastructure Relief) (Scotland) Regs (SSI 2019/111 / SSI 2024/76)".to_string(),
-                                    Jurisdiction::WALES => "Telecommunications Infrastructure (Relief from Non-Domestic Rates) Act 2018 / LGFA 1988 s.47".to_string(),
+                                    Jurisdiction::WALES => unreachable!(),
                                 };
                                 reliefs.push(ItemizedRelief {
                                     relief_code: "TELECOM_FIBRE_RELIEF".to_string(),
@@ -755,19 +759,19 @@ impl CalculationEngine {
                     let is_industrial = req.hereditament.scat_code == "096" || flags.is_industrial_hereditament;
                     let max_exempt_days: i64 = if is_industrial { 182 } else { 91 };
 
-                    let low_value_threshold = if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND {
-                        dec!(1700.00)
-                    } else {
-                        dec!(2900.00)
+                    let low_value_threshold = match req.hereditament.jurisdiction {
+                        Jurisdiction::SCOTLAND => dec!(1700.00),
+                        Jurisdiction::WALES => dec!(2200.00),
+                        Jurisdiction::ENGLAND => dec!(2900.00),
                     };
 
                     if rv < low_value_threshold {
                         let amount = chargeable_before_reliefs - segment_relief_total;
                         segment_relief_total += amount;
-                        let auth = if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND {
-                            "Local Government (Scotland) Act 1975 s.7A / SSI 2018/77".to_string()
-                        } else {
-                            "LGFA 1988 s.45 / SI 2008/386".to_string()
+                        let auth = match req.hereditament.jurisdiction {
+                            Jurisdiction::SCOTLAND => "Local Government (Scotland) Act 1975 s.7A / SSI 2018/77".to_string(),
+                            Jurisdiction::WALES => "LGFA 1988 s.45 / W.S.I. 2008/2499 reg. 4(g)".to_string(),
+                            Jurisdiction::ENGLAND => "LGFA 1988 s.45 / SI 2008/386".to_string(),
                         };
                         reliefs.push(ItemizedRelief {
                             relief_code: "EMPTY_LOW_VALUE".to_string(),
@@ -841,10 +845,10 @@ impl CalculationEngine {
                     // Unoccupied part: Section 44A empty property relief
                     let is_industrial = req.hereditament.scat_code == "096" || flags.is_industrial_hereditament;
                     let max_exempt_days: i64 = if is_industrial { 182 } else { 91 };
-                    let low_value_threshold = if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND {
-                        dec!(1700.00)
-                    } else {
-                        dec!(2900.00)
+                    let low_value_threshold = match req.hereditament.jurisdiction {
+                        Jurisdiction::SCOTLAND => dec!(1700.00),
+                        Jurisdiction::WALES => dec!(2200.00),
+                        Jurisdiction::ENGLAND => dec!(2900.00),
                     };
 
                     if unocc_rv < low_value_threshold {
