@@ -739,5 +739,7 @@
     }
   },
   "flag_higher_multiplier_excepted_title": "Wedi'i Eithrio o Uwch-luosydd Cymru",
-  "flag_higher_multiplier_excepted_desc": "Ysgol, ysbyty, canolfan iechyd, meddygfa, llyfrgell, amgueddfa, gorsaf gwasanaethau brys, canolfan hamdden neu lys wedi'i eithrio o'r uwch-luosydd (>£100k) o dan Ddeddf Cyllid Llywodraeth Leol (Cymru) 2024."
+  "flag_higher_multiplier_excepted_desc": "Ysgol, ysbyty, canolfan iechyd, meddygfa, llyfrgell, amgueddfa, gorsaf gwasanaethau brys, canolfan hamdden neu lys wedi'i eithrio o'r uwch-luosydd (>£100k) o dan Ddeddf Cyllid Llywodraeth Leol (Cymru) 2024.",
+  "flag_food_and_drink_title": "Defnydd Lletygarwch Bwyd a Diod Cymru",
+  "flag_food_and_drink_desc": "Sefydliad bwyd a diod cymwys (tafarn, bwyty, caffi, bar, tecawê, lleoliad cerddoriaeth fyw) sy'n gymwys ar gyfer Rhyddhad Lletygarwch Bwyd a Diod Cymru 15% (2026/27+)."
 }

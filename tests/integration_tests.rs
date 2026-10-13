@@ -5253,6 +5253,179 @@ async fn test_unseeded_year_raises_error_not_045_default() {
     }
 }
 
+#[tokio::test]
+async fn test_wales_petrol_station_qualifies_for_rhl_2024_25_40_percent() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "211",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2024-04-01",
+                    "effective_to": null,
+                    "rateable_value": 50000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_rhl_qualifying": true
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+    
+    // Multiplier 2024/25 in Wales is 0.562 -> Gross = 50000 * 0.562 = 28100.00
+    assert_eq!(seg.multiplier_used.rate, dec!(0.562));
+    assert_eq!(seg.gross_liability, dec!(28100.00));
+    
+    // 2024/25 RLHRR is 40% -> 40% of 28100.00 = 11240.00
+    let rhl = seg.itemized_reliefs.iter().find(|r| r.relief_code == "RHL_WALES_2024");
+    assert!(rhl.is_some(), "Petrol filling station (SCAT 211) in Wales must receive RLHRR in 2024/25");
+    assert_eq!(rhl.unwrap().amount_deducted, dec!(11240.00));
+    assert_eq!(seg.net_segment_payable, dec!(16860.00));
+}
+
+#[tokio::test]
+async fn test_wales_petrol_station_qualifies_for_rhl_2023_24_75_percent() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "211",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 50000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2023-04-01",
+            "end_date": "2024-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_rhl_qualifying": true
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+    
+    // Multiplier 2023/24 in Wales is 0.535 -> Gross = 50000 * 0.535 = 26750.00
+    assert_eq!(seg.multiplier_used.rate, dec!(0.535));
+    assert_eq!(seg.gross_liability, dec!(26750.00));
+    
+    // 2023/24 RLHRR is 75% -> 75% of 26750.00 = 20062.50
+    let rhl = seg.itemized_reliefs.iter().find(|r| r.relief_code == "RHL_WALES_2023");
+    assert!(rhl.is_some(), "Petrol filling station (SCAT 211) in Wales must receive RLHRR in 2023/24");
+    assert_eq!(rhl.unwrap().amount_deducted, dec!(20062.50));
+    assert_eq!(seg.net_segment_payable, dec!(6687.50));
+}
+
+#[tokio::test]
+async fn test_wales_holiday_let_excluded_from_2026_27_food_drink_relief() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2026-04-01",
+                    "effective_to": null,
+                    "rateable_value": 50000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2026-04-01",
+            "end_date": "2027-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_rhl_qualifying": true,
+            "apply_transitional_relief": false
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+    
+    // SCAT 249 is holiday accommodation, excluded from Food & Drink Hospitality relief
+    assert!(
+        !seg.itemized_reliefs.iter().any(|r| r.relief_code.starts_with("RHL")),
+        "Holiday let (SCAT 249) in Wales must NOT receive 2026/27 Food and Drink Hospitality relief"
+    );
+    assert_eq!(seg.net_segment_payable, dec!(25100.00)); // 50000 * 0.502
+}
+
+#[tokio::test]
+async fn test_wales_retail_shop_on_retail_multiplier_excluded_from_2026_27_food_drink_relief() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "225",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2026-04-01",
+                    "effective_to": null,
+                    "rateable_value": 30000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2026-04-01",
+            "end_date": "2027-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_retail_premises": true,
+            "is_rhl_qualifying": true,
+            "apply_transitional_relief": false
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+    
+    // Retail shop pays retail multiplier 0.350
+    assert_eq!(seg.multiplier_used.rate, dec!(0.350));
+    assert_eq!(seg.multiplier_used.multiplier_type, "RETAIL");
+    
+    // Properties subject to the retail multiplier must not receive Food and Drink relief
+    assert!(
+        !seg.itemized_reliefs.iter().any(|r| r.relief_code.starts_with("RHL")),
+        "Properties subject to Welsh retail multiplier must NOT receive Food & Drink Hospitality relief"
+    );
+}
+
+
 
 
 

@@ -739,5 +739,7 @@
     }
   },
   "flag_higher_multiplier_excepted_title": "Exemptit frae Welsh Heicher Multiplier",
-  "flag_higher_multiplier_excepted_desc": "Schuil, hospital, health centre, surgery, leebrary, museum, emergency service station, leisure centre or coort exemptit frae the heicher multiplier (>£100k) unner Local Government Finance (Wales) Act 2024."
+  "flag_higher_multiplier_excepted_desc": "Schuil, hospital, health centre, surgery, leebrary, museum, emergency service station, leisure centre or coort exemptit frae the heicher multiplier (>£100k) unner Local Government Finance (Wales) Act 2024.",
+  "flag_food_and_drink_title": "Welsh Food & Drink Hospitality Uise",
+  "flag_food_and_drink_desc": "Qualifyin fuid an drink establishment (pub, restaurant, café, bar, takeaway, live music venue) eligible for 15% Welsh Food & Drink Hospitality Relief (2026/27+)."
 }

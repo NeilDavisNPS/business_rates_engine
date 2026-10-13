@@ -431,16 +431,32 @@
         </label>
 
         <!-- Welsh Higher Multiplier Exception (>£100k RV - LGF(W)A 2024) -->
-        <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-blue-200 bg-blue-50/50 hover:bg-blue-50 cursor-pointer transition-colors">
+        <label class="flex items-start space-x-2.5 p-2.5 min-h-[44px] rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/40 hover:bg-blue-50 dark:hover:bg-blue-950/60 cursor-pointer transition-colors">
           <input
             type="checkbox"
             bind:checked={calcStore.qualifyingReliefFlags.is_higher_multiplier_excepted}
             onchange={onFlagChange}
-            class="mt-0.5 rounded text-blue-600 focus:ring-blue-500"
+            aria-label={calcStore.t.flag_higher_multiplier_excepted_title}
+            class="mt-0.5 rounded text-blue-600 focus:ring-blue-500 focus-visible:ring-2 focus-visible:ring-offset-2"
           />
           <div>
-            <span class="text-xs font-bold text-blue-950 block">{calcStore.t.flag_higher_multiplier_excepted_title}</span>
-            <span class="text-[11px] text-blue-800">{calcStore.t.flag_higher_multiplier_excepted_desc}</span>
+            <span class="text-xs font-bold text-blue-950 dark:text-blue-100 block">{calcStore.t.flag_higher_multiplier_excepted_title}</span>
+            <span class="text-[11px] text-blue-900 dark:text-blue-200">{calcStore.t.flag_higher_multiplier_excepted_desc}</span>
+          </div>
+        </label>
+
+        <!-- Welsh Food & Drink Hospitality Use (Wales 2026/27+ - Pubs, Cafes, Restaurants) -->
+        <label class="flex items-start space-x-2.5 p-2.5 min-h-[44px] rounded-lg border border-emerald-300 dark:border-emerald-700 bg-emerald-50/60 dark:bg-emerald-950/40 hover:bg-emerald-50 dark:hover:bg-emerald-950/60 cursor-pointer transition-colors">
+          <input
+            type="checkbox"
+            bind:checked={calcStore.qualifyingReliefFlags.is_food_and_drink}
+            onchange={onFlagChange}
+            aria-label={calcStore.t.flag_food_and_drink_title}
+            class="mt-0.5 rounded text-emerald-700 focus:ring-emerald-600 focus-visible:ring-2 focus-visible:ring-offset-2"
+          />
+          <div>
+            <span class="text-xs font-bold text-emerald-950 dark:text-emerald-100 block">{calcStore.t.flag_food_and_drink_title}</span>
+            <span class="text-[11px] text-emerald-900 dark:text-emerald-200">{calcStore.t.flag_food_and_drink_desc}</span>
           </div>
         </label>
       {/if}

@@ -739,5 +739,7 @@
     }
   },
   "flag_higher_multiplier_excepted_title": "Saoraichte bho Àrd-iomadair na Cuimrigh",
-  "flag_higher_multiplier_excepted_desc": "Sgoil, ospadal, ionad slàinte, lann-lannsa, leabharlann, taigh-tasgaidh, stèisean sheirbheisean èiginn, ionad cur-seachad no cùirt saoraichte bhon àrd-iomadair (>£100k) fo Achd Ionmhais Riaghaltas Ionadail (A' Chuimrigh) 2024."
+  "flag_higher_multiplier_excepted_desc": "Sgoil, ospadal, ionad slàinte, lann-lannsa, leabharlann, taigh-tasgaidh, stèisean sheirbheisean èiginn, ionad cur-seachad no cùirt saoraichte bhon àrd-iomadair (>£100k) fo Achd Ionmhais Riaghaltas Ionadail (A' Chuimrigh) 2024.",
+  "flag_food_and_drink_title": "Cleachdadh Aoigheachd Bidhe is Deoch na Cuimrigh",
+  "flag_food_and_drink_desc": "Ionad bidhe is deoch iomchaidh (taigh-seinnse, taigh-bìdh, cafaidh, bàr, biadh ri thoirt leat, ionad ciùil beò) a tha airidh air Faochadh Aoigheachd Bidhe is Deoch na Cuimrigh 15% (2026/27+)."
 }

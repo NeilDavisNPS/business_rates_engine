@@ -731,8 +731,9 @@ impl CalculationEngine {
                             }
                         }
 
-                        // 7. Dynamic Sector Relief (RHL) resolved from parameter repository tables
-                        if flags.is_rhl_qualifying && segment_relief_total < gross_liability {
+                        // 7. Dynamic Sector Relief (RHL / Food & Drink) resolved from parameter repository tables
+                        let rhl_requested = flags.is_rhl_qualifying || flags.is_food_and_drink;
+                        if rhl_requested && segment_relief_total < gross_liability {
                             let eligible_rv = if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND && !flags.is_island_property {
                                 rv <= dec!(100000.00)
                             } else {
@@ -748,7 +749,26 @@ impl CalculationEngine {
                                 ) {
                                     let qualifies = match req.hereditament.jurisdiction {
                                         Jurisdiction::SCOTLAND => true,
-                                        Jurisdiction::WALES => req.hereditament.scat_code != "211",
+                                        Jurisdiction::WALES => {
+                                            if win.financial_year.as_str() >= "2026/27" {
+                                                // 2026/27 Welsh Food and Drink Hospitality Rates Relief (15%)
+                                                // Statutory exclusions under Welsh Government scheme guidance:
+                                                // 1. Hereditaments subject to the Welsh retail multiplier
+                                                // 2. Hereditaments used for the sale of goods (retail shops SCAT 225, petrol stations SCAT 211, is_retail_premises)
+                                                // 3. Hereditaments used for living accommodation as a business (hotels, holiday homes SCAT 249, caravan sites)
+                                                // 4. Must be wholly or mainly for food & drink hospitality (pubs SCAT 209, restaurants, cafés)
+                                                let is_on_retail_multiplier = mult.multiplier_type.starts_with("RETAIL");
+                                                let is_retail_goods = flags.is_retail_premises || req.hereditament.scat_code == "225" || req.hereditament.scat_code == "211";
+                                                let is_living_accommodation = req.hereditament.scat_code == "249" || flags.holiday_let_actual_days_let.is_some() || flags.holiday_let_days_available.is_some();
+                                                let is_food_drink_use = flags.is_food_and_drink || req.hereditament.scat_code == "209";
+
+                                                !is_on_retail_multiplier && !is_retail_goods && !is_living_accommodation && is_food_drink_use
+                                            } else {
+                                                // 2023/24 to 2025/26 Welsh Retail, Leisure and Hospitality Rates Relief (RLHRR)
+                                                // Petrol stations (SCAT 211) ARE eligible under Welsh Government guidance ("sale of goods to visiting members of the public")
+                                                true
+                                            }
+                                        }
                                         Jurisdiction::ENGLAND => true,
                                     };
 

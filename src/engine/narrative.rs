@@ -312,7 +312,7 @@ fn get_relief_non_award_explanations(
     }
 
     // 3. Retail, Hospitality & Leisure (RHL)
-    if flags.is_rhl_qualifying && !seg.itemized_reliefs.iter().any(|r| r.relief_code.starts_with("RHL")) {
+    if (flags.is_rhl_qualifying || flags.is_food_and_drink) && !seg.itemized_reliefs.iter().any(|r| r.relief_code.starts_with("RHL")) {
         let note = if is_unoccupied {
             get_disqualification(bundle, "rhl_unoccupied", &[])
         } else {
@@ -329,8 +329,23 @@ fn get_relief_non_award_explanations(
                     }
                 }
                 Jurisdiction::WALES => {
-                    if scat == "211" {
-                        get_disqualification(bundle, "rhl_wales_petrol_excluded", &[])
+                    let is_2026_plus = seg.financial_year.starts_with("2026") || seg.financial_year.starts_with("2027");
+                    if is_2026_plus {
+                        if seg.multiplier_used.multiplier_type.starts_with("RETAIL") {
+                            get_disqualification(bundle, "rhl_wales_2026_retail_multiplier_excluded", &[])
+                        } else if scat == "249" || flags.holiday_let_actual_days_let.is_some() || flags.holiday_let_days_available.is_some() {
+                            get_disqualification(bundle, "rhl_wales_2026_accommodation_excluded", &[])
+                        } else if scat == "211" {
+                            get_disqualification(bundle, "rhl_wales_petrol_excluded", &[])
+                        } else if flags.is_retail_premises || scat == "225" {
+                            get_disqualification(bundle, "rhl_wales_2026_retail_goods_excluded", &[])
+                        } else if !flags.is_food_and_drink && scat != "209" {
+                            get_disqualification(bundle, "rhl_wales_2026_not_food_drink", &[])
+                        } else if zero_net {
+                            get_disqualification(bundle, "rhl_wales_zero_net", &[])
+                        } else {
+                            get_disqualification(bundle, "rhl_wales_default", &[])
+                        }
                     } else if zero_net {
                         get_disqualification(bundle, "rhl_wales_zero_net", &[])
                     } else {

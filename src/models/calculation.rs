@@ -83,6 +83,8 @@ pub struct QualifyingReliefFlags {
     #[serde(default)]
     pub is_higher_multiplier_excepted: bool,
     #[serde(default)]
+    pub is_food_and_drink: bool,
+    #[serde(default)]
     pub is_public_lavatory: bool,
     #[serde(default)]
     pub is_heat_network: bool,

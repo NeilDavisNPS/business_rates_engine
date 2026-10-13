@@ -47,6 +47,7 @@ export interface QualifyingReliefFlags {
   is_charity_discretionary_top_up?: boolean;
   is_renewable_energy_generation?: boolean;
   is_higher_multiplier_excepted?: boolean;
+  is_food_and_drink?: boolean;
   payment_installments_count?: number;
   apply_transitional_relief?: boolean;
 }
