@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
 use chrono::NaiveDate;
@@ -118,15 +119,29 @@ pub struct ParamReferenceCode {
     pub display_order: i32,
 }
 
-/// In-memory parameter repository seeded with GB rating parameters (1990–2027)
-#[derive(Clone, Debug)]
-pub struct ParameterRepository {
+/// In-memory parameter repository storage
+#[derive(Debug)]
+pub struct RepoData {
     multipliers: Vec<ParamMultiplier>,
     sbrr_thresholds: Vec<ParamSbrrSbbsThreshold>,
     sector_reliefs: Vec<ParamSectorRelief>,
     transitional_caps: Vec<ParamTransitionalCap>,
     reference_codes: Vec<ParamReferenceCode>,
     versions: ParameterVersionIds,
+}
+
+/// In-memory parameter repository seeded with GB rating parameters (1990–2027).
+/// Cheaply clonable via internal Arc pointer.
+#[derive(Clone, Debug)]
+pub struct ParameterRepository {
+    data: Arc<RepoData>,
+}
+
+impl std::ops::Deref for ParameterRepository {
+    type Target = RepoData;
+    fn deref(&self) -> &Self::Target {
+        &self.data
+    }
 }
 
 impl Default for ParameterRepository {
@@ -141,28 +156,9 @@ impl ParameterRepository {
     }
 
     pub fn new_seeded() -> Self {
-        let versions = ParameterVersionIds {
-            param_multiplier_version: "v2026.1".to_string(),
-            param_sbrr_version: "v2026.1".to_string(),
-            param_sector_relief_version: "v2026.2".to_string(),
-        };
-
-        let mut repo = Self {
-            multipliers: Vec::new(),
-            sbrr_thresholds: Vec::new(),
-            sector_reliefs: Vec::new(),
-            transitional_caps: Vec::new(),
-            reference_codes: Vec::new(),
-            versions,
-        };
-
-        repo.seed_multipliers();
-        repo.seed_sbrr_thresholds();
-        repo.seed_sector_reliefs();
-        repo.seed_transitional_caps();
-        repo.seed_reference_codes();
-
-        repo
+        Self {
+            data: Arc::new(RepoData::new_seeded()),
+        }
     }
 
     pub fn get_versions(&self) -> &ParameterVersionIds {
@@ -559,6 +555,33 @@ impl ParameterRepository {
             "2006/07" => Some((dec!(34.00), "LGFA 1988 s.58 / W.S.I. 2004/3400 (W. 295)")),
             _ => None,
         }
+    }
+}
+
+impl RepoData {
+    fn new_seeded() -> Self {
+        let versions = ParameterVersionIds {
+            param_multiplier_version: "v2026.1".to_string(),
+            param_sbrr_version: "v2026.1".to_string(),
+            param_sector_relief_version: "v2026.2".to_string(),
+        };
+
+        let mut data = Self {
+            multipliers: Vec::new(),
+            sbrr_thresholds: Vec::new(),
+            sector_reliefs: Vec::new(),
+            transitional_caps: Vec::new(),
+            reference_codes: Vec::new(),
+            versions,
+        };
+
+        data.seed_multipliers();
+        data.seed_sbrr_thresholds();
+        data.seed_sector_reliefs();
+        data.seed_transitional_caps();
+        data.seed_reference_codes();
+
+        data
     }
 
     // --- Private Seeders ---

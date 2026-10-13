@@ -187,9 +187,12 @@ pub async fn get_transitional_caps_handler(
 /// Serves the modern component-based frontend (Svelte 5 + Vite build)
 pub async fn component_ui_handler() -> ([(axum::http::HeaderName, &'static str); 1], String) {
     let p = format!("{}/frontend/dist/index.html", env!("CARGO_MANIFEST_DIR"));
-    let html = std::fs::read_to_string(&p)
-        .or_else(|_| std::fs::read_to_string("frontend/dist/index.html"))
-        .unwrap_or_else(|_| "<!DOCTYPE html><html><body><div id=\"app\">Frontend dist not found. Please run ./build-frontend.sh</div></body></html>".to_string());
+    let html = match tokio::fs::read_to_string(&p).await {
+        Ok(h) => h,
+        Err(_) => tokio::fs::read_to_string("frontend/dist/index.html")
+            .await
+            .unwrap_or_else(|_| "<!DOCTYPE html><html><body><div id=\"app\">Frontend dist not found. Please run ./build-frontend.sh</div></body></html>".to_string()),
+    };
     (
         [(axum::http::header::CONTENT_TYPE, "text/html; charset=utf-8")],
         html,
@@ -206,23 +209,12 @@ pub async fn static_frontend_asset(
         .ok_or((axum::http::StatusCode::BAD_REQUEST, "Invalid path"))?;
 
     let p = format!("{}/frontend/dist/assets/{}", env!("CARGO_MANIFEST_DIR"), clean_name);
-    let mut bytes = std::fs::read(&p)
-        .or_else(|_| std::fs::read(format!("frontend/dist/assets/{}", clean_name)));
-
-    if bytes.is_err() && clean_name.ends_with(".css") {
-        let dir = format!("{}/frontend/dist/assets", env!("CARGO_MANIFEST_DIR"));
-        if let Ok(entries) = std::fs::read_dir(&dir).or_else(|_| std::fs::read_dir("frontend/dist/assets")) {
-            for entry in entries.flatten() {
-                let path = entry.path();
-                if path.extension().and_then(|s| s.to_str()) == Some("css") {
-                    bytes = std::fs::read(path);
-                    break;
-                }
-            }
-        }
-    }
-
-    let bytes = bytes.map_err(|_| (axum::http::StatusCode::NOT_FOUND, "Asset not found"))?;
+    let bytes = match tokio::fs::read(&p).await {
+        Ok(b) => b,
+        Err(_) => tokio::fs::read(format!("frontend/dist/assets/{}", clean_name))
+            .await
+            .map_err(|_| (axum::http::StatusCode::NOT_FOUND, "Asset not found"))?,
+    };
 
     let content_type = if clean_name.ends_with(".js") {
         "application/javascript; charset=utf-8"
@@ -346,9 +338,9 @@ pub async fn health_check_handler(
 
     let manifest_dir = env!("CARGO_MANIFEST_DIR");
     let primary_dist = format!("{}/frontend/dist/index.html", manifest_dir);
-    let frontend_healthy = std::path::Path::new(&primary_dist).exists()
-        || std::path::Path::new("frontend/dist/index.html").exists()
-        || std::path::Path::new("/app/frontend/dist/index.html").exists();
+    let frontend_healthy = tokio::fs::try_exists(&primary_dist).await.unwrap_or(false)
+        || tokio::fs::try_exists("frontend/dist/index.html").await.unwrap_or(false)
+        || tokio::fs::try_exists("/app/frontend/dist/index.html").await.unwrap_or(false);
 
     let all_healthy = repo_healthy;
     let status = if all_healthy && frontend_healthy {

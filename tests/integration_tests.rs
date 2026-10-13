@@ -1312,6 +1312,15 @@ async fn test_static_assets_served_with_correct_content_types() {
         let res = app.clone().oneshot(req).await.unwrap();
         assert_eq!(res.status(), StatusCode::NOT_FOUND, "Path {} must return 404", path);
     }
+
+    // 2. Missing CSS asset must return 404 NOT FOUND, not fallback to an arbitrary stylesheet
+    let req = Request::builder()
+        .uri("/assets/missing-or-stale-style.css")
+        .method("GET")
+        .body(Body::empty())
+        .unwrap();
+    let res = app.clone().oneshot(req).await.unwrap();
+    assert_eq!(res.status(), StatusCode::NOT_FOUND, "Missing CSS asset must return 404");
 }
 
 #[tokio::test]
