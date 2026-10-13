@@ -5,7 +5,7 @@
 # =============================================================================
 
 [licenses]
-unlicensed = "deny"
+unused-allowed-license = "allow"
 confidence-threshold = 0.8
 allow = [
     "MIT",
@@ -27,9 +27,6 @@ expression = "MIT OR Apache-2.0"
 license-files = []
 
 [advisories]
-vulnerability = "deny"
-unmaintained = "warn"
-yanked = "warn"
 
 [bans]
 multiple-versions = "warn"
