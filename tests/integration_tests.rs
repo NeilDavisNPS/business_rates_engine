@@ -3880,6 +3880,70 @@ async fn test_api_v1_licenses_endpoint() {
     assert!(body_str.contains("# Third-Party Software Licenses\n"));
 }
 
+#[test]
+fn test_part_occupied_charity_reliefs_capped_at_occupied_chargeable() {
+    let repo = ParameterRepository::new_mock();
+    let engine = CalculationEngine::new(repo);
+
+    let json = serde_json::json!({
+        "party_type": "CHARITY",
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "225",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "rateable_value": 10000.00
+                }
+            ]
+        },
+        "occupancy_type": "PART_OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_charitable_purposes": true,
+            "is_charity_discretionary_top_up": true,
+            "is_small_business_sole_property": true,
+            "days_previously_unoccupied": 91
+        },
+        "part_occupied_apportionment": {
+            "occupied_rateable_value": 5000.00,
+            "unoccupied_rateable_value": 5000.00,
+            "occupied_percentage": 50.00
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+
+    let seg = &response.annual_billing_segments[0];
+    let occ_chargeable = seg.gross_liability - (seg.gross_liability * dec!(0.50)).round_dp(2);
+    let total_itemized_reliefs: rust_decimal::Decimal = seg.itemized_reliefs.iter().map(|r| r.amount_deducted).sum();
+
+    // Reliefs on occupied portion must not exceed occ_chargeable (£2,495.00)
+    assert!(
+        total_itemized_reliefs <= occ_chargeable,
+        "Total reliefs ({}) must not exceed occupied chargeable amount ({})",
+        total_itemized_reliefs,
+        occ_chargeable
+    );
+    // Unoccupied part had 91 days prior unoccupied, so it owes the full £2,495.00
+    assert_eq!(
+        seg.net_segment_payable,
+        occ_chargeable,
+        "Net payable should be the unoccupied portion since occupied is 100% relieved"
+    );
+    assert_eq!(
+        response.summary_financials.total_gross_liability
+            - response.summary_financials.total_transitional_adjustments
+            - response.summary_financials.total_reliefs_and_discounts,
+        response.summary_financials.total_net_payable,
+        "Gross - Transitional - Reliefs must equal Net payable"
+    );
+}
+
 
 
 

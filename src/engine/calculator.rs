@@ -789,47 +789,59 @@ impl CalculationEngine {
                     }
 
                     // Occupied part reliefs (e.g. Charitable Relief or SBRR applied to occupied portion)
+                    let mut occ_relief_total = Decimal::ZERO;
+
                     if flags.is_charitable_purposes 
                         || req.party_type == PartyType::CHARITY 
                         || req.party_type == PartyType::CASC 
                     {
                         let char_pct = dec!(80.00);
-                        let amount = (occ_chargeable * (char_pct / dec!(100.00))).round_dp(2);
-                        segment_relief_total += amount;
-                        reliefs.push(ItemizedRelief {
-                            relief_code: "CHARITY_MANDATORY".to_string(),
-                            relief_name: crate::i18n::localize_relief_name("Mandatory Charitable Rate Relief", lang),
-                            statutory_authority: if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND {
-                                "Local Government (Financial Provisions) (Scotland) Act 1962 s.4(2) / s.44A".to_string()
-                            } else {
-                                "LGFA 1988 s.43(5) / s.44A".to_string()
-                            },
-                            discount_percentage: char_pct,
-                            amount_deducted: amount,
-                        });
-
-                        if flags.is_charity_discretionary_top_up {
-                            let topup_pct = dec!(20.00);
-                            let topup_amount = (occ_chargeable * (topup_pct / dec!(100.00))).round_dp(2);
-                            segment_relief_total += topup_amount;
+                        let amount = (occ_chargeable * (char_pct / dec!(100.00))).round_dp(2).min(occ_chargeable - occ_relief_total);
+                        if amount > dec!(0.00) {
+                            occ_relief_total += amount;
+                            segment_relief_total += amount;
                             reliefs.push(ItemizedRelief {
-                                relief_code: "CHARITY_DISCRETIONARY_TOPUP".to_string(),
-                                relief_name: crate::i18n::localize_relief_name("Discretionary Charitable Rate Relief Top-Up", lang),
+                                relief_code: "CHARITY_MANDATORY".to_string(),
+                                relief_name: crate::i18n::localize_relief_name("Mandatory Charitable Rate Relief", lang),
                                 statutory_authority: if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND {
-                                    "Local Government (Financial Provisions) (Scotland) Act 1962 s.4(5) / s.44A".to_string()
+                                    "Local Government (Financial Provisions) (Scotland) Act 1962 s.4(2) / s.44A".to_string()
                                 } else {
-                                    "LGFA 1988 s.47(2)(a) / s.44A".to_string()
+                                    "LGFA 1988 s.43(5) / s.44A".to_string()
                                 },
-                                discount_percentage: topup_pct,
-                                amount_deducted: topup_amount,
+                                discount_percentage: char_pct,
+                                amount_deducted: amount,
                             });
+                        }
+
+                        if flags.is_charity_discretionary_top_up && occ_relief_total < occ_chargeable {
+                            let topup_pct = dec!(20.00);
+                            let topup_amount = (occ_chargeable * (topup_pct / dec!(100.00))).round_dp(2).min(occ_chargeable - occ_relief_total);
+                            if topup_amount > dec!(0.00) {
+                                occ_relief_total += topup_amount;
+                                segment_relief_total += topup_amount;
+                                reliefs.push(ItemizedRelief {
+                                    relief_code: "CHARITY_DISCRETIONARY_TOPUP".to_string(),
+                                    relief_name: crate::i18n::localize_relief_name("Discretionary Charitable Rate Relief Top-Up", lang),
+                                    statutory_authority: if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND {
+                                        "Local Government (Financial Provisions) (Scotland) Act 1962 s.4(5) / s.44A".to_string()
+                                    } else {
+                                        "LGFA 1988 s.47(2)(a) / s.44A".to_string()
+                                    },
+                                    discount_percentage: topup_pct,
+                                    amount_deducted: topup_amount,
+                                });
+                            }
                         }
                     }
 
-                    if flags.is_small_business_sole_property || flags.is_small_business_second_property_grace {
+                    if (flags.is_small_business_sole_property || flags.is_small_business_second_property_grace)
+                        && occ_relief_total < occ_chargeable
+                    {
                         if let Some(sbrr) = self.repo.resolve_sbrr(req.hereditament.jurisdiction, &win.financial_year, rv) {
-                            let amount = (occ_chargeable * (sbrr.discount_percentage / dec!(100.00))).round_dp(2);
+                            let remaining = occ_chargeable - occ_relief_total;
+                            let amount = (remaining * (sbrr.discount_percentage / dec!(100.00))).round_dp(2).min(remaining);
                             if amount > dec!(0.00) {
+                                occ_relief_total += amount;
                                 segment_relief_total += amount;
                                 let authority = if flags.is_small_business_second_property_grace && req.hereditament.jurisdiction == Jurisdiction::ENGLAND {
                                     format!("{} / S.I. 2017/411 art. 3(4) / LGFA 1988 s.44A", sbrr.statutory_authority)
