@@ -163,6 +163,7 @@ impl CalculationEngine {
         let mut cumulative_unoccupied_days = initial_prior_unoccupied;
         let mut consecutive_occupied_days: i64 = 0;
         let mut rhl_awarded_by_financial_year: HashMap<String, Decimal> = HashMap::new();
+        let mut welsh_avoidance_penalty_charged = false;
 
         for win in &windows {
             let rv = self.resolve_rv_for_date(&req.hereditament.rateable_value_history, win.period.start_date);
@@ -871,7 +872,9 @@ impl CalculationEngine {
             let mut segment_penalties = Vec::new();
             if req.hereditament.jurisdiction == Jurisdiction::WALES
                 && flags.is_artificial_avoidance_suspected
+                && !welsh_avoidance_penalty_charged
             {
+                welsh_avoidance_penalty_charged = true;
                 let penalty_amount = dec!(500.00) + (rv * dec!(0.03)).round_dp(2);
                 segment_penalties.push(StatutoryPenalty {
                     penalty_type: "WELSH_ARTIFICIAL_AVOIDANCE".to_string(),

@@ -4088,6 +4088,48 @@ fn test_rhl_relief_applies_in_sbrr_taper_band_england_and_wales() {
     assert_eq!(seg_wal.net_segment_payable, dec!(1517.40));
 }
 
+#[test]
+fn test_welsh_artificial_avoidance_penalty_charged_once_across_segments() {
+    let repo = ParameterRepository::new_mock();
+    let engine = CalculationEngine::new(repo);
+
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 50000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2026-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_artificial_avoidance_suspected": true,
+            "apply_transitional_relief": false
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+
+    assert_eq!(response.annual_billing_segments.len(), 2);
+    // £500 + 3% of £50,000 = £500 + £1,500 = £2,000
+    assert_eq!(
+        response.summary_financials.total_statutory_penalties,
+        Some(dec!(2000.00)),
+        "Welsh artificial avoidance penalty should only be charged once per determination (£2,000), not per segment"
+    );
+}
+
+
 
 
 
