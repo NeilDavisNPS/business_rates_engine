@@ -854,31 +854,31 @@ impl RepoData {
         ];
 
         for (fy, eng_sm, eng_st, wal, sco, s, e) in list_2017 {
-            add(&format!("m_eng_sm_{}", fy), fy, Jurisdiction::ENGLAND, "SMALL_BUSINESS", dec!(0.00), Some(dec!(51000.00)), eng_sm, s, e);
-            add(&format!("m_eng_st_{}", fy), fy, Jurisdiction::ENGLAND, "STANDARD", dec!(51000.01), None, eng_st, s, e);
+            add(&format!("m_eng_sm_{}", fy), fy, Jurisdiction::ENGLAND, "SMALL_BUSINESS", dec!(0.00), Some(dec!(50999.00)), eng_sm, s, e);
+            add(&format!("m_eng_st_{}", fy), fy, Jurisdiction::ENGLAND, "STANDARD", dec!(51000.00), None, eng_st, s, e);
             add(&format!("m_wal_{}", fy), fy, Jurisdiction::WALES, "STANDARD", dec!(0.00), None, wal, s, e);
             add(&format!("m_sco_{}", fy), fy, Jurisdiction::SCOTLAND, "BASIC", dec!(0.00), Some(dec!(51000.00)), sco, s, e);
         }
 
         // 2023/24
-        add("m_eng_sm_2023", "2023/24", Jurisdiction::ENGLAND, "SMALL_BUSINESS", dec!(0.00), Some(dec!(51000.00)), dec!(0.499), "2023-04-01", "2024-03-31");
-        add("m_eng_st_2023", "2023/24", Jurisdiction::ENGLAND, "STANDARD", dec!(51000.01), None, dec!(0.512), "2023-04-01", "2024-03-31");
+        add("m_eng_sm_2023", "2023/24", Jurisdiction::ENGLAND, "SMALL_BUSINESS", dec!(0.00), Some(dec!(50999.00)), dec!(0.499), "2023-04-01", "2024-03-31");
+        add("m_eng_st_2023", "2023/24", Jurisdiction::ENGLAND, "STANDARD", dec!(51000.00), None, dec!(0.512), "2023-04-01", "2024-03-31");
         add("m_wal_2023", "2023/24", Jurisdiction::WALES, "STANDARD", dec!(0.00), None, dec!(0.535), "2023-04-01", "2024-03-31");
         add("m_sco_b_2023", "2023/24", Jurisdiction::SCOTLAND, "BASIC", dec!(0.00), Some(dec!(51000.00)), dec!(0.498), "2023-04-01", "2024-03-31");
         add("m_sco_i_2023", "2023/24", Jurisdiction::SCOTLAND, "INTERMEDIATE", dec!(51000.01), Some(dec!(100000.00)), dec!(0.511), "2023-04-01", "2024-03-31");
         add("m_sco_h_2023", "2023/24", Jurisdiction::SCOTLAND, "HIGHER", dec!(100000.01), None, dec!(0.524), "2023-04-01", "2024-03-31");
 
         // 2024/25
-        add("m_eng_sm_2024", "2024/25", Jurisdiction::ENGLAND, "SMALL_BUSINESS", dec!(0.00), Some(dec!(51000.00)), dec!(0.499), "2024-04-01", "2025-03-31");
-        add("m_eng_st_2024", "2024/25", Jurisdiction::ENGLAND, "STANDARD", dec!(51000.01), None, dec!(0.546), "2024-04-01", "2025-03-31");
+        add("m_eng_sm_2024", "2024/25", Jurisdiction::ENGLAND, "SMALL_BUSINESS", dec!(0.00), Some(dec!(50999.00)), dec!(0.499), "2024-04-01", "2025-03-31");
+        add("m_eng_st_2024", "2024/25", Jurisdiction::ENGLAND, "STANDARD", dec!(51000.00), None, dec!(0.546), "2024-04-01", "2025-03-31");
         add("m_wal_2024", "2024/25", Jurisdiction::WALES, "STANDARD", dec!(0.00), None, dec!(0.562), "2024-04-01", "2025-03-31");
         add("m_sco_b_2024", "2024/25", Jurisdiction::SCOTLAND, "BASIC", dec!(0.00), Some(dec!(51000.00)), dec!(0.498), "2024-04-01", "2025-03-31");
         add("m_sco_i_2024", "2024/25", Jurisdiction::SCOTLAND, "INTERMEDIATE", dec!(51000.01), Some(dec!(100000.00)), dec!(0.545), "2024-04-01", "2025-03-31");
         add("m_sco_h_2024", "2024/25", Jurisdiction::SCOTLAND, "HIGHER", dec!(100000.01), None, dec!(0.559), "2024-04-01", "2025-03-31");
 
         // 2025/26
-        add("m_eng_sm_2025", "2025/26", Jurisdiction::ENGLAND, "SMALL_BUSINESS", dec!(0.00), Some(dec!(51000.00)), dec!(0.499), "2025-04-01", "2026-03-31");
-        add("m_eng_st_2025", "2025/26", Jurisdiction::ENGLAND, "STANDARD", dec!(51000.01), None, dec!(0.555), "2025-04-01", "2026-03-31");
+        add("m_eng_sm_2025", "2025/26", Jurisdiction::ENGLAND, "SMALL_BUSINESS", dec!(0.00), Some(dec!(50999.00)), dec!(0.499), "2025-04-01", "2026-03-31");
+        add("m_eng_st_2025", "2025/26", Jurisdiction::ENGLAND, "STANDARD", dec!(51000.00), None, dec!(0.555), "2025-04-01", "2026-03-31");
         add("m_wal_2025", "2025/26", Jurisdiction::WALES, "STANDARD", dec!(0.00), None, dec!(0.568), "2025-04-01", "2026-03-31");
         add("m_sco_b_2025", "2025/26", Jurisdiction::SCOTLAND, "BASIC", dec!(0.00), Some(dec!(51000.00)), dec!(0.498), "2025-04-01", "2026-03-31");
         add("m_sco_i_2025", "2025/26", Jurisdiction::SCOTLAND, "INTERMEDIATE", dec!(51000.01), Some(dec!(100000.00)), dec!(0.545), "2025-04-01", "2026-03-31");
@@ -886,10 +886,10 @@ impl RepoData {
 
         // 2026/27 (Revaluation Year — NDRA 2023 5-multiplier system for England)
         add("m_eng_hv_2026", "2026/27", Jurisdiction::ENGLAND, "HIGH_VALUE", dec!(500000.00), None, dec!(0.508), "2026-04-01", "2027-03-31");
-        add("m_eng_sm_rhl_2026", "2026/27", Jurisdiction::ENGLAND, "SMALL_BUSINESS_RHL", dec!(0.00), Some(dec!(51000.00)), dec!(0.382), "2026-04-01", "2027-03-31");
-        add("m_eng_sm_2026", "2026/27", Jurisdiction::ENGLAND, "SMALL_BUSINESS", dec!(0.00), Some(dec!(51000.00)), dec!(0.432), "2026-04-01", "2027-03-31");
-        add("m_eng_st_rhl_2026", "2026/27", Jurisdiction::ENGLAND, "STANDARD_RHL", dec!(51000.01), Some(dec!(499999.99)), dec!(0.430), "2026-04-01", "2027-03-31");
-        add("m_eng_st_2026", "2026/27", Jurisdiction::ENGLAND, "STANDARD", dec!(51000.01), Some(dec!(499999.99)), dec!(0.480), "2026-04-01", "2027-03-31");
+        add("m_eng_sm_rhl_2026", "2026/27", Jurisdiction::ENGLAND, "SMALL_BUSINESS_RHL", dec!(0.00), Some(dec!(50999.00)), dec!(0.382), "2026-04-01", "2027-03-31");
+        add("m_eng_sm_2026", "2026/27", Jurisdiction::ENGLAND, "SMALL_BUSINESS", dec!(0.00), Some(dec!(50999.00)), dec!(0.432), "2026-04-01", "2027-03-31");
+        add("m_eng_st_rhl_2026", "2026/27", Jurisdiction::ENGLAND, "STANDARD_RHL", dec!(51000.00), Some(dec!(499999.99)), dec!(0.430), "2026-04-01", "2027-03-31");
+        add("m_eng_st_2026", "2026/27", Jurisdiction::ENGLAND, "STANDARD", dec!(51000.00), Some(dec!(499999.99)), dec!(0.480), "2026-04-01", "2027-03-31");
 
         // 2026/27 (Revaluation Year — Local Government Finance (Wales) Act 2024 3-multiplier system for Wales)
         add("m_wal_ret_2026", "2026/27", Jurisdiction::WALES, "RETAIL", dec!(0.00), Some(dec!(51000.00)), dec!(0.350), "2026-04-01", "2027-03-31");
@@ -902,10 +902,10 @@ impl RepoData {
 
         // 2027/28 (Revaluation List Year 2)
         add("m_eng_hv_2027", "2027/28", Jurisdiction::ENGLAND, "HIGH_VALUE", dec!(500000.00), None, dec!(0.508), "2027-04-01", "2028-03-31");
-        add("m_eng_sm_rhl_2027", "2027/28", Jurisdiction::ENGLAND, "SMALL_BUSINESS_RHL", dec!(0.00), Some(dec!(51000.00)), dec!(0.382), "2027-04-01", "2028-03-31");
-        add("m_eng_sm_2027", "2027/28", Jurisdiction::ENGLAND, "SMALL_BUSINESS", dec!(0.00), Some(dec!(51000.00)), dec!(0.432), "2027-04-01", "2028-03-31");
-        add("m_eng_st_rhl_2027", "2027/28", Jurisdiction::ENGLAND, "STANDARD_RHL", dec!(51000.01), Some(dec!(499999.99)), dec!(0.430), "2027-04-01", "2028-03-31");
-        add("m_eng_st_2027", "2027/28", Jurisdiction::ENGLAND, "STANDARD", dec!(51000.01), Some(dec!(499999.99)), dec!(0.480), "2027-04-01", "2028-03-31");
+        add("m_eng_sm_rhl_2027", "2027/28", Jurisdiction::ENGLAND, "SMALL_BUSINESS_RHL", dec!(0.00), Some(dec!(50999.00)), dec!(0.382), "2027-04-01", "2028-03-31");
+        add("m_eng_sm_2027", "2027/28", Jurisdiction::ENGLAND, "SMALL_BUSINESS", dec!(0.00), Some(dec!(50999.00)), dec!(0.432), "2027-04-01", "2028-03-31");
+        add("m_eng_st_rhl_2027", "2027/28", Jurisdiction::ENGLAND, "STANDARD_RHL", dec!(51000.00), Some(dec!(499999.99)), dec!(0.430), "2027-04-01", "2028-03-31");
+        add("m_eng_st_2027", "2027/28", Jurisdiction::ENGLAND, "STANDARD", dec!(51000.00), Some(dec!(499999.99)), dec!(0.480), "2027-04-01", "2028-03-31");
 
         add("m_wal_ret_2027", "2027/28", Jurisdiction::WALES, "RETAIL_PROVISIONAL", dec!(0.00), Some(dec!(51000.00)), dec!(0.350), "2027-04-01", "2028-03-31");
         add("m_wal_std_2027", "2027/28", Jurisdiction::WALES, "STANDARD_PROVISIONAL", dec!(0.00), Some(dec!(100000.00)), dec!(0.502), "2027-04-01", "2028-03-31");

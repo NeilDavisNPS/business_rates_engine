@@ -706,4 +706,55 @@ fn test_england_multiplier_2025_26_standard_is_0555() {
     assert_eq!(seg.gross_liability, dec!(33300.00));
 }
 
+#[test]
+fn test_england_small_business_multiplier_boundary_at_51000() {
+    // Reproduction for Issue #49
+    // S.I. 2017/102 art. 2: condition is rateable value "is not more than £50,999".
+    // S.I. 2026/152 regs 3-5: small business multipliers apply where "A is less than £51,000",
+    // standard multipliers apply where "A is £51,000 or more".
+    let engine = CalculationEngine::new(business_rates_engine::db::repository::ParameterRepository::new_seeded());
+
+    let calc = |start: &str, end: &str, rv: f64, rhl: bool| {
+        let json = serde_json::json!({
+            "party_type": "CORPORATE",
+            "occupation_period": { "start_date": start, "end_date": end },
+            "hereditament": {
+                "jurisdiction": "ENGLAND",
+                "scat_code": "091",
+                "rateable_value_history": [
+                    { "effective_from": "2023-04-01", "effective_to": null, "rateable_value": rv }
+                ]
+            },
+            "occupancy_type": "OCCUPIED",
+            "qualifying_relief_flags": {
+                "apply_transitional_relief": false,
+                "is_rhl_qualifying": rhl
+            }
+        });
+        let req: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+        let resp = engine.calculate(req);
+        (
+            resp.annual_billing_segments[0].multiplier_used.rate,
+            resp.annual_billing_segments[0].multiplier_used.multiplier_type.clone(),
+        )
+    };
+
+    // 1. England 2024/25 at RV £51,000 pays standard multiplier 0.546 (not small business 0.499)
+    let (rate_2024, type_2024) = calc("2024-04-01", "2025-03-31", 51000.0, false);
+    assert_eq!(rate_2024, dec!(0.546));
+    assert_eq!(type_2024, "STANDARD");
+
+    // 2. England 2026/27 at RV £51,000 pays standard multiplier 0.480 (not small business 0.432)
+    let (rate_2026, type_2026) = calc("2026-04-01", "2027-03-31", 51000.0, false);
+    assert_eq!(rate_2026, dec!(0.480));
+    assert_eq!(type_2026, "STANDARD");
+
+    // 3. England 2026/27 RHL at RV £51,000 pays standard RHL multiplier 0.430 (not small business RHL 0.382)
+    let (rate_2026_rhl, type_2026_rhl) = calc("2026-04-01", "2027-03-31", 51000.0, true);
+    assert_eq!(rate_2026_rhl, dec!(0.430));
+    assert_eq!(type_2026_rhl, "STANDARD_RHL");
+}
+
+
+
 

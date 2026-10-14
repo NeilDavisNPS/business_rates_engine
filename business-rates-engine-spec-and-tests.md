@@ -79,7 +79,9 @@ The calculation engine's business logic, zero-hardcoding parameter tables, and s
 79:     - Standard RHL: `43.0p` ($£51,000 \le \text{RV} < £500,000$ qualifying retail, hospitality, leisure)
 80:     - Standard non-RHL: `48.0p` ($£51,000 \le \text{RV} < £500,000$ standard national rate)
 81:     - High-Value: `50.8p` ($\text{RV} \ge £500,000$ premium rate)
-82:   - [**The Non-Domestic Rating (Chargeable Amounts) (England) Regulations / S.I. 2024/1321**](https://www.legislation.gov.uk/uksi/2024/1321/contents/made) — Sets item C for 2025-26 under LGFA 1988 Sched 7 para A6 freezing the Small Business Multiplier at 49.9p; Standard Multiplier is uprated by CPI (1.7%) to 55.5p (0.555).
+82:   - [**The Non-Domestic Rating (Multipliers and Rateable Value Thresholds) (England) Regulations 2026 (S.I. 2026/152)**](https://www.legislation.gov.uk/uksi/2026/152/contents/made) regs 3–5: Small business multipliers apply where RV is less than £51,000; standard multipliers apply where RV is £51,000 or more.
+  - [**The Non-Domestic Rating (Small Business Rate Relief) (England) Order 2017 (S.I. 2017/102)**](https://www.legislation.gov.uk/uksi/2017/102/contents/made) art. 2: condition for small business multiplier is that RV is not more than £50,999.
+  - [**The Non-Domestic Rating (Chargeable Amounts) (England) Regulations / S.I. 2024/1321**](https://www.legislation.gov.uk/uksi/2024/1321/contents/made) — Sets item C for 2025-26 under LGFA 1988 Sched 7 para A6 freezing the Small Business Multiplier at 49.9p; Standard Multiplier is uprated by CPI (1.7%) to 55.5p (0.555).
   - [**Supporting Small Business Relief Scheme (SSBR) under LGFA 1988 s.47**](https://www.gov.uk/government/publications/business-rates-supporting-small-business-relief-guidance) — Statutory discretionary relief capping annual bill increases to **£600/year** (2023/24–2025/26) and **£800/year** (2026/27) for ratepayers losing or experiencing reduced SBRR, Rural Rate Relief, or 2022/23 RHL relief due to revaluation. Compounding into subsequent years; requires valid prior-year baseline; charities are excluded.
 83:   - [**The Non-Domestic Rating (Small Business Rate Relief) (England) Order 2012 (S.I. 2012/148)**](https://www.legislation.gov.uk/uksi/2012/148/contents/made) & [**S.I. 2010/1959**](https://www.legislation.gov.uk/uksi/2010/1959/contents/made) — 2010 list SBRR doubled taper.
 84:   - [**The Non-Domestic Rating (Small Business Rate Relief) (England) Order 2004 (S.I. 2004/3315)**](https://www.legislation.gov.uk/uksi/2004/3315/contents/made) — Inaugural SBRR order establishing 50% max relief and linear taper.
@@ -572,9 +574,9 @@ The in-memory parameter repository and statutory documentation are exposed direc
 
 ## 4. Test Cases Specification & Scenario Fixtures
 
-### Test Suite Overview (138 Passing Integration Tests)
+### Test Suite Overview (139 Passing Integration Tests)
 
-The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **138 automated integration tests**:
+The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **139 automated integration tests**:
 
 - **Suite A: Canonical Multi-Jurisdiction Scenario Fixture Tests (Scenarios 1–11)** ([`tests/integration_tests/suite_a_scenarios.rs`](tests/integration_tests/suite_a_scenarios.rs) — 11 tests):
   - `test_scenario_1_england_sbrr_and_rhl_multi_year` (`scenario_1_sbrr_rhl_england.json`): Multi-year slicing (2025/26 & 2026/27), SBRR linear taper, England 2026/27 RHL expiration verification, and Transitional Relief caps.
@@ -624,7 +626,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_licenses_endpoints`: Validates `/licenses` (HTML interface styled with unified `/assets/app.css` under CSP), `/licenses.md` (raw Markdown attribution document), and `/api/v1/licenses?format=md` query routing.
   - `test_health_check_endpoints`: Validates both root `/health` and `/api/v1/health` return HTTP 200 with OWASP security headers, subsystem health checks (`engine_api: pass`, `parameters_repository: pass`, `frontend_bundle: pass`), and deployment build metadata (`version`, `commit_hash`, `build_number`, `build_timestamp`).
 
-- **Suite E: English Multipliers, Transitional Phasing, Grace Periods & SSBR** ([`tests/integration_tests/suite_e_england_schemes.rs`](tests/integration_tests/suite_e_england_schemes.rs) — 15 tests):
+- **Suite E: English Multipliers, Transitional Phasing, Grace Periods & SSBR** ([`tests/integration_tests/suite_e_england_schemes.rs`](tests/integration_tests/suite_e_england_schemes.rs) — 16 tests):
   - `test_england_2026_five_multipliers_rhl_vs_non_rhl`: Verifies Autumn Budget 2024 / NDRA 2023 five-multiplier regime in England for 2026/27 (38.2p, 43.2p, 43.0p, 48.0p, 50.8p).
   - `test_england_sbrr_second_property_grace_period`: Verifies statutory 12-month grace period on primary hereditament when taking on an additional hereditament (S.I. 2017/411 art. 3(4) under LGFA 1988 s.43(4B)).
   - `test_statutory_sbrr_england_linear_taper`: Exact mathematical formula verification for English £12k–£15k SBRR linear taper.
@@ -640,6 +642,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_ssbr_not_awarded_to_charities`: Proves SSBR cannot be awarded to charities receiving mandatory charitable relief.
   - `test_sector_relief_england_2025_vs_2026`: Verifies English RHL 40% relief in 2025/26 and statutory expiration (0%) in 2026/27 under NDRA 2023.
   - `test_england_multiplier_2025_26_standard_is_0555`: Validates England 2025/26 standard multiplier is 0.555 (55.5p) under LGFA 1988 Sched 7 para A4 and S.I. 2024/1321.
+  - `test_england_small_business_multiplier_boundary_at_51000`: Validates small business multiplier applies up to £50,999 RV and standard multiplier applies at £51,000 RV under S.I. 2017/102 art. 2 and S.I. 2026/152 regs 3–5.
 
 - **Suite F: Welsh Multipliers, SBRR, Exemptions, Anti-Avoidance & Transitional Schemes** ([`tests/integration_tests/suite_f_wales_schemes.rs`](tests/integration_tests/suite_f_wales_schemes.rs) — 29 tests):
   - `test_wales_multiplier_2025_26_is_0568`: Validates Welsh uniform multiplier for 2025/26 is 0.568 under W.S.I. 2025/214.
@@ -744,7 +747,7 @@ To build, verify, and run the project:
 # 1. Compile the Svelte 5 frontend component framework with Vite
 ./build-frontend.sh
 
-# 2. Run the automated test suite (138 integration tests)
+# 2. Run the automated test suite (139 integration tests)
 cargo test --test integration_tests
 
 # 3. Start the HTTP API & Single-Page Application server (default port 8080)
