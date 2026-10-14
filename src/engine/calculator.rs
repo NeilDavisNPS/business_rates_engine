@@ -277,6 +277,7 @@ impl CalculationEngine {
             let is_retail = win.period_relief_flags.is_retail_premises || req.hereditament.scat_code == "225";
             let is_rhl = win.period_relief_flags.is_rhl_qualifying || is_retail;
             let is_higher_excepted = win.period_relief_flags.is_higher_multiplier_excepted;
+            let is_london = win.period_relief_flags.is_greater_london;
             let mut mult = self.repo.resolve_multiplier_ex(
                 req.hereditament.jurisdiction,
                 &win.financial_year,
@@ -284,6 +285,7 @@ impl CalculationEngine {
                 is_rhl,
                 is_retail,
                 is_higher_excepted,
+                is_london,
             )?;
 
             let days_dec = Decimal::from(win.period.days);
@@ -328,6 +330,7 @@ impl CalculationEngine {
                                             prev_is_rhl,
                                             prev_is_retail,
                                             win.period_relief_flags.is_higher_multiplier_excepted,
+                                            false,
                                         )?;
                                         let prev_gross_annual = base_rv * prev_mult.rate;
                                         let prev_sbrr_pct = if win.period_relief_flags.is_small_business_sole_property {
@@ -368,6 +371,7 @@ impl CalculationEngine {
                                                 is_rhl,
                                                 is_retail,
                                                 win.period_relief_flags.is_higher_multiplier_excepted,
+                                                false,
                                             )?;
                                             let reval_gross_annual = rv * reval_mult.rate;
                                             let is_childcare = win.period_relief_flags.is_registered_childcare || req.hereditament.scat_code.trim() == "084";
@@ -441,6 +445,7 @@ impl CalculationEngine {
                                     win.period_relief_flags.is_rhl_qualifying || prev_is_retail,
                                     prev_is_retail,
                                     win.period_relief_flags.is_higher_multiplier_excepted,
+                                    is_london,
                                 )?;
                                 let base_liability_annual = if let Some(&prev_capped) = fy_capped_annual.get(&prev_fy) {
                                     prev_capped
@@ -460,6 +465,7 @@ impl CalculationEngine {
                                                     win.period_relief_flags.is_rhl_qualifying || y0_is_retail,
                                                     y0_is_retail,
                                                     win.period_relief_flags.is_higher_multiplier_excepted,
+                                                    is_london,
                                                 )?;
                                                 let mut running = list_start_rv * y0_mult.rate;
                                                 for y in cap.revaluation_list_year..fy_start_year {
@@ -915,6 +921,7 @@ impl CalculationEngine {
                                             flags.is_rhl_qualifying,
                                             flags.is_retail_premises,
                                             flags.is_higher_multiplier_excepted,
+                                            flags.is_greater_london,
                                         )?;
                                         let base_gross = base_rv * base_mult.rate;
                                         let base_sbrr_pct = self.repo.resolve_sbrr(Jurisdiction::ENGLAND, &base_y0_fy, base_rv)

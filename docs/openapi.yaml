@@ -1202,6 +1202,10 @@ components:
           type: string
           format: date
           example: '2025-03-31'
+        is_greater_london:
+          type: boolean
+          nullable: true
+          description: Whether this multiplier applies specifically to Greater London hereditaments under S.I. 2004/3315 / S.I. 2012/148.
     ParamSbrrSbbsThreshold:
       type: object
       required:

@@ -186,6 +186,7 @@ export interface ParamMultiplier {
   multiplier_rate: number;
   effective_from: string;
   effective_to: string;
+  is_greater_london?: boolean | null;
 }
 
 export interface ParamSbrrSbbsThreshold {

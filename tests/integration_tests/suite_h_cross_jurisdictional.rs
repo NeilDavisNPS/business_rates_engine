@@ -123,6 +123,7 @@ async fn test_heat_network_relief_not_granted_on_or_after_1_april_2035() {
             multiplier_rate: dec!(0.500),
             effective_from: NaiveDate::from_ymd_opt(2035, 4, 1).unwrap(),
             effective_to: NaiveDate::from_ymd_opt(2036, 3, 31).unwrap(),
+            is_greater_london: None,
         },
     );
     let engine = CalculationEngine::new(repo);
@@ -281,6 +282,7 @@ async fn test_improvement_relief_not_granted_on_or_after_1_april_2029() {
             multiplier_rate: dec!(0.500),
             effective_from: NaiveDate::from_ymd_opt(2029, 4, 1).unwrap(),
             effective_to: NaiveDate::from_ymd_opt(2030, 3, 31).unwrap(),
+            is_greater_london: None,
         },
     );
     let engine = CalculationEngine::new(repo);

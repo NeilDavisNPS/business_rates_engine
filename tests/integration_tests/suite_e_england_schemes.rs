@@ -39,27 +39,27 @@ async fn test_england_2026_five_multipliers_rhl_vs_non_rhl() {
     let repo = ParameterRepository::new_seeded();
 
     // 1. Small Business RHL (< £51k with RHL)
-    let m1 = repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, "2026/27", dec!(30000.00), true, true, false).unwrap();
+    let m1 = repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, "2026/27", dec!(30000.00), true, true, false, false).unwrap();
     assert_eq!(m1.rate, dec!(0.382));
     assert_eq!(m1.multiplier_type, "SMALL_BUSINESS_RHL");
 
     // 2. Small Business non-RHL (< £51k without RHL)
-    let m2 = repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, "2026/27", dec!(30000.00), false, false, false).unwrap();
+    let m2 = repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, "2026/27", dec!(30000.00), false, false, false, false).unwrap();
     assert_eq!(m2.rate, dec!(0.432));
     assert_eq!(m2.multiplier_type, "SMALL_BUSINESS");
 
     // 3. Standard RHL (£51k <= RV < £500k with RHL)
-    let m3 = repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, "2026/27", dec!(100000.00), true, true, false).unwrap();
+    let m3 = repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, "2026/27", dec!(100000.00), true, true, false, false).unwrap();
     assert_eq!(m3.rate, dec!(0.430));
     assert_eq!(m3.multiplier_type, "STANDARD_RHL");
 
     // 4. Standard non-RHL (£51k <= RV < £500k without RHL)
-    let m4 = repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, "2026/27", dec!(100000.00), false, false, false).unwrap();
+    let m4 = repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, "2026/27", dec!(100000.00), false, false, false, false).unwrap();
     assert_eq!(m4.rate, dec!(0.480));
     assert_eq!(m4.multiplier_type, "STANDARD");
 
     // 5. High-Value (RV >= £500k)
-    let m5 = repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, "2026/27", dec!(600000.00), false, false, false).unwrap();
+    let m5 = repo.resolve_multiplier_ex(Jurisdiction::ENGLAND, "2026/27", dec!(600000.00), false, false, false, false).unwrap();
     assert_eq!(m5.rate, dec!(0.508));
     assert_eq!(m5.multiplier_type, "HIGH_VALUE");
 }
@@ -1046,6 +1046,122 @@ async fn test_england_2026_transitional_supplement() {
     assert_eq!(new_seg.multiplier_used.rate, dec!(0.432));
     assert_eq!(new_seg.gross_liability, dec!(17280.00));
     assert_eq!(new_seg.net_segment_payable, dec!(17280.00));
+}
+
+#[tokio::test]
+async fn test_england_small_business_multiplier_threshold_pre_2017() {
+    let app = create_test_app();
+
+    // 1. ENG-SMALLTHRESH-2015/16-30000: England 2015/16 at RV £30,000 -> STANDARD multiplier 49.3p (outside London)
+    let payload_2015 = serde_json::json!({
+        "party_type": "CORPORATE",
+        "occupation_period": {
+            "start_date": "2015-04-01",
+            "end_date": "2016-03-31"
+        },
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "091",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2005-04-01",
+                    "effective_to": null,
+                    "rateable_value": 30000.0
+                }
+            ]
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": false
+        }
+    });
+    let req1 = Request::builder()
+        .uri("/api/v1/calculate-liability")
+        .method("POST")
+        .header(header::CONTENT_TYPE, "application/json")
+        .body(Body::from(serde_json::to_vec(&payload_2015).unwrap()))
+        .unwrap();
+    let res1 = app.clone().oneshot(req1).await.unwrap();
+    assert_eq!(res1.status(), StatusCode::OK);
+    let body1: Value = serde_json::from_str(&body_to_string(res1.into_body()).await).unwrap();
+    let seg1 = &body1["annual_billing_segments"][0];
+    assert_eq!(seg1["multiplier_used"]["type"], "STANDARD", "RV £30,000 in 2015/16 must use STANDARD multiplier");
+    assert_eq!(seg1["multiplier_used"]["rate"], 0.493, "Standard multiplier in 2015/16 is 0.493");
+
+    // 2. ENG-SMALLTHRESH-2010/11-30000: England 2010/11 at RV £30,000 -> STANDARD multiplier 41.4p
+    let payload_2010 = serde_json::json!({
+        "party_type": "CORPORATE",
+        "occupation_period": {
+            "start_date": "2010-04-01",
+            "end_date": "2011-03-31"
+        },
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "091",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2005-04-01",
+                    "effective_to": null,
+                    "rateable_value": 30000.0
+                }
+            ]
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": false
+        }
+    });
+    let req2 = Request::builder()
+        .uri("/api/v1/calculate-liability")
+        .method("POST")
+        .header(header::CONTENT_TYPE, "application/json")
+        .body(Body::from(serde_json::to_vec(&payload_2010).unwrap()))
+        .unwrap();
+    let res2 = app.clone().oneshot(req2).await.unwrap();
+    assert_eq!(res2.status(), StatusCode::OK);
+    let body2: Value = serde_json::from_str(&body_to_string(res2.into_body()).await).unwrap();
+    let seg2 = &body2["annual_billing_segments"][0];
+    assert_eq!(seg2["multiplier_used"]["type"], "STANDARD", "RV £30,000 in 2010/11 must use STANDARD multiplier");
+    assert_eq!(seg2["multiplier_used"]["rate"], 0.414, "Standard multiplier in 2010/11 is 0.414");
+
+    // 3. Greater London comparison: RV £20,000 in 2015/16
+    // Outside London (threshold £18,000): STANDARD multiplier 49.3p
+    // Inside London (threshold £25,500 under S.I. 2012/148): SMALL_BUSINESS multiplier 48.0p
+    let payload_london = serde_json::json!({
+        "party_type": "CORPORATE",
+        "occupation_period": {
+            "start_date": "2015-04-01",
+            "end_date": "2016-03-31"
+        },
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "091",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2010-04-01",
+                    "effective_to": null,
+                    "rateable_value": 20000.0
+                }
+            ]
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": false,
+            "is_greater_london": true
+        }
+    });
+    let req_lon = Request::builder()
+        .uri("/api/v1/calculate-liability")
+        .method("POST")
+        .header(header::CONTENT_TYPE, "application/json")
+        .body(Body::from(serde_json::to_vec(&payload_london).unwrap()))
+        .unwrap();
+    let res_lon = app.clone().oneshot(req_lon).await.unwrap();
+    assert_eq!(res_lon.status(), StatusCode::OK);
+    let body_lon: Value = serde_json::from_str(&body_to_string(res_lon.into_body()).await).unwrap();
+    let seg_lon = &body_lon["annual_billing_segments"][0];
+    assert_eq!(seg_lon["multiplier_used"]["type"], "SMALL_BUSINESS", "RV £20,000 in Greater London qualifies for SMALL_BUSINESS");
+    assert_eq!(seg_lon["multiplier_used"]["rate"], 0.480);
 }
 
 
