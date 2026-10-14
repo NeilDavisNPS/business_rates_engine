@@ -31,6 +31,7 @@
         </label>
         <select
           id="scatCodeSelect"
+          name="scatCode"
           bind:value={calcStore.scatCode}
           onchange={() => calcStore.markCalculationDue()}
           class="w-full text-xs px-2.5 py-1.5 border border-slate-300 rounded bg-white font-medium text-slate-800"
@@ -47,6 +48,7 @@
         </label>
         <input
           id="ratingClassificationInput"
+          name="ratingClassification"
           type="text"
           value="STANDARD_COMMERCIAL"
           readonly
@@ -87,9 +89,12 @@
               <!-- Effective From -->
               <td class="p-2">
                 <input
+                  id="valuation_effective_from_{idx}"
+                  name="valuation_effective_from_{idx}"
                   type="date"
                   bind:value={era.effective_from}
                   oninput={() => calcStore.markCalculationDue()}
+                  aria-label="{calcStore.t.col_from} #{idx + 1}"
                   class="w-full px-2 py-1 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 font-mono font-medium text-slate-800 bg-white"
                 />
               </td>
@@ -97,10 +102,13 @@
               <!-- Effective To -->
               <td class="p-2">
                 <input
+                  id="valuation_effective_to_{idx}"
+                  name="valuation_effective_to_{idx}"
                   type="date"
                   bind:value={era.effective_to}
                   oninput={() => calcStore.markCalculationDue()}
                   placeholder={calcStore.t.placeholder_open}
+                  aria-label="{calcStore.t.col_to} #{idx + 1}"
                   class="w-full px-2 py-1 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 font-mono font-medium text-slate-800 bg-white"
                 />
               </td>
@@ -112,11 +120,14 @@
                     £
                   </span>
                   <input
+                    id="valuation_rateable_value_{idx}"
+                    name="valuation_rateable_value_{idx}"
                     type="number"
                     min="0"
                     step="100"
                     bind:value={era.rateable_value}
                     oninput={() => calcStore.markCalculationDue()}
+                    aria-label="{calcStore.t.col_rv} #{idx + 1}"
                     class="w-full pl-6 pr-2 py-1 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 font-bold text-slate-900"
                   />
                 </div>

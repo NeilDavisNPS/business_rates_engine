@@ -96,8 +96,12 @@
         </div>
 
         <input
+          id="emptyPropertySearchInput"
+          name="emptyPropertySearch"
           type="text"
           placeholder={calcStore.t.ept_search_ph}
+          autocomplete="off"
+          aria-label={calcStore.t.ept_search_ph}
           bind:value={searchTerm}
           class="w-full sm:w-64 px-3 py-1.5 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 font-medium text-slate-800 bg-white"
         />

@@ -60,9 +60,12 @@
             <!-- Start Date -->
             <td class="p-2">
               <input
+                id="occupancy_start_date_{idx}"
+                name="occupancy_start_date_{idx}"
                 type="date"
                 bind:value={period.start_date}
                 oninput={() => calcStore.markCalculationDue()}
+                aria-label="{calcStore.t.col_occ_start} #{idx + 1}"
                 class="w-full px-2 py-1 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 font-mono font-medium text-slate-800 bg-white"
               />
             </td>
@@ -70,10 +73,13 @@
             <!-- End Date -->
             <td class="p-2">
               <input
+                id="occupancy_end_date_{idx}"
+                name="occupancy_end_date_{idx}"
                 type="date"
                 bind:value={period.end_date}
                 oninput={() => calcStore.markCalculationDue()}
                 placeholder={calcStore.t.placeholder_open}
+                aria-label="{calcStore.t.col_occ_end} #{idx + 1}"
                 class="w-full px-2 py-1 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 font-mono font-medium text-slate-800 bg-white"
               />
             </td>
@@ -81,8 +87,11 @@
             <!-- Occupancy Status -->
             <td class="p-2">
               <select
+                id="occupancy_type_{idx}"
+                name="occupancy_type_{idx}"
                 value={period.occupancy_type}
                 onchange={(e) => onTypeChange(idx, e.currentTarget.value as OccupancyType)}
+                aria-label="{calcStore.t.col_occ_type} #{idx + 1}"
                 class="w-full px-2 py-1 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 bg-white font-medium text-slate-800"
               >
                 <option value="OCCUPIED">{calcStore.t.occ_opt_occupied}</option>
@@ -96,12 +105,15 @@
               {#if period.occupancy_type === 'PART_OCCUPIED'}
                 <div class="flex items-center space-x-1">
                   <input
+                    id="occupancy_apportionment_{idx}"
+                    name="occupancy_apportionment_{idx}"
                     type="number"
                     min="1"
                     max="99"
                     step="1"
                     value={period.part_occupied_apportionment?.occupied_percentage ?? 50}
                     oninput={(e) => onPctChange(idx, e.currentTarget.value)}
+                    aria-label="{calcStore.t.col_occ_apportionment} #{idx + 1}"
                     class="w-16 px-1.5 py-1 text-xs border border-amber-300 bg-amber-50 rounded font-bold text-amber-900"
                   />
                   <span class="text-amber-800 font-bold">{calcStore.t.pct_occ_unit}</span>
@@ -142,6 +154,7 @@
     </label>
     <select
       id="partyTypeSelect"
+      name="partyType"
       bind:value={calcStore.partyType}
       onchange={() => calcStore.syncFormToJson()}
       class="text-xs px-2.5 py-1 border border-slate-300 rounded bg-white font-medium text-slate-800 max-w-xs"

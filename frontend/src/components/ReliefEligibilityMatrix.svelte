@@ -34,6 +34,8 @@
       <!-- Small Business Single Property (All nations) -->
       <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
         <input
+          id="flag_is_small_business_sole_property"
+          name="is_small_business_sole_property"
           type="checkbox"
           bind:checked={calcStore.qualifyingReliefFlags.is_small_business_sole_property}
           onchange={onFlagChange}
@@ -49,6 +51,8 @@
       {#if calcStore.jurisdiction === 'ENGLAND'}
         <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-blue-200 bg-blue-50/40 hover:bg-blue-50 cursor-pointer transition-colors min-h-[44px]">
           <input
+            id="flag_is_small_business_second_property_grace"
+            name="is_small_business_second_property_grace"
             type="checkbox"
             bind:checked={calcStore.qualifyingReliefFlags.is_small_business_second_property_grace}
             onchange={onFlagChange}
@@ -66,6 +70,8 @@
         <!-- Small Business Second Property (Art. 12) -->
         <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50 cursor-pointer transition-colors min-h-[44px]">
           <input
+            id="flag_is_small_business_second_property"
+            name="is_small_business_second_property"
             type="checkbox"
             bind:checked={calcStore.qualifyingReliefFlags.is_small_business_second_property}
             onchange={onFlagChange}
@@ -80,6 +86,8 @@
         <!-- Registered Childcare Premises (Art. 8 / W.S.I. 2018/1193) -->
         <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50 cursor-pointer transition-colors min-h-[44px]">
           <input
+            id="flag_is_registered_childcare"
+            name="is_registered_childcare"
             type="checkbox"
             bind:checked={calcStore.qualifyingReliefFlags.is_registered_childcare}
             onchange={onFlagChange}
@@ -94,6 +102,8 @@
         <!-- Post Office Relief (Art. 9 & 11(2)) -->
         <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50 cursor-pointer transition-colors min-h-[44px]">
           <input
+            id="flag_is_post_office"
+            name="is_post_office"
             type="checkbox"
             bind:checked={calcStore.qualifyingReliefFlags.is_post_office}
             onchange={onFlagChange}
@@ -111,6 +121,8 @@
         <div class="p-2.5 rounded-lg border border-purple-200 bg-purple-50/40 space-y-2.5 md:col-span-2">
           <label class="flex items-start space-x-2.5 cursor-pointer min-h-[44px]">
             <input
+              id="flag_is_small_business_multiple_properties"
+              name="is_small_business_multiple_properties"
               type="checkbox"
               bind:checked={calcStore.qualifyingReliefFlags.is_small_business_multiple_properties}
               onchange={onFlagChange}
@@ -133,10 +145,12 @@
                 </span>
                 <input
                   id="sbbsCumulativeRvInput"
+                  name="sbbsCumulativeRv"
                   type="number"
                   min="0"
                   step="1"
                   placeholder="35000"
+                  autocomplete="off"
                   bind:value={calcStore.qualifyingReliefFlags.small_business_cumulative_rv}
                   oninput={onFlagChange}
                   class="pl-6 pr-3 py-1.5 text-xs border border-purple-300 rounded bg-white font-mono font-medium text-purple-950 focus:ring-2 focus:ring-purple-600 focus:border-purple-600 w-full min-h-[44px]"
@@ -154,6 +168,8 @@
       <!-- Mandatory Charitable Relief (All nations) -->
       <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
         <input
+          id="flag_is_charitable_purposes"
+          name="is_charitable_purposes"
           type="checkbox"
           bind:checked={calcStore.qualifyingReliefFlags.is_charitable_purposes}
           onchange={onFlagChange}
@@ -168,6 +184,8 @@
       <!-- Rural Settlement Relief (All nations) -->
       <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
         <input
+          id="flag_is_rural_settlement"
+          name="is_rural_settlement"
           type="checkbox"
           bind:checked={calcStore.qualifyingReliefFlags.is_rural_settlement}
           onchange={onFlagChange}
@@ -182,6 +200,8 @@
       <!-- Telecommunications Infrastructure Relief (All nations - 2018 Act / SSI 2019/111) -->
       <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
         <input
+          id="flag_is_telecommunications_infrastructure"
+          name="is_telecommunications_infrastructure"
           type="checkbox"
           bind:checked={calcStore.qualifyingReliefFlags.is_telecommunications_infrastructure}
           onchange={onFlagChange}
@@ -197,6 +217,8 @@
       {#if calcStore.jurisdiction !== 'SCOTLAND'}
         <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
           <input
+            id="flag_is_public_lavatory"
+            name="is_public_lavatory"
             type="checkbox"
             bind:checked={calcStore.qualifyingReliefFlags.is_public_lavatory}
             onchange={onFlagChange}
@@ -213,6 +235,8 @@
       {#if calcStore.jurisdiction === 'ENGLAND'}
         <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
           <input
+            id="flag_is_heat_network"
+            name="is_heat_network"
             type="checkbox"
             bind:checked={calcStore.qualifyingReliefFlags.is_heat_network}
             onchange={onFlagChange}
@@ -236,9 +260,11 @@
               <span class="absolute inset-y-0 left-0 pl-2 flex items-center text-slate-500 text-xs">£</span>
               <input
                 id="improvementIncrementInput"
+                name="improvementIncrement"
                 type="number"
                 min="0"
                 step="100"
+                autocomplete="off"
                 bind:value={calcStore.qualifyingReliefFlags.qualifying_improvement_rv_increment}
                 oninput={onFlagChange}
                 class="w-full pl-5 pr-2 py-1 text-xs border border-slate-300 rounded font-bold text-slate-800 bg-white"
@@ -252,6 +278,8 @@
       {#if calcStore.jurisdiction === 'WALES'}
         <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50 cursor-pointer transition-colors">
           <input
+            id="flag_is_retail_premises"
+            name="is_retail_premises"
             type="checkbox"
             bind:checked={calcStore.qualifyingReliefFlags.is_retail_premises}
             onchange={onFlagChange}
@@ -281,6 +309,8 @@
       <!-- Statutory Transitional Relief Phasing Toggle (All nations) -->
       <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-amber-200 bg-amber-50/40 hover:bg-amber-50 cursor-pointer transition-colors">
         <input
+          id="flag_apply_transitional_relief"
+          name="apply_transitional_relief"
           type="checkbox"
           bind:checked={calcStore.qualifyingReliefFlags.apply_transitional_relief}
           onchange={onFlagChange}
@@ -304,6 +334,8 @@
       {#if calcStore.jurisdiction === 'WALES' && calcStore.qualifyingReliefFlags.apply_transitional_relief}
         <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-amber-200 bg-amber-50/40 hover:bg-amber-50 cursor-pointer transition-colors">
           <input
+            id="flag_same_occupier_since_revaluation"
+            name="same_occupier_since_revaluation"
             type="checkbox"
             bind:checked={calcStore.qualifyingReliefFlags.same_occupier_since_revaluation}
             onchange={onFlagChange}
@@ -322,6 +354,8 @@
       {#if calcStore.jurisdiction === 'ENGLAND'}
         <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-purple-200 bg-purple-50/40 hover:bg-purple-50 cursor-pointer transition-colors">
           <input
+            id="flag_is_ssbr_qualifying"
+            name="is_ssbr_qualifying"
             type="checkbox"
             bind:checked={calcStore.qualifyingReliefFlags.is_ssbr_qualifying}
             onchange={onFlagChange}
@@ -339,6 +373,8 @@
       <!-- Retail, Hospitality & Leisure / Food & Drink Hospitality (All nations) -->
       <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
         <input
+          id="flag_is_rhl_qualifying"
+          name="is_rhl_qualifying"
           type="checkbox"
           bind:checked={calcStore.qualifyingReliefFlags.is_rhl_qualifying}
           onchange={onFlagChange}
@@ -354,6 +390,8 @@
       {#if calcStore.jurisdiction === 'SCOTLAND' && calcStore.qualifyingReliefFlags.is_rhl_qualifying}
         <label class="flex items-start space-x-2.5 p-2.5 min-h-[44px] rounded-lg border border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-950/40 hover:bg-purple-50 dark:hover:bg-purple-950/60 cursor-pointer transition-colors">
           <input
+            id="flag_is_island_property"
+            name="is_island_property"
             type="checkbox"
             bind:checked={calcStore.qualifyingReliefFlags.is_island_property}
             onchange={onFlagChange}
@@ -369,6 +407,8 @@
         <!-- Scottish Remote Mainland (Cape Wrath, Knoydart, Scoraig - 100% relief under SSI 2026/69 reg 5) -->
         <label class="flex items-start space-x-2.5 p-2.5 min-h-[44px] rounded-lg border border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-950/40 hover:bg-purple-50 dark:hover:bg-purple-950/60 cursor-pointer transition-colors">
           <input
+            id="flag_is_scottish_remote_mainland"
+            name="is_scottish_remote_mainland"
             type="checkbox"
             bind:checked={calcStore.qualifyingReliefFlags.is_scottish_remote_mainland}
             onchange={onFlagChange}
@@ -384,6 +424,8 @@
         <!-- Scottish Hospitality Premises (40% tier under SSI 2026/135 reg 4A) -->
         <label class="flex items-start space-x-2.5 p-2.5 min-h-[44px] rounded-lg border border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-950/40 hover:bg-purple-50 dark:hover:bg-purple-950/60 cursor-pointer transition-colors">
           <input
+            id="flag_is_hospitality_premises"
+            name="is_hospitality_premises"
             type="checkbox"
             bind:checked={calcStore.qualifyingReliefFlags.is_hospitality_premises}
             onchange={onFlagChange}
@@ -401,6 +443,8 @@
       {#if calcStore.jurisdiction === 'SCOTLAND'}
         <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-purple-200 bg-purple-50/50 hover:bg-purple-50 cursor-pointer transition-colors">
           <input
+            id="flag_is_sbbs_tr_qualifying"
+            name="is_sbbs_tr_qualifying"
             type="checkbox"
             bind:checked={calcStore.qualifyingReliefFlags.is_sbbs_tr_qualifying}
             onchange={onFlagChange}
@@ -415,6 +459,8 @@
       <!-- Charity Discretionary Top-Up (All nations - LGFA 1988 s.47(2)(a) / LGA(S) 1962 s.4(5)) -->
       <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-purple-200 bg-purple-50/30 hover:bg-purple-50 cursor-pointer transition-colors">
         <input
+          id="flag_is_charity_discretionary_top_up"
+          name="is_charity_discretionary_top_up"
           type="checkbox"
           bind:checked={calcStore.qualifyingReliefFlags.is_charity_discretionary_top_up}
           onchange={onFlagChange}
@@ -432,6 +478,8 @@
       {#if calcStore.jurisdiction === 'SCOTLAND'}
         <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50 cursor-pointer transition-colors">
           <input
+            id="flag_is_renewable_energy_generation"
+            name="is_renewable_energy_generation"
             type="checkbox"
             bind:checked={calcStore.qualifyingReliefFlags.is_renewable_energy_generation}
             onchange={onFlagChange}
@@ -461,6 +509,8 @@
       <!-- Industrial Hereditament (All nations) -->
       <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
         <input
+          id="flag_is_industrial_hereditament"
+          name="is_industrial_hereditament"
           type="checkbox"
           bind:checked={calcStore.qualifyingReliefFlags.is_industrial_hereditament}
           onchange={onFlagChange}
@@ -480,10 +530,12 @@
           </label>
           <input
             id="unoccupiedDaysInput"
+            name="unoccupiedDays"
             type="number"
             min="0"
             max="365"
             placeholder="0"
+            autocomplete="off"
             bind:value={calcStore.qualifyingReliefFlags.days_previously_unoccupied}
             oninput={onFlagChange}
             class="w-24 px-2 py-1 text-xs border border-slate-300 rounded font-bold text-slate-800"
@@ -501,10 +553,12 @@
             </label>
             <input
               id="holidayDaysInput"
+              name="holidayDaysLet"
               type="number"
               min="0"
               max="365"
               placeholder={calcStore.t.placeholder_holiday_days}
+              autocomplete="off"
               bind:value={calcStore.qualifyingReliefFlags.holiday_let_actual_days_let}
               oninput={onFlagChange}
               class="w-24 px-2 py-1 text-xs border border-purple-300 rounded font-bold text-purple-900 bg-white"
@@ -516,10 +570,12 @@
             </label>
             <input
               id="holidayDaysAvailableInput"
+              name="holidayDaysAvailable"
               type="number"
               min="0"
               max="365"
               placeholder={calcStore.t.placeholder_holiday_available_days}
+              autocomplete="off"
               bind:value={calcStore.qualifyingReliefFlags.holiday_let_days_available}
               oninput={onFlagChange}
               class="w-24 px-2 py-1 text-xs border border-purple-300 rounded font-bold text-purple-900 bg-white"
@@ -536,6 +592,8 @@
             <div class="pt-2 border-t border-purple-200/60 dark:border-purple-800">
               <label class="flex items-start space-x-2.5 min-h-[44px] cursor-pointer">
                 <input
+                  id="flag_has_short_term_let_licence"
+                  name="has_short_term_let_licence"
                   type="checkbox"
                   checked={calcStore.qualifyingReliefFlags.has_short_term_let_licence === true}
                   onchange={(e) => {
@@ -562,6 +620,7 @@
         </label>
         <select
           id="installmentsPlanSelect"
+          name="installmentsPlan"
           bind:value={calcStore.qualifyingReliefFlags.payment_installments_count}
           onchange={onFlagChange}
           class="w-full max-w-full px-2 py-1 text-xs border border-slate-300 rounded font-bold text-slate-800 bg-white cursor-pointer focus:ring-1 focus:ring-blue-500"
@@ -578,6 +637,8 @@
       {#if calcStore.jurisdiction === 'WALES'}
         <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-red-200 bg-red-50/50 hover:bg-red-50 cursor-pointer transition-colors">
           <input
+            id="flag_is_artificial_avoidance_suspected"
+            name="is_artificial_avoidance_suspected"
             type="checkbox"
             bind:checked={calcStore.qualifyingReliefFlags.is_artificial_avoidance_suspected}
             onchange={onFlagChange}
@@ -592,6 +653,8 @@
         <!-- Welsh Higher Multiplier Exception (>£100k RV - LGF(W)A 2024) -->
         <label class="flex items-start space-x-2.5 p-2.5 min-h-[44px] rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/40 hover:bg-blue-50 dark:hover:bg-blue-950/60 cursor-pointer transition-colors">
           <input
+            id="flag_is_higher_multiplier_excepted"
+            name="is_higher_multiplier_excepted"
             type="checkbox"
             bind:checked={calcStore.qualifyingReliefFlags.is_higher_multiplier_excepted}
             onchange={onFlagChange}
@@ -607,6 +670,8 @@
         <!-- Welsh Food & Drink Hospitality Use (Wales 2026/27+ - Pubs, Cafes, Restaurants) -->
         <label class="flex items-start space-x-2.5 p-2.5 min-h-[44px] rounded-lg border border-emerald-300 dark:border-emerald-700 bg-emerald-50/60 dark:bg-emerald-950/40 hover:bg-emerald-50 dark:hover:bg-emerald-950/60 cursor-pointer transition-colors">
           <input
+            id="flag_is_food_and_drink"
+            name="is_food_and_drink"
             type="checkbox"
             bind:checked={calcStore.qualifyingReliefFlags.is_food_and_drink}
             onchange={onFlagChange}

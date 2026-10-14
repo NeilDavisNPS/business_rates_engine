@@ -95,8 +95,12 @@
         </div>
 
         <input
+          id="sectorReliefsSearchInput"
+          name="sectorReliefsSearch"
           type="text"
           placeholder={calcStore.t.sector_search_ph}
+          autocomplete="off"
+          aria-label={calcStore.t.sector_search_ph}
           bind:value={searchTerm}
           class="w-full sm:w-64 px-3 py-1.5 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 font-medium text-slate-800 bg-white"
         />

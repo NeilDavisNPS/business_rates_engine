@@ -32,6 +32,9 @@
     </div>
 
     <textarea
+      id="rawJsonRequestTextarea"
+      name="rawJsonRequest"
+      aria-label="{calcStore.t.payload_editor}"
       bind:value={calcStore.rawJsonRequest}
       oninput={(e) => onJsonChange(e.currentTarget.value)}
       rows="18"
