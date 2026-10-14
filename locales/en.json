@@ -374,8 +374,16 @@
         "description": "Lower statutory multiplier for small retail premises under £51k RV in Wales under LGF(W)A 2024 (35.0p in 2026/27)."
       },
       "HIGHER": {
-        "label": "Higher Multiplier (Wales)",
-        "description": "Higher statutory multiplier for properties exceeding £100k RV in Wales under LGF(W)A 2024 (51.5p in 2026/27)."
+        "label": "Higher Multiplier (Scotland / Wales)",
+        "description": "Higher statutory multiplier for properties exceeding £100k RV in Scotland and Wales."
+      },
+      "BASIC": {
+        "label": "Basic Property Rate",
+        "description": "Baseline non-domestic rate for properties up to £51,000 RV in Scotland under Non-Domestic Rates (Scotland) Act 2020."
+      },
+      "INTERMEDIATE": {
+        "label": "Intermediate Property Rate",
+        "description": "Intermediate property rate for properties £51,001 to £100,000 RV in Scotland under Non-Domestic Rates (Scotland) Act 2020."
       },
       "RETAIL_PROVISIONAL": {
         "label": "Welsh Retail Multiplier (Provisional)",

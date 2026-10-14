@@ -1493,7 +1493,9 @@ impl RepoData {
         add("MULTIPLIER_TYPE", "SMALL_BUSINESS_RHL", "Small Business RHL Multiplier", "Permanent reduced multiplier for qualifying retail, hospitality, leisure under £51k RV in England.", Some("ENGLAND"), 4);
         add("MULTIPLIER_TYPE", "STANDARD_RHL", "Standard RHL Multiplier", "Permanent reduced multiplier for qualifying retail, hospitality, leisure £51k-£500k RV in England.", Some("ENGLAND"), 5);
         add("MULTIPLIER_TYPE", "RETAIL", "Welsh Retail Multiplier", "Lower statutory multiplier for small retail premises under £51k RV in Wales under LGF(W)A 2024 (35.0p in 2026/27).", Some("WALES"), 6);
-        add("MULTIPLIER_TYPE", "HIGHER", "Higher Multiplier (Wales)", "Higher statutory multiplier for properties exceeding £100k RV in Wales under LGF(W)A 2024 (51.5p in 2026/27).", Some("WALES"), 7);
+        add("MULTIPLIER_TYPE", "HIGHER", "Higher Multiplier (Scotland / Wales)", "Higher statutory multiplier for properties exceeding £100k RV in Scotland and Wales.", None, 7);
+        add("MULTIPLIER_TYPE", "BASIC", "Basic Property Rate", "Baseline non-domestic rate for properties up to £51,000 RV in Scotland under Non-Domestic Rates (Scotland) Act 2020.", Some("SCOTLAND"), 8);
+        add("MULTIPLIER_TYPE", "INTERMEDIATE", "Intermediate Property Rate", "Intermediate property rate for properties £51,001 to £100,000 RV in Scotland under Non-Domestic Rates (Scotland) Act 2020.", Some("SCOTLAND"), 9);
     }
 
     fn seed_empty_property_thresholds(&mut self) {

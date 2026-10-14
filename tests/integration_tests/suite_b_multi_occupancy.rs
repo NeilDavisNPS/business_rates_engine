@@ -50,6 +50,10 @@ async fn test_multi_occupancy_api_endpoint_json_serialization() {
                 }
             ]
         },
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
         "occupancy_periods": [
             {
                 "start_date": "2024-04-01",
@@ -182,6 +186,7 @@ async fn test_overlapping_occupancy_periods_rejected() {
     let app = create_test_app();
     let body = |periods: Value| serde_json::json!({
         "party_type": "CORPORATE",
+        "occupation_period": { "start_date": "2024-04-01", "end_date": "2025-03-31" },
         "hereditament": {
             "jurisdiction": "ENGLAND",
             "scat_code": "249",

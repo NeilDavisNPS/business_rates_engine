@@ -374,8 +374,16 @@
         "description": "Iomadair reachdail nas ìsle airson togalaichean beaga mion-reic fo £51k RV anns a' Chuimrigh fo LGF(W)A 2024 (35.0p ann an 2026/27)."
       },
       "HIGHER": {
-        "label": "Àrd-iomadair (A' Chuimrigh)",
-        "description": "Àrd-iomadair reachdail airson togalaichean os cionn £100k RV anns a' Chuimrigh fo LGF(W)A 2024 (51.5p ann an 2026/27)."
+        "label": "Àrd-iomadair (Alba / A' Chuimrigh)",
+        "description": "Àrd-iomadair reachdail airson togalaichean os cionn £100k RV ann an Alba agus a' Chuimrigh."
+      },
+      "BASIC": {
+        "label": "Ìre Seilbhe Bhunasach",
+        "description": "Bun-ìre neo-dachaigheil airson togalaichean suas gu £51,000 RV ann an Alba fo Achd nan Rìteachan Neo-dachaigheil (Alba) 2020."
+      },
+      "INTERMEDIATE": {
+        "label": "Ìre Seilbhe Mheadhanach",
+        "description": "Ìre seilbhe mheadhanach airson togalaichean £51,001 gu £100,000 RV ann an Alba fo Achd nan Rìteachan Neo-dachaigheil (Alba) 2020."
       },
       "RETAIL_PROVISIONAL": {
         "label": "Iomadair Mion-reic na Cuimrigh (Sealach)",

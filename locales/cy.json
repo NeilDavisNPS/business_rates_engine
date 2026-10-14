@@ -374,8 +374,16 @@
         "description": "Lluosydd statudol is ar gyfer mangreoedd manwerthu bach o dan £51k RV yng Nghymru o dan LGF(W)A 2024 (35.0c yn 2026/27)."
       },
       "HIGHER": {
-        "label": "Uwch-luosydd (Cymru)",
-        "description": "Uwch-luosydd statudol ar gyfer eiddo sy'n fwy na £100k RV yng Nghymru o dan LGF(W)A 2024 (51.5c yn 2026/27)."
+        "label": "Uwch-luosydd (Yr Alban / Cymru)",
+        "description": "Uwch-luosydd statudol ar gyfer eiddo sy'n fwy na £100k RV yn yr Alban a Chymru."
+      },
+      "BASIC": {
+        "label": "Cyfradd Eiddo Sylfaenol",
+        "description": "Cyfradd annomestig waelodlin ar gyfer eiddo hyd at £51,000 RV yn yr Alban o dan Ddeddf Ardrethi Annomestig (Yr Alban) 2020."
+      },
+      "INTERMEDIATE": {
+        "label": "Cyfradd Eiddo Canolradd",
+        "description": "Cyfradd eiddo ganolradd ar gyfer eiddo £51,001 i £100,000 RV yn yr Alban o dan Ddeddf Ardrethi Annomestig (Yr Alban) 2020."
       },
       "RETAIL_PROVISIONAL": {
         "label": "Lluosydd Manwerthu Cymru (Dros Dro)",

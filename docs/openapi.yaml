@@ -56,6 +56,9 @@ paths:
             text/markdown:
               schema:
                 type: string
+            text/html:
+              schema:
+                type: string
   /api/v1/health:
     get:
       summary: Service Health Check & Deployment Metadata

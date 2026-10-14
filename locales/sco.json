@@ -374,8 +374,16 @@
         "description": "Lawer statutary multiplier fer smaa retail premises unner £51k RV in Wales unner LGF(W)A 2024 (35.0p in 2026/27)."
       },
       "HIGHER": {
-        "label": "Heicher Multiplier (Wales)",
-        "description": "Heicher statutary multiplier fer properties exceedin £100k RV in Wales unner LGF(W)A 2024 (51.5p in 2026/27)."
+        "label": "Heicher Multiplier (Scotland / Wales)",
+        "description": "Heicher statutary multiplier fer properties exceedin £100k RV in Scotland and Wales."
+      },
+      "BASIC": {
+        "label": "Basic Property Rate",
+        "description": "Baseline non-domestic rate fer properties up tae £51,000 RV in Scotland unner Non-Domestic Rates (Scotland) Act 2020."
+      },
+      "INTERMEDIATE": {
+        "label": "Intermediate Property Rate",
+        "description": "Intermediate property rate fer properties £51,001 tae £100,000 RV in Scotland unner Non-Domestic Rates (Scotland) Act 2020."
       },
       "RETAIL_PROVISIONAL": {
         "label": "Welsh Retail Multiplier (Provisional)",

@@ -613,9 +613,9 @@ The in-memory parameter repository and statutory documentation are exposed direc
 
 ## 4. Test Cases Specification & Scenario Fixtures
 
-### Test Suite Overview (155 Passing Integration Tests)
+### Test Suite Overview (156 Passing Integration Tests)
 
-The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **155 automated integration tests**:
+The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **156 automated integration tests**:
 
 - **Suite A: Canonical Multi-Jurisdiction Scenario Fixture Tests (Scenarios 1–11)** ([`tests/integration_tests/suite_a_scenarios.rs`](tests/integration_tests/suite_a_scenarios.rs) — 11 tests):
   - `test_scenario_1_england_sbrr_and_rhl_multi_year` (`scenario_1_sbrr_rhl_england.json`): Multi-year slicing (2025/26 & 2026/27), SBRR linear taper, England 2026/27 RHL expiration verification, and Transitional Relief caps.
@@ -654,7 +654,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_narrative_relief_assessment_audit_unawarded_reliefs`: Verifies localized statutory audit justification for disqualified/unawarded reliefs across English, Welsh, Scots, and Scottish Gaelic.
   - `test_narrative_decision_traceability_across_languages`: Verifies comprehensive step-by-step decision justification lines (multiplier determination, transitional relief phasing, SBRR taper divisor $E$, empty property rate-free calendar months, and statutory installment schedule) with statutory citations across English, Welsh, Scots, and Scottish Gaelic maintaining 100% key parity.
 
-- **Suite D: Reference Codes, Parameter Resolution, Public API Access & OpenAPI** ([`tests/integration_tests/suite_d_api_and_parameters.rs`](tests/integration_tests/suite_d_api_and_parameters.rs) — 11 tests):
+- **Suite D: Reference Codes, Parameter Resolution, Public API Access & OpenAPI** ([`tests/integration_tests/suite_d_api_and_parameters.rs`](tests/integration_tests/suite_d_api_and_parameters.rs) — 12 tests):
   - `test_app_state_repository_access`: Validates thread-safe parameter repository access on `AppState`.
   - `test_zero_hardcoding_historical_multipliers_1990_to_2026`: Complete verification of English, Welsh, and Scottish rating multipliers from 1990 to 2026.
   - `test_preseeded_reference_codes_and_allowable_values`: Pre-seeded values for jurisdictions, party types, and reliefs.
@@ -666,6 +666,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_licenses_endpoints`: Validates `/licenses` (HTML interface styled with unified `/assets/app.css` under CSP), `/licenses.md` (raw Markdown attribution document), and `/api/v1/licenses?format=md` query routing.
   - `test_health_check_endpoints`: Validates both root `/health` and `/api/v1/health` return HTTP 200 with OWASP security headers, subsystem health checks (`engine_api: pass`, `parameters_repository: pass`, `frontend_bundle: pass`), and deployment build metadata (`version`, `commit_hash`, `build_number`, `build_timestamp`).
   - `test_openapi_app_error_response_enum_matches_engine_codes`: Validates AppErrorResponse.error enum in OpenAPI 3.1.0 spec includes all strongly-typed domain error codes returned by the engine (including MISSING_MULTIPLIER_FOR_PERIOD and RATEABLE_VALUE_MISSING_FOR_PERIOD).
+  - `test_openapi_contract_alignment_and_strict_deserialization`: Validates OpenAPI `/licenses` defines both `text/markdown` and `text/html`, calculation requests strictly require `occupation_period` yielding HTTP 422 `PAYLOAD_DESERIALIZATION_ERROR` when missing, `payment_installments_count` is strictly validated to 10 or 12 under S.I. 1989/1058, and `MULTIPLIER_TYPE` reference codes include `BASIC` and `INTERMEDIATE` with Scotland included in `HIGHER`.
 
 - **Suite E: English Multipliers, Transitional Phasing, Grace Periods & SSBR** ([`tests/integration_tests/suite_e_england_schemes.rs`](tests/integration_tests/suite_e_england_schemes.rs) — 22 tests):
   - `test_england_2026_five_multipliers_rhl_vs_non_rhl`: Verifies Autumn Budget 2024 / NDRA 2023 five-multiplier regime in England for 2026/27 (38.2p, 43.2p, 43.0p, 48.0p, 50.8p).

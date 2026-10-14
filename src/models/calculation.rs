@@ -120,7 +120,7 @@ pub struct QualifyingReliefFlags {
     pub is_sbbs_tr_qualifying: bool,
     #[serde(default)]
     pub is_ssbr_qualifying: bool,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "deserialize_installment_count")]
     pub payment_installments_count: Option<u32>,
     #[serde(default = "default_true_opt")]
     pub apply_transitional_relief: Option<bool>,
@@ -130,19 +130,30 @@ pub struct QualifyingReliefFlags {
     pub is_greater_london: bool,
 }
 
+/// S.I. 1989/1058 Schedule 1 paragraph 1(1) and Localism Act 2011 s.69:
+/// Statutory monthly instalments default to 10 instalments in a rating year,
+/// or 12 monthly instalments where the ratepayer has formally elected 12 instalments.
+fn deserialize_installment_count<'de, D>(deserializer: D) -> Result<Option<u32>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let opt = Option::<u32>::deserialize(deserializer)?;
+    match opt {
+        Some(10) => Ok(Some(10)),
+        Some(12) => Ok(Some(12)),
+        Some(other) => Err(serde::de::Error::custom(format!(
+            "invalid payment_installments_count `{other}`, expected 10 or 12 under S.I. 1989/1058 Sch 1"
+        ))),
+        None => Ok(None),
+    }
+}
+
 fn default_true_opt() -> Option<bool> {
     Some(true)
 }
 
 fn default_occupancy_type() -> OccupancyType {
     OccupancyType::OCCUPIED
-}
-
-fn default_date_range() -> DateRange {
-    DateRange {
-        start_date: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
-        end_date: NaiveDate::from_ymd_opt(2027, 3, 31).unwrap(),
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -170,7 +181,6 @@ pub struct OccupancyPeriodInput {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LiabilityCalculationRequest {
     pub party_type: PartyType,
-    #[serde(default = "default_date_range")]
     pub occupation_period: DateRange,
     pub hereditament: HereditamentInput,
     #[serde(default = "default_occupancy_type")]

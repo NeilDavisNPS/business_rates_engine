@@ -41,6 +41,11 @@
                 "schema": {
                   "type": "string"
                 }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
               }
             }
           }

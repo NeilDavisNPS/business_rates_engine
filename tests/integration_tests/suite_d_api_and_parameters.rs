@@ -684,3 +684,99 @@ async fn test_openapi_app_error_response_enum_matches_engine_codes() {
     assert_eq!(body2["error"], "RATEABLE_VALUE_MISSING_FOR_PERIOD");
 }
 
+#[tokio::test]
+async fn test_openapi_contract_alignment_and_strict_deserialization() {
+    let app = create_test_app();
+
+    // 1. Verify /licenses response content-types in openapi.json and openapi.yaml
+    let openapi_json_str = std::fs::read_to_string("docs/openapi.json").expect("docs/openapi.json must exist");
+    let spec: Value = serde_json::from_str(&openapi_json_str).expect("Valid JSON");
+    let licenses_content = &spec["paths"]["/licenses"]["get"]["responses"]["200"]["content"];
+    assert!(
+        licenses_content.get("text/markdown").is_some(),
+        "OpenAPI /licenses must define text/markdown content type"
+    );
+    assert!(
+        licenses_content.get("text/html").is_some(),
+        "OpenAPI /licenses must define text/html content type"
+    );
+
+    let openapi_yaml_str = std::fs::read_to_string("docs/openapi.yaml").expect("docs/openapi.yaml must exist");
+    assert!(
+        openapi_yaml_str.contains("text/html:"),
+        "OpenAPI YAML /licenses must define text/html content type"
+    );
+
+    // 2. Verify omitting occupation_period returns 422 PAYLOAD_DESERIALIZATION_ERROR
+    let payload_no_period = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "091",
+            "rateable_value_history": [
+                { "effective_from": "2023-04-01", "effective_to": null, "rateable_value": 10000.0 }
+            ]
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {}
+    });
+    let req_no_period = Request::builder()
+        .uri("/api/v1/calculate-liability")
+        .method("POST")
+        .header(header::CONTENT_TYPE, "application/json")
+        .body(Body::from(serde_json::to_vec(&payload_no_period).unwrap()))
+        .unwrap();
+    let res_no_period = app.clone().oneshot(req_no_period).await.unwrap();
+    assert_eq!(
+        res_no_period.status(),
+        StatusCode::UNPROCESSABLE_ENTITY,
+        "Omitting occupation_period must yield 422 Unprocessable Entity"
+    );
+    let body_no_period: Value = serde_json::from_str(&body_to_string(res_no_period.into_body()).await).unwrap();
+    assert_eq!(body_no_period["error"], "PAYLOAD_DESERIALIZATION_ERROR");
+
+    // 3. Verify payment_installments_count can only be 10 or 12
+    let payload_invalid_installments = serde_json::json!({
+        "party_type": "CORPORATE",
+        "occupation_period": { "start_date": "2023-04-01", "end_date": "2024-03-31" },
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "091",
+            "rateable_value_history": [
+                { "effective_from": "2023-04-01", "effective_to": null, "rateable_value": 10000.0 }
+            ]
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "payment_installments_count": 7
+        }
+    });
+    let req_invalid_installments = Request::builder()
+        .uri("/api/v1/calculate-liability")
+        .method("POST")
+        .header(header::CONTENT_TYPE, "application/json")
+        .body(Body::from(serde_json::to_vec(&payload_invalid_installments).unwrap()))
+        .unwrap();
+    let res_invalid_installments = app.clone().oneshot(req_invalid_installments).await.unwrap();
+    assert_eq!(
+        res_invalid_installments.status(),
+        StatusCode::UNPROCESSABLE_ENTITY,
+        "payment_installments_count=7 must yield 422 Unprocessable Entity"
+    );
+    let body_invalid_installments: Value = serde_json::from_str(&body_to_string(res_invalid_installments.into_body()).await).unwrap();
+    assert_eq!(body_invalid_installments["error"], "PAYLOAD_DESERIALIZATION_ERROR");
+
+    // 4. Verify MULTIPLIER_TYPE reference codes include BASIC and INTERMEDIATE and Scotland in HIGHER
+    let repo = ParameterRepository::new_seeded();
+    let mult_codes = repo.reference_codes_by_category("MULTIPLIER_TYPE");
+    let codes: Vec<&str> = mult_codes.iter().map(|c| c.code.as_str()).collect();
+    assert!(codes.contains(&"BASIC"), "MULTIPLIER_TYPE must include BASIC code");
+    assert!(codes.contains(&"INTERMEDIATE"), "MULTIPLIER_TYPE must include INTERMEDIATE code");
+
+    let higher = mult_codes.iter().find(|c| c.code == "HIGHER").expect("HIGHER code must exist");
+    assert!(
+        higher.label.contains("Scotland") || higher.description.contains("Scotland"),
+        "HIGHER multiplier reference code must reference Scotland"
+    );
+}
+
