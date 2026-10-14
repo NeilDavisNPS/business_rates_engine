@@ -96,7 +96,24 @@ All multipliers, rateable values, thresholds, and tapers MUST be obtained dynami
 
 ---
 
-## 4. Verification & Quality Gates
+## 4. Statutory In-Code Comments & Legislative Cross-Referencing Standards
+
+All calculation engine logic, algorithms, formulas, and branch evaluations in the Rust codebase (`src/engine/` and related modules) MUST include clear, detailed code comments that explicitly reference the governing legislation:
+
+### A. Mandatory Legislative Citations in Calculation Logic
+- **Scope of In-Code Comments**: Every calculation function, formula, conditional branch point, statutory threshold evaluation, taper divisor calculation, relief apportionment, and exemption check MUST have explanatory code comments citing the relevant legislative authority.
+- **Specific Legal References**: Comments must cite the authoritative statutory sources with precision, including:
+  - Primary legislation: Acts of Parliament (e.g. Local Government Finance Act 1988, Non-Domestic Rating Act 2023) with section and schedule/paragraph citations (e.g. `// LGFA 1988 Sched 7 para A4`).
+  - Secondary legislation: Statutory Instruments (SIs), Scottish Statutory Instruments (SSIs), and Welsh Statutory Instruments (WSIs) with year, number, regulation, article, and paragraph citations (e.g. `// Non-Domestic Rating (Unoccupied Property) (England) Regulations 2008 (S.I. 2008/386), reg 4`).
+  - Devolved amendment regulations and commencement orders (e.g. `// Non-Domestic Rates (Levying and Miscellaneous Amendment) (Scotland) Regulations 2025 (S.S.I. 2025/37), reg 3`).
+
+### B. Code Reviewability Against Legislation
+- **Direct Statutory Verifiability**: Any software engineer, legal reviewer, rating auditor, or billing authority reviewing the Rust calculation engine source code must be able to verify each line of mathematical logic and each branch decision directly against the cited statutory provision without ambiguity or guesswork.
+- **Decision Logic Context**: In addition to legal citations, comments must briefly clarify the statutory intent of complex calculations (e.g. whole-pound instalment truncation under S.I. 1989/1058, statutory divisor $E$ rounding under S.I. 2017/102, calendar-month leap year boundaries, and relief ordering hierarchy).
+
+---
+
+## 5. Verification & Quality Gates
 
 Before committing any changes:
 1. **Frontend Build & Diagnostics**:
@@ -115,7 +132,9 @@ Before committing any changes:
 6. **Statutory Audit Narrative & Traceability Audit**:
    - Verify that all calculation decisions and key branch points produce detailed narrative output citing the relevant legislative source.
    - Verify key parity and externalisation across all 4 locales in `locales/{en,cy,sco,gd}.json` for any new narrative elements.
-7. **Documentation & OpenAPI Specification Audit**:
+7. **Statutory In-Code Documentation Audit**:
+   - Verify that all calculation engine functions, formulas, and branch evaluations in modified Rust code contain code comments with authoritative citations to the governing Acts, regulations, schedules, and paragraphs.
+8. **Documentation & OpenAPI Specification Audit**:
    - Verify that all newly cited legislation, Acts of Parliament, statutory instruments (SIs, SSIs, WSIs), regulations, and new tests are recorded in `business-rates-engine-spec-and-tests.md`.
    - Verify that all newly identified legislation, statutory instruments, and regulations are added to the country-specific statutory basis information on the sandbox page across `frontend/src/locales/{en,cy,sco,gd}.json`.
    - Fully review all sections below `legislation` in the statutory framework catalog (`currentRegimeSummary`, `preDevolution`, `ratingLists`) across all 4 locales (`frontend/src/locales/{en,cy,sco,gd}.json`) to ensure ongoing statutory accuracy, complete citations, correct multipliers, relief highlights, and rating list descriptions.
@@ -123,7 +142,7 @@ Before committing any changes:
 
 ---
 
-## 5. GitHub Issue Resolution Workflow
+## 6. GitHub Issue Resolution Workflow
 
 Whenever investigating, fixing, or resolving an issue raised on GitHub against this project, you MUST strictly adhere to the following sequence:
 
@@ -134,7 +153,7 @@ Whenever investigating, fixing, or resolving an issue raised on GitHub against t
 3. **Reproduce via Failing Test Case**:
    - If you agree with the issue, first create a failing test case in `tests/integration_tests.rs` (or the relevant frontend test suite) that explicitly reproduces and demonstrates the reported issue.
 4. **Implement the Fix**:
-   - Fix the issue in the code, ensuring strict adherence to WCAG AAA accessibility, text externalisation (i18n), ensuring all multipliers, rateable values, and tapers are obtained from configuration and not hardcoded in the Rust code (obtaining user confirmation first if unsure whether a value should be hardcoded), and ensuring that the generated legislative narrative details all decisions and key branch points with authoritative statutory citations.
+   - Fix the issue in the code, ensuring strict adherence to WCAG AAA accessibility, text externalisation (i18n), ensuring all multipliers, rateable values, and tapers are obtained from configuration and not hardcoded in the Rust code (obtaining user confirmation first if unsure whether a value should be hardcoded), ensuring that the generated legislative narrative details all decisions and key branch points with authoritative statutory citations, and ensuring that all calculation engine code contains comprehensive code comments referencing the governing legislation for every formula and branch point.
 5. **Verify the Failing Test Passes**:
    - Re-run the specific test case created in Step 3 to confirm that the issue is resolved and the test now passes cleanly.
 6. **Review Documentation, Specifications & OpenAPI Interfaces**:
