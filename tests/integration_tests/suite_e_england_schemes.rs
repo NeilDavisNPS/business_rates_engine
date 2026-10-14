@@ -755,6 +755,30 @@ fn test_england_small_business_multiplier_boundary_at_51000() {
     assert_eq!(type_2026_rhl, "STANDARD_RHL");
 }
 
-
-
-
+#[test]
+fn test_sbrr_taper_uses_statutory_e_divisor_england() {
+    // Reproduction for Issue #50. Chargeable amount = (A x M) / E (LGFA 1988 Sched 4ZA para 10(6)), where for
+    // RV £12,001-£15,000 E = 3000 / (A - 12000) calculated to three decimal places (S.I. 2017/102 art. 3(3), (5);
+    // S.I. 2023/1250 reg 3(3)-(4)).
+    let engine = CalculationEngine::new(ParameterRepository::new_seeded());
+    let net = |rv: f64| {
+        let json = serde_json::json!({
+            "party_type": "CORPORATE",
+            "hereditament": {
+                "jurisdiction": "ENGLAND",
+                "scat_code": "091",
+                "rateable_value_history": [ { "effective_from": "2023-04-01", "effective_to": null, "rateable_value": rv } ]
+            },
+            "occupation_period": { "start_date": "2024-04-01", "end_date": "2025-03-31" },
+            "occupancy_type": "OCCUPIED",
+            "qualifying_relief_flags": { "apply_transitional_relief": false, "is_small_business_sole_property": true }
+        });
+        let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+        engine.calculate(request).annual_billing_segments[0].net_segment_payable
+    };
+    assert_eq!(net(14000.0), dec!(4657.33)); // E = 1.500: 6,986.00 / 1.5
+    assert_eq!(net(12001.0), dec!(2.00));    // E = 3000.000: 5,988.50 / 3000
+    assert_eq!(net(14999.0), dec!(7484.50)); // E = 3000/2999 = 1.000 to 3 dp: no relief
+    assert_eq!(net(13500.0), dec!(3368.25)); // E = 2.000
+    assert_eq!(net(12000.0), dec!(0.00));    // E = 5,000,000
+}

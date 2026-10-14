@@ -287,7 +287,15 @@ impl CalculationEngine {
                                                 dec!(0.00)
                                             };
                                             let prev_mandatory_pct = (prev_sbrr_pct + prev_charity_pct).min(dec!(100.00));
-                                            let annual_bl = (prev_gross_annual * (dec!(1.00) - (prev_mandatory_pct / dec!(100.00)))).round_dp(2);
+                                            let prev_divisor = if prev_sbrr_pct > dec!(0.00) && prev_charity_pct == dec!(0.00) {
+                                                self.repo.sbrr_taper_divisor(Jurisdiction::WALES, base_fy, base_rv, false, false)
+                                            } else {
+                                                None
+                                            };
+                                            let annual_bl = match prev_divisor {
+                                                Some(e) => (prev_gross_annual / e).round_dp(2),
+                                                None => (prev_gross_annual * (dec!(1.00) - (prev_mandatory_pct / dec!(100.00)))).round_dp(2),
+                                            };
 
                                             // 2. Calculate Notional Chargeable Amount (NCA) on 1 April of Revaluation List (at Year 1 multiplier)
                                             let reval_fy = self.resolve_welsh_reval_year_1_fy(&win.financial_year).unwrap_or(win.financial_year.as_str());
@@ -319,7 +327,15 @@ impl CalculationEngine {
                                                 dec!(0.00)
                                             };
                                             let reval_mandatory_pct = (reval_sbrr_pct + reval_charity_pct).min(dec!(100.00));
-                                            let annual_nca = (reval_gross_annual * (dec!(1.00) - (reval_mandatory_pct / dec!(100.00)))).round_dp(2);
+                                            let reval_divisor = if reval_sbrr_pct > dec!(0.00) && reval_charity_pct == dec!(0.00) {
+                                                self.repo.sbrr_taper_divisor(Jurisdiction::WALES, reval_fy, rv, is_childcare, is_post_office)
+                                            } else {
+                                                None
+                                            };
+                                            let annual_nca = match reval_divisor {
+                                                Some(e) => (reval_gross_annual / e).round_dp(2),
+                                                None => (reval_gross_annual * (dec!(1.00) - (reval_mandatory_pct / dec!(100.00)))).round_dp(2),
+                                            };
 
                                             // 3. Statutory threshold:
                                             // 2017 List (W.S.I. 2016/1247 reg 9(b)): threshold is £100
@@ -725,9 +741,17 @@ impl CalculationEngine {
                                 self.repo.resolve_sbrr(req.hereditament.jurisdiction, &win.financial_year, rv)
                             };
 
-                            if let Some(sbrr) = sbrr_opt {
+                            if let Some(mut sbrr) = sbrr_opt {
                                 let remaining = (sbrr_chargeable_base - segment_relief_total).max(dec!(0.00));
-                                let amount = (remaining * (sbrr.discount_percentage / dec!(100.00))).round_dp(2);
+                                let is_childcare = flags.is_registered_childcare || req.hereditament.scat_code.trim() == "084";
+                                let is_post_office = flags.is_post_office || req.hereditament.scat_code.trim() == "227";
+                                let amount = if let Some(e) = self.repo.sbrr_taper_divisor(req.hereditament.jurisdiction, &win.financial_year, rv, is_childcare, is_post_office) {
+                                    // Chargeable amount (A x M) / E: relief is the remainder
+                                    sbrr.discount_percentage = ((dec!(1.00) - dec!(1.00) / e) * dec!(100.00)).round_dp(2);
+                                    remaining - (remaining / e).round_dp(2)
+                                } else {
+                                    (remaining * (sbrr.discount_percentage / dec!(100.00))).round_dp(2)
+                                };
                                 if amount > dec!(0.00) {
                                     segment_relief_total += amount;
                                     let authority = if (flags.is_small_business_second_property_grace || flags.is_small_business_second_property) && is_wales {
@@ -1140,9 +1164,14 @@ impl CalculationEngine {
                         } else {
                             self.repo.resolve_sbrr(req.hereditament.jurisdiction, &win.financial_year, rv)
                         };
-                        if let Some(sbrr) = sbrr_opt {
+                        if let Some(mut sbrr) = sbrr_opt {
                             let remaining = occ_chargeable - occ_relief_total;
-                            let amount = (remaining * (sbrr.discount_percentage / dec!(100.00))).round_dp(2).min(remaining);
+                            let amount = if let Some(e) = self.repo.sbrr_taper_divisor(req.hereditament.jurisdiction, &win.financial_year, rv, false, false) {
+                                sbrr.discount_percentage = ((dec!(1.00) - dec!(1.00) / e) * dec!(100.00)).round_dp(2);
+                                remaining - (remaining / e).round_dp(2)
+                            } else {
+                                (remaining * (sbrr.discount_percentage / dec!(100.00))).round_dp(2).min(remaining)
+                            };
                             if amount > dec!(0.00) {
                                 occ_relief_total += amount;
                                 segment_relief_total += amount;

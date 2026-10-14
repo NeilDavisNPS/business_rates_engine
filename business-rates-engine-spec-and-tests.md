@@ -70,10 +70,9 @@ The calculation engine's business logic, zero-hardcoding parameter tables, and s
 70:   - [**The Non-Domestic Rates (Small Business Bonus Scheme) (Scotland) Regulations 2010 (S.S.I. 2010/37)**](https://www.legislation.gov.uk/ssi/2010/37/contents/made) — 2010 List 3-tier SBBS framework.
 71:   - [**The Non-Domestic Rates (Small Business Bonus Scheme) (Scotland) Regulations 2008 (S.S.I. 2008/106)**](https://www.legislation.gov.uk/ssi/2008/106/contents/made) — Inaugural SBBS regulations.
 72:   - [**The Non-Domestic Rates (Levying and Setting of Rates) (Scotland) Regulations 2025 (S.S.I. 2025/37)**](https://www.legislation.gov.uk/ssi/2025/37/contents/made) & [**S.S.I. 2025/38 regs 5(4) & 6(4)**](https://www.legislation.gov.uk/ssi/2025/38/contents/made) — Statutory setting of 2025/26 Basic (49.8p), Intermediate (55.4p), and Higher (56.8p) property rates.
-  - [**The Non-Domestic Rates (Levying and Setting of Rates) (Scotland) Regulations 2024 (S.S.I. 2024/76)**](https://www.legislation.gov.uk/ssi/2024/76/contents/made) & [**S.S.I. 2023/73**](https://www.legislation.gov.uk/ssi/2023/73/contents/made) — Statutory setting of 2023/24 and 2024/25 Basic (49.8p), Intermediate (54.5p / 51.1p), and Higher (55.9p / 52.4p) property rates.
-73: - **England (SBRR, 2026/27 5-Multiplier Regime & SSBR)**:
-74:   - [**The Non-Domestic Rating (Small Business Rate Relief) (England) Order 2017 (S.I. 2017/411)**](https://www.legislation.gov.uk/uksi/2017/411/contents/made) — 100% relief for $\text{RV} \le £12,000$; linear taper between £12,001 and £15,000 RV.
-75:   - [**S.I. 2017/411 art. 3(4)**](https://www.legislation.gov.uk/uksi/2017/411/article/3/made) & [**S.I. 2014/43**](https://www.legislation.gov.uk/uksi/2014/43/contents/made) under LGFA 1988 s.43(4B) — Statutory **12-month grace period** allowing a ratepayer who takes on an additional hereditament to retain full SBRR on their primary hereditament for 12 months.
+- **England (SBRR, 2026/27 5-Multiplier Regime & SSBR)**:
+  - [**The Non-Domestic Rating (Small Business Rate Relief) (England) Order 2017 (S.I. 2017/411)**](https://www.legislation.gov.uk/uksi/2017/411/contents/made), [**S.I. 2017/102 art. 3**](https://www.legislation.gov.uk/uksi/2017/102/article/3/made), and [**S.I. 2023/1250 reg. 3**](https://www.legislation.gov.uk/uksi/2023/1250/regulation/3/made) — 100% relief for $\text{RV} \le £12,000$; for $£12,001 \le \text{RV} \le £15,000$, chargeable amount is $(A \times M) / E$ where $E = 3000 / (A - 12000)$ rounded to 3 decimal places (adding 0.001 only where remainder > 0.0005).
+  - [**S.I. 2017/411 art. 3(4)**](https://www.legislation.gov.uk/uksi/2017/411/article/3/made) & [**S.I. 2014/43**](https://www.legislation.gov.uk/uksi/2014/43/contents/made) under LGFA 1988 s.43(4B) — Statutory **12-month grace period** allowing a ratepayer who takes on an additional hereditament to retain full SBRR on their primary hereditament for 12 months.
 76:   - [**Autumn Budget 2024 / Non-Domestic Rating Act 2023 Multiplier Framework**](https://www.gov.uk/government/publications/autumn-budget-2024) — Permanent 5-multiplier rating system effective 1 April 2026 replacing temporary RHL relief:
 77:     - Small Business RHL: `38.2p` ($\text{RV} < £51,000$ for qualifying retail, hospitality, leisure)
 78:     - Small Business non-RHL: `43.2p` ($\text{RV} < £51,000$ standard small business rate)
@@ -94,7 +93,7 @@ The calculation engine's business logic, zero-hardcoding parameter tables, and s
 90:     - **Higher Multiplier**: `51.5p` (`0.515`) for high-value properties with $\text{RV} > £100,000$.
 91:     - **Higher Multiplier Statutory Exception**: Qualifying high-value properties receive statutory exception paying the standard multiplier (`0.502`).
 92:   - [**The Non-Domestic Rating (Small Business Relief) (Wales) Order 2017 (W.S.I. 2017/1229 / W. 293)**](https://www.legislation.gov.uk/wsi/2017/1229/contents/made):
-93:     - General taper: 100% relief for $\text{RV} \le £6,000$; linear taper between £6,001 and £12,000 RV.
+    - General taper: 100% relief for $\text{RV} \le £6,000$; for $£6,001 \le \text{RV} \le £12,000$, chargeable amount is $(A \times M) / E$ where $E = 6000 / (\text{RV} - 6000)$ rounded to 3 decimal places under Article 11(3).
 94:     - [**Article 4**](https://www.legislation.gov.uk/wsi/2017/1229/article/4/made): Post offices receive 100% relief for $\text{RV} \le £9,000$ and 50% relief for $£9,001 \le \text{RV} \le £12,000$.
 95:     - [**Article 5**](https://www.legislation.gov.uk/wsi/2017/1229/article/5/made): Registered childcare premises (Care Inspectorate Wales) receive 100% relief up to £100,000 RV.
 96:     - [**Article 12**](https://www.legislation.gov.uk/wsi/2017/1229/article/12/made): Multiple properties limit — ratepayer can claim SBRR on at most **two** properties per billing authority.
@@ -576,9 +575,9 @@ The in-memory parameter repository and statutory documentation are exposed direc
 
 ## 4. Test Cases Specification & Scenario Fixtures
 
-### Test Suite Overview (140 Passing Integration Tests)
+### Test Suite Overview (142 Passing Integration Tests)
 
-The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **140 automated integration tests**:
+The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **142 automated integration tests**:
 
 - **Suite A: Canonical Multi-Jurisdiction Scenario Fixture Tests (Scenarios 1–11)** ([`tests/integration_tests/suite_a_scenarios.rs`](tests/integration_tests/suite_a_scenarios.rs) — 11 tests):
   - `test_scenario_1_england_sbrr_and_rhl_multi_year` (`scenario_1_sbrr_rhl_england.json`): Multi-year slicing (2025/26 & 2026/27), SBRR linear taper, England 2026/27 RHL expiration verification, and Transitional Relief caps.
@@ -645,8 +644,9 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_sector_relief_england_2025_vs_2026`: Verifies English RHL 40% relief in 2025/26 and statutory expiration (0%) in 2026/27 under NDRA 2023.
   - `test_england_multiplier_2025_26_standard_is_0555`: Validates England 2025/26 standard multiplier is 0.555 (55.5p) under LGFA 1988 Sched 7 para A4 and S.I. 2024/1321.
   - `test_england_small_business_multiplier_boundary_at_51000`: Validates small business multiplier applies up to £50,999 RV and standard multiplier applies at £51,000 RV under S.I. 2017/102 art. 2 and S.I. 2026/152 regs 3–5.
+  - `test_sbrr_taper_uses_statutory_e_divisor_england`: Validates England SBRR taper chargeable amount $(A \times M) / E$ where $E = 3000 / (A - 12000)$ to 3 decimal places under S.I. 2017/102 art. 3 and S.I. 2023/1250 reg. 3.
 
-- **Suite F: Welsh Multipliers, SBRR, Exemptions, Anti-Avoidance & Transitional Schemes** ([`tests/integration_tests/suite_f_wales_schemes.rs`](tests/integration_tests/suite_f_wales_schemes.rs) — 29 tests):
+- **Suite F: Welsh Multipliers, SBRR, Exemptions, Anti-Avoidance & Transitional Schemes** ([`tests/integration_tests/suite_f_wales_schemes.rs`](tests/integration_tests/suite_f_wales_schemes.rs) — 30 tests):
   - `test_wales_multiplier_2025_26_is_0568`: Validates Welsh uniform multiplier for 2025/26 is 0.568 under W.S.I. 2025/214.
   - `test_wales_2026_three_multipliers`: Verifies Welsh 2026/27 three-tier multiplier regime under *Local Government Finance (Wales) Act 2024* (Retail 35.0p, Standard 50.2p, Higher 51.5p).
   - `test_wales_retail_multiplier_given_to_retail_shop`: Validates 35.0p retail multiplier awarded to qualifying retail shop.
@@ -676,6 +676,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_wales_2017_list_no_small_business_relief_gets_zero_transitional_relief`: Confirms non-SBRR properties receive 0% TR in 2017.
   - `test_wales_2005_list_no_transitional_relief`: Confirms Wales operated no general transitional relief in 2005.
   - `test_wales_2010_list_no_transitional_relief`: Confirms Wales operated no general transitional relief in 2010.
+  - `test_sbrr_taper_uses_statutory_e_divisor_wales`: Validates Welsh SBRR taper chargeable amount $(A \times M) / E$ where $E = 6000 / (\text{RV} - 6000)$ to 3 decimal places under W.S.I. 2017/1229 art. 11(3).
 
 - **Suite G: Scottish Property Rates, SBBS Tapers, 40% Hospitality & Transitional Relief** ([`tests/integration_tests/suite_g_scotland_schemes.rs`](tests/integration_tests/suite_g_scotland_schemes.rs) — 18 tests):
   - `test_scotland_2026_multipliers_basic_intermediate_higher`: Validates 2026/27 rates: Basic 0.481, Intermediate 0.535, Higher 0.548 (S.S.I. 2026/39).
@@ -750,7 +751,7 @@ To build, verify, and run the project:
 # 1. Compile the Svelte 5 frontend component framework with Vite
 ./build-frontend.sh
 
-# 2. Run the automated test suite (140 integration tests)
+# 2. Run the automated test suite (142 integration tests)
 cargo test --test integration_tests
 
 # 3. Start the HTTP API & Single-Page Application server (default port 8080)

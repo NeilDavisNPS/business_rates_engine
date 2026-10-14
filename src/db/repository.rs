@@ -434,6 +434,27 @@ impl ParameterRepository {
         None
     }
 
+    /// Statutory divisor E for the SBRR taper band, where the chargeable amount is (A x M) / E.
+    /// - England from 2017/18, RV £12,000.01-£15,000: E = 3000 / (A - 12000) to three decimal places, adding one
+    ///   thousandth only where the remainder is more than five ten-thousandths (S.I. 2017/102 art. 3(3), (5);
+    ///   S.I. 2023/1250 reg 3(3)-(4) from 2024/25)
+    /// - Wales from 2018/19, RV £6,000.01-£12,000 (rateable value conditions): E = 6000 / (RV - 6000) to three decimal
+    ///   places, rounding up or down as appropriate (W.S.I. 2017/1229 art. 11(3))
+    ///
+    /// Returns None outside the taper band, where the relief percentage applies directly.
+    pub fn sbrr_taper_divisor(&self, jurisdiction: Jurisdiction, financial_year: &str, rv: Decimal, is_childcare: bool, is_post_office: bool) -> Option<Decimal> {
+        use rust_decimal::RoundingStrategy;
+        match jurisdiction {
+            Jurisdiction::ENGLAND if financial_year >= "2017/18" && rv > dec!(12000.00) && rv <= dec!(15000.00) => {
+                Some((dec!(3000) / (rv - dec!(12000))).round_dp_with_strategy(3, RoundingStrategy::MidpointTowardZero))
+            }
+            Jurisdiction::WALES if financial_year >= "2018/19" && !is_childcare && !is_post_office && rv > dec!(6000.00) && rv <= dec!(12000.00) => {
+                Some((dec!(6000) / (rv - dec!(6000))).round_dp_with_strategy(3, RoundingStrategy::MidpointAwayFromZero))
+            }
+            _ => None,
+        }
+    }
+
     /// Resolves Welsh Small Business Rates Relief, including Childcare and Post Office rules
     /// under The Non-Domestic Rating (Small Business Relief) (Wales) Order 2017 (W.S.I. 2017/1229)
     pub fn resolve_welsh_sbrr(

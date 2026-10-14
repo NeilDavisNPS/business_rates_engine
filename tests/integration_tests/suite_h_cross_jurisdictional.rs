@@ -786,9 +786,11 @@ fn test_rhl_relief_applies_in_sbrr_taper_band_england_and_wales() {
 
     let sbrr_eng = seg_eng.itemized_reliefs.iter().find(|r| r.relief_code == "SBRR").expect("SBRR must be present");
     let rhl_eng = seg_eng.itemized_reliefs.iter().find(|r| r.relief_code.starts_with("RHL")).expect("RHL relief must be present in taper band");
-    assert_eq!(sbrr_eng.amount_deducted, dec!(2328.43));
-    assert_eq!(rhl_eng.amount_deducted, dec!(3493.18));
-    assert_eq!(seg_eng.net_segment_payable, dec!(1164.39));
+    // Issue #50: SBRR chargeable amount is 6,986.00 / E (E = 1.500) = £4,657.33, so SBRR is £2,328.67;
+    // RHL 75% of £4,657.33 = £3,493.00; net £1,164.33
+    assert_eq!(sbrr_eng.amount_deducted, dec!(2328.67));
+    assert_eq!(rhl_eng.amount_deducted, dec!(3493.00));
+    assert_eq!(seg_eng.net_segment_payable, dec!(1164.33));
 
     // 2. Wales: RV £9,000 in 2024/25. SBRR 50%, RHL 40% applies to remainder.
     let json_wales = serde_json::json!({

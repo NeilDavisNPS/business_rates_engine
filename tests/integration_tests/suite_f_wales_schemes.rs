@@ -1192,8 +1192,9 @@ async fn test_wales_transitional_relief_with_sbrr_on_both_sides() {
     let seg = &response.annual_billing_segments[0];
 
     assert_eq!(seg.gross_liability, dec!(5522.00));
-    assert_eq!(seg.transitional_adjustment.amount, dec!(2068.26));
-    assert_eq!(seg.net_segment_payable, dec!(2533.22));
+    // Issue #50: BL, NCA and SBRR all use the statutory divisor E (W.S.I. 2017/1229 art. 11(3))
+    assert_eq!(seg.transitional_adjustment.amount, dec!(2068.29));
+    assert_eq!(seg.net_segment_payable, dec!(2533.38));
 }
 
 #[tokio::test]
@@ -1437,4 +1438,30 @@ async fn test_wales_2010_list_no_transitional_relief() {
 
     assert_eq!(seg.transitional_adjustment.amount, dec!(0.00));
     assert_eq!(seg.transitional_adjustment.adjustment_type, "NONE");
+}
+
+#[test]
+fn test_sbrr_taper_uses_statutory_e_divisor_wales() {
+    // Reproduction for Issue #50. W.S.I. 2017/1229 art. 11(3): for RV £6,001-£12,000 E = 6000 / (RV - 6000),
+    // calculated to three decimal places (rounding up or down as appropriate); chargeable amount = (A x M) / E.
+    let engine = CalculationEngine::new(ParameterRepository::new_seeded());
+    let net = |rv: f64| {
+        let json = serde_json::json!({
+            "party_type": "CORPORATE",
+            "hereditament": {
+                "jurisdiction": "WALES",
+                "scat_code": "091",
+                "rateable_value_history": [ { "effective_from": "2023-04-01", "effective_to": null, "rateable_value": rv } ]
+            },
+            "occupation_period": { "start_date": "2024-04-01", "end_date": "2025-03-31" },
+            "occupancy_type": "OCCUPIED",
+            "qualifying_relief_flags": { "apply_transitional_relief": false, "is_small_business_sole_property": true }
+        });
+        let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+        engine.calculate(request).annual_billing_segments[0].net_segment_payable
+    };
+    assert_eq!(net(7000.0), dec!(655.67));   // E = 6.000: 3,934.00 / 6
+    assert_eq!(net(8000.0), dec!(1498.67));  // E = 3.000: 4,496.00 / 3
+    assert_eq!(net(11000.0), dec!(5151.67)); // E = 1.200: 6,182.00 / 1.2
+    assert_eq!(net(9000.0), dec!(2529.00));  // E = 2.000
 }
