@@ -1,191 +1,76 @@
 # Project Standards & Agent Guidelines
 
-## 1. UI & Front-End Accessibility Standards (WCAG 2.1 / 2.2 Level AAA)
-
-All front-end UI modifications in this repository MUST strictly enforce and comply with WCAG Level AAA criteria:
-
-### A. Contrast Ratio (Enhanced — WCAG 1.4.6 Level AAA)
-- **Normal Text** (< 18pt / 24px regular, < 14pt / 18.5px bold): Minimum **7:1** contrast ratio against its effective background in all states.
-- **Large Text** (≥ 18pt / 24px regular, ≥ 14pt / 18.5px bold): Minimum **4.5:1** contrast ratio against its background.
-- **UI Components & Graphical Objects** (WCAG 1.4.11): Minimum **3:1** contrast ratio for button borders, input borders, icons, and focus indicators against adjacent surfaces.
-
-### B. Interactive State Stability (Hover, Active, Focus, Disabled)
-- Hover, active, and focus states must **never** reduce text or border contrast below the required 7:1 threshold.
-- Interactive elements must never lighten or fade into backgrounds on hover. Destructive controls (e.g. Remove / Delete) must invert to solid high-contrast backgrounds (e.g. `bg-red-800` with `text-white`) or darken cleanly.
-- Disabled states must retain legible context and include `aria-disabled="true"` or `disabled` attributes.
-
-### C. Dual Theme Parity (Light & Dark Modes)
-- Every color pair must be independently verified for both Light mode and Dark mode (`dark:` variants).
-- Never use transparent backgrounds on colored text that could render unpredictably across parent containers with different theme backgrounds.
-- Explicitly pair text and background colors on interactive controls.
-
-### D. Focus Indicators (Enhanced — WCAG 2.4.7 / 2.4.13)
-- All interactive controls must feature clearly visible focus outlines (e.g., `focus-visible:ring-2 focus-visible:ring-offset-2`) with at least 3:1 contrast against adjacent background and non-focused states.
-- Focus outlines must not be suppressed (`outline: none` without replacement is strictly forbidden).
-
-### E. Target Size & Spacing (WCAG 2.5.5 Level AAA)
-- All interactive touch targets must meet a minimum size of 44×44 CSS pixels, or provide equivalent hit area via padding and row height (`min-h-[36px]` or `min-h-[44px]` with adequate touch spacing).
-
-### F. Non-Color Dependence & Accessible Context (WCAG 1.4.1, 4.1.2)
-- Never convey state, selection, or destructive action through color alone.
-- Buttons, icons, and table row actions must always have descriptive, accessible names (e.g. `aria-label="{calcStore.t.btn_remove} — {context} #{idx + 1}"`).
+## 1. UI & Front-End Accessibility (WCAG 2.1 / 2.2 Level AAA)
+All UI modifications MUST strictly enforce WCAG Level AAA criteria:
+- **Contrast Ratios (WCAG 1.4.6 / 1.4.11)**:
+  - Normal text (< 18pt / 24px, < 14pt / 18.5px bold): Minimum **7:1** against effective background across all states.
+  - Large text (≥ 18pt / 24px, ≥ 14pt / 18.5px bold): Minimum **4.5:1**.
+  - UI components, borders, icons, and focus indicators: Minimum **3:1**.
+- **Interactive State Stability**: Hover, active, and focus states must never drop below 7:1. Destructive controls must invert to solid high-contrast backgrounds (e.g. `bg-red-800 text-white`). Disabled states must retain context and include `aria-disabled="true"` or `disabled`.
+- **Dual Theme Parity**: Every color pair must be independently verified for Light and Dark modes (`dark:`). No transparent backgrounds on colored text.
+- **Focus Indicators (WCAG 2.4.7 / 2.4.13)**: Clearly visible focus rings (`focus-visible:ring-2 focus-visible:ring-offset-2`) with ≥ 3:1 contrast against adjacent surfaces. `outline: none` without replacement is forbidden.
+- **Target Size & Spacing (WCAG 2.5.5)**: Interactive touch targets must meet ≥ 44×44 CSS px or `min-h-[36px]` / `min-h-[44px]` with adequate touch spacing.
+- **Non-Color Dependence (WCAG 1.4.1 / 4.1.2)**: Never convey state/action through color alone. All interactive elements require descriptive, accessible names (`aria-label`).
 
 ---
 
-## 2. Text Externalisation & Internationalization (i18n) Standards
-
-All user-facing, regulatory, and audit text across both the front end and backend MUST be externalised out of source code so that translations and statutory language can be reviewed, edited, and audited without reading or modifying code.
-
-### A. Front-End (Svelte & TypeScript) Text Externalisation
-- **Zero Hardcoded Strings**: No raw English or natural-language strings in `.svelte`, `.ts`, or `.js` source files.
-- **Scope of Externalisation**:
-  - Headings, subtitles, section titles, card labels, and tab labels.
-  - Button text, form labels, dropdown option labels, placeholders, and tooltips.
-  - Table headers, column labels, badge text, status indicators, and empty state messages.
-  - Accessible names (`aria-label`, `aria-description`, `title` attributes).
-  - External link descriptors (e.g. `title={b.title + calcStore.t.opens_legislation_link}`).
-  - Static statutory timelines, historical narrative summaries, statutory rules, and legislation catalog entries.
-- **Storage Locations**:
-  - All UI strings and statutory framework datasets MUST reside in external JSON catalogs:
-    - English: `frontend/src/locales/en.json`
-    - Welsh (Cymraeg): `frontend/src/locales/cy.json`
-    - Scots: `frontend/src/locales/sco.json`
-    - Scottish Gaelic (Gàidhlig): `frontend/src/locales/gd.json`
-- **Catalog Parity**:
-  - Any key added, modified, or removed in `en.json` MUST be synchronously mirrored across `cy.json`, `sco.json`, and `gd.json`.
-  - Keys must maintain identical hierarchical structures across all 4 files.
-- **Component Access**:
-  - Svelte components must access strings exclusively through the reactive store dictionary: `{calcStore.t.<key>}` or `$derived(calcStore.t.<section>)`.
-
-### B. Backend (Rust Engine) Text Externalisation
-- **Zero Hardcoded Text in Code**: No hardcoded statutory narratives, audit explanations, error messages, or reference code descriptions in `.rs` source code.
-- **External Catalogs**:
-  - Statutory narratives, relief audit notes, and descriptions must be loaded from external data catalogs (e.g., `locales/` JSON/YAML catalogs or external data files).
-  - Translators, legal reviewers, and rating auditors must be able to verify or edit statutory narratives without compiling Rust source code.
-- **Multilingual Support**:
-  - The calculation engine must support English (`en`), Welsh (`cy`), Scots (`sco`), and Scottish Gaelic (`gd`) across:
-    - Calculation audit narratives and step-by-step statutory justifications.
-    - Statutory relief names, authority citations, and qualification notes.
-    - Domain error messages and API error details.
-    - Reference code descriptions (e.g. SCAT codes, relief codes, occupancy types).
-
-### C. Statutory Audit Narrative & Decision Traceability Standards
-The generated legislative narrative MUST provide complete, step-by-step transparency into the calculation so that any ratepayer, billing authority, or rating auditor can see exactly how the final result was arrived at, including the precise legal and statutory basis for every calculation outcome:
-- **Comprehensive Decision & Branch Point Detail**: The narrative must explicitly detail each decision and key branch point evaluated throughout the calculation, including:
-  - Multiplier determination (standard vs. small business multiplier, intermediate/higher property rates, transitional supplements, and city/regional supplements).
-  - Rateable value thresholds and list-specific boundary evaluations (e.g. £50,999 vs £51,000 RV, historical empty property low-value exemptions, Greater London vs outside London thresholds).
-  - Relief qualification, taper calculations, and disqualification decisions (e.g. SBRR/SBBS tapers using statutory divisor $E$, self-catering letting test thresholds, rate-free calendar month periods, multiple-entry restrictions).
-  - Transitional relief calculations, base liability determinations, phasing caps, and carry-forward rules.
-  - Instalment rounding schedules and apportionment methods.
-- **Statutory & Authority Citations**: Every decision and branch point explanation MUST cite its authoritative statutory and legislative source, including Acts of Parliament (e.g. LGFA 1988, NDRA 2023), Statutory Instruments (SIs), Scottish Statutory Instruments (SSIs), Welsh Statutory Instruments (WSIs), regulations, schedules, and specific paragraphs.
-- **Externalised Multilingual Narrative Catalogs**: All narrative templates, decision justifications, branch point explanations, and statutory authority citations must be loaded from external locale catalogs (`locales/{en,cy,sco,gd}.json`) with zero hardcoded English text in Rust source code, maintaining 100% key and structure parity across all four languages.
+## 2. Text Externalisation & Internationalization (i18n)
+All user-facing, regulatory, error, and audit text MUST be externalised from source code into JSON catalogs:
+- **Zero Hardcoded Strings**: No raw English/natural-language strings in `.svelte`, `.ts`, `.js`, or `.rs` files.
+- **Catalogs & 4-Locale Parity**:
+  - Frontend: `frontend/src/locales/{en,cy,sco,gd}.json` (English, Welsh/Cymraeg, Scots, Scottish Gaelic/Gàidhlig).
+  - Backend: `locales/{en,cy,sco,gd}.json`.
+  - Any key added, modified, or removed in `en.json` MUST be synchronously mirrored across `cy.json`, `sco.json`, and `gd.json` with 100% key and hierarchy parity.
+  - Svelte components access strings exclusively via reactive store: `{calcStore.t.<key>}` or `$derived(calcStore.t.<section>)`.
+- **Statutory Audit Narrative & Decision Traceability**:
+  - The engine must generate comprehensive step-by-step legislative narratives detailing all decisions and branch points: multiplier determination, RV threshold boundaries, relief qualification/disqualification, SBRR/SBBS tapers (citing divisor $E$), transitional phasing caps, and instalment schedules.
+  - Every decision and branch point explanation MUST cite its authoritative statutory source: primary Acts (LGFA 1988, NDRA 2023), Statutory Instruments (SIs, SSIs, WSIs), schedules, and regulations.
+  - All narrative templates and statutory citations must load from external locale catalogs with zero hardcoded English in Rust code.
 
 ---
 
-## 3. Statutory Parameter & Configuration Standards (Zero Hardcoded Rating Parameters)
-
-All multipliers, rateable values, thresholds, and tapers MUST be obtained dynamically from configuration or parameter repositories (e.g., `param_multiplier`, `param_sbrr_sbbs_threshold`, `param_sector_relief`, `param_transitional_cap`, or external configuration catalogs) and NOT hardcoded in the Rust code (`.rs` files).
-
-### A. Parameter Scope & Dynamic Loading
-- **Multipliers**: Standard multipliers, small business multipliers, intermediate property rates, higher property rates, transitional supplement additions, large business supplements, and City of London / regional supplements across all rating years and jurisdictions must be loaded from configuration.
-- **Rateable Values & Thresholds**: SBRR/SBBS exemption limits, small business multiplier qualification thresholds (e.g. £50,999 vs £51,000 RV, historical £18,000 / £25,500 thresholds), empty property low-value exemption thresholds (£2,200, £2,600, £2,900, £15,000, £18,000), regional boundaries (e.g. Greater London £28,000 vs outside London £20,000), and property band boundaries must be driven by configuration.
-- **Tapers & Relief Schedules**: Taper rateable value ranges, taper relief percentages, statutory divisor parameters ($E$), and transitional phasing caps must be sourced from configuration rather than embedded as magic numbers in calculation logic.
-
-### B. User Confirmation Requirement for Hardcoding
-- **Ambiguity Protocol**: If you are ever unsure whether a specific financial value, multiplier, rateable value threshold, or taper rule should be hardcoded or obtained from configuration, you MUST obtain explicit user confirmation before hardcoding it in the codebase.
-
-### C. Mandatory End-to-End Exposure of Seeded Parameter Data (API, UI & Catalogs)
-Whenever any new seeded parameter dataset, table, struct, or configuration record is added to or modified in the backend parameter repository (`ParameterRepository` in `src/db/repository.rs`):
-1. **API Exposure & OpenAPI Synchronization**:
-   - The dataset MUST immediately and synchronously be included in the aggregated parameters endpoint payload (`AllParametersResponse` on `GET /api/v1/parameters`), and exposed via its own dedicated REST endpoint (e.g. `GET /api/v1/parameters/<dataset>`).
-   - The OpenAPI 3.1 specifications (`docs/openapi.json` and `docs/openapi.yaml`) MUST synchronously document the endpoint, schema models, and response structures.
-2. **Frontend State & Store Loading**:
-   - The frontend calculation store (`calcStore.loadParameters()` in `frontend/src/stores/calculation.svelte.ts`) and TypeScript domain types (`frontend/src/types/index.ts`) MUST immediately load and store the dataset.
-3. **Frontend UI Visualization & Complete Filtering**:
-   - A dedicated, accessible, collapsible catalog accordion component MUST be added under the **"Explore in-memory seeded statutory rates..."** section in `frontend/src/App.svelte`.
-   - The catalog MUST provide complete table visibility into all seeded fields (including rateable value thresholds, relief/cap percentages, units, statutory authorities, effective date ranges, and national/sub-national tags).
-   - The catalog MUST feature interactive nation filtering buttons (`ALL`, `ENGLAND`, `WALES`, `SCOTLAND`) where applicable, sub-tier or boundary tags (e.g. Greater London vs Outside London), real-time search filtering, and WCAG AAA compliant status badges with distinct jurisdiction colors (England blue, Wales emerald, Scotland purple).
-4. **Text Externalisation (4-Locale Parity)**:
-   - All catalog titles, subtitles, seeded count badges, table headers, search placeholders, filter buttons, and unit labels MUST be externalised into `frontend/src/locales/{en,cy,sco,gd}.json` with 100% key parity across all 4 languages.
-5. **Documentation & Specification Audit**:
-   - The dataset, its fields, seed functions, and lookup methods must immediately be documented in `business-rates-engine-spec-and-tests.md`.
+## 3. Statutory Parameters & Configuration (Zero Magic Numbers)
+All rating values, multipliers, rateable value thresholds, tapers, divisor $E$, and transitional caps MUST be dynamically resolved from configuration/repository tables (`ParameterRepository` in `src/db/repository.rs`), NEVER hardcoded in `.rs` files.
+- **Ambiguity Protocol**: If unsure whether a financial value, threshold, or taper rule should be hardcoded or parameterized, you MUST obtain explicit user confirmation before hardcoding.
+- **Mandatory End-to-End Parameter Exposure**: Whenever a seeded dataset/table/record is added or modified in `ParameterRepository`:
+  1. **API & OpenAPI**: Expose in aggregated `GET /api/v1/parameters` (`AllParametersResponse`) and a dedicated `GET /api/v1/parameters/<dataset>` endpoint. Synchronously document in `docs/openapi.json` and `docs/openapi.yaml`.
+  2. **Frontend Store**: Load and type in `calcStore.loadParameters()` (`frontend/src/stores/calculation.svelte.ts`) and TypeScript domain types (`frontend/src/types/index.ts`).
+  3. **Frontend UI Visualization**: Add an accessible, collapsible accordion catalog under "Explore in-memory seeded statutory rates..." in `frontend/src/App.svelte` displaying all fields, nation filters (`ALL`, `ENGLAND`, `WALES`, `SCOTLAND`), sub-tier tags, search filter, and WCAG AAA badges (England blue, Wales emerald, Scotland purple).
+  4. **Text Externalisation**: Mirror catalog headers, titles, filter labels, and badges across `frontend/src/locales/{en,cy,sco,gd}.json` (100% key parity).
+  5. **Documentation**: Document dataset, fields, seed functions, and lookup methods in `business-rates-engine-spec-and-tests.md`.
 
 ---
 
-## 4. Statutory In-Code Comments & Legislative Cross-Referencing Standards
-
-All calculation engine logic, algorithms, formulas, and branch evaluations in the Rust codebase (`src/engine/` and related modules) MUST include clear, detailed code comments that explicitly reference the governing legislation:
-
-### A. Mandatory Legislative Citations in Calculation Logic
-- **Scope of In-Code Comments**: Every calculation function, formula, conditional branch point, statutory threshold evaluation, taper divisor calculation, relief apportionment, and exemption check MUST have explanatory code comments citing the relevant legislative authority.
-- **Specific Legal References**: Comments must cite the authoritative statutory sources with precision, including:
-  - Primary legislation: Acts of Parliament (e.g. Local Government Finance Act 1988, Non-Domestic Rating Act 2023) with section and schedule/paragraph citations (e.g. `// LGFA 1988 Sched 7 para A4`).
-  - Secondary legislation: Statutory Instruments (SIs), Scottish Statutory Instruments (SSIs), and Welsh Statutory Instruments (WSIs) with year, number, regulation, article, and paragraph citations (e.g. `// Non-Domestic Rating (Unoccupied Property) (England) Regulations 2008 (S.I. 2008/386), reg 4`).
-  - Devolved amendment regulations and commencement orders (e.g. `// Non-Domestic Rates (Levying and Miscellaneous Amendment) (Scotland) Regulations 2025 (S.S.I. 2025/37), reg 3`).
-
-### B. Code Reviewability Against Legislation
-- **Direct Statutory Verifiability**: Any software engineer, legal reviewer, rating auditor, or billing authority reviewing the Rust calculation engine source code must be able to verify each line of mathematical logic and each branch decision directly against the cited statutory provision without ambiguity or guesswork.
-- **Decision Logic Context**: In addition to legal citations, comments must briefly clarify the statutory intent of complex calculations (e.g. whole-pound instalment truncation under S.I. 1989/1058, statutory divisor $E$ rounding under S.I. 2017/102, calendar-month leap year boundaries, and relief ordering hierarchy).
+## 4. Statutory In-Code Comments & Cross-Referencing
+All calculation engine logic, formulas, algorithms, and branch evaluations in `src/engine/` MUST include detailed code comments citing governing legislation:
+- **Precision Citations**: Primary Acts with section/schedule/paragraph (e.g. `// LGFA 1988 Sched 7 para A4`), secondary legislation with year/number/regulation (e.g. `// Non-Domestic Rating (Unoccupied Property) (England) Regs 2008 (S.I. 2008/386) reg 4`), and devolved Scottish/Welsh SIs.
+- **Statutory Intent**: Explain non-obvious rating logic (e.g. whole-pound instalment truncation under S.I. 1989/1058, divisor $E$ rounding under S.I. 2017/102, calendar-month leap year boundaries, relief ordering hierarchy) so auditors can verify mathematical logic directly against legislation.
 
 ---
 
 ## 5. Verification & Quality Gates
-
-Before committing any changes:
-1. **Frontend Build & Diagnostics**:
-   - Run `svelte-check` — 0 errors, 0 warnings.
-   - Run `vite build` — production bundle completes successfully.
-2. **Backend Build & Test Suite**:
-   - Run `cargo test` — all integration tests pass with 0 regressions.
-3. **Accessibility Audit**:
-   - Verify that all modified text/background pairs exceed **7:1** contrast ratio (Level AAA) in default, hover, active, and focus states.
-   - Verify focus indicator visibility (≥ 3:1 contrast) and touch target spacing.
-4. **i18n & Externalisation Audit**:
-   - Verify zero hardcoded strings were introduced in `.svelte` or `.rs` files.
-   - Verify key parity across `frontend/src/locales/{en,cy,sco,gd}.json` (no missing keys).
-5. **Parameter & Configuration Audit**:
-   - Verify that all multipliers, rateable values, thresholds, and tapers introduced or amended are obtained from configuration or parameter repositories, with zero hardcoded rating values in Rust code.
-6. **Statutory Audit Narrative & Traceability Audit**:
-   - Verify that all calculation decisions and key branch points produce detailed narrative output citing the relevant legislative source.
-   - Verify key parity and externalisation across all 4 locales in `locales/{en,cy,sco,gd}.json` for any new narrative elements.
-7. **Statutory In-Code Documentation Audit**:
-   - Verify that all calculation engine functions, formulas, and branch evaluations in modified Rust code contain code comments with authoritative citations to the governing Acts, regulations, schedules, and paragraphs.
-8. **Documentation & OpenAPI Specification Audit**:
-   - Verify that all newly cited legislation, Acts of Parliament, statutory instruments (SIs, SSIs, WSIs), regulations, and new tests are recorded in `business-rates-engine-spec-and-tests.md`.
-   - Verify that all newly identified legislation, statutory instruments, and regulations are added to the country-specific statutory basis information on the sandbox page across `frontend/src/locales/{en,cy,sco,gd}.json`.
-   - Fully review all sections below `legislation` in the statutory framework catalog (`currentRegimeSummary`, `preDevolution`, `ratingLists`) across all 4 locales (`frontend/src/locales/{en,cy,sco,gd}.json`) to ensure ongoing statutory accuracy, complete citations, correct multipliers, relief highlights, and rating list descriptions.
-   - Verify that `docs/openapi.json` and `docs/openapi.yaml` accurately document any new domain interface fields, request/response models, or relief flags.
-9. **Seeded Parameter Exposure Audit**:
-   - Verify that 100% of all seeded datasets and tables in `src/db/repository.rs` are exposed via `/api/v1/parameters`, documented in OpenAPI, loaded into `calcStore`, and visualized in the UI with filterable catalogs, WCAG AAA compliance, and 4-locale i18n parity.
+Before committing any changes, verify all quality gates:
+1. **Frontend**: `svelte-check` (0 errors, 0 warnings), `vite build` (bundle completes).
+2. **Backend**: `cargo test` (all tests pass, 0 regressions), `cargo clippy --all-targets -- -D warnings` (0 warnings).
+3. **Accessibility**: All modified text/background pairs ≥ 7:1 (AAA) in default/hover/active/focus/disabled across light and dark modes; focus rings ≥ 3:1; touch targets ≥ 44px.
+4. **i18n**: Zero hardcoded strings in `.svelte` or `.rs`; 100% key parity across `frontend/src/locales/{en,cy,sco,gd}.json` and `locales/{en,cy,sco,gd}.json`.
+5. **Zero Magic Numbers**: Dynamic parameter resolution verified; no hardcoded rating values in `.rs`.
+6. **Audit Narrative**: Step-by-step legislative justification with statutory citations verified across all 4 locales.
+7. **In-Code Comments**: Governing legislation cited for every formula and branch point in modified code.
+8. **Documentation & OpenAPI**: Synchronously update `business-rates-engine-spec-and-tests.md`, `docs/openapi.{json,yaml}`, and `statutory_framework` in `frontend/src/locales/` (including `currentRegimeSummary`, `preDevolution`, `ratingLists`).
+9. **Seeded Parameters**: 100% exposure in API, OpenAPI, `calcStore`, and UI catalogs with filtering and 4-locale i18n parity.
 
 ---
 
 ## 6. GitHub Issue Resolution Workflow
-
-Whenever investigating, fixing, or resolving an issue raised on GitHub against this project, you MUST strictly adhere to the following sequence:
-
-1. **Review Statutory & Legislative Context**:
-   - Thoroughly review the issue description, including any relevant legislation, Acts of Parliament (e.g. LGFA 1988, NDRA 2023), statutory instruments (SIs), or devolved Scottish/Welsh regulations.
-2. **Dispute / Explanation Protocol**:
-   - If you do not agree with the issue based on statutory provisions or engine architecture, update the GitHub issue with a clear, evidenced explanation citing the relevant legislation or rationale before taking any code action.
-3. **Reproduce via Failing Test Case**:
-   - If you agree with the issue, first create a failing test case in `tests/integration_tests.rs` (or the relevant frontend test suite) that explicitly reproduces and demonstrates the reported issue.
-4. **Implement the Fix**:
-   - Fix the issue in the code, ensuring strict adherence to WCAG AAA accessibility, text externalisation (i18n), ensuring all multipliers, rateable values, and tapers are obtained from configuration and not hardcoded in the Rust code (obtaining user confirmation first if unsure whether a value should be hardcoded), ensuring that the generated legislative narrative details all decisions and key branch points with authoritative statutory citations, and ensuring that all calculation engine code contains comprehensive code comments referencing the governing legislation for every formula and branch point.
-5. **Verify the Failing Test Passes**:
-   - Re-run the specific test case created in Step 3 to confirm that the issue is resolved and the test now passes cleanly.
-6. **Review Documentation, Specifications & OpenAPI Interfaces**:
-   - Review and update all documentation before committing the fix.
-   - Ensure that any citations, legislation, statutory instruments (SIs, SSIs, WSIs), regulations, and newly created tests are added to `business-rates-engine-spec-and-tests.md`.
-   - Where new legislation, statutory instruments, or regulations are identified or updated, ensure they are added to the country-specific statutory basis information on the sandbox page (within the `statutory_framework` catalog across `frontend/src/locales/{en,cy,sco,gd}.json` rendered in `SummaryKpiCards.svelte`), maintaining strict key parity across all 4 languages.
-   - Fully review the information below `legislation` in the statutory framework catalog—including `currentRegimeSummary` (regime subtitles, multiplier architecture grids, relief highlights), `preDevolution` (era narrative and historical rules), and `ratingLists` (multipliers, SBRR rules, transition rules, and statutory authorities)—to ensure they are still completely correct and accurately reflect any newly added or amended statutory provisions, multipliers, relief qualifications, or exclusions.
-   - Ensure that narrative catalogs across `locales/{en,cy,sco,gd}.json` and `frontend/src/locales/{en,cy,sco,gd}.json` are updated synchronously with complete statutory references.
-   - Ensure the OpenAPI documents (`docs/openapi.json` and `docs/openapi.yaml`) are updated synchronously with any changes to the interfaces, data models, or relief flags.
-7. **Run Full Test Suite (Zero Regressions)**:
-   - Run the complete test suite (`cargo test`, `cargo clippy --all-targets -- -D warnings`, `npm run check`, `npm run build`) to confirm there are no regression issues.
-8. **Commit the Fix Referencing the Issue**:
-   - Commit the fix referencing the GitHub issue number in the commit message (e.g. `fix: ... (fixes #123)`).
-9. **Update GitHub Issue with Fix Analysis**:
-   - Update the GitHub issue with a clear, comprehensive analysis of the fix done, explaining the statutory/legislative context, the reproducing test case, the implementation details, the documentation/OpenAPI updates, and verification results.
-10. **Batched Push Policy & User Confirmation**:
-   - If multiple issues are being fixed in a batch or session, commit each fix individually, but only push to GitHub once ALL of the targeted issues have been completely fixed and verified. Always obtain explicit user confirmation before batch pushing to GitHub.
+When investigating, fixing, or resolving issues raised on GitHub, strictly follow this sequence:
+1. **Review Statutory Context**: Analyze issue description against governing Acts (LGFA 1988, NDRA 2023), SIs, SSIs, and WSIs.
+2. **Dispute / Explanation Protocol**: If disagreeing based on legislation or architecture, update GitHub issue with clear statutory justification before modifying code.
+3. **Reproduce via Failing Test**: Write a failing integration test in `tests/integration_tests/` (or frontend suite) demonstrating the issue.
+4. **Implement Fix**: Address issue adhering to WCAG AAA, i18n externalisation, zero magic numbers, narrative traceability, and in-code statutory comments.
+5. **Verify Test Passes**: Confirm the reproducing test passes cleanly.
+6. **Update Documentation & OpenAPI**: Update `business-rates-engine-spec-and-tests.md`, `docs/openapi.{json,yaml}`, narrative catalogs, and `statutory_framework` across all 4 locales.
+7. **Run Full Test Suite**: Execute `cargo test`, `cargo clippy --all-targets -- -D warnings`, `npm run check`, `npm run build` (0 errors, 0 warnings, 0 regressions).
+8. **Commit Fix**: Commit locally referencing the issue: `git commit -m "fix: ... (fixes #<id>)"`.
+9. **Post Issue Fix Analysis**: Comment on the GitHub issue with comprehensive analysis: statutory context, reproducing test, implementation details, documentation updates, and test verification.
+10. **Batched Push Policy & User Confirmation**: Commit each fix individually. Only push to `origin/main` once ALL targeted issues are fixed and verified. **Always obtain explicit user confirmation before batch pushing to GitHub.**
