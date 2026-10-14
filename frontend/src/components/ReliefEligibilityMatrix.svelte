@@ -106,6 +106,51 @@
         </label>
       {/if}
 
+      <!-- Scottish Small Business Bonus Scheme Multiple Property Rules (Scotland only - SSI 2023/30 reg 4) -->
+      {#if calcStore.jurisdiction === 'SCOTLAND'}
+        <div class="p-2.5 rounded-lg border border-purple-200 bg-purple-50/40 space-y-2.5 md:col-span-2">
+          <label class="flex items-start space-x-2.5 cursor-pointer min-h-[44px]">
+            <input
+              type="checkbox"
+              bind:checked={calcStore.qualifyingReliefFlags.is_small_business_multiple_properties}
+              onchange={onFlagChange}
+              class="mt-0.5 rounded text-purple-700 focus:ring-purple-600"
+            />
+            <div>
+              <span class="text-xs font-bold text-purple-950 block">{calcStore.t.flag_sbbs_multiple_title}</span>
+              <span class="text-[11px] text-purple-900">{calcStore.t.flag_sbbs_multiple_desc}</span>
+            </div>
+          </label>
+
+          {#if calcStore.qualifyingReliefFlags.is_small_business_multiple_properties}
+            <div class="pt-2 border-t border-purple-200/60 flex flex-col sm:flex-row sm:items-center sm:space-x-3 space-y-1 sm:space-y-0">
+              <label for="sbbsCumulativeRvInput" class="text-xs font-semibold text-purple-950 min-w-[200px]">
+                {calcStore.t.flag_sbbs_cumulative_rv_title}
+              </label>
+              <div class="relative rounded-md shadow-sm max-w-xs">
+                <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-purple-900 text-xs font-bold">
+                  £
+                </span>
+                <input
+                  id="sbbsCumulativeRvInput"
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="35000"
+                  bind:value={calcStore.qualifyingReliefFlags.small_business_cumulative_rv}
+                  oninput={onFlagChange}
+                  class="pl-6 pr-3 py-1.5 text-xs border border-purple-300 rounded bg-white font-mono font-medium text-purple-950 focus:ring-2 focus:ring-purple-600 focus:border-purple-600 w-full min-h-[44px]"
+                  aria-describedby="sbbsCumulativeRvHelp"
+                />
+              </div>
+              <span id="sbbsCumulativeRvHelp" class="text-[11px] text-purple-900">
+                {calcStore.t.flag_sbbs_cumulative_rv_desc}
+              </span>
+            </div>
+          {/if}
+        </div>
+      {/if}
+
       <!-- Mandatory Charitable Relief (All nations) -->
       <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
         <input

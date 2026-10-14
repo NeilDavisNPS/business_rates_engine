@@ -67,6 +67,10 @@ pub struct QualifyingReliefFlags {
     #[serde(default)]
     pub is_small_business_second_property: bool,
     #[serde(default)]
+    pub is_small_business_multiple_properties: bool,
+    #[serde(default)]
+    pub small_business_cumulative_rv: Option<Decimal>,
+    #[serde(default)]
     pub is_registered_childcare: bool,
     #[serde(default)]
     pub is_post_office: bool,

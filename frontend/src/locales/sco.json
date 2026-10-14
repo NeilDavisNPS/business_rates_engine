@@ -753,5 +753,10 @@
   "scat_084": "084 - Day Nursery / Crèche / Registered Bairn-Care",
   "scat_227": "227 - Post Office",
   "scat_024": "024 - Beach Hut",
-  "scat_050": "050 - Caur Pairk (Surface / Multi-Storey)"
+  "scat_050": "050 - Caur Pairk (Surface / Multi-Storey)",
+  "scat_027": "027 - Bettin Office / Bookies",
+  "flag_sbbs_multiple_title": "Scots Muckle Properties (Reg. 4)",
+  "flag_sbbs_multiple_desc": "Ratepayer occupies mair nor ane nan-domestic property in Scotland unner SSI 2023/30 reg. 4 (cumulative RV maunna gang ower £35,000).",
+  "flag_sbbs_cumulative_rv_title": "Cumulative Scots Rateable Value (£)",
+  "flag_sbbs_cumulative_rv_desc": "Totall rateable value athort aw occupied launds an heritages in Scotland (maunna gang ower £35,000 cap)."
 }

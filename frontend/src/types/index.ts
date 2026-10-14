@@ -29,6 +29,8 @@ export interface QualifyingReliefFlags {
   is_small_business_sole_property: boolean;
   is_small_business_second_property_grace?: boolean;
   is_small_business_second_property?: boolean;
+  is_small_business_multiple_properties?: boolean;
+  small_business_cumulative_rv?: number | null;
   is_registered_childcare?: boolean;
   is_post_office?: boolean;
   is_charitable_purposes: boolean;

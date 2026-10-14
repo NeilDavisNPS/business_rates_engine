@@ -321,6 +321,10 @@
       "050": {
         "label": "050 - Pàirceadh Chàraichean (Uachdar / Ioma-làr)",
         "description": "Togalaichean pàirceadh charbadan. Air an toirmeasg gu sònraichte bho fhaochadh reataichean gnìomhachasan beaga na Cuimrigh fo W.S.I. 2017/1229 art. 2."
+      },
+      "027": {
+        "label": "027 - Oifis Geall / Luchd-geall",
+        "description": "Togalaichean geall. Air an dùnadh a-mach gu soilleir bho Sgeama Bònas Gnìomhachasan Beaga na h-Alba (SBBS) fo SSI 2023/30 riagh. 3(5)."
       }
     },
     "MULTIPLIER_TYPE": {

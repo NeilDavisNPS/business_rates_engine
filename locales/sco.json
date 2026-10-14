@@ -321,6 +321,10 @@
       "050": {
         "label": "050 - Caur Pairk (Surface / Multi-Storey)",
         "description": "Vehicle pairkin premises. Exeemed explicitly frae Welsh sma business rates relief unner W.S.I. 2017/1229 airt. 2."
+      },
+      "027": {
+        "label": "027 - Bettin Office / Bookies",
+        "description": "Bettin premises. Expleecitly excludit frae the Scots Sma Business Bonus Scheme (SBBS) unner SSI 2023/30 reg. 3(5)."
       }
     },
     "MULTIPLIER_TYPE": {

@@ -2564,9 +2564,14 @@ async fn test_scottish_sbbs_tr_2023_list_600_cap() {
     let response = engine.calculate(request);
     let seg = &response.annual_billing_segments[0];
 
+    // Under SSI 2023/30 reg 3, RV £14,000 qualifies for 50% SBBS (£3,486.00).
+    // Chargeable after SBBS = £3,486.00.
+    // SBBS TR under SSI 2023/45 caps the net bill increase over previous year (£0) to £600.
+    // SBBS TR deduction = £3,486.00 - £600.00 = £2,886.00.
+    // Net segment payable = £600.00.
     let sbbs_tr = seg.itemized_reliefs.iter().find(|r| r.relief_code == "SBBS_TR");
     assert!(sbbs_tr.is_some(), "Expected SBBS TR to be awarded");
-    assert_eq!(sbbs_tr.unwrap().amount_deducted, dec!(4629.00));
+    assert_eq!(sbbs_tr.unwrap().amount_deducted, dec!(2886.00));
     assert_eq!(sbbs_tr.unwrap().relief_name, "Small Business Bonus Scheme Transitional Relief");
     assert_eq!(seg.net_segment_payable, dec!(600.00));
 }
@@ -2577,14 +2582,18 @@ async fn test_scottish_sbbs_tr_2026_list_25_percent_cap() {
     let engine = CalculationEngine::new(repo);
 
     // Scottish property with RV £10,000 in 2025/26 receiving 100% SBBS (net = £0).
-    // In 2026/27, RV revalued to £16,000 (standard rate 0.545, 0% SBBS).
+    // In 2026/27, RV revalued to £16,000 (standard rate 0.545).
     // Base liability = £10,000 * 0.498 = £4,980.00.
     // 2026 General TR (+12.5%): capped gross = £4,980 * 1.125 = £5,602.50.
     // Gross = £16,000 * 0.545 = £8,720.00 -> General TR deduction = £3,117.50.
     // Chargeable after General TR = £5,602.50.
-    // Under 2026 SBBS TR, the net bill increase over previous year (£0) is capped to 25%:
-    // Ratepayer pays 25% of £5,602.50 = £1,400.62.
-    // SBBS TR deducts 75% of £5,602.50 = £4,201.88.
+    // Under SSI 2023/30 reg 3(3) / SSI 2026/68 reg 3(3), RV £16,000 receives 20% SBBS:
+    // SBBS deduction = 20% of £5,602.50 = £1,120.50.
+    // Net before SBBS TR = £5,602.50 - £1,120.50 = £4,482.00.
+    // Under 2026 SBBS TR (SSI 2026/70 reg. 14), the net bill increase over previous year (£0) is capped to 25%:
+    // Ratepayer pays 25% of £4,482.00 = £1,120.50.
+    // SBBS TR deducts 75% of £4,482.00 = £3,361.50.
+    // Net segment payable = £1,120.50.
     let request = LiabilityCalculationRequest {
         party_type: PartyType::CORPORATE,
         occupation_period: DateRange {
@@ -2625,8 +2634,8 @@ async fn test_scottish_sbbs_tr_2026_list_25_percent_cap() {
 
     let sbbs_tr = seg.itemized_reliefs.iter().find(|r| r.relief_code == "SBBS_TR");
     assert!(sbbs_tr.is_some(), "Expected SBBS TR to be awarded in 2026/27");
-    assert_eq!(sbbs_tr.unwrap().amount_deducted, dec!(4201.88));
-    assert_eq!(seg.net_segment_payable, dec!(1400.62));
+    assert_eq!(sbbs_tr.unwrap().amount_deducted, dec!(3361.50));
+    assert_eq!(seg.net_segment_payable, dec!(1120.50));
 }
 
 #[tokio::test]
@@ -6018,6 +6027,174 @@ async fn test_wales_sbrr_part_occupied_excluded() {
     assert!(!seg.itemized_reliefs.iter().any(|r| r.relief_code.contains("SBRR")),
         "Part-occupied property in Wales must not receive SBRR under W.S.I. 2017/1229 art. 7(c)");
 }
+
+#[tokio::test]
+async fn test_scotland_sbbs_taper_band_12k_to_15k() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Reproduction for Issue #19: Scotland 2024/25, sole property, RV £13,500
+    // Under SSI 2024/4 reg 3, relief tapers from 100% to 25%:
+    // Relief = 25% + 75% * (15,000 - 13,500)/3,000 = 62.5%
+    // Gross = 13,500 * 0.498 = £6,723.00
+    // Relief amount = £4,201.88 -> Net = £2,521.13 (currently fails with 25% / £5,042.25)
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "SCOTLAND",
+            "scat_code": "091",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 13500.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_small_business_sole_property": true,
+            "apply_transitional_relief": false
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    let sbbs = seg.itemized_reliefs.iter().find(|r| r.relief_code == "SBBS").expect("SBBS should apply");
+    assert_eq!(sbbs.discount_percentage, dec!(62.50));
+    assert_eq!(seg.net_segment_payable, dec!(2521.12));
+}
+
+#[tokio::test]
+async fn test_scotland_sbbs_taper_band_15k_to_20k() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Reproduction for Issue #19: Scotland 2024/25, sole property, RV £17,000
+    // Under SSI 2024/4 reg 3, relief tapers from 25% to 0%:
+    // Relief = 25% * (20,000 - 17,000)/5,000 = 15.0%
+    // Gross = 17,000 * 0.498 = £8,466.00
+    // Relief amount = £1,269.90 -> Net = £7,196.10 (currently fails with 0% / £8,466.00)
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "SCOTLAND",
+            "scat_code": "091",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 17000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_small_business_sole_property": true,
+            "apply_transitional_relief": false
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    let sbbs = seg.itemized_reliefs.iter().find(|r| r.relief_code == "SBBS").expect("SBBS should apply");
+    assert_eq!(sbbs.discount_percentage, dec!(15.00));
+    assert_eq!(seg.net_segment_payable, dec!(7196.10));
+}
+
+#[tokio::test]
+async fn test_scotland_sbbs_multiple_properties_rule_reg_4() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Reproduction for Issue #19: Multiple properties in Scotland (SSI 2024/4 reg 4)
+    // Ratepayer has multiple entries with cumulative RV £25,000 (<= £35,000 cap).
+    // This individual property has RV £10,000. Under Reg 4, it receives 25% relief.
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "SCOTLAND",
+            "scat_code": "091",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 10000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_small_business_multiple_properties": true,
+            "small_business_cumulative_rv": 25000.00,
+            "apply_transitional_relief": false
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    let sbbs = seg.itemized_reliefs.iter().find(|r| r.relief_code == "SBBS").expect("Multiple-property SBBS should apply under reg 4");
+    assert_eq!(sbbs.discount_percentage, dec!(25.00));
+    assert!(sbbs.statutory_authority.contains("reg. 4"));
+}
+
+#[tokio::test]
+async fn test_scotland_sbbs_multiple_properties_exceeding_35k_cap() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Reproduction for Issue #19: Multiple properties in Scotland exceeding £35k cumulative cap
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "SCOTLAND",
+            "scat_code": "091",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 10000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_small_business_multiple_properties": true,
+            "small_business_cumulative_rv": 40000.00,
+            "apply_transitional_relief": false
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    assert!(!seg.itemized_reliefs.iter().any(|r| r.relief_code == "SBBS"),
+        "Multiple properties exceeding £35,000 cumulative RV must receive 0% SBBS relief");
+}
+
 
 
 

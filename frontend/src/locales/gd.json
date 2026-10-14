@@ -753,5 +753,10 @@
   "scat_084": "084 - Sgoil-àraich Latha / Crèche / Cùram Chloinne Clàraichte",
   "scat_227": "227 - Oifis a' Phuist",
   "scat_024": "024 - Bothan Cladaich",
-  "scat_050": "050 - Pàirceadh Chàraichean (Uachdar / Ioma-làr)"
+  "scat_050": "050 - Pàirceadh Chàraichean (Uachdar / Ioma-làr)",
+  "scat_027": "027 - Oifis Geall / Luchd-geall",
+  "flag_sbbs_multiple_title": "Ioma-thogalaichean Albannach (Riagh. 4)",
+  "flag_sbbs_multiple_desc": "Bidh an neach-pàighidh reat a' gabhail barrachd air aon togalach neo-dhachaigheil ann an Alba fo SSI 2023/30 riagh. 4 (chan fhaod an RV tionalach a dhol thairis air £35,000).",
+  "flag_sbbs_cumulative_rv_title": "Luach Reataichte Tionalach Albannach (£)",
+  "flag_sbbs_cumulative_rv_desc": "Luach reataichte iomlan thar gach fearann agus oighreachd a thathar a' gabhail ann an Alba (chan fhaod e dhol thairis air a' chrìoch de £35,000)."
 }

@@ -247,6 +247,10 @@
       "050": {
         "label": "050 - Maes Parcio (Arwyneb / Aml-Lawr)",
         "description": "Mangreoedd parcio cerbydau. Wedi'u heithrio'n benodol o ryddhad ardrethi busnesau bach Cymru o dan O.S.C. 2017/1229 rhag. 2."
+      },
+      "027": {
+        "label": "027 - Swyddfa Fetio / Bwcis",
+        "description": "Mangreoedd betio. Wedi'u heithrio'n benodol o Gynllun Bonws Busnesau Bach yr Alban (SBBS) o dan O.A.A. 2023/30 rhag. 3(5)."
       }
     },
     "RELIEF_CODE": {

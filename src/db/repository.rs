@@ -362,6 +362,10 @@ impl ParameterRepository {
 
     /// Resolves SBRR / SBBS discount percentage and statutory authority
     pub fn resolve_sbrr(&self, jurisdiction: Jurisdiction, financial_year: &str, rv: Decimal) -> Option<SbrrResolution> {
+        if jurisdiction == Jurisdiction::SCOTLAND && financial_year >= "2023/24" {
+            return self.resolve_scottish_sbbs(financial_year, rv, false, None);
+        }
+
         let records: Vec<&ParamSbrrSbbsThreshold> = self.sbrr_thresholds.iter()
             .filter(|s| s.jurisdiction == jurisdiction && s.financial_year == financial_year)
             .collect();
@@ -481,6 +485,106 @@ impl ParameterRepository {
         self.resolve_sbrr(Jurisdiction::WALES, financial_year, rv)
     }
 
+    /// Resolves Scottish Small Business Bonus Scheme (SBBS) relief percentage and statutory authority
+    /// under S.S.I. 2023/30, S.S.I. 2024/4, S.S.I. 2025/38, and S.S.I. 2026/68.
+    pub fn resolve_scottish_sbbs(
+        &self,
+        financial_year: &str,
+        rv: Decimal,
+        is_multiple: bool,
+        cumulative_rv: Option<Decimal>,
+    ) -> Option<SbrrResolution> {
+        let is_multi = is_multiple || cumulative_rv.is_some();
+        let authority = match financial_year {
+            "2023/24" => if is_multi { "S.S.I. 2023/30 reg. 4" } else { "S.S.I. 2023/30 reg. 3" },
+            "2024/25" => if is_multi { "S.S.I. 2024/4 reg. 4" } else { "S.S.I. 2024/4 reg. 3" },
+            "2025/26" => if is_multi { "S.S.I. 2025/38 reg. 4" } else { "S.S.I. 2025/38 reg. 3" },
+            "2026/27" => if is_multi { "S.S.I. 2026/68 reg. 4" } else { "S.S.I. 2026/68 reg. 3" },
+            _ => if is_multi { "S.S.I. 2026/68 reg. 4" } else { "S.S.I. 2026/68 reg. 3" },
+        };
+
+        if is_multi {
+            // Reg 4: Multiple entries with cumulative RV <= £35,000
+            let cum = cumulative_rv.unwrap_or(rv);
+            if cum > dec!(35000.00) {
+                return None;
+            }
+            let pct = if cum <= dec!(12000.00) {
+                dec!(100.00)
+            } else if rv <= dec!(15000.00) {
+                dec!(25.00)
+            } else if rv <= dec!(20000.00) {
+                ((dec!(20000.00) - rv) * dec!(25.00) / dec!(5000.00)).round_dp(2)
+            } else {
+                return None;
+            };
+
+            return Some(SbrrResolution {
+                relief_code: "SBBS".to_string(),
+                relief_name: "Small Business Bonus Scheme".to_string(),
+                statutory_authority: authority.to_string(),
+                discount_percentage: pct,
+            });
+        }
+
+        // Reg 3: Single entry in the roll (2023 list and 2026/27)
+        if financial_year >= "2023/24" {
+            let pct = if rv <= dec!(12000.00) {
+                dec!(100.00)
+            } else if rv <= dec!(15000.00) {
+                // Straight taper from 100% down to 25%:
+                // 100 - 75 * (1 - (15,000 - RV) / 3,000) = 25 + 75 * (15,000 - RV) / 3,000
+                (dec!(25.00) + (dec!(15000.00) - rv) * dec!(75.00) / dec!(3000.00)).round_dp(2)
+            } else if rv <= dec!(20000.00) {
+                // Straight taper from 25% down to 0%:
+                // 25 * (20,000 - RV) / 5,000
+                ((dec!(20000.00) - rv) * dec!(25.00) / dec!(5000.00)).round_dp(2)
+            } else {
+                return None;
+            };
+
+            return Some(SbrrResolution {
+                relief_code: "SBBS".to_string(),
+                relief_name: "Small Business Bonus Scheme".to_string(),
+                statutory_authority: authority.to_string(),
+                discount_percentage: pct,
+            });
+        }
+
+        // Pre-2023 lists: use database table matching
+        let records: Vec<&ParamSbrrSbbsThreshold> = self.sbrr_thresholds.iter()
+            .filter(|s| s.jurisdiction == Jurisdiction::SCOTLAND && s.financial_year == financial_year)
+            .collect();
+        for record in records {
+            if rv >= record.min_rv && rv <= record.max_rv {
+                let pct = if record.is_tapered {
+                    let range = record.max_rv - record.min_rv;
+                    if range.is_zero() {
+                        record.relief_percentage
+                    } else {
+                        ((record.max_rv - rv) / range * record.relief_percentage).round_dp(2)
+                    }
+                } else {
+                    record.relief_percentage
+                };
+                let authority = if financial_year >= "2017/18" {
+                    "SSI 2017/36"
+                } else if financial_year >= "2010/11" {
+                    "SSI 2010/37"
+                } else {
+                    "SSI 2008/106"
+                };
+                return Some(SbrrResolution {
+                    relief_code: "SBBS".to_string(),
+                    relief_name: "Small Business Bonus Scheme".to_string(),
+                    statutory_authority: authority.to_string(),
+                    discount_percentage: pct,
+                });
+            }
+        }
+        None
+    }
+
     /// Resolves Sector Relief (e.g. Retail, Hospitality & Leisure)
     pub fn resolve_sector_relief(
         &self,
@@ -564,15 +668,15 @@ impl ParameterRepository {
             ),
             "2026/27" => (
                 SbbsTrCapType::PercentageOfIncrease(dec!(25.00)),
-                "Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2026 (SSI 2026/50) Part 3",
+                "Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2026 (SSI 2026/70) reg. 14",
             ),
             "2027/28" => (
                 SbbsTrCapType::PercentageOfIncrease(dec!(50.00)),
-                "Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2026 (SSI 2026/50) Part 3",
+                "Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2026 (SSI 2026/70) reg. 14",
             ),
             "2028/29" => (
                 SbbsTrCapType::PercentageOfIncrease(dec!(75.00)),
-                "Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2026 (SSI 2026/50) Part 3",
+                "Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2026 (SSI 2026/70) reg. 14",
             ),
             _ => return None,
         };
@@ -1135,11 +1239,12 @@ impl RepoData {
         add("SCAT_CODE", "227", "227 - Post Office", "Post office premises eligible for 100% SBRR up to £9,000 RV and 50% relief up to £12,000 RV in Wales under W.S.I. 2017/1229 art. 9.", None, 9);
         add("SCAT_CODE", "024", "024 - Beach Hut", "Beach hut. Explicitly excepted from Welsh small business rates relief under W.S.I. 2017/1229 art. 2.", None, 10);
         add("SCAT_CODE", "050", "050 - Car Park (Surface / Multi-Storey)", "Vehicle parking premises. Explicitly excepted from Welsh small business rates relief under W.S.I. 2017/1229 art. 2.", None, 11);
+        add("SCAT_CODE", "027", "027 - Betting Office / Shop", "Betting premises. Explicitly excluded from Scottish Small Business Bonus Scheme under S.S.I. 2023/30 reg. 3(5).", None, 12);
 
         // RELIEF_CODE
         add("RELIEF_CODE", "SBRR", "Small Business Rate Relief", "100% discount up to £12,000 RV, with linear taper up to £15,000 RV for single property occupiers (England).", Some("ENGLAND"), 1);
         add("RELIEF_CODE", "WALES_SBRR", "Small Business Rate Relief (Wales)", "100% relief up to £6,000 RV, with linear taper up to £12,000 RV (childcare 100% to £100,000 RV; post office 100%/50%) under LGFA 1988 Sched 4ZA para 4 / W.S.I. 2017/1229.", Some("WALES"), 2);
-        add("RELIEF_CODE", "SBBS", "Small Business Bonus Scheme", "Scottish rating relief for small businesses up to £12,000 RV (2023-2026) or £11,500 RV (2026+).", Some("SCOTLAND"), 3);
+        add("RELIEF_CODE", "SBBS", "Small Business Bonus Scheme", "Scottish rating relief for small businesses: 100% up to £12,000 RV, tapering to 25% at £15,000 RV and 0% at £20,000 RV (£35,000 cumulative cap) under S.S.I. 2023/30 / S.S.I. 2026/68.", Some("SCOTLAND"), 3);
         add("RELIEF_CODE", "RHL", "Retail, Hospitality & Leisure Relief", "Statutory sector discount (40% in England 2025/26, expired 2026/27; 15% in Wales 2026/27; 15% mainland / 100% islands in Scotland 2026/27 up to £110,000 cash cap).", None, 4);
         add("RELIEF_CODE", "CHARITY", "Mandatory Charitable Relief", "80% mandatory relief under LGFA 1988 s.43(5) where property is used wholly or mainly for charitable purposes.", None, 5);
         add("RELIEF_CODE", "IMPROV", "Improvement Relief (G-Factor)", "100% relief for 12 months on rateable value increases resulting from physical property improvements under NDRA 2023 (England).", Some("ENGLAND"), 6);

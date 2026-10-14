@@ -83,6 +83,14 @@ impl CalculationEngine {
             || flags.is_telecommunications_infrastructure
     }
 
+    fn is_scottish_excluded_hereditament(scat_code: &str) -> bool {
+        let scat = scat_code.trim();
+        scat == "003"
+            || scat == "027"
+            || scat == "050"
+            || scat == "051"
+    }
+
     fn compute_statutory_installments(
         &self,
         net_payable: Decimal,
@@ -681,22 +689,29 @@ impl CalculationEngine {
                         } else {
                             chargeable_before_reliefs
                         };
+                        let is_wales = req.hereditament.jurisdiction == Jurisdiction::WALES;
+                        let is_scotland = req.hereditament.jurisdiction == Jurisdiction::SCOTLAND;
                         let qualifies_sbrr_flags = flags.is_small_business_sole_property
                             || flags.is_small_business_second_property_grace
-                            || flags.is_small_business_second_property;
-                        let is_wales = req.hereditament.jurisdiction == Jurisdiction::WALES;
+                            || flags.is_small_business_second_property
+                            || (is_scotland && (flags.is_small_business_multiple_properties || flags.small_business_cumulative_rv.is_some()));
                         let is_welsh_excepted = is_wales && Self::is_welsh_excepted_hereditament(&req.hereditament.scat_code, flags);
                         let is_welsh_charity = is_wales && (req.party_type == PartyType::CHARITY || req.party_type == PartyType::CASC || flags.is_charitable_purposes);
+                        let is_scottish_excluded = is_scotland && (Self::is_scottish_excluded_hereditament(&req.hereditament.scat_code) || req.occupancy_type != OccupancyType::OCCUPIED);
 
                         if qualifies_sbrr_flags
                             && !is_welsh_excepted
                             && !is_welsh_charity
+                            && !is_scottish_excluded
                             && segment_relief_total < sbrr_chargeable_base
                         {
                             let sbrr_opt = if is_wales {
                                 let is_childcare = flags.is_registered_childcare || req.hereditament.scat_code.trim() == "084";
                                 let is_post_office = flags.is_post_office || req.hereditament.scat_code.trim() == "227";
                                 self.repo.resolve_welsh_sbrr(&win.financial_year, rv, is_childcare, is_post_office)
+                            } else if is_scotland {
+                                let is_multiple = flags.is_small_business_multiple_properties || flags.small_business_cumulative_rv.is_some();
+                                self.repo.resolve_scottish_sbbs(&win.financial_year, rv, is_multiple, flags.small_business_cumulative_rv)
                             } else {
                                 self.repo.resolve_sbrr(req.hereditament.jurisdiction, &win.financial_year, rv)
                             };
@@ -1084,11 +1099,23 @@ impl CalculationEngine {
                         }
                     }
 
+                    let is_scot = req.hereditament.jurisdiction == Jurisdiction::SCOTLAND;
+                    let qualifies_occ_sbrr = flags.is_small_business_sole_property
+                        || flags.is_small_business_second_property_grace
+                        || flags.is_small_business_second_property
+                        || (is_scot && (flags.is_small_business_multiple_properties || flags.small_business_cumulative_rv.is_some()));
                     if req.hereditament.jurisdiction != Jurisdiction::WALES
-                        && (flags.is_small_business_sole_property || flags.is_small_business_second_property_grace || flags.is_small_business_second_property)
+                        && qualifies_occ_sbrr
+                        && (!is_scot || !Self::is_scottish_excluded_hereditament(&req.hereditament.scat_code))
                         && occ_relief_total < occ_chargeable
                     {
-                        if let Some(sbrr) = self.repo.resolve_sbrr(req.hereditament.jurisdiction, &win.financial_year, rv) {
+                        let sbrr_opt = if is_scot {
+                            let is_multiple = flags.is_small_business_multiple_properties || flags.small_business_cumulative_rv.is_some();
+                            self.repo.resolve_scottish_sbbs(&win.financial_year, rv, is_multiple, flags.small_business_cumulative_rv)
+                        } else {
+                            self.repo.resolve_sbrr(req.hereditament.jurisdiction, &win.financial_year, rv)
+                        };
+                        if let Some(sbrr) = sbrr_opt {
                             let remaining = occ_chargeable - occ_relief_total;
                             let amount = (remaining * (sbrr.discount_percentage / dec!(100.00))).round_dp(2).min(remaining);
                             if amount > dec!(0.00) {
@@ -1096,6 +1123,8 @@ impl CalculationEngine {
                                 segment_relief_total += amount;
                                 let authority = if flags.is_small_business_second_property_grace && req.hereditament.jurisdiction == Jurisdiction::ENGLAND {
                                     format!("{} / S.I. 2017/411 art. 3(4) / LGFA 1988 s.44A", sbrr.statutory_authority)
+                                } else if is_scot {
+                                    format!("{} / s.44A", sbrr.statutory_authority)
                                 } else {
                                     format!("{} / LGFA 1988 s.44A", sbrr.statutory_authority)
                                 };

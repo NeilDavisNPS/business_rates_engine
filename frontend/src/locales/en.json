@@ -753,5 +753,10 @@
   "scat_084": "084 - Day Nursery / Crèche / Registered Childcare",
   "scat_227": "227 - Post Office",
   "scat_024": "024 - Beach Hut",
-  "scat_050": "050 - Car Park (Surface / Multi-Storey)"
+  "scat_050": "050 - Car Park (Surface / Multi-Storey)",
+  "scat_027": "027 - Betting Office / Bookmakers",
+  "flag_sbbs_multiple_title": "Scottish Multiple Properties (Reg. 4)",
+  "flag_sbbs_multiple_desc": "Ratepayer occupies more than one non-domestic property in Scotland under SSI 2023/30 reg. 4 (cumulative RV must not exceed £35,000).",
+  "flag_sbbs_cumulative_rv_title": "Cumulative Scottish Rateable Value (£)",
+  "flag_sbbs_cumulative_rv_desc": "Total rateable value across all occupied lands and heritages in Scotland (must not exceed £35,000 cap)."
 }

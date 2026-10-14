@@ -247,6 +247,10 @@
       "050": {
         "label": "050 - Car Park (Surface / Multi-Storey)",
         "description": "Vehicle parking premises. Explicitly excepted from Welsh small business rates relief under W.S.I. 2017/1229 art. 2."
+      },
+      "027": {
+        "label": "027 - Betting Office / Bookmakers",
+        "description": "Betting premises. Explicitly excluded from Scottish Small Business Bonus Scheme (SBBS) under SSI 2023/30 reg. 3(5)."
       }
     },
     "RELIEF_CODE": {
