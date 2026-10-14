@@ -806,5 +806,13 @@
   "flag_sbbs_multiple_title": "Aml Eiddo yn yr Alban (Rheol 4)",
   "flag_sbbs_multiple_desc": "Trethdalwr yn meddiannu mwy nag un eiddo annomestig yn yr Alban o dan O.A.A. 2023/30 rhag. 4 (rhaid i'r RV cronnol beidio â bod dros £35,000).",
   "flag_sbbs_cumulative_rv_title": "Gwerth Ardrethol Cronnol yr Alban (£)",
-  "flag_sbbs_cumulative_rv_desc": "Cyfanswm gwerth ardrethol ar draws holl diroedd ac etifeddiaethau a feddiennir yn yr Alban (rhaid peidio â bod dros gap o £35,000)."
+  "flag_sbbs_cumulative_rv_desc": "Cyfanswm gwerth ardrethol ar draws holl diroedd ac etifeddiaethau a feddiennir yn yr Alban (rhaid peidio â bod dros gap o £35,000).",
+  "build_title_prefix": "Adeiladad Defnyddio:",
+  "build_number_label": "Adeiladad",
+  "commit_label": "Ymroddiad",
+  "built_timestamp_label": "Adeiladwyd",
+  "deployment_details_title": "Gwybodaeth Defnyddio ac Adeiladu",
+  "version_label": "Fersiwn",
+  "licenses_label": "Trwyddedau Meddalwedd",
+  "openapi_spec_label": "Manyleb OpenAPI 3.1"
 }

@@ -26,6 +26,9 @@ default = []
 tower = { version = "0.5", features = ["util"] }
 http-body-util = "0.1"
 
+[build-dependencies]
+chrono = { version = "0.4" }
+
 [[bin]]
 name = "business_rates_engine"
 path = "src/main.rs"

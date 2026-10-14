@@ -3,7 +3,7 @@
   "info": {
     "title": "Business Rates Statutory Calculation Engine API",
     "version": "1.0.0",
-    "description": "# Business Rates Statutory Calculation Engine (1993–2027)\n\nThe **Business Rates Statutory Calculation Engine** is a deterministic, microsecond-latency billing engine for non-domestic property rating across the United Kingdom, implementing primary and secondary legislation for:\n- **England**: *Local Government Finance Act 1988 (LGFA 1988)* & *Non-Domestic Rating Act 2023 (NDRA 2023)*\n- **Wales**: *Local Government Finance (Wales) Act 2024 (LGF(W)A 2024)* & Welsh Statutory Instruments\n- **Scotland**: *Non-Domestic Rates (Scotland) Act 2020*, Three-tier multipliers & Small Business Bonus Scheme (SBBS)\n\n## Key Capabilities\n- **Multi-Year Rating Liability**: Exact day-by-day leap-year calculation (365/366-day apportionments) from 1993/94 through 2026/27+.\n- **Multi-Occupancy Episodes**: Support for multiple successive occupiers, vacant periods, and Section 44A part-occupied apportionments on a single hereditament.\n- **Devolved Relief Schemes**:\n  - Mandatory Small Business Rate Relief (SBRR / SBBS) with non-linear/linear tapers.\n  - Mandatory 80% Charitable Relief and Community Amateur Sports Clubs (CASC) relief.\n  - Retail, Hospitality & Leisure (RHL) relief (75%, 40%, 35%) with statutory cash cap enforcement (£110,000.00).\n  - Rural Settlement Relief (100% mandatory).\n  - Heat Network & Public Lavatory statutory 100% exemptions.\n  - NDRA 2023 Improvement Relief G-factor RV exclusions.\n  - Section 45 Unoccupied property exemptions (3-month commercial, 6-month industrial, low-value £2,900 threshold).\n  - Section 63B Welsh Artificial Avoidance punitive penalties.\n- **Multilingual Support**: First-class localized narrative auditing and error reporting in English (`en`), Welsh (`cy`), Scots (`sco`), and Scottish Gaelic (`gd`).\n\n## Open Source Licensing & Third-Party Attribution\nThis software is licensed under the [MIT License](https://opensource.org/licenses/MIT). Complete third-party license notices, copyright disclaimers, and dependency inventories are available at [/licenses](/licenses).\n",
+    "description": "# Business Rates Statutory Calculation Engine (1993\u20132027)\n\nThe **Business Rates Statutory Calculation Engine** is a deterministic, microsecond-latency billing engine for non-domestic property rating across the United Kingdom, implementing primary and secondary legislation for:\n- **England**: *Local Government Finance Act 1988 (LGFA 1988)* & *Non-Domestic Rating Act 2023 (NDRA 2023)*\n- **Wales**: *Local Government Finance (Wales) Act 2024 (LGF(W)A 2024)* & Welsh Statutory Instruments\n- **Scotland**: *Non-Domestic Rates (Scotland) Act 2020*, Three-tier multipliers & Small Business Bonus Scheme (SBBS)\n\n## Key Capabilities\n- **Multi-Year Rating Liability**: Exact day-by-day leap-year calculation (365/366-day apportionments) from 1993/94 through 2026/27+.\n- **Multi-Occupancy Episodes**: Support for multiple successive occupiers, vacant periods, and Section 44A part-occupied apportionments on a single hereditament.\n- **Devolved Relief Schemes**:\n  - Mandatory Small Business Rate Relief (SBRR / SBBS) with non-linear/linear tapers.\n  - Mandatory 80% Charitable Relief and Community Amateur Sports Clubs (CASC) relief.\n  - Retail, Hospitality & Leisure (RHL) relief (75%, 40%, 35%) with statutory cash cap enforcement (\u00a3110,000.00).\n  - Rural Settlement Relief (100% mandatory).\n  - Heat Network & Public Lavatory statutory 100% exemptions.\n  - NDRA 2023 Improvement Relief G-factor RV exclusions.\n  - Section 45 Unoccupied property exemptions (3-month commercial, 6-month industrial, low-value \u00a32,900 threshold).\n  - Section 63B Welsh Artificial Avoidance punitive penalties.\n- **Multilingual Support**: First-class localized narrative auditing and error reporting in English (`en`), Welsh (`cy`), Scots (`sco`), and Scottish Gaelic (`gd`).\n\n## Open Source Licensing & Third-Party Attribution\nThis software is licensed under the [MIT License](https://opensource.org/licenses/MIT). Complete third-party license notices, copyright disclaimers, and dependency inventories are available at [/licenses](/licenses).\n",
     "contact": {
       "name": "Business Rates Engine Team",
       "email": "mark.st.stanley@gmail.com",
@@ -40,6 +40,28 @@
               "text/markdown": {
                 "schema": {
                   "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "summary": "Service Health Check & Deployment Metadata",
+        "description": "Returns RFC-compliant service health status, component subsystem checks, and deployment build metadata (version, commit hash, build increment number, and build timestamp).",
+        "operationId": "getHealthCheck",
+        "tags": [
+          "Metadata & Specification"
+        ],
+        "responses": {
+          "200": {
+            "description": "Service is healthy and operational.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthCheckResponse"
                 }
               }
             }
@@ -349,7 +371,7 @@
     "/api/v1/parameters": {
       "get": {
         "summary": "Get All Seeded Statutory Parameters",
-        "description": "Retrieves all four seeded in-memory parameter catalogs (multipliers 1993–2027, SBRR/SBBS tapers, devolved sector reliefs, and transitional phasing caps) in a single fast JSON response.",
+        "description": "Retrieves all four seeded in-memory parameter catalogs (multipliers 1993\u20132027, SBRR/SBBS tapers, devolved sector reliefs, and transitional phasing caps) in a single fast JSON response.",
         "operationId": "getAllParameters",
         "tags": [
           "Reference Data & Parameters"
@@ -370,7 +392,7 @@
     },
     "/api/v1/parameters/multipliers": {
       "get": {
-        "summary": "Query Statutory Rating Multipliers (1993–2027)",
+        "summary": "Query Statutory Rating Multipliers (1993\u20132027)",
         "description": "Returns all statutory rating multipliers across England (Standard & Small Business), Wales (Standard & Differential), and Scotland (Basic, Intermediate/Standard, Higher) from 1993/94 through 2026/27.",
         "operationId": "getMultipliers",
         "tags": [
@@ -421,7 +443,7 @@
     "/api/v1/parameters/sector-reliefs": {
       "get": {
         "summary": "Query Devolved Sector Relief Schemes (RHL)",
-        "description": "Returns Retail, Hospitality & Leisure (RHL) relief schemes, discount percentages (75%, 40%, 35%), and statutory business cash caps (£110,000.00).",
+        "description": "Returns Retail, Hospitality & Leisure (RHL) relief schemes, discount percentages (75%, 40%, 35%), and statutory business cash caps (\u00a3110,000.00).",
         "operationId": "getSectorReliefs",
         "tags": [
           "Reference Data & Parameters"
@@ -515,6 +537,78 @@
   },
   "components": {
     "schemas": {
+      "HealthCheckResponse": {
+        "type": "object",
+        "required": [
+          "status",
+          "version",
+          "commit_hash",
+          "build_number",
+          "build_timestamp",
+          "checks"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "pass",
+              "warn",
+              "fail"
+            ],
+            "example": "pass",
+            "description": "Overall health status indicator."
+          },
+          "version": {
+            "type": "string",
+            "example": "0.0.1",
+            "description": "Application package version."
+          },
+          "commit_hash": {
+            "type": "string",
+            "example": "7ecb659",
+            "description": "Short Git commit hash of the deployed build."
+          },
+          "build_number": {
+            "type": "string",
+            "example": "65",
+            "description": "Monotonic build increment count (git commit count)."
+          },
+          "build_timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-14T11:35:00Z",
+            "description": "UTC timestamp when the build artifact was compiled."
+          },
+          "checks": {
+            "$ref": "#/components/schemas/SubsystemChecks"
+          }
+        }
+      },
+      "SubsystemChecks": {
+        "type": "object",
+        "required": [
+          "engine_api",
+          "parameters_repository",
+          "frontend_bundle"
+        ],
+        "properties": {
+          "engine_api": {
+            "type": "string",
+            "example": "pass",
+            "description": "Status of the CalculationEngine API layer."
+          },
+          "parameters_repository": {
+            "type": "string",
+            "example": "pass",
+            "description": "Status of the ParameterRepository in-memory store."
+          },
+          "frontend_bundle": {
+            "type": "string",
+            "example": "pass",
+            "description": "Status and presence of the compiled Svelte single-page application bundle."
+          }
+        }
+      },
       "Jurisdiction": {
         "type": "string",
         "enum": [
@@ -588,7 +682,7 @@
             "type": "number",
             "format": "double",
             "example": 45000.0,
-            "description": "Certified Rateable Value (£ GBP) as compiled on the local rating list."
+            "description": "Certified Rateable Value (\u00a3 GBP) as compiled on the local rating list."
           }
         }
       },
@@ -667,17 +761,17 @@
             "type": "number",
             "format": "double",
             "nullable": true,
-            "description": "Cumulative rateable value across all occupied hereditaments in Scotland, subject to the £35,000 statutory cap under SBBS reg. 4."
+            "description": "Cumulative rateable value across all occupied hereditaments in Scotland, subject to the \u00a335,000 statutory cap under SBBS reg. 4."
           },
           "is_registered_childcare": {
             "type": "boolean",
             "default": false,
-            "description": "True if premises in Wales are registered as day childcare premises with CIW qualifying for 100% SBRR up to £100k RV under W.S.I. 2017/1229 art. 5."
+            "description": "True if premises in Wales are registered as day childcare premises with CIW qualifying for 100% SBRR up to \u00a3100k RV under W.S.I. 2017/1229 art. 5."
           },
           "is_post_office": {
             "type": "boolean",
             "default": false,
-            "description": "True if hereditament in Wales operates as a post office qualifying for 100% SBRR up to £9k RV and 50% between £9,001 and £12k RV under W.S.I. 2017/1229 art. 4."
+            "description": "True if hereditament in Wales operates as a post office qualifying for 100% SBRR up to \u00a39k RV and 50% between \u00a39,001 and \u00a312k RV under W.S.I. 2017/1229 art. 4."
           },
           "is_charitable_purposes": {
             "type": "boolean",
@@ -692,7 +786,7 @@
           "is_hospitality_premises": {
             "type": "boolean",
             "default": false,
-            "description": "True if premises qualify as hospitality (hotel, pub, restaurant, café, live music venue) under Schedule 1A of SSI 2026/69 / SSI 2026/135 for 40% relief in Scotland."
+            "description": "True if premises qualify as hospitality (hotel, pub, restaurant, caf\u00e9, live music venue) under Schedule 1A of SSI 2026/69 / SSI 2026/135 for 40% relief in Scotland."
           },
           "is_retail_premises": {
             "type": "boolean",
@@ -737,7 +831,7 @@
           "is_higher_multiplier_excepted": {
             "type": "boolean",
             "default": false,
-            "description": "True if high-value hereditament (>£100k RV) in Wales qualifies for statutory exception from the higher multiplier, paying the standard multiplier (LGF(W)A 2024)."
+            "description": "True if high-value hereditament (>\u00a3100k RV) in Wales qualifies for statutory exception from the higher multiplier, paying the standard multiplier (LGF(W)A 2024)."
           },
           "is_food_and_drink": {
             "type": "boolean",
@@ -793,7 +887,7 @@
           "is_ssbr_qualifying": {
             "type": "boolean",
             "default": false,
-            "description": "True if qualifying for Supporting Small Business Relief (SSBR) in England capping annual increases to £600/£800 under LGFA 1988 s.47."
+            "description": "True if qualifying for Supporting Small Business Relief (SSBR) in England capping annual increases to \u00a3600/\u00a3800 under LGFA 1988 s.47."
           },
           "payment_installments_count": {
             "type": "integer",
@@ -1031,7 +1125,7 @@
             "type": "number",
             "format": "double",
             "example": 563.2,
-            "description": "Statutory apportioned installment amount (£ GBP)."
+            "description": "Statutory apportioned installment amount (\u00a3 GBP)."
           }
         }
       },

@@ -55,6 +55,20 @@ paths:
             text/markdown:
               schema:
                 type: string
+  /api/v1/health:
+    get:
+      summary: Service Health Check & Deployment Metadata
+      description: Returns RFC-compliant service health status, component subsystem checks, and deployment build metadata (version, commit hash, build increment number, and build timestamp).
+      operationId: getHealthCheck
+      tags:
+        - Metadata & Specification
+      responses:
+        '200':
+          description: Service is healthy and operational.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
   /api/v1/calculate-liability:
     post:
       summary: Execute Statutory Liability Calculation
@@ -379,6 +393,61 @@ paths:
 
 components:
   schemas:
+    HealthCheckResponse:
+      type: object
+      required:
+        - status
+        - version
+        - commit_hash
+        - build_number
+        - build_timestamp
+        - checks
+      properties:
+        status:
+          type: string
+          enum: [pass, warn, fail]
+          example: pass
+          description: Overall health status indicator.
+        version:
+          type: string
+          example: '0.0.1'
+          description: Application package version.
+        commit_hash:
+          type: string
+          example: '7ecb659'
+          description: Short Git commit hash of the deployed build.
+        build_number:
+          type: string
+          example: '65'
+          description: Monotonic build increment count (git commit count).
+        build_timestamp:
+          type: string
+          format: date-time
+          example: '2026-10-14T11:35:00Z'
+          description: UTC timestamp when the build artifact was compiled.
+        checks:
+          $ref: '#/components/schemas/SubsystemChecks'
+
+    SubsystemChecks:
+      type: object
+      required:
+        - engine_api
+        - parameters_repository
+        - frontend_bundle
+      properties:
+        engine_api:
+          type: string
+          example: pass
+          description: Status of the CalculationEngine API layer.
+        parameters_repository:
+          type: string
+          example: pass
+          description: Status of the ParameterRepository in-memory store.
+        frontend_bundle:
+          type: string
+          example: pass
+          description: Status and presence of the compiled Svelte single-page application bundle.
+
     Jurisdiction:
       type: string
       enum:

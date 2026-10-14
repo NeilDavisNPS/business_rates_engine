@@ -806,5 +806,13 @@
   "flag_sbbs_multiple_title": "Scots Muckle Properties (Reg. 4)",
   "flag_sbbs_multiple_desc": "Ratepayer occupies mair nor ane nan-domestic property in Scotland unner SSI 2023/30 reg. 4 (cumulative RV maunna gang ower £35,000).",
   "flag_sbbs_cumulative_rv_title": "Cumulative Scots Rateable Value (£)",
-  "flag_sbbs_cumulative_rv_desc": "Totall rateable value athort aw occupied launds an heritages in Scotland (maunna gang ower £35,000 cap)."
+  "flag_sbbs_cumulative_rv_desc": "Totall rateable value athort aw occupied launds an heritages in Scotland (maunna gang ower £35,000 cap).",
+  "build_title_prefix": "Deployment Biggin:",
+  "build_number_label": "Biggin",
+  "commit_label": "Commit",
+  "built_timestamp_label": "Biggit",
+  "deployment_details_title": "Deployment & Biggin Information",
+  "version_label": "Version",
+  "licenses_label": "Saftware Licenses",
+  "openapi_spec_label": "OpenAPI 3.1 Spec"
 }

@@ -806,5 +806,13 @@
   "flag_sbbs_multiple_title": "Scottish Multiple Properties (Reg. 4)",
   "flag_sbbs_multiple_desc": "Ratepayer occupies more than one non-domestic property in Scotland under SSI 2023/30 reg. 4 (cumulative RV must not exceed £35,000).",
   "flag_sbbs_cumulative_rv_title": "Cumulative Scottish Rateable Value (£)",
-  "flag_sbbs_cumulative_rv_desc": "Total rateable value across all occupied lands and heritages in Scotland (must not exceed £35,000 cap)."
+  "flag_sbbs_cumulative_rv_desc": "Total rateable value across all occupied lands and heritages in Scotland (must not exceed £35,000 cap).",
+  "build_title_prefix": "Deployment Build:",
+  "build_number_label": "Build",
+  "commit_label": "Commit",
+  "built_timestamp_label": "Built",
+  "deployment_details_title": "Deployment & Build Information",
+  "version_label": "Version",
+  "licenses_label": "Software Licenses",
+  "openapi_spec_label": "OpenAPI 3.1 Spec"
 }

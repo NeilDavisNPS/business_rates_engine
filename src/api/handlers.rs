@@ -351,6 +351,9 @@ pub struct SubsystemChecks {
 pub struct HealthCheckResponse {
     pub status: &'static str,
     pub version: &'static str,
+    pub commit_hash: &'static str,
+    pub build_number: &'static str,
+    pub build_timestamp: &'static str,
     pub checks: SubsystemChecks,
 }
 
@@ -386,6 +389,9 @@ pub async fn health_check_handler(
         Json(HealthCheckResponse {
             status,
             version: env!("CARGO_PKG_VERSION"),
+            commit_hash: env!("APP_COMMIT_HASH"),
+            build_number: env!("APP_BUILD_NUMBER"),
+            build_timestamp: env!("APP_BUILD_TIMESTAMP"),
             checks: SubsystemChecks {
                 engine_api: "pass",
                 parameters_repository: if repo_healthy { "pass" } else { "fail" },

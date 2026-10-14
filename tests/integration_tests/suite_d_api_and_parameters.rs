@@ -531,6 +531,9 @@ async fn test_health_check_endpoints() {
     assert_eq!(json["checks"]["engine_api"], "pass");
     assert_eq!(json["checks"]["parameters_repository"], "pass");
     assert!(json["version"].is_string());
+    assert!(json["commit_hash"].is_string());
+    assert!(json["build_number"].is_string());
+    assert!(json["build_timestamp"].is_string());
 
     // 2. API v1 /api/v1/health
     let v1_response = app
@@ -549,4 +552,7 @@ async fn test_health_check_endpoints() {
 
     assert_eq!(v1_json["status"], "pass");
     assert_eq!(v1_json["checks"]["parameters_repository"], "pass");
+    assert!(v1_json["commit_hash"].is_string());
+    assert!(v1_json["build_number"].is_string());
+    assert!(v1_json["build_timestamp"].is_string());
 }

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { calcStore } from '../stores/calculation.svelte';
+  import { buildInfo } from '../buildInfo';
   import type { SupportedLanguage } from '../types';
 
   const languages: { code: SupportedLanguage; label: string }[] = [
@@ -51,6 +52,16 @@
       >
         {calcStore.t.scalar_docs_label}
       </a>
+
+      <!-- Build / Version Status Chip -->
+      <span
+        class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-200 border border-slate-700 shadow-xs"
+        title="{calcStore.t.build_title_prefix} v{buildInfo.version} ({calcStore.t.build_number_label} #{buildInfo.buildNumber}) · {calcStore.t.commit_label} {buildInfo.commitHash} · {calcStore.t.built_timestamp_label}: {buildInfo.formattedTimestamp}"
+      >
+        <span class="text-blue-300 font-bold mr-1">v{buildInfo.version}</span>
+        <span class="text-slate-300 mr-1.5 font-normal">#{buildInfo.buildNumber}</span>
+        <span class="font-mono text-emerald-300 text-[11px]">{buildInfo.commitHash}</span>
+      </span>
 
       <!-- API Status Pill (Live Health Check) -->
       {#if calcStore.apiHealthy}

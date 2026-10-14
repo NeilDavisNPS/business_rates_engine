@@ -14,6 +14,7 @@
   import SbrrThresholdsCatalog from './components/SbrrThresholdsCatalog.svelte';
   import SectorReliefsCatalog from './components/SectorReliefsCatalog.svelte';
   import TransitionalCapsCatalog from './components/TransitionalCapsCatalog.svelte';
+  import Footer from './components/Footer.svelte';
   import { calcStore } from './stores/calculation.svelte';
 
   onMount(() => {
@@ -212,5 +213,7 @@
       </div>
     </section>
   </main>
+
+  <Footer />
 </div>
 
