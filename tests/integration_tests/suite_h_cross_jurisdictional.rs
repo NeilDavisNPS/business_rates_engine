@@ -745,8 +745,9 @@ async fn test_statutory_empty_property_prior_unoccupied_days() {
     let empty_relief = seg.itemized_reliefs.iter().find(|r| r.relief_code == "EMPTY_PROPERTY_EXEMPTION");
     assert!(empty_relief.is_some());
     let r = empty_relief.unwrap();
-    // 61 days exempt out of 365 days: discount ratio 61 / 365 * 100% = 16.71%
-    assert_eq!(r.discount_percentage, dec!(16.71));
+    // Issue #51: empty since 2 March 2025, three calendar months run to 2 June 2025, so 62 days of 2025/26 are
+    // exempt: 62 / 365 * 100% = 16.99%
+    assert_eq!(r.discount_percentage, dec!(16.99));
     assert!(seg.net_segment_payable > dec!(0.00));
 }
 

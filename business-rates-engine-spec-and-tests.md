@@ -577,9 +577,9 @@ The in-memory parameter repository and statutory documentation are exposed direc
 
 ## 4. Test Cases Specification & Scenario Fixtures
 
-### Test Suite Overview (144 Passing Integration Tests)
+### Test Suite Overview (145 Passing Integration Tests)
 
-The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **144 automated integration tests**:
+The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **145 automated integration tests**:
 
 - **Suite A: Canonical Multi-Jurisdiction Scenario Fixture Tests (Scenarios 1–11)** ([`tests/integration_tests/suite_a_scenarios.rs`](tests/integration_tests/suite_a_scenarios.rs) — 11 tests):
   - `test_scenario_1_england_sbrr_and_rhl_multi_year` (`scenario_1_sbrr_rhl_england.json`): Multi-year slicing (2025/26 & 2026/27), SBRR linear taper, England 2026/27 RHL expiration verification, and Transitional Relief caps.
@@ -629,7 +629,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_licenses_endpoints`: Validates `/licenses` (HTML interface styled with unified `/assets/app.css` under CSP), `/licenses.md` (raw Markdown attribution document), and `/api/v1/licenses?format=md` query routing.
   - `test_health_check_endpoints`: Validates both root `/health` and `/api/v1/health` return HTTP 200 with OWASP security headers, subsystem health checks (`engine_api: pass`, `parameters_repository: pass`, `frontend_bundle: pass`), and deployment build metadata (`version`, `commit_hash`, `build_number`, `build_timestamp`).
 
-- **Suite E: English Multipliers, Transitional Phasing, Grace Periods & SSBR** ([`tests/integration_tests/suite_e_england_schemes.rs`](tests/integration_tests/suite_e_england_schemes.rs) — 17 tests):
+- **Suite E: English Multipliers, Transitional Phasing, Grace Periods & SSBR** ([`tests/integration_tests/suite_e_england_schemes.rs`](tests/integration_tests/suite_e_england_schemes.rs) — 18 tests):
   - `test_england_2026_five_multipliers_rhl_vs_non_rhl`: Verifies Autumn Budget 2024 / NDRA 2023 five-multiplier regime in England for 2026/27 (38.2p, 43.2p, 43.0p, 48.0p, 50.8p).
   - `test_england_sbrr_second_property_grace_period`: Verifies statutory 12-month grace period on primary hereditament when taking on an additional hereditament (S.I. 2017/411 art. 3(4) under LGFA 1988 s.43(4B)).
   - `test_statutory_sbrr_england_linear_taper`: Exact mathematical formula verification for English £12k–£15k SBRR linear taper.
@@ -647,6 +647,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_england_multiplier_2025_26_standard_is_0555`: Validates England 2025/26 standard multiplier is 0.555 (55.5p) under LGFA 1988 Sched 7 para A4 and S.I. 2024/1321.
   - `test_england_small_business_multiplier_boundary_at_51000`: Validates small business multiplier applies up to £50,999 RV and standard multiplier applies at £51,000 RV under S.I. 2017/102 art. 2 and S.I. 2026/152 regs 3–5.
   - `test_sbrr_taper_uses_statutory_e_divisor_england`: Validates England SBRR taper chargeable amount $(A \times M) / E$ where $E = 3000 / (A - 12000)$ to 3 decimal places under S.I. 2017/102 art. 3 and S.I. 2023/1250 reg. 3.
+  - `test_empty_rate_free_period_is_calendar_months`: Verifies empty property rate-free periods are three / six calendar months under S.I. 2008/386 reg 4(a)-(b) & W.S.I. 2008/2499 reg 4(a)-(b) (90 days from 1 Dec, 91 from 1 Apr, 183 industrial from 1 Apr; Wales 92 days from 1 Nov).
 
 - **Suite F: Welsh Multipliers, SBRR, Exemptions, Anti-Avoidance & Transitional Schemes** ([`tests/integration_tests/suite_f_wales_schemes.rs`](tests/integration_tests/suite_f_wales_schemes.rs) — 30 tests):
   - `test_wales_multiplier_2025_26_is_0568`: Validates Welsh uniform multiplier for 2025/26 is 0.568 under W.S.I. 2025/214.
@@ -714,7 +715,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_discretionary_charitable_relief_top_up`: Billing authority 20% discretionary top-up bringing total charitable relief to 100%.
   - `test_part_occupied_charity_reliefs_capped_at_occupied_chargeable`: Caps charitable relief at the occupied portion's chargeable amount under s.44A.
   - `test_statutory_empty_low_value_exemption`: Low value unoccupied exemptions (£2,900 England, £2,200 Wales, £1,700 Scotland).
-  - `test_statutory_empty_property_prior_unoccupied_days`: Calculation accounting for prior unoccupied days deducted from statutory allowance.
+  - `test_statutory_empty_property_prior_unoccupied_days`: Calculation accounting for prior unoccupied days deducted from statutory allowance (62 exempt days — three calendar months from 2 March).
   - `test_rhl_relief_applies_in_sbrr_taper_band_england_and_wales`: Proves RHL relief applies to net liability after SBRR taper in England and Wales.
   - `test_rhl_cash_cap_enforced_per_financial_year_across_segments`: Validates £110,000 cash cap enforced across all billing segments within the same financial year.
   - `test_self_catering_holiday_let_letting_days_test`: Minimum letting days thresholds (70 days Scotland from 2022/23, 70 days England from 2023/24, 70 days pre-2023 / 182 days post-2023 Wales).
@@ -755,7 +756,7 @@ To build, verify, and run the project:
 # 1. Compile the Svelte 5 frontend component framework with Vite
 ./build-frontend.sh
 
-# 2. Run the automated test suite (144 integration tests)
+# 2. Run the automated test suite (145 integration tests)
 cargo test --test integration_tests
 
 # 3. Start the HTTP API & Single-Page Application server (default port 8080)

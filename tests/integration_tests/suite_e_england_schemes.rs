@@ -782,3 +782,39 @@ fn test_sbrr_taper_uses_statutory_e_divisor_england() {
     assert_eq!(net(13500.0), dec!(3368.25)); // E = 2.000
     assert_eq!(net(12000.0), dec!(0.00));    // E = 5,000,000
 }
+
+#[test]
+fn test_empty_rate_free_period_is_calendar_months() {
+    // Reproduction for Issue #51. S.I. 2008/386 reg 4(a)-(b) and W.S.I. 2008/2499 reg 4(a)-(b): no empty rate while
+    // unoccupied "for a continuous period not exceeding three months" (six months for qualifying industrial
+    // hereditaments). "Month" means calendar month (Interpretation Act 1978 Sched 1).
+    let engine = CalculationEngine::new(ParameterRepository::new_seeded());
+    let net = |jur: &str, start: &str, end: &str, industrial: bool| {
+        let json = serde_json::json!({
+            "party_type": "CORPORATE",
+            "hereditament": {
+                "jurisdiction": jur,
+                "scat_code": "091",
+                "rateable_value_history": [ { "effective_from": "2017-04-01", "effective_to": null, "rateable_value": 30000.00 } ]
+            },
+            "occupation_period": { "start_date": start, "end_date": end },
+            "occupancy_type": "UNOCCUPIED",
+            "qualifying_relief_flags": {
+                "apply_transitional_relief": false,
+                "days_previously_unoccupied": 0,
+                "is_industrial_hereditament": industrial
+            }
+        });
+        let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+        engine.calculate(request).summary_financials.total_net_payable
+    };
+    // Empty from 1 Dec 2024: three months end 28 Feb 2025 (90 days); liable for 31 days in March.
+    // 30,000 x 0.499 x 31 / 365 = £1,271.42
+    assert_eq!(net("ENGLAND", "2024-12-01", "2025-03-31", false), dec!(1271.42));
+    // Empty from 1 Apr 2024: three months end 30 Jun (91 days); liable 274 days: 30,000 x 0.499 x 274/365 = £11,237.75
+    assert_eq!(net("ENGLAND", "2024-04-01", "2025-03-31", false), dec!(11237.75));
+    // Industrial from 1 Apr 2024: six months end 30 Sep (183 days); liable 182 days = £7,464.49
+    assert_eq!(net("ENGLAND", "2024-04-01", "2025-03-31", true), dec!(7464.49));
+    // Wales, empty from 1 Nov 2024: three months end 31 Jan 2025 (92 days); liable 59 days: 30,000 x 0.562 x 59/365 = £2,725.32
+    assert_eq!(net("WALES", "2024-11-01", "2025-03-31", false), dec!(2725.32));
+}

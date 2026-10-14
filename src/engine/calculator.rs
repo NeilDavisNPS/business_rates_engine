@@ -111,6 +111,13 @@ impl CalculationEngine {
         }
     }
 
+    /// Number of days from `from` to the same day `months` calendar months later (e.g. 1 Dec + 3 months = 90 days)
+    fn calendar_months_in_days(from: NaiveDate, months: u32) -> i64 {
+        from.checked_add_months(chrono::Months::new(months))
+            .map(|end| (end - from).num_days())
+            .unwrap_or(i64::from(months) * 30)
+    }
+
     fn compute_statutory_installments(
         &self,
         net_payable: Decimal,
@@ -974,7 +981,10 @@ impl CalculationEngine {
                 OccupancyType::UNOCCUPIED => {
                     consecutive_occupied_days = 0;
                     let is_industrial = req.hereditament.scat_code == "096" || flags.is_industrial_hereditament;
-                    let max_exempt_days: i64 = if is_industrial { 182 } else { 91 };
+                    // Rate-free period of three (industrial: six) calendar months from the day the hereditament became empty
+                    // (S.I. 2008/386 reg 4(a)-(b); W.S.I. 2008/2499 reg 4(a)-(b); Interpretation Act 1978 Sched 1)
+                    let empty_since = win.period.start_date - chrono::Duration::days(cumulative_unoccupied_days);
+                    let max_exempt_days: i64 = Self::calendar_months_in_days(empty_since, if is_industrial { 6 } else { 3 });
 
                     let low_value_threshold = match req.hereditament.jurisdiction {
                         Jurisdiction::SCOTLAND => dec!(1700.00),
@@ -1007,7 +1017,19 @@ impl CalculationEngine {
                         } else {
                             dec!(1.00)
                         };
-                        let amount = (remaining * exempt_ratio * relief_fraction).round_dp(2);
+                        // England and Wales: no rate for the exempt days, so charge the liable days directly
+                        let amount = if relief_fraction == dec!(1.00) {
+                            let liable_days = Decimal::from(win.period.days - remaining_exempt_days);
+                            let liable = if remaining == gross_liability {
+                                // Daily chargeable amount A x M / C summed over the liable days
+                                ((rv * mult.rate) / year_days_dec * liable_days).round_dp(2)
+                            } else {
+                                (remaining * (dec!(1.00) - exempt_ratio)).round_dp(2)
+                            };
+                            (remaining - liable).max(dec!(0.00))
+                        } else {
+                            (remaining * exempt_ratio * relief_fraction).round_dp(2)
+                        };
                         cumulative_unoccupied_days += win.period.days;
                         if amount > dec!(0.00) {
                             segment_relief_total += amount;
@@ -1061,7 +1083,10 @@ impl CalculationEngine {
 
                     // Unoccupied part: Section 44A empty property relief
                     let is_industrial = req.hereditament.scat_code == "096" || flags.is_industrial_hereditament;
-                    let max_exempt_days: i64 = if is_industrial { 182 } else { 91 };
+                    // Rate-free period of three (industrial: six) calendar months from the day the hereditament became empty
+                    // (S.I. 2008/386 reg 4(a)-(b); W.S.I. 2008/2499 reg 4(a)-(b); Interpretation Act 1978 Sched 1)
+                    let empty_since = win.period.start_date - chrono::Duration::days(cumulative_unoccupied_days);
+                    let max_exempt_days: i64 = Self::calendar_months_in_days(empty_since, if is_industrial { 6 } else { 3 });
                     let low_value_threshold = match req.hereditament.jurisdiction {
                         Jurisdiction::SCOTLAND => dec!(1700.00),
                         Jurisdiction::WALES => dec!(2200.00),
