@@ -11,7 +11,7 @@ export interface BuildInfo {
   formattedTimestamp: string;
 }
 
-function formatUtcTimestamp(isoStr: string): string {
+export function formatUtcTimestamp(isoStr: string): string {
   try {
     const d = new Date(isoStr);
     if (isNaN(d.getTime())) return isoStr;

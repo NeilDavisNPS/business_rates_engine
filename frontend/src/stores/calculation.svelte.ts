@@ -15,10 +15,12 @@ import type {
   ParamTransitionalCap,
 } from '../types';
 import { getDictionary, JURISDICTION_CONFIGS } from '../i18n';
+import { buildInfo, formatUtcTimestamp, type BuildInfo } from '../buildInfo';
 
 class CalculationStore {
   language = $state<SupportedLanguage>('en');
   apiHealthy = $state<boolean>(true);
+  build = $state<BuildInfo>(buildInfo);
   theme = $state<'dark' | 'light'>('light');
   payloadMode = $state<'form' | 'json'>('form');
   jurisdiction = $state<Jurisdiction>('ENGLAND');
@@ -435,6 +437,16 @@ class CalculationStore {
       if (res.ok) {
         const data = await res.json();
         this.apiHealthy = data.status === 'pass' || data.status === 'warn';
+        if (data.commit_hash && data.build_number) {
+          const timestamp = data.build_timestamp || '';
+          this.build = {
+            version: data.version || '0.0.1',
+            buildNumber: String(data.build_number),
+            commitHash: String(data.commit_hash),
+            timestamp,
+            formattedTimestamp: formatUtcTimestamp(timestamp),
+          };
+        }
       } else {
         this.apiHealthy = false;
       }
