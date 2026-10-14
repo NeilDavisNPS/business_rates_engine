@@ -1,6 +1,6 @@
 //! Suite H: Cross-Jurisdictional Reliefs, Lifespans, Holiday Lets & Empty Property
 //!
-//! Part of the Business Rates Engine statutory test suite.
+//! Part of the Business Rates Calculation Engine statutory test suite.
 
 #[allow(unused_imports)]
 use super::common::*;

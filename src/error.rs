@@ -9,7 +9,7 @@ use serde_json::json;
 use thiserror::Error;
 use crate::models::enums::Jurisdiction;
 
-/// Strongly-typed domain and API errors for the Business Rates Engine.
+/// Strongly-typed domain and API errors for the Business Rates Calculation Engine.
 /// Uses `thiserror` to define centralized, consistent error messages without string literals in handlers.
 #[derive(Error, Debug)]
 pub enum AppError {

@@ -1,6 +1,6 @@
 //! Suite D: Reference Codes, Parameter Resolution, Public API Access & OpenAPI
 //!
-//! Part of the Business Rates Engine statutory test suite.
+//! Part of the Business Rates Calculation Engine statutory test suite.
 
 #[allow(unused_imports)]
 use super::common::*;
@@ -385,7 +385,7 @@ async fn test_openapi_and_swagger_endpoints() {
     );
     let body_yaml = body_to_string(res.into_body()).await;
     assert!(body_yaml.contains("openapi: 3.1.0"));
-    assert!(body_yaml.contains("Business Rates Statutory Calculation Engine API"));
+    assert!(body_yaml.contains("Business Rates Calculation Engine API"));
 
     // 4. GET /docs (Scalar API Reference)
     let req = Request::builder()
@@ -406,7 +406,7 @@ async fn test_openapi_and_swagger_endpoints() {
     assert!(!csp.contains("cdn.jsdelivr.net"), "CSP should have zero CDN dependencies when self-hosting scalar.js");
     assert!(!csp.contains("fonts.scalar.com"), "CSP should have zero external font dependencies when using withDefaultFonts:false");
     let body_html = body_to_string(res.into_body()).await;
-    assert!(body_html.contains("<title>Business Rates Statutory Engine — API Reference (Scalar)</title>"));
+    assert!(body_html.contains("<title>Business Rates Calculation Engine — API Reference (Scalar)</title>"));
     assert!(body_html.contains("type=\"application/json\""), "script tag must use type=application/json to avoid inline script execution");
     assert!(body_html.contains("data-url=\"/api/v1/openapi.json\""));
     assert!(body_html.contains("\"theme\":\"solarized\""));
@@ -502,7 +502,7 @@ async fn test_licenses_endpoints() {
     assert!(content_type.contains("text/html"));
 
     let body_html = body_to_string(res_html.into_body()).await;
-    assert!(body_html.contains("<title>Third-Party Software Licenses — Business Rates Engine</title>"));
+    assert!(body_html.contains("<title>Third-Party Software Licenses — Business Rates Calculation Engine</title>"));
     assert!(body_html.contains("The MIT License"));
     assert!(body_html.contains("The Apache License, Version 2.0"));
     assert!(!body_html.contains("Overview & License Summary"));

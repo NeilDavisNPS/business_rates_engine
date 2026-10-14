@@ -391,7 +391,7 @@ fn escape_html(s: &str) -> String {
 pub async fn scalar_ui_handler(
     Query(params): Query<DocQueryParams>,
 ) -> ([(axum::http::HeaderName, &'static str); 2], String) {
-    let title = params.title.as_deref().unwrap_or("Business Rates Statutory Engine — API Reference (Scalar)");
+    let title = params.title.as_deref().unwrap_or("Business Rates Calculation Engine — API Reference (Scalar)");
     // Only same-origin paths; "//host" and "/\host" are protocol-relative in browsers
     let spec_url = params
         .spec_url

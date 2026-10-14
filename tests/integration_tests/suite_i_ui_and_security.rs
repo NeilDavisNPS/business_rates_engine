@@ -1,6 +1,6 @@
 //! Suite I: Component UI Serving & OWASP Security
 //!
-//! Part of the Business Rates Engine statutory test suite.
+//! Part of the Business Rates Calculation Engine statutory test suite.
 
 #[allow(unused_imports)]
 use super::common::*;
@@ -148,7 +148,7 @@ async fn test_ui_html_rendering_english_default() {
 
     // Serves component Svelte 5 UI with div id="app" and matching favicon
     assert!(html.contains(r#"<div id="app"></div>"#));
-    assert!(html.contains("<title>Business Rates Engine — Statutory Calculation Sandbox</title>"));
+    assert!(html.contains("<title>Business Rates Calculation Engine — Statutory Calculation Sandbox</title>"));
     assert!(html.contains(r#"<link rel="icon" type="image/svg+xml""#));
     assert!((html.contains("/assets/app.js") || html.contains("/assets/index-")) && html.contains(".css"));
 }

@@ -1,6 +1,6 @@
 //! Suite G: Scottish Property Rates, SBBS Tapers, 40% Hospitality & Transitional Relief
 //!
-//! Part of the Business Rates Engine statutory test suite.
+//! Part of the Business Rates Calculation Engine statutory test suite.
 
 #[allow(unused_imports)]
 use super::common::*;

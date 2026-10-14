@@ -45,7 +45,7 @@ FROM debian:bookworm-slim AS runtime
 WORKDIR /app
 
 LABEL org.opencontainers.image.title="business_rates_engine" \
-      org.opencontainers.image.description="Statutory Business Rates Engine (England, Wales, Scotland 1990-2027)" \
+      org.opencontainers.image.description="Business Rates Calculation Engine (England, Wales, Scotland 1990-2027)" \
       org.opencontainers.image.licenses="MIT"
 
 RUN apt-get update && apt-get install -y ca-certificates curl && rm -rf /var/lib/apt/lists/*

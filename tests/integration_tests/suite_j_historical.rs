@@ -1,6 +1,6 @@
 //! Suite J: Historical Statutory Parameters & Revaluations (1990–2022)
 //!
-//! Part of the Business Rates Engine statutory test suite.
+//! Part of the Business Rates Calculation Engine statutory test suite.
 
 #[allow(unused_imports)]
 use super::common::*;

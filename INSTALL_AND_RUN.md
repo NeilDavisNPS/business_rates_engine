@@ -1,6 +1,6 @@
 # Installation, Running & Deployment Guide
 
-This guide details how to install, build, configure, test, and deploy the **Business Rates Statutory Calculation Engine & Interactive Component Sandbox** across Great Britain (England, Wales, and Scotland) for both **Testing / QA** and **High-Performance Production** environments.
+This guide details how to install, build, configure, test, and deploy the **Business Rates Calculation Engine & Interactive Component Sandbox** across Great Britain (England, Wales, and Scotland) for both **Testing / QA** and **High-Performance Production** environments.
 
 ---
 
@@ -346,7 +346,7 @@ sudo chown -R businessrates:businessrates /opt/business_rates_engine
 #### 2. Create Systemd Unit (`/etc/systemd/system/business_rates_engine.service`)
 ```ini
 [Unit]
-Description=Business Rates Statutory Calculation Engine
+Description=Business Rates Calculation Engine
 After=network.target
 
 [Service]

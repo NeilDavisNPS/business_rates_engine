@@ -1,6 +1,6 @@
 //! Suite F: Welsh Multipliers, SBRR, Exemptions, Anti-Avoidance & Transitional Schemes
 //!
-//! Part of the Business Rates Engine statutory test suite.
+//! Part of the Business Rates Calculation Engine statutory test suite.
 
 #[allow(unused_imports)]
 use super::common::*;

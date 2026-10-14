@@ -25,7 +25,7 @@ async fn main() {
         .await
         .unwrap();
 
-    info!("Business Rates Engine shut down gracefully.");
+    info!("Business Rates Calculation Engine shut down gracefully.");
 }
 
 async fn shutdown_signal() {

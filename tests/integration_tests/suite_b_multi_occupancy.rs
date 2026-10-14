@@ -1,6 +1,6 @@
 //! Suite B: Multi-Occupancy, Mid-Year RV Slicing & Period Validation
 //!
-//! Part of the Business Rates Engine statutory test suite.
+//! Part of the Business Rates Calculation Engine statutory test suite.
 
 #[allow(unused_imports)]
 use super::common::*;
