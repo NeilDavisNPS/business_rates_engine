@@ -71,7 +71,21 @@ All user-facing, regulatory, and audit text across both the front end and backen
 
 ---
 
-## 3. Verification & Quality Gates
+## 3. Statutory Parameter & Configuration Standards (Zero Hardcoded Rating Parameters)
+
+All multipliers, rateable values, thresholds, and tapers MUST be obtained dynamically from configuration or parameter repositories (e.g., `param_multiplier`, `param_sbrr_sbbs_threshold`, `param_sector_relief`, `param_transitional_cap`, or external configuration catalogs) and NOT hardcoded in the Rust code (`.rs` files).
+
+### A. Parameter Scope & Dynamic Loading
+- **Multipliers**: Standard multipliers, small business multipliers, intermediate property rates, higher property rates, transitional supplement additions, large business supplements, and City of London / regional supplements across all rating years and jurisdictions must be loaded from configuration.
+- **Rateable Values & Thresholds**: SBRR/SBBS exemption limits, small business multiplier qualification thresholds (e.g. £50,999 vs £51,000 RV, historical £18,000 / £25,500 thresholds), empty property low-value exemption thresholds (£2,200, £2,600, £2,900, £15,000, £18,000), regional boundaries (e.g. Greater London £28,000 vs outside London £20,000), and property band boundaries must be driven by configuration.
+- **Tapers & Relief Schedules**: Taper rateable value ranges, taper relief percentages, statutory divisor parameters ($E$), and transitional phasing caps must be sourced from configuration rather than embedded as magic numbers in calculation logic.
+
+### B. User Confirmation Requirement for Hardcoding
+- **Ambiguity Protocol**: If you are ever unsure whether a specific financial value, multiplier, rateable value threshold, or taper rule should be hardcoded or obtained from configuration, you MUST obtain explicit user confirmation before hardcoding it in the codebase.
+
+---
+
+## 4. Verification & Quality Gates
 
 Before committing any changes:
 1. **Frontend Build & Diagnostics**:
@@ -85,7 +99,9 @@ Before committing any changes:
 4. **i18n & Externalisation Audit**:
    - Verify zero hardcoded strings were introduced in `.svelte` or `.rs` files.
    - Verify key parity across `frontend/src/locales/{en,cy,sco,gd}.json` (no missing keys).
-5. **Documentation & OpenAPI Specification Audit**:
+5. **Parameter & Configuration Audit**:
+   - Verify that all multipliers, rateable values, thresholds, and tapers introduced or amended are obtained from configuration or parameter repositories, with zero hardcoded rating values in Rust code.
+6. **Documentation & OpenAPI Specification Audit**:
    - Verify that all newly cited legislation, Acts of Parliament, statutory instruments (SIs, SSIs, WSIs), regulations, and new tests are recorded in `business-rates-engine-spec-and-tests.md`.
    - Verify that all newly identified legislation, statutory instruments, and regulations are added to the country-specific statutory basis information on the sandbox page across `frontend/src/locales/{en,cy,sco,gd}.json`.
    - Fully review all sections below `legislation` in the statutory framework catalog (`currentRegimeSummary`, `preDevolution`, `ratingLists`) across all 4 locales (`frontend/src/locales/{en,cy,sco,gd}.json`) to ensure ongoing statutory accuracy, complete citations, correct multipliers, relief highlights, and rating list descriptions.
@@ -93,7 +109,7 @@ Before committing any changes:
 
 ---
 
-## 4. GitHub Issue Resolution Workflow
+## 5. GitHub Issue Resolution Workflow
 
 Whenever investigating, fixing, or resolving an issue raised on GitHub against this project, you MUST strictly adhere to the following sequence:
 
@@ -104,7 +120,7 @@ Whenever investigating, fixing, or resolving an issue raised on GitHub against t
 3. **Reproduce via Failing Test Case**:
    - If you agree with the issue, first create a failing test case in `tests/integration_tests.rs` (or the relevant frontend test suite) that explicitly reproduces and demonstrates the reported issue.
 4. **Implement the Fix**:
-   - Fix the issue in the code, ensuring strict adherence to WCAG AAA accessibility, text externalisation (i18n), and zero-hardcoding standards.
+   - Fix the issue in the code, ensuring strict adherence to WCAG AAA accessibility, text externalisation (i18n), and ensuring all multipliers, rateable values, and tapers are obtained from configuration and not hardcoded in the Rust code (obtaining user confirmation first if unsure whether a value should be hardcoded).
 5. **Verify the Failing Test Passes**:
    - Re-run the specific test case created in Step 3 to confirm that the issue is resolved and the test now passes cleanly.
 6. **Review Documentation, Specifications & OpenAPI Interfaces**:
