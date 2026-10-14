@@ -869,3 +869,48 @@ fn test_england_empty_property_historical_low_value_thresholds() {
     assert!(is_exempt("2017-04-01", "2018-03-31", 2899.00), "RV £2,899 should be exempt in 2017/18");
     assert!(!is_exempt("2017-04-01", "2018-03-31", 2900.00), "RV £2,900 should NOT be exempt in 2017/18");
 }
+
+#[test]
+fn test_statutory_installments_whole_pounds_si_1989_1058() {
+    // Reproduction for Issue #53.
+    // Under S.I. 1989/1058 Schedule 1 Part I para 1(4)-(5):
+    // All but the first instalment must be whole pounds (A = C / D rounded to nearest pound),
+    // and the first instalment takes the balancing difference B = C - (D - 1) * A.
+    let engine = CalculationEngine::new(ParameterRepository::new_seeded());
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "091",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 14000
+                }
+            ]
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": false,
+            "is_small_business_sole_property": true
+        }
+    });
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let resp = engine.calculate(request);
+    let seg = &resp.annual_billing_segments[0];
+    let installments = seg.statutory_installments.as_ref().expect("installments present");
+    assert_eq!(installments.len(), 10);
+    // Net payable: £4,657.33. C / 10 = £465.733 -> A = £466.00.
+    // B = £4,657.33 - 9 * £466 = £463.33.
+    assert_eq!(installments[0].amount, dec!(463.33));
+    for inst in &installments[1..] {
+        assert_eq!(inst.amount, dec!(466.00));
+        assert_eq!(inst.amount.fract(), dec!(0.00), "all subsequent instalments must be whole pounds");
+    }
+}
+

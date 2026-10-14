@@ -229,21 +229,38 @@ impl CalculationEngine {
 
         let count = dates.len();
         let count_dec = Decimal::from(count);
-        let base_amount = ((net_payable / count_dec) * dec!(100.00)).floor() / dec!(100.00);
-        let remainder = net_payable - (base_amount * count_dec);
-
         let mut installments = Vec::with_capacity(count);
-        for (i, date) in dates.into_iter().enumerate() {
-            let amount = if i == 0 {
-                base_amount + remainder
-            } else {
-                base_amount
-            };
+
+        if count == 1 {
             installments.push(StatutoryInstallment {
-                installment_number: (i + 1) as u32,
-                due_date: date,
-                amount,
+                installment_number: 1,
+                due_date: dates[0],
+                amount: net_payable,
             });
+        } else {
+            // S.I. 1989/1058 Sched 1 Part I para 1(4)-(5):
+            // If C / D is a multiple of a pound, all instalments are C / D.
+            // Otherwise, all but the first instalment are equal to A (C / D rounded to the nearest multiple of a pound),
+            // and the first instalment is B = C - (D - 1) * A.
+            let a_rounded = (net_payable / count_dec).round_dp(0);
+            let b = net_payable - (Decimal::from(count - 1) * a_rounded);
+
+            let (first_amount, other_amount) = if b > dec!(0.00) {
+                (b, a_rounded)
+            } else {
+                let base_amount = ((net_payable / count_dec) * dec!(100.00)).floor() / dec!(100.00);
+                let remainder = net_payable - (base_amount * count_dec);
+                (base_amount + remainder, base_amount)
+            };
+
+            for (i, date) in dates.into_iter().enumerate() {
+                let amount = if i == 0 { first_amount } else { other_amount };
+                installments.push(StatutoryInstallment {
+                    installment_number: (i + 1) as u32,
+                    due_date: date,
+                    amount,
+                });
+            }
         }
 
         Some(installments)
