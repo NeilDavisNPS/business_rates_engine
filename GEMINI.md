@@ -69,6 +69,17 @@ All user-facing, regulatory, and audit text across both the front end and backen
     - Domain error messages and API error details.
     - Reference code descriptions (e.g. SCAT codes, relief codes, occupancy types).
 
+### C. Statutory Audit Narrative & Decision Traceability Standards
+The generated legislative narrative MUST provide complete, step-by-step transparency into the calculation so that any ratepayer, billing authority, or rating auditor can see exactly how the final result was arrived at, including the precise legal and statutory basis for every calculation outcome:
+- **Comprehensive Decision & Branch Point Detail**: The narrative must explicitly detail each decision and key branch point evaluated throughout the calculation, including:
+  - Multiplier determination (standard vs. small business multiplier, intermediate/higher property rates, transitional supplements, and city/regional supplements).
+  - Rateable value thresholds and list-specific boundary evaluations (e.g. £50,999 vs £51,000 RV, historical empty property low-value exemptions, Greater London vs outside London thresholds).
+  - Relief qualification, taper calculations, and disqualification decisions (e.g. SBRR/SBBS tapers using statutory divisor $E$, self-catering letting test thresholds, rate-free calendar month periods, multiple-entry restrictions).
+  - Transitional relief calculations, base liability determinations, phasing caps, and carry-forward rules.
+  - Instalment rounding schedules and apportionment methods.
+- **Statutory & Authority Citations**: Every decision and branch point explanation MUST cite its authoritative statutory and legislative source, including Acts of Parliament (e.g. LGFA 1988, NDRA 2023), Statutory Instruments (SIs), Scottish Statutory Instruments (SSIs), Welsh Statutory Instruments (WSIs), regulations, schedules, and specific paragraphs.
+- **Externalised Multilingual Narrative Catalogs**: All narrative templates, decision justifications, branch point explanations, and statutory authority citations must be loaded from external locale catalogs (`locales/{en,cy,sco,gd}.json`) with zero hardcoded English text in Rust source code, maintaining 100% key and structure parity across all four languages.
+
 ---
 
 ## 3. Statutory Parameter & Configuration Standards (Zero Hardcoded Rating Parameters)
@@ -101,7 +112,10 @@ Before committing any changes:
    - Verify key parity across `frontend/src/locales/{en,cy,sco,gd}.json` (no missing keys).
 5. **Parameter & Configuration Audit**:
    - Verify that all multipliers, rateable values, thresholds, and tapers introduced or amended are obtained from configuration or parameter repositories, with zero hardcoded rating values in Rust code.
-6. **Documentation & OpenAPI Specification Audit**:
+6. **Statutory Audit Narrative & Traceability Audit**:
+   - Verify that all calculation decisions and key branch points produce detailed narrative output citing the relevant legislative source.
+   - Verify key parity and externalisation across all 4 locales in `locales/{en,cy,sco,gd}.json` for any new narrative elements.
+7. **Documentation & OpenAPI Specification Audit**:
    - Verify that all newly cited legislation, Acts of Parliament, statutory instruments (SIs, SSIs, WSIs), regulations, and new tests are recorded in `business-rates-engine-spec-and-tests.md`.
    - Verify that all newly identified legislation, statutory instruments, and regulations are added to the country-specific statutory basis information on the sandbox page across `frontend/src/locales/{en,cy,sco,gd}.json`.
    - Fully review all sections below `legislation` in the statutory framework catalog (`currentRegimeSummary`, `preDevolution`, `ratingLists`) across all 4 locales (`frontend/src/locales/{en,cy,sco,gd}.json`) to ensure ongoing statutory accuracy, complete citations, correct multipliers, relief highlights, and rating list descriptions.
@@ -120,7 +134,7 @@ Whenever investigating, fixing, or resolving an issue raised on GitHub against t
 3. **Reproduce via Failing Test Case**:
    - If you agree with the issue, first create a failing test case in `tests/integration_tests.rs` (or the relevant frontend test suite) that explicitly reproduces and demonstrates the reported issue.
 4. **Implement the Fix**:
-   - Fix the issue in the code, ensuring strict adherence to WCAG AAA accessibility, text externalisation (i18n), and ensuring all multipliers, rateable values, and tapers are obtained from configuration and not hardcoded in the Rust code (obtaining user confirmation first if unsure whether a value should be hardcoded).
+   - Fix the issue in the code, ensuring strict adherence to WCAG AAA accessibility, text externalisation (i18n), ensuring all multipliers, rateable values, and tapers are obtained from configuration and not hardcoded in the Rust code (obtaining user confirmation first if unsure whether a value should be hardcoded), and ensuring that the generated legislative narrative details all decisions and key branch points with authoritative statutory citations.
 5. **Verify the Failing Test Passes**:
    - Re-run the specific test case created in Step 3 to confirm that the issue is resolved and the test now passes cleanly.
 6. **Review Documentation, Specifications & OpenAPI Interfaces**:
@@ -128,6 +142,7 @@ Whenever investigating, fixing, or resolving an issue raised on GitHub against t
    - Ensure that any citations, legislation, statutory instruments (SIs, SSIs, WSIs), regulations, and newly created tests are added to `business-rates-engine-spec-and-tests.md`.
    - Where new legislation, statutory instruments, or regulations are identified or updated, ensure they are added to the country-specific statutory basis information on the sandbox page (within the `statutory_framework` catalog across `frontend/src/locales/{en,cy,sco,gd}.json` rendered in `SummaryKpiCards.svelte`), maintaining strict key parity across all 4 languages.
    - Fully review the information below `legislation` in the statutory framework catalog—including `currentRegimeSummary` (regime subtitles, multiplier architecture grids, relief highlights), `preDevolution` (era narrative and historical rules), and `ratingLists` (multipliers, SBRR rules, transition rules, and statutory authorities)—to ensure they are still completely correct and accurately reflect any newly added or amended statutory provisions, multipliers, relief qualifications, or exclusions.
+   - Ensure that narrative catalogs across `locales/{en,cy,sco,gd}.json` and `frontend/src/locales/{en,cy,sco,gd}.json` are updated synchronously with complete statutory references.
    - Ensure the OpenAPI documents (`docs/openapi.json` and `docs/openapi.yaml`) are updated synchronously with any changes to the interfaces, data models, or relief flags.
 7. **Run Full Test Suite (Zero Regressions)**:
    - Run the complete test suite (`cargo test`, `cargo clippy --all-targets -- -D warnings`, `npm run check`, `npm run build`) to confirm there are no regression issues.
