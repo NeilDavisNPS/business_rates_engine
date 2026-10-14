@@ -1031,3 +1031,52 @@ fn test_scotland_empty_property_2018_rules_90_percent_after_initial_period() {
     assert_eq!(net("2019-09-01", "2020-03-31", true), dec!(1120.57));
 }
 
+#[test]
+fn test_scotland_sbbs_2023_onward_published_thresholds_have_both_tapers() {
+    // Reproduction for Issue #67:
+    // Non-Domestic Rates (Levying) (Scotland) Regulations (S.S.I. 2023/31 & S.S.I. 2026/68 reg 3(3)):
+    // SBBS from 2023/24 onwards has:
+    // 1. Full 100% relief up to £12,000
+    // 2. Linear taper 100% -> 25% for £12,001 to £15,000 (is_tapered: true)
+    // 3. Linear taper 25% -> 0% for £15,001 to £20,000 (is_tapered: true)
+    let repo = ParameterRepository::new_seeded();
+    let sbrr_thresholds = repo.all_sbrr_thresholds();
+
+    for fy in ["2023/24", "2024/25", "2025/26", "2026/27"] {
+        let tap1 = sbrr_thresholds
+            .iter()
+            .find(|t| t.parameter_id == format!("sbbs_sco_tap_{}", fy))
+            .unwrap_or_else(|| panic!("Missing sbbs_sco_tap_{}", fy));
+
+        assert!(
+            tap1.is_tapered,
+            "sbbs_sco_tap_{} must be tapered (is_tapered = true) for £12k-£15k band",
+            fy
+        );
+        assert_eq!(
+            tap1.relief_percentage,
+            dec!(100.00),
+            "sbbs_sco_tap_{} starting relief percentage must be 100% tapering to 25%",
+            fy
+        );
+
+        let tap2 = sbrr_thresholds
+            .iter()
+            .find(|t| t.parameter_id == format!("sbbs_sco_tap2_{}", fy))
+            .unwrap_or_else(|| panic!("Missing sbbs_sco_tap2_{}", fy));
+
+        assert!(
+            tap2.is_tapered,
+            "sbbs_sco_tap2_{} must be tapered (is_tapered = true) for £15k-£20k band",
+            fy
+        );
+        assert_eq!(
+            tap2.relief_percentage,
+            dec!(25.00),
+            "sbbs_sco_tap2_{} starting relief percentage must be 25% tapering to 0%",
+            fy
+        );
+    }
+}
+
+

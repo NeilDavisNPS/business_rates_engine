@@ -1189,7 +1189,7 @@ impl RepoData {
             add(&format!("sbrr_wal_full_{}", fy), fy, Jurisdiction::WALES, dec!(0.00), dec!(6000.00), dec!(100.00), false, &start, &end);
             add(&format!("sbrr_wal_tap_{}", fy), fy, Jurisdiction::WALES, dec!(6000.01), dec!(12000.00), dec!(100.00), true, &start, &end);
             add(&format!("sbbs_sco_full_{}", fy), fy, Jurisdiction::SCOTLAND, dec!(0.00), dec!(12000.00), dec!(100.00), false, &start, &end);
-            add(&format!("sbbs_sco_tap_{}", fy), fy, Jurisdiction::SCOTLAND, dec!(12000.01), dec!(15000.00), dec!(25.00), false, &start, &end);
+            add(&format!("sbbs_sco_tap_{}", fy), fy, Jurisdiction::SCOTLAND, dec!(12000.01), dec!(15000.00), dec!(100.00), true, &start, &end);
             add(&format!("sbbs_sco_tap2_{}", fy), fy, Jurisdiction::SCOTLAND, dec!(15000.01), dec!(20000.00), dec!(25.00), true, &start, &end);
         }
     }
