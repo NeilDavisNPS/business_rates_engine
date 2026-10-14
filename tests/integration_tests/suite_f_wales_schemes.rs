@@ -1465,3 +1465,23 @@ fn test_sbrr_taper_uses_statutory_e_divisor_wales() {
     assert_eq!(net(11000.0), dec!(5151.67)); // E = 1.200: 6,182.00 / 1.2
     assert_eq!(net(9000.0), dec!(2529.00));  // E = 2.000
 }
+
+#[test]
+fn test_wales_2026_has_no_fictitious_upward_caps_in_transitional_caps() {
+    // Reproduction for Issue #69:
+    // The Non-Domestic Rating (Transitional Relief) (Wales) Regulations 2025 (W.S.I. 2025/1371)
+    // relieve a share of the increase (67% in 2026/27 and 34% in 2027/28) rather than applying upward caps.
+    // Ensure GET /api/v1/parameters/transitional-caps contains no fictitious 10/25/40% upward caps for Wales 2026.
+    let repo = ParameterRepository::new_seeded();
+    let welsh_2026_caps: Vec<_> = repo
+        .all_transitional_caps()
+        .iter()
+        .filter(|c| c.jurisdiction == Jurisdiction::WALES && c.revaluation_list_year == 2026)
+        .collect();
+    assert!(
+        welsh_2026_caps.is_empty(),
+        "Expected no 2026 upward transitional caps for Wales (W.S.I. 2025/1371 uses share-of-increase), found: {:?}",
+        welsh_2026_caps
+    );
+}
+

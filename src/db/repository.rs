@@ -1395,10 +1395,9 @@ impl RepoData {
         add("tc_eng_med_lon_2026", 2026, "2026/27", Jurisdiction::ENGLAND, "MEDIUM", dec!(28000.01), Some(dec!(100000.00)), dec!(15.00), Some(true));
         add("tc_eng_lg_2026", 2026, "2026/27", Jurisdiction::ENGLAND, "LARGE", dec!(100000.01), None, dec!(30.00), None);
 
-        // Wales Transitional Relief (Local Government Finance (Wales) Act 2024)
-        add("tc_wal_sm_2026", 2026, "2026/27", Jurisdiction::WALES, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(10.00), None);
-        add("tc_wal_med_2026", 2026, "2026/27", Jurisdiction::WALES, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(25.00), None);
-        add("tc_wal_lg_2026", 2026, "2026/27", Jurisdiction::WALES, "LARGE", dec!(100000.01), None, dec!(40.00), None);
+        // Note: Wales has no upward-cap transitional scheme for the 2026 revaluation.
+        // The Non-Domestic Rating (Transitional Relief) (Wales) Regulations 2025 (W.S.I. 2025/1371)
+        // relieves a share of net increase (67% in 2026/27, 34% in 2027/28) seeded in `scheme_caps` under WALES_TR.
 
         // 2023 Revaluation List — Scotland (The Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2023 / SSI 2023/31)
         // 2023/24: Small (+12.5%), Medium (+25%), Large (+37.5%)

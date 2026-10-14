@@ -613,9 +613,9 @@ The in-memory parameter repository and statutory documentation are exposed direc
 
 ## 4. Test Cases Specification & Scenario Fixtures
 
-### Test Suite Overview (151 Passing Integration Tests)
+### Test Suite Overview (152 Passing Integration Tests)
 
-The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **151 automated integration tests**:
+The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **152 automated integration tests**:
 
 - **Suite A: Canonical Multi-Jurisdiction Scenario Fixture Tests (Scenarios 1–11)** ([`tests/integration_tests/suite_a_scenarios.rs`](tests/integration_tests/suite_a_scenarios.rs) — 11 tests):
   - `test_scenario_1_england_sbrr_and_rhl_multi_year` (`scenario_1_sbrr_rhl_england.json`): Multi-year slicing (2025/26 & 2026/27), SBRR linear taper, England 2026/27 RHL expiration verification, and Transitional Relief caps.
@@ -690,7 +690,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_england_transitional_relief_greater_london_small_band_threshold_28000`: Validates Greater London small-band threshold (£28,000 RV vs £20,000 outside London) under S.I. 2022/1403 reg 10(5), awarding small-band cap (+5%) rather than medium-band (+15%) to an RV £25,000 London hereditament.
   - `test_england_2026_transitional_supplement`: Validates England 2026/27 Transitional Relief Supplement (TRS) of 1p ($RS = 0.010$) replacing multiplier $M$ with $(M + RS)$ under S.I. 2026/81 reg 16 for defined hereditaments not receiving transitional relief under reg 12, and proves statutory exemptions for charities (reg 16(1)(c)) and newly created hereditaments (reg 5(2)).
 
-- **Suite F: Welsh Multipliers, SBRR, Exemptions, Anti-Avoidance & Transitional Schemes** ([`tests/integration_tests/suite_f_wales_schemes.rs`](tests/integration_tests/suite_f_wales_schemes.rs) — 30 tests):
+- **Suite F: Welsh Multipliers, SBRR, Exemptions, Anti-Avoidance & Transitional Schemes** ([`tests/integration_tests/suite_f_wales_schemes.rs`](tests/integration_tests/suite_f_wales_schemes.rs) — 31 tests):
   - `test_wales_multiplier_2025_26_is_0568`: Validates Welsh uniform multiplier for 2025/26 is 0.568 under W.S.I. 2025/214.
   - `test_wales_2026_three_multipliers`: Verifies Welsh 2026/27 three-tier multiplier regime under *Local Government Finance (Wales) Act 2024* (Retail 35.0p, Standard 50.2p, Higher 51.5p).
   - `test_wales_retail_multiplier_given_to_retail_shop`: Validates 35.0p retail multiplier awarded to qualifying retail shop.
@@ -721,6 +721,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_wales_2005_list_no_transitional_relief`: Confirms Wales operated no general transitional relief in 2005.
   - `test_wales_2010_list_no_transitional_relief`: Confirms Wales operated no general transitional relief in 2010.
   - `test_sbrr_taper_uses_statutory_e_divisor_wales`: Validates Welsh SBRR taper chargeable amount $(A \times M) / E$ where $E = 6000 / (\text{RV} - 6000)$ to 3 decimal places under W.S.I. 2017/1229 art. 11(3).
+  - `test_wales_2026_has_no_fictitious_upward_caps_in_transitional_caps`: Validates absence of fictitious upward caps for Wales 2026 in transitional caps repository, confirming W.S.I. 2025/1371 operates exclusively as a share-of-increase scheme (67%/34%) published under scheme caps.
 
 - **Suite G: Scottish Property Rates, SBBS Tapers, 40% Hospitality & Transitional Relief** ([`tests/integration_tests/suite_g_scotland_schemes.rs`](tests/integration_tests/suite_g_scotland_schemes.rs) — 19 tests):
   - `test_scotland_2026_multipliers_basic_intermediate_higher`: Validates 2026/27 rates: Basic 0.481, Intermediate 0.535, Higher 0.548 (S.S.I. 2026/39).
