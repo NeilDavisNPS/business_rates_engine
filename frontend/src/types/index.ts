@@ -53,6 +53,9 @@ export interface QualifyingReliefFlags {
   is_renewable_energy_generation?: boolean;
   is_higher_multiplier_excepted?: boolean;
   is_food_and_drink?: boolean;
+  is_hospitality_premises?: boolean;
+  is_scottish_remote_mainland?: boolean;
+  has_short_term_let_licence?: boolean | null;
   payment_installments_count?: number;
   apply_transitional_relief?: boolean;
   same_occupier_since_revaluation?: boolean;

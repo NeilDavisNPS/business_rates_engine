@@ -143,7 +143,10 @@
     "Council Tax Transfer (Holiday Let Disqualification)": "Council Tax Transfer (Holiday Let Disqualification)",
     "Welsh Small Business Rates Relief": "Welsh Small Business Rates Relief",
     "Welsh Small Business Rates Relief (Registered Childcare)": "Welsh Small Business Rates Relief (Registered Childcare)",
-    "Welsh Small Business Rates Relief (Post Office)": "Welsh Small Business Rates Relief (Post Office)"
+    "Welsh Small Business Rates Relief (Post Office)": "Welsh Small Business Rates Relief (Post Office)",
+    "Scottish Retail, Hospitality & Leisure Relief": "Scottish Retail, Hospitality & Leisure Relief",
+    "Scottish Hospitality Rates Relief": "Scottish Hospitality Rates Relief",
+    "Scottish Islands Retail, Hospitality & Leisure Relief": "Scottish Islands Retail, Hospitality & Leisure Relief"
   },
   "errors": {
     "invalid_occupation_period": "Occupation end date ({end}) cannot precede start date ({start})",

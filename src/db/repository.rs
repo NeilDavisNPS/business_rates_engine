@@ -592,6 +592,7 @@ impl ParameterRepository {
         financial_year: &str,
         is_rhl: bool,
         is_island: bool,
+        is_hospitality: bool,
     ) -> Option<SectorReliefResolution> {
         if !is_rhl {
             return None;
@@ -604,6 +605,8 @@ impl ParameterRepository {
             if jurisdiction == Jurisdiction::SCOTLAND {
                 if is_island {
                     s.relief_code.contains("ISLANDS")
+                } else if is_hospitality {
+                    s.relief_code.contains("HOSPITALITY")
                 } else {
                     s.relief_code.contains("MAINLAND")
                 }
@@ -617,9 +620,11 @@ impl ParameterRepository {
             Jurisdiction::WALES => "LGFA 1988 s.47 / LGF(W)A 2024".to_string(),
             Jurisdiction::SCOTLAND => {
                 if is_island {
-                    "Local Government (Financial Provisions) (Scotland) Act 1962 s.4 / Islands (Scotland) Act 2018".to_string()
+                    "Non-Domestic Rates (Retail, Hospitality and Leisure Relief) (Scotland) Regs 2026 (SSI 2026/69) reg. 5 / SSI 2026/135 / Islands (Scotland) Act 2018".to_string()
+                } else if is_hospitality {
+                    "Non-Domestic Rates (Retail, Hospitality and Leisure Relief) (Scotland) Regs 2026 (SSI 2026/69) reg. 4A / SSI 2026/135".to_string()
                 } else {
-                    "Local Government (Financial Provisions) (Scotland) Act 1962 s.4".to_string()
+                    "Non-Domestic Rates (Retail, Hospitality and Leisure Relief) (Scotland) Regs 2026 (SSI 2026/69) reg. 4".to_string()
                 }
             }
         };
@@ -628,6 +633,8 @@ impl ParameterRepository {
             Jurisdiction::SCOTLAND => {
                 if is_island {
                     "Scottish Islands Retail, Hospitality & Leisure Relief".to_string()
+                } else if is_hospitality {
+                    "Scottish Hospitality Rates Relief".to_string()
                 } else {
                     "Scottish Retail, Hospitality & Leisure Relief".to_string()
                 }
@@ -889,9 +896,9 @@ impl RepoData {
         add("m_wal_std_2026", "2026/27", Jurisdiction::WALES, "STANDARD", dec!(0.00), Some(dec!(100000.00)), dec!(0.502), "2026-04-01", "2027-03-31");
         add("m_wal_hgh_2026", "2026/27", Jurisdiction::WALES, "HIGHER", dec!(100000.01), None, dec!(0.515), "2026-04-01", "2027-03-31");
 
-        add("m_sco_b_2026", "2026/27", Jurisdiction::SCOTLAND, "BASIC", dec!(0.00), Some(dec!(12000.00)), dec!(0.498), "2026-04-01", "2027-03-31");
-        add("m_sco_st_2026", "2026/27", Jurisdiction::SCOTLAND, "STANDARD", dec!(12000.01), Some(dec!(100000.00)), dec!(0.545), "2026-04-01", "2027-03-31");
-        add("m_sco_h_2026", "2026/27", Jurisdiction::SCOTLAND, "HIGHER", dec!(100000.01), None, dec!(0.559), "2026-04-01", "2027-03-31");
+        add("m_sco_b_2026", "2026/27", Jurisdiction::SCOTLAND, "BASIC", dec!(0.00), Some(dec!(51000.00)), dec!(0.481), "2026-04-01", "2027-03-31");
+        add("m_sco_i_2026", "2026/27", Jurisdiction::SCOTLAND, "INTERMEDIATE", dec!(51000.01), Some(dec!(100000.00)), dec!(0.535), "2026-04-01", "2027-03-31");
+        add("m_sco_h_2026", "2026/27", Jurisdiction::SCOTLAND, "HIGHER", dec!(100000.01), None, dec!(0.548), "2026-04-01", "2027-03-31");
 
         // 2027/28 (Revaluation List Year 2)
         add("m_eng_hv_2027", "2027/28", Jurisdiction::ENGLAND, "HIGH_VALUE", dec!(500000.00), None, dec!(0.508), "2027-04-01", "2028-03-31");
@@ -904,9 +911,9 @@ impl RepoData {
         add("m_wal_std_2027", "2027/28", Jurisdiction::WALES, "STANDARD_PROVISIONAL", dec!(0.00), Some(dec!(100000.00)), dec!(0.502), "2027-04-01", "2028-03-31");
         add("m_wal_hgh_2027", "2027/28", Jurisdiction::WALES, "HIGHER_PROVISIONAL", dec!(100000.01), None, dec!(0.515), "2027-04-01", "2028-03-31");
 
-        add("m_sco_b_2027", "2027/28", Jurisdiction::SCOTLAND, "BASIC", dec!(0.00), Some(dec!(12000.00)), dec!(0.498), "2027-04-01", "2028-03-31");
-        add("m_sco_st_2027", "2027/28", Jurisdiction::SCOTLAND, "STANDARD", dec!(12000.01), Some(dec!(100000.00)), dec!(0.545), "2027-04-01", "2028-03-31");
-        add("m_sco_h_2027", "2027/28", Jurisdiction::SCOTLAND, "HIGHER", dec!(100000.01), None, dec!(0.559), "2027-04-01", "2028-03-31");
+        add("m_sco_b_2027", "2027/28", Jurisdiction::SCOTLAND, "BASIC", dec!(0.00), Some(dec!(51000.00)), dec!(0.481), "2027-04-01", "2028-03-31");
+        add("m_sco_i_2027", "2027/28", Jurisdiction::SCOTLAND, "INTERMEDIATE", dec!(51000.01), Some(dec!(100000.00)), dec!(0.535), "2027-04-01", "2028-03-31");
+        add("m_sco_h_2027", "2027/28", Jurisdiction::SCOTLAND, "HIGHER", dec!(100000.01), None, dec!(0.548), "2027-04-01", "2028-03-31");
     }
 
     fn seed_sbrr_thresholds(&mut self) {
@@ -1034,8 +1041,9 @@ impl RepoData {
         add("sec_wal_rhl_2026", "2026/27", Jurisdiction::WALES, "RHL_WALES_2026", dec!(15.00), Some(dec!(110000.00)), "2026-04-01", "2027-03-31");
 
         // Scotland Retail, Hospitality & Leisure Relief
-        // 2026/27: 15% mainland (RV <= £100,000) or 100% on islands (Islands (Scotland) Act 2018), £110k cap
+        // 2026/27: 15% mainland retail/leisure (RV <= £100k), 40% hospitality (RV <= £100k), or 100% on islands/remote mainland, £110k cap
         add("sec_sco_rhl_mainland_2026", "2026/27", Jurisdiction::SCOTLAND, "RHL_SCOTLAND_MAINLAND_2026", dec!(15.00), Some(dec!(110000.00)), "2026-04-01", "2027-03-31");
+        add("sec_sco_rhl_hospitality_2026", "2026/27", Jurisdiction::SCOTLAND, "RHL_SCOTLAND_HOSPITALITY_2026", dec!(40.00), Some(dec!(110000.00)), "2026-04-01", "2027-03-31");
         add("sec_sco_rhl_islands_2026", "2026/27", Jurisdiction::SCOTLAND, "RHL_SCOTLAND_ISLANDS_2026", dec!(100.00), Some(dec!(110000.00)), "2026-04-01", "2027-03-31");
     }
 
@@ -1191,11 +1199,11 @@ impl RepoData {
         add("tc_sco_med_2025", 2023, "2025/26", Jurisdiction::SCOTLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(75.00));
         add("tc_sco_lg_2025", 2023, "2025/26", Jurisdiction::SCOTLAND, "LARGE", dec!(100000.01), None, dec!(112.50));
 
-        // 2026 Revaluation List — Scotland (The Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2026)
-        // 2026/27: Small (+12.5%), Medium (+25%), Large (+37.5%)
-        add("tc_sco_sm_2026", 2026, "2026/27", Jurisdiction::SCOTLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(12.50));
-        add("tc_sco_med_2026", 2026, "2026/27", Jurisdiction::SCOTLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(25.00));
-        add("tc_sco_lg_2026", 2026, "2026/27", Jurisdiction::SCOTLAND, "LARGE", dec!(100000.01), None, dec!(37.50));
+        // 2026 Revaluation List — Scotland (The Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2026 (SSI 2026/70) reg. 9)
+        // 2026/27: Small (+15.00%, X=1.150), Medium (+30.00%, X=1.300), Large (+50.00%, X=1.500)
+        add("tc_sco_sm_2026", 2026, "2026/27", Jurisdiction::SCOTLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(15.00));
+        add("tc_sco_med_2026", 2026, "2026/27", Jurisdiction::SCOTLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(30.00));
+        add("tc_sco_lg_2026", 2026, "2026/27", Jurisdiction::SCOTLAND, "LARGE", dec!(100000.01), None, dec!(50.00));
     }
 
     fn seed_reference_codes(&mut self) {

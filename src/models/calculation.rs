@@ -79,9 +79,15 @@ pub struct QualifyingReliefFlags {
     #[serde(default)]
     pub is_rhl_qualifying: bool,
     #[serde(default)]
+    pub is_hospitality_premises: bool,
+    #[serde(default)]
     pub is_retail_premises: bool,
     #[serde(default)]
     pub is_island_property: bool,
+    #[serde(default)]
+    pub is_scottish_remote_mainland: bool,
+    #[serde(default)]
+    pub has_short_term_let_licence: Option<bool>,
     #[serde(default)]
     pub is_rural_settlement: bool,
     #[serde(default)]

@@ -2292,7 +2292,7 @@ async fn test_sector_relief_scotland_mainland_vs_island_2026() {
     let repo = ParameterRepository::new_mock();
     let engine = CalculationEngine::new(repo);
 
-    // Case A: Mainland Scotland hotel/restaurant RV £50,000 in 2026/27 -> 15% relief
+    // Case A: Mainland Scotland retail shop RV £50,000 in 2026/27 -> 15% relief
     let req_mainland = LiabilityCalculationRequest {
         party_type: PartyType::CORPORATE,
         occupation_period: DateRange {
@@ -2301,7 +2301,7 @@ async fn test_sector_relief_scotland_mainland_vs_island_2026() {
         },
         hereditament: HereditamentInput {
             jurisdiction: Jurisdiction::SCOTLAND,
-            scat_code: "209".to_string(),
+            scat_code: "225".to_string(),
             rateable_value_history: vec![
                 RvEntry {
                     effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
@@ -2395,6 +2395,41 @@ async fn test_sector_relief_scotland_mainland_vs_island_2026() {
     let seg_mh = &res_mainland_high.annual_billing_segments[0];
     assert!(!seg_mh.itemized_reliefs.iter().any(|r| r.relief_code.starts_with("RHL")),
         "Mainland property over £100k RV must not receive RHL relief");
+
+    // Case D: Mainland Scotland hospitality premises (pub SCAT 209) RV £50,000 in 2026/27 -> 40% relief (SSI 2026/135)
+    let req_hosp = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2027, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::SCOTLAND,
+            scat_code: "209".to_string(),
+            rateable_value_history: vec![
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(50000.00),
+                },
+            ],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_rhl_qualifying: true,
+            is_hospitality_premises: true,
+            is_island_property: false,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+
+    let res_hosp = engine.calculate(req_hosp);
+    let seg_h = &res_hosp.annual_billing_segments[0];
+    let rhl_h = seg_h.itemized_reliefs.iter().find(|r| r.relief_code == "RHL_SCOTLAND_HOSPITALITY_2026");
+    assert!(rhl_h.is_some(), "Expected Scottish Hospitality RHL relief in 2026/27");
+    assert_eq!(rhl_h.unwrap().discount_percentage, dec!(40.00));
 }
 
 #[tokio::test]
@@ -2582,18 +2617,18 @@ async fn test_scottish_sbbs_tr_2026_list_25_percent_cap() {
     let engine = CalculationEngine::new(repo);
 
     // Scottish property with RV £10,000 in 2025/26 receiving 100% SBBS (net = £0).
-    // In 2026/27, RV revalued to £16,000 (standard rate 0.545).
+    // In 2026/27, RV revalued to £16,000 (basic rate 0.481 under SSI 2026/39).
     // Base liability = £10,000 * 0.498 = £4,980.00.
-    // 2026 General TR (+12.5%): capped gross = £4,980 * 1.125 = £5,602.50.
-    // Gross = £16,000 * 0.545 = £8,720.00 -> General TR deduction = £3,117.50.
-    // Chargeable after General TR = £5,602.50.
+    // 2026 General TR (+15.0% under SSI 2026/70 reg 9): capped gross = £4,980 * 1.150 = £5,727.00.
+    // Gross = £16,000 * 0.481 = £7,696.00 -> General TR deduction = £1,969.00.
+    // Chargeable after General TR = £5,727.00.
     // Under SSI 2023/30 reg 3(3) / SSI 2026/68 reg 3(3), RV £16,000 receives 20% SBBS:
-    // SBBS deduction = 20% of £5,602.50 = £1,120.50.
-    // Net before SBBS TR = £5,602.50 - £1,120.50 = £4,482.00.
+    // SBBS deduction = 20% of £5,727.00 = £1,145.40.
+    // Net before SBBS TR = £5,727.00 - £1,145.40 = £4,581.60.
     // Under 2026 SBBS TR (SSI 2026/70 reg. 14), the net bill increase over previous year (£0) is capped to 25%:
-    // Ratepayer pays 25% of £4,482.00 = £1,120.50.
-    // SBBS TR deducts 75% of £4,482.00 = £3,361.50.
-    // Net segment payable = £1,120.50.
+    // Ratepayer pays 25% of £4,581.60 = £1,145.40.
+    // SBBS TR deducts 75% of £4,581.60 = £3,436.20.
+    // Net segment payable = £1,145.40.
     let request = LiabilityCalculationRequest {
         party_type: PartyType::CORPORATE,
         occupation_period: DateRange {
@@ -2630,12 +2665,12 @@ async fn test_scottish_sbbs_tr_2026_list_25_percent_cap() {
     let seg = &response.annual_billing_segments[0];
 
     assert_eq!(seg.transitional_adjustment.adjustment_type, "RELIEF");
-    assert_eq!(seg.transitional_adjustment.amount, dec!(3117.50));
+    assert_eq!(seg.transitional_adjustment.amount, dec!(1969.00));
 
     let sbbs_tr = seg.itemized_reliefs.iter().find(|r| r.relief_code == "SBBS_TR");
     assert!(sbbs_tr.is_some(), "Expected SBBS TR to be awarded in 2026/27");
-    assert_eq!(sbbs_tr.unwrap().amount_deducted, dec!(3361.50));
-    assert_eq!(seg.net_segment_payable, dec!(1120.50));
+    assert_eq!(sbbs_tr.unwrap().amount_deducted, dec!(3436.20));
+    assert_eq!(seg.net_segment_payable, dec!(1145.40));
 }
 
 #[tokio::test]
@@ -6194,6 +6229,307 @@ async fn test_scotland_sbbs_multiple_properties_exceeding_35k_cap() {
     assert!(!seg.itemized_reliefs.iter().any(|r| r.relief_code == "SBBS"),
         "Multiple properties exceeding £35,000 cumulative RV must receive 0% SBBS relief");
 }
+
+#[tokio::test]
+async fn test_scotland_2026_multipliers_basic_intermediate_higher() {
+    let repo = ParameterRepository::new_seeded();
+
+    // Reproduction for Issue #18 (Part 1): SSI 2026/39 & SSI 2026/68 regs 5-6
+    // 1. Basic (RV <= £51,000): 0.481
+    let m_basic = repo.resolve_multiplier(Jurisdiction::SCOTLAND, "2026/27", dec!(30000.00)).unwrap();
+    assert_eq!(m_basic.rate, dec!(0.481));
+    assert_eq!(m_basic.multiplier_type, "BASIC");
+
+    // 2. Intermediate (£51,001 <= RV <= £100,000): 0.535 (0.481 + 0.054)
+    let m_inter = repo.resolve_multiplier(Jurisdiction::SCOTLAND, "2026/27", dec!(75000.00)).unwrap();
+    assert_eq!(m_inter.rate, dec!(0.535));
+    assert_eq!(m_inter.multiplier_type, "INTERMEDIATE");
+
+    // 3. Higher (RV > £100,000): 0.548 (0.481 + 0.067)
+    let m_higher = repo.resolve_multiplier(Jurisdiction::SCOTLAND, "2026/27", dec!(150000.00)).unwrap();
+    assert_eq!(m_higher.rate, dec!(0.548));
+    assert_eq!(m_higher.multiplier_type, "HIGHER");
+}
+
+#[tokio::test]
+async fn test_scotland_2026_rhl_hospitality_40_percent_pub() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Reproduction for Issue #18 (Part 2 & Part 3):
+    // Scotland 2026/27, mainland pub (SCAT 209), RV £30,000, is_rhl_qualifying
+    // Under SSI 2026/39, basic multiplier is 0.481 -> Gross = £30,000 * 0.481 = £14,430.00
+    // Under SSI 2026/69 reg. 4A (added by SSI 2026/135), hospitality receives 40% relief
+    // RHL = 40% of £14,430.00 = £5,772.00
+    // Net = £8,658.00
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "SCOTLAND",
+            "scat_code": "209",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2026-04-01",
+                    "effective_to": null,
+                    "rateable_value": 30000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2026-04-01",
+            "end_date": "2027-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_rhl_qualifying": true,
+            "apply_transitional_relief": false
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    assert_eq!(seg.multiplier_used.rate, dec!(0.481));
+    assert_eq!(seg.gross_liability, dec!(14430.00));
+    let rhl = seg.itemized_reliefs.iter().find(|r| r.relief_code.starts_with("RHL")).expect("RHL should apply");
+    assert_eq!(rhl.discount_percentage, dec!(40.00));
+    assert_eq!(rhl.amount_deducted, dec!(5772.00));
+    assert_eq!(seg.net_segment_payable, dec!(8658.00));
+}
+
+#[tokio::test]
+async fn test_scotland_2026_rhl_retail_15_percent_shop() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Reproduction for Issue #18: Scotland 2026/27, mainland retail shop (SCAT 225), RV £30,000
+    // Under SSI 2026/39, basic multiplier is 0.481 -> Gross = £30,000 * 0.481 = £14,430.00
+    // Under SSI 2026/69 reg. 4, retail receives 15% relief
+    // RHL = 15% of £14,430.00 = £2,164.50
+    // Net = £12,265.50
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "SCOTLAND",
+            "scat_code": "225",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2026-04-01",
+                    "effective_to": null,
+                    "rateable_value": 30000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2026-04-01",
+            "end_date": "2027-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_rhl_qualifying": true,
+            "apply_transitional_relief": false
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    assert_eq!(seg.multiplier_used.rate, dec!(0.481));
+    assert_eq!(seg.gross_liability, dec!(14430.00));
+    let rhl = seg.itemized_reliefs.iter().find(|r| r.relief_code.starts_with("RHL")).expect("RHL should apply");
+    assert_eq!(rhl.discount_percentage, dec!(15.00));
+    assert_eq!(rhl.amount_deducted, dec!(2164.50));
+    assert_eq!(seg.net_segment_payable, dec!(12265.50));
+}
+
+#[tokio::test]
+async fn test_scotland_2026_transitional_caps() {
+    let repo = ParameterRepository::new_seeded();
+
+    // Reproduction for Issue #18 (Part 4): SSI 2026/70 reg 9 & SSI 2026/135 reg 4
+    // Small (<= £20,000): X = 1.150 (+15%)
+    let cap_sm = repo.resolve_transitional_cap(Jurisdiction::SCOTLAND, "2026/27", dec!(15000.00)).unwrap();
+    assert_eq!(cap_sm.upward_cap_percentage, dec!(15.00));
+
+    // Medium (<= £100,000): X = 1.300 (+30%)
+    let cap_med = repo.resolve_transitional_cap(Jurisdiction::SCOTLAND, "2026/27", dec!(60000.00)).unwrap();
+    assert_eq!(cap_med.upward_cap_percentage, dec!(30.00));
+
+    // Large (> £100,000): X = 1.500 (+50%)
+    let cap_lg = repo.resolve_transitional_cap(Jurisdiction::SCOTLAND, "2026/27", dec!(150000.00)).unwrap();
+    assert_eq!(cap_lg.upward_cap_percentage, dec!(50.00));
+}
+
+#[tokio::test]
+async fn test_scotland_2026_self_catering_licensed_transitional_cap_15_percent() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // SSI 2026/135 reg 4: Licensed self-catering holiday accommodation (SCAT 249) receives 15% cap (X = 1.150)
+    // regardless of rateable value (even if RV > £100k which normally has 50% cap).
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "SCOTLAND",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": "2026-03-31",
+                    "rateable_value": 80000.00
+                },
+                {
+                    "effective_from": "2026-04-01",
+                    "effective_to": null,
+                    "rateable_value": 120000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2026-04-01",
+            "end_date": "2027-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": true,
+            "has_short_term_let_licence": true,
+            "holiday_let_actual_days_let": 200,
+            "holiday_let_days_available": 200
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    // 2025/26 base: £80,000 * 0.545 = £43,600.00
+    // 2026/27 capped gross with X = 1.150: £43,600 * 1.150 = £50,140.00
+    // 2026/27 gross: £120,000 * 0.548 (higher multiplier) = £65,760.00
+    // TR adjustment: £65,760.00 - £50,140.00 = £15,620.00
+    assert_eq!(seg.multiplier_used.rate, dec!(0.548));
+    assert_eq!(seg.gross_liability, dec!(65760.00));
+    assert_eq!(seg.transitional_adjustment.adjustment_type, "RELIEF");
+    assert_eq!(seg.transitional_adjustment.amount, dec!(15620.00));
+    assert_eq!(seg.net_segment_payable, dec!(50140.00));
+}
+
+#[tokio::test]
+async fn test_scotland_2026_self_catering_licensing_rhl_qualification() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // Case 1: Unlicensed self-catering (SCAT 249) -> Excluded from RHL under SSI 2026/69 reg. 4(2)(b)
+    let json_unlicensed = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "SCOTLAND",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2026-04-01",
+                    "effective_to": null,
+                    "rateable_value": 30000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2026-04-01",
+            "end_date": "2027-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_rhl_qualifying": true,
+            "has_short_term_let_licence": false,
+            "apply_transitional_relief": false,
+            "holiday_let_actual_days_let": 200,
+            "holiday_let_days_available": 200
+        }
+    });
+
+    let req_unlicensed: LiabilityCalculationRequest = serde_json::from_value(json_unlicensed).unwrap();
+    let res_unlicensed = engine.calculate(req_unlicensed);
+    let seg_un = &res_unlicensed.annual_billing_segments[0];
+    assert!(!seg_un.itemized_reliefs.iter().any(|r| r.relief_code.starts_with("RHL")),
+        "Unlicensed self-catering holiday accommodation must be excluded from Scottish RHL relief");
+
+    // Case 2: Licensed self-catering (SCAT 249) -> Receives 15% retail/leisure RHL under SSI 2026/69 reg. 4(1)
+    let json_licensed = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "SCOTLAND",
+            "scat_code": "249",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2026-04-01",
+                    "effective_to": null,
+                    "rateable_value": 30000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2026-04-01",
+            "end_date": "2027-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_rhl_qualifying": true,
+            "has_short_term_let_licence": true,
+            "apply_transitional_relief": false,
+            "holiday_let_actual_days_let": 200,
+            "holiday_let_days_available": 200
+        }
+    });
+
+    let req_licensed: LiabilityCalculationRequest = serde_json::from_value(json_licensed).unwrap();
+    let res_licensed = engine.calculate(req_licensed);
+    let seg_lic = &res_licensed.annual_billing_segments[0];
+    let rhl = seg_lic.itemized_reliefs.iter().find(|r| r.relief_code.starts_with("RHL")).expect("Licensed SCAT 249 should receive RHL");
+    assert_eq!(rhl.discount_percentage, dec!(15.00));
+    assert_eq!(rhl.amount_deducted, dec!(2164.50));
+}
+
+#[tokio::test]
+async fn test_scotland_2026_remote_mainland_rhl_100_percent() {
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    // SSI 2026/69 reg 5: Cape Wrath, Knoydart, Scoraig receive 100% relief (same as islands)
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "hereditament": {
+            "jurisdiction": "SCOTLAND",
+            "scat_code": "225",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2026-04-01",
+                    "effective_to": null,
+                    "rateable_value": 30000.00
+                }
+            ]
+        },
+        "occupation_period": {
+            "start_date": "2026-04-01",
+            "end_date": "2027-03-31"
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "is_rhl_qualifying": true,
+            "is_scottish_remote_mainland": true,
+            "apply_transitional_relief": false
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    let rhl = seg.itemized_reliefs.iter().find(|r| r.relief_code == "RHL_SCOTLAND_ISLANDS_2026").expect("Remote mainland receives 100% relief");
+    assert_eq!(rhl.discount_percentage, dec!(100.00));
+    assert_eq!(seg.net_segment_payable, dec!(0.00));
+}
+
 
 
 

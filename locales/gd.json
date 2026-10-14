@@ -143,7 +143,10 @@
     "Council Tax Transfer (Holiday Let Disqualification)": "Gluasad gu Cìs Comhairle (Dì-cheadachadh Togalaich Saor-làithean)",
     "Welsh Small Business Rates Relief": "Faochadh Reataichean Gnìomhachasan Beaga na Cuimrigh",
     "Welsh Small Business Rates Relief (Registered Childcare)": "Faochadh Reataichean Gnìomhachasan Beaga na Cuimrigh (Cùram Chloinne Clàraichte)",
-    "Welsh Small Business Rates Relief (Post Office)": "Faochadh Reataichean Gnìomhachasan Beaga na Cuimrigh (Oifis a' Phuist)"
+    "Welsh Small Business Rates Relief (Post Office)": "Faochadh Reataichean Gnìomhachasan Beaga na Cuimrigh (Oifis a' Phuist)",
+    "Scottish Retail, Hospitality & Leisure Relief": "Faoiseamh Reic, Aoigheachd agus Cur-seachad na h-Alba",
+    "Scottish Hospitality Rates Relief": "Faoiseamh Ìrean Aoigheachd na h-Alba",
+    "Scottish Islands Retail, Hospitality & Leisure Relief": "Faoiseamh Reic, Aoigheachd agus Cur-seachad Eileanan na h-Alba"
   },
   "errors": {
     "invalid_occupation_period": "Chan urrainn do cheann-latha crìochnachaidh gabhaltais ({end}) a bhith ro cheann-latha tòiseachaidh ({start})",

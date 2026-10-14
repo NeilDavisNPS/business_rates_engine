@@ -385,7 +385,16 @@ impl CalculationEngine {
                                     prev_rv * prev_mult.rate
                                 }
                             };
-                            let cap_factor = dec!(1.00) + (cap.upward_cap_percentage / dec!(100.00));
+                            let cap_factor = if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND
+                                && (win.financial_year == "2026/27" || win.financial_year == "2027/28" || win.financial_year == "2028/29")
+                                && req.hereditament.scat_code.trim() == "249"
+                                && win.period_relief_flags.has_short_term_let_licence == Some(true)
+                            {
+                                // S.S.I. 2026/135 reg 4: X is 1.150 (+15.00%) for licensed self-catering holiday accommodation whatever its rateable value
+                                dec!(1.150)
+                            } else {
+                                dec!(1.00) + (cap.upward_cap_percentage / dec!(100.00))
+                            };
                             let capped_annual_liability = (base_liability_annual * cap_factor).round_dp(2);
                             let capped_segment_liability = ((capped_annual_liability / year_days_dec) * days_dec).round_dp(2);
 
@@ -845,21 +854,31 @@ impl CalculationEngine {
                         // 7. Dynamic Sector Relief (RHL / Food & Drink) resolved from parameter repository tables
                         let rhl_requested = flags.is_rhl_qualifying || flags.is_food_and_drink;
                         if rhl_requested && segment_relief_total < gross_liability {
-                            let eligible_rv = if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND && !flags.is_island_property {
+                            let eligible_rv = if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND && !flags.is_island_property && !flags.is_scottish_remote_mainland {
                                 rv <= dec!(100000.00)
                             } else {
                                 true
                             };
 
                             if eligible_rv {
+                                let is_island = flags.is_island_property
+                                    || (req.hereditament.jurisdiction == Jurisdiction::SCOTLAND && flags.is_scottish_remote_mainland);
+                                let is_hospitality = flags.is_hospitality_premises
+                                    || (req.hereditament.jurisdiction == Jurisdiction::SCOTLAND && (req.hereditament.scat_code.trim() == "209" || flags.is_food_and_drink));
+
                                 if let Some(sec) = self.repo.resolve_sector_relief(
                                     req.hereditament.jurisdiction,
                                     &win.financial_year,
                                     true,
-                                    flags.is_island_property,
+                                    is_island,
+                                    is_hospitality,
                                 ) {
                                     let qualifies = match req.hereditament.jurisdiction {
-                                        Jurisdiction::SCOTLAND => true,
+                                        Jurisdiction::SCOTLAND => {
+                                            // SSI 2026/69 regs 4(2)(b) & 5(1)(c):
+                                            // Self-catering accommodation (SCAT 249) requires a short-term let licence under Civic Government (Scotland) Act 1982 / S.S.I. 2022/86 to qualify.
+                                            !(req.hereditament.scat_code.trim() == "249" && flags.has_short_term_let_licence != Some(true))
+                                        }
                                         Jurisdiction::WALES => {
                                             if win.financial_year.as_str() >= "2026/27" {
                                                 // 2026/27 Welsh Food and Drink Hospitality Rates Relief (15%)
@@ -885,7 +904,13 @@ impl CalculationEngine {
 
                                     if qualifies {
                                         let remaining = chargeable_before_reliefs - segment_relief_total;
-                                        let mut amount = (remaining * (sec.discount_percentage / dec!(100.00))).round_dp(2);
+                                        let mut amount = if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND {
+                                            // Under SSI 2026/69 regs 4(3) & 4A(3), relief is a percentage of daily gross rates payable
+                                            // (chargeable_before_reliefs), capped at the remaining liability
+                                            (chargeable_before_reliefs * (sec.discount_percentage / dec!(100.00))).round_dp(2).min(remaining)
+                                        } else {
+                                            (remaining * (sec.discount_percentage / dec!(100.00))).round_dp(2)
+                                        };
                                         if let Some(cap) = sec.cash_cap_gbp {
                                             let already_awarded = rhl_awarded_by_financial_year
                                                 .get(&win.financial_year)

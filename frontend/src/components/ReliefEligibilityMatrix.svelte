@@ -352,16 +352,47 @@
 
       <!-- Scottish Island Property (Scotland only) -->
       {#if calcStore.jurisdiction === 'SCOTLAND' && calcStore.qualifyingReliefFlags.is_rhl_qualifying}
-        <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-purple-200 bg-purple-50/50 hover:bg-purple-50 cursor-pointer transition-colors">
+        <label class="flex items-start space-x-2.5 p-2.5 min-h-[44px] rounded-lg border border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-950/40 hover:bg-purple-50 dark:hover:bg-purple-950/60 cursor-pointer transition-colors">
           <input
             type="checkbox"
             bind:checked={calcStore.qualifyingReliefFlags.is_island_property}
             onchange={onFlagChange}
-            class="mt-0.5 rounded text-purple-600 focus:ring-purple-500"
+            aria-label={calcStore.t.flag_island_title}
+            class="mt-0.5 rounded text-purple-600 focus:ring-purple-500 focus-visible:ring-2 focus-visible:ring-offset-2"
           />
           <div>
-            <span class="text-xs font-bold text-purple-900 block">{calcStore.t.flag_island_title}</span>
-            <span class="text-[11px] text-purple-700">{calcStore.t.flag_island_desc}</span>
+            <span class="text-xs font-bold text-purple-950 dark:text-purple-100 block">{calcStore.t.flag_island_title}</span>
+            <span class="text-[11px] text-purple-900 dark:text-purple-200">{calcStore.t.flag_island_desc}</span>
+          </div>
+        </label>
+
+        <!-- Scottish Remote Mainland (Cape Wrath, Knoydart, Scoraig - 100% relief under SSI 2026/69 reg 5) -->
+        <label class="flex items-start space-x-2.5 p-2.5 min-h-[44px] rounded-lg border border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-950/40 hover:bg-purple-50 dark:hover:bg-purple-950/60 cursor-pointer transition-colors">
+          <input
+            type="checkbox"
+            bind:checked={calcStore.qualifyingReliefFlags.is_scottish_remote_mainland}
+            onchange={onFlagChange}
+            aria-label={calcStore.t.flag_remote_mainland_title}
+            class="mt-0.5 rounded text-purple-600 focus:ring-purple-500 focus-visible:ring-2 focus-visible:ring-offset-2"
+          />
+          <div>
+            <span class="text-xs font-bold text-purple-950 dark:text-purple-100 block">{calcStore.t.flag_remote_mainland_title}</span>
+            <span class="text-[11px] text-purple-900 dark:text-purple-200">{calcStore.t.flag_remote_mainland_desc}</span>
+          </div>
+        </label>
+
+        <!-- Scottish Hospitality Premises (40% tier under SSI 2026/135 reg 4A) -->
+        <label class="flex items-start space-x-2.5 p-2.5 min-h-[44px] rounded-lg border border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-950/40 hover:bg-purple-50 dark:hover:bg-purple-950/60 cursor-pointer transition-colors">
+          <input
+            type="checkbox"
+            bind:checked={calcStore.qualifyingReliefFlags.is_hospitality_premises}
+            onchange={onFlagChange}
+            aria-label={calcStore.t.flag_hospitality_tier_title}
+            class="mt-0.5 rounded text-purple-600 focus:ring-purple-500 focus-visible:ring-2 focus-visible:ring-offset-2"
+          />
+          <div>
+            <span class="text-xs font-bold text-purple-950 dark:text-purple-100 block">{calcStore.t.flag_hospitality_tier_title}</span>
+            <span class="text-[11px] text-purple-900 dark:text-purple-200">{calcStore.t.flag_hospitality_tier_desc}</span>
           </div>
         </label>
       {/if}
@@ -501,6 +532,26 @@
               ? calcStore.t.holiday_desc_wales
               : calcStore.t.holiday_desc_england}
           </p>
+          {#if calcStore.jurisdiction === 'SCOTLAND'}
+            <div class="pt-2 border-t border-purple-200/60 dark:border-purple-800">
+              <label class="flex items-start space-x-2.5 min-h-[44px] cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={calcStore.qualifyingReliefFlags.has_short_term_let_licence === true}
+                  onchange={(e) => {
+                    calcStore.qualifyingReliefFlags.has_short_term_let_licence = e.currentTarget.checked;
+                    onFlagChange();
+                  }}
+                  aria-label={calcStore.t.flag_stl_licence_title}
+                  class="mt-0.5 rounded text-purple-600 focus:ring-purple-500 focus-visible:ring-2 focus-visible:ring-offset-2"
+                />
+                <div>
+                  <span class="text-xs font-bold text-purple-950 dark:text-purple-100 block">{calcStore.t.flag_stl_licence_title}</span>
+                  <span class="text-[11px] text-purple-900 dark:text-purple-200">{calcStore.t.flag_stl_licence_desc}</span>
+                </div>
+              </label>
+            </div>
+          {/if}
         </div>
       {/if}
 

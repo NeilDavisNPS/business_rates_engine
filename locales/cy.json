@@ -143,7 +143,10 @@
     "Council Tax Transfer (Holiday Let Disqualification)": "Trosglwyddo i'r Dreth Gyngor (Anghymhwyso Llety Gwyliau)",
     "Welsh Small Business Rates Relief": "Rhyddhad Ardrethi Busnesau Bach Cymru",
     "Welsh Small Business Rates Relief (Registered Childcare)": "Rhyddhad Ardrethi Busnesau Bach Cymru (Gofal Plant Cofrestredig)",
-    "Welsh Small Business Rates Relief (Post Office)": "Rhyddhad Ardrethi Busnesau Bach Cymru (Swyddfa'r Post)"
+    "Welsh Small Business Rates Relief (Post Office)": "Rhyddhad Ardrethi Busnesau Bach Cymru (Swyddfa'r Post)",
+    "Scottish Retail, Hospitality & Leisure Relief": "Rhyddhad Manwerthu, Lletygarwch a Hamdden yr Alban",
+    "Scottish Hospitality Rates Relief": "Rhyddhad Cyfraddau Lletygarwch yr Alban",
+    "Scottish Islands Retail, Hospitality & Leisure Relief": "Rhyddhad Manwerthu, Lletygarwch a Hamdden Ynysoedd yr Alban"
   },
   "errors": {
     "invalid_occupation_period": "Ni all dyddiad gorffen meddiannaeth ({end}) fod cyn y dyddiad cychwyn ({start})",
