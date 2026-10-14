@@ -91,6 +91,26 @@ impl CalculationEngine {
             || scat == "051"
     }
 
+    /// Self-catering holiday accommodation letting tests as (minimum days actually let, minimum days available to let).
+    /// A minimum of 0 days let means no actual-letting requirement applies.
+    /// - Wales from 1 April 2023: 182 let / 252 available (LGFA 1988 s.66(2BB) as amended by W.S.I. 2022/563)
+    /// - Scotland from 1 April 2022: 70 let / 140 available in the financial year (Council Tax (Dwellings and Part
+    ///   Residential Subjects) (Scotland) Regulations 1992 sched 2 para 2(b), substituted by S.S.I. 2021/489 reg 2(4))
+    /// - Scotland before 1 April 2022: 140 days available only (1992 Regulations sched 2 para 2(b) as originally made)
+    /// - Wales 1 April 2010 to 31 March 2023: 70 let / 140 available (LGFA 1988 s.66(2B) as substituted by W.S.I. 2010/682)
+    /// - England from 1 April 2023: 70 let / 140 available (LGFA 1988 s.66(2B) as amended by S.I. 2022/217)
+    /// - England before 1 April 2023 and Wales before 1 April 2010: 140 days available only (LGFA 1988 s.66(2B))
+    pub(crate) fn holiday_let_thresholds(jurisdiction: Jurisdiction, date: NaiveDate) -> (i64, i64) {
+        let on_or_after = |y: i32, m: u32, d: u32| date >= NaiveDate::from_ymd_opt(y, m, d).unwrap();
+        match jurisdiction {
+            Jurisdiction::WALES if on_or_after(2023, 4, 1) => (182, 252),
+            Jurisdiction::WALES if on_or_after(2010, 4, 1) => (70, 140),
+            Jurisdiction::SCOTLAND if on_or_after(2022, 4, 1) => (70, 140),
+            Jurisdiction::ENGLAND if on_or_after(2023, 4, 1) => (70, 140),
+            _ => (0, 140),
+        }
+    }
+
     fn compute_statutory_installments(
         &self,
         net_payable: Decimal,
@@ -448,35 +468,20 @@ impl CalculationEngine {
                         cumulative_unoccupied_days = 0;
                     }
 
-                    // Priority 5: Self-Catering Holiday Accommodation Letting Days Test (LGFA 1988 s.66 / W.S.I. 2022/563 / SSI 2022/86)
+                    // Priority 5: Self-Catering Holiday Accommodation Letting Days Test (LGFA 1988 s.66 / W.S.I. 2022/563 / S.I. 1992/2955 as amended by S.S.I. 2021/489)
                     let holiday_let_disqualified = if req.hereditament.scat_code == "249" {
                         let mut disqualified = false;
-                        let is_wales_post_2023 = req.hereditament.jurisdiction == Jurisdiction::WALES
-                            && win.period.start_date >= NaiveDate::from_ymd_opt(2023, 4, 1).unwrap();
+                        let (min_let_days, min_available_days) =
+                            Self::holiday_let_thresholds(req.hereditament.jurisdiction, win.period.start_date);
 
-                        // 1. Minimum actual letting days:
-                        // Wales post-2023: 182 days (LGFA 1988 s.66(2BB)(d) / W.S.I. 2022/563)
-                        // Scotland: 182 days (SSI 2022/86)
-                        // England & pre-2023 Wales: 70 days (LGFA 1988 s.66(2B) / SI 2022/1098)
-                        let min_let_days = if is_wales_post_2023 || req.hereditament.jurisdiction == Jurisdiction::SCOTLAND {
-                            182
-                        } else {
-                            70
-                        };
+                        // 1. Minimum actual letting days
                         if let Some(actual_days) = flags.holiday_let_actual_days_let {
                             if actual_days < min_let_days {
                                 disqualified = true;
                             }
                         }
 
-                        // 2. Minimum commercial availability days:
-                        // Wales post-2023: 252 days (LGFA 1988 s.66(2BB)(a), (c) / W.S.I. 2022/563)
-                        // Scotland & England & pre-2023 Wales: 140 days
-                        let min_available_days = if is_wales_post_2023 {
-                            252
-                        } else {
-                            140
-                        };
+                        // 2. Minimum commercial availability days
                         if let Some(available_days) = flags.holiday_let_days_available {
                             if available_days < min_available_days {
                                 disqualified = true;
@@ -492,15 +497,19 @@ impl CalculationEngine {
                         let amount = chargeable_before_reliefs;
                         segment_relief_total += amount;
                         let auth = if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND {
-                            "Local Government (Scotland) Act 1975 / SSI 2022/86 reg. 2".to_string()
+                            if win.period.start_date >= NaiveDate::from_ymd_opt(2022, 4, 1).unwrap() {
+                                "S.I. 1992/2955 sched 2 para 2(b) / S.S.I. 2021/489".to_string()
+                            } else {
+                                "S.I. 1992/2955 sched 2 para 2(b)".to_string()
+                            }
                         } else if req.hereditament.jurisdiction == Jurisdiction::WALES {
                             if win.period.start_date >= NaiveDate::from_ymd_opt(2023, 4, 1).unwrap() {
                                 "LGFA 1988 s.66(2BB) / W.S.I. 2022/563".to_string()
                             } else {
-                                "LGFA 1988 s.66(2B) / SI 2022/1098".to_string()
+                                "LGFA 1988 s.66(2B) / W.S.I. 2010/682".to_string()
                             }
                         } else {
-                            "LGFA 1988 s.66(2B) / SI 2022/1098".to_string()
+                            "LGFA 1988 s.66(2B) / S.I. 2022/217".to_string()
                         };
                         reliefs.push(ItemizedRelief {
                             relief_code: "COUNCIL_TAX_TRANSFER".to_string(),

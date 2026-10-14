@@ -872,7 +872,7 @@
           "holiday_let_actual_days_let": {
             "type": "integer",
             "nullable": true,
-            "description": "Actual days let out in the preceding 12 months (Scotland self-catering 70/140 day statutory test)."
+            "description": "Actual days let out in preceding 12 months (minimum 70 days in Scotland from 2022/23 under S.S.I. 2021/489; minimum 70 days in England from 2023/24 under S.I. 2022/217; minimum 70 days in Wales from 2010 under W.S.I. 2010/682 rising to 182 days from 2023/24 under W.S.I. 2022/563)."
           },
           "holiday_let_days_available": {
             "type": "integer",

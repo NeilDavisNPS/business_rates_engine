@@ -901,8 +901,8 @@ async fn test_self_catering_holiday_let_letting_days_test() {
     let repo = ParameterRepository::new_seeded();
     let engine = CalculationEngine::new(repo);
 
-    // Case 1: Scotland (SSI 2022/86 / SSI 2026/50) - 182-day actual letting threshold
-    // Sub-case A: 200 actual let days (>= 182 days) -> Qualifies as commercial holiday let on NDR list
+    // Case 1: Scotland (S.I. 1992/2955 sched 2 para 2(b) as substituted by S.S.I. 2021/489) - 70-day actual letting threshold
+    // Sub-case A: 200 actual let days (>= 70 days) -> Qualifies as commercial holiday let on NDR list
     let sco_pass_req = LiabilityCalculationRequest {
         party_type: PartyType::CORPORATE,
         occupation_period: DateRange {
@@ -931,7 +931,7 @@ async fn test_self_catering_holiday_let_letting_days_test() {
     assert_eq!(sco_pass_seg.net_segment_payable, dec!(9960.00)); // 20,000 * 0.498 = £9,960.00
     assert!(!sco_pass_seg.itemized_reliefs.iter().any(|r| r.relief_code == "COUNCIL_TAX_TRANSFER"));
 
-    // Sub-case B: 120 actual let days (< 182 days) -> Disqualified from NDR list and transferred to Council Tax
+    // Sub-case B: 60 actual let days (< 70 days) -> Disqualified from NDR list and transferred to Council Tax
     let sco_fail_req = LiabilityCalculationRequest {
         party_type: PartyType::CORPORATE,
         occupation_period: DateRange {
@@ -949,7 +949,7 @@ async fn test_self_catering_holiday_let_letting_days_test() {
         },
         occupancy_type: OccupancyType::OCCUPIED,
         qualifying_relief_flags: QualifyingReliefFlags {
-            holiday_let_actual_days_let: Some(120),
+            holiday_let_actual_days_let: Some(60),
             ..Default::default()
         },
         occupancy_periods: None,
@@ -1139,3 +1139,101 @@ async fn test_welsh_holiday_let_availability_threshold_disqualification() {
     assert_eq!(seg.net_segment_payable, dec!(0.00));
     assert!(seg.itemized_reliefs.iter().any(|r| r.relief_code == "COUNCIL_TAX_TRANSFER"));
 }
+
+#[tokio::test]
+async fn test_scotland_self_catering_70_day_letting_test() {
+    let engine = CalculationEngine::new(ParameterRepository::new_seeded());
+
+    // From 1 April 2022, Scottish self-catering accommodation is non-domestic where it is available to let for
+    // 140 days or more in the financial year and actually let for 70 days or more of those 140
+    // (Council Tax (Dwellings and Part Residential Subjects) (Scotland) Regulations 1992 sched 2 para 2(b),
+    // substituted by S.S.I. 2021/489 reg 2(4); unchanged by S.S.I. 2024/10, 2025/249 and 2026/72).
+    // Before 1 April 2022 only the 140-day availability test applied.
+    let run = |start: &str, end: &str, let_days: Option<i64>, available: Option<i64>| {
+        let json = serde_json::json!({
+            "party_type": "CORPORATE",
+            "hereditament": {
+                "jurisdiction": "SCOTLAND",
+                "scat_code": "249",
+                "rateable_value_history": [
+                    { "effective_from": "2017-04-01", "effective_to": null, "rateable_value": 20000.00 }
+                ]
+            },
+            "occupation_period": { "start_date": start, "end_date": end },
+            "occupancy_type": "OCCUPIED",
+            "qualifying_relief_flags": {
+                "apply_transitional_relief": false,
+                "holiday_let_actual_days_let": let_days,
+                "holiday_let_days_available": available
+            }
+        });
+        let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+        engine.calculate(request)
+    };
+    let transferred = |res: &LiabilityCalculationResponse| {
+        res.annual_billing_segments[0].itemized_reliefs.iter().any(|r| r.relief_code == "COUNCIL_TAX_TRANSFER")
+    };
+
+    // 2024/25: let 100 days, available 200 -> meets 70/140, stays on the valuation roll (20,000 x 0.498)
+    let res = run("2024-04-01", "2025-03-31", Some(100), Some(200));
+    assert!(!transferred(&res), "100 days let meets the Scottish 70-day test");
+    assert_eq!(res.annual_billing_segments[0].net_segment_payable, dec!(9960.00));
+    assert!(res.calculation_narrative.contains("meets minimum 70 days"));
+
+    // 2024/25: exactly 70 days let qualifies
+    let res = run("2024-04-01", "2025-03-31", Some(70), Some(140));
+    assert!(!transferred(&res));
+
+    // 2024/25: 69 days let -> fails the 70-day test, transferred to council tax
+    let res = run("2024-04-01", "2025-03-31", Some(69), Some(200));
+    assert!(transferred(&res));
+    assert_eq!(res.annual_billing_segments[0].net_segment_payable, dec!(0.00));
+
+    // 2024/25: let 100 days but available only 120 -> fails the 140-day availability test
+    let res = run("2024-04-01", "2025-03-31", Some(100), Some(120));
+    assert!(transferred(&res));
+
+    // 2021/22: no actual-letting requirement before 1 April 2022; 30 days let with 150 available stays on the roll
+    let res = run("2021-04-01", "2022-03-31", Some(30), Some(150));
+    assert!(!transferred(&res), "no actual-letting test in Scotland before 1 April 2022");
+
+    // 2021/22: available only 100 days -> fails the 140-day availability test
+    let res = run("2021-04-01", "2022-03-31", Some(30), Some(100));
+    assert!(transferred(&res));
+}
+
+#[tokio::test]
+async fn test_holiday_let_actual_letting_test_start_dates_england_wales() {
+    let engine = CalculationEngine::new(ParameterRepository::new_seeded());
+    // The 70-day actual letting requirement starts on 1 April 2023 in England (LGFA 1988 s.66(2B) as amended by
+    // S.I. 2022/217) and on 1 April 2010 in Wales (W.S.I. 2010/682). Before then only the 140-day availability
+    // test applied.
+    let run = |jur: &str, start: &str, end: &str, let_days: i64| {
+        let json = serde_json::json!({
+            "party_type": "CORPORATE",
+            "hereditament": {
+                "jurisdiction": jur,
+                "scat_code": "249",
+                "rateable_value_history": [
+                    { "effective_from": "2005-04-01", "effective_to": null, "rateable_value": 20000.00 }
+                ]
+            },
+            "occupation_period": { "start_date": start, "end_date": end },
+            "occupancy_type": "OCCUPIED",
+            "qualifying_relief_flags": {
+                "apply_transitional_relief": false,
+                "holiday_let_actual_days_let": let_days,
+                "holiday_let_days_available": 150
+            }
+        });
+        let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+        let res = engine.calculate(request);
+        res.annual_billing_segments[0].itemized_reliefs.iter().any(|r| r.relief_code == "COUNCIL_TAX_TRANSFER")
+    };
+    assert!(!run("ENGLAND", "2022-04-01", "2023-03-31", 30), "England 2022/23: no actual-letting test");
+    assert!(run("ENGLAND", "2023-04-01", "2024-03-31", 30), "England 2023/24: 70-day test applies");
+    assert!(!run("WALES", "2009-04-01", "2010-03-31", 30), "Wales 2009/10: no actual-letting test");
+    assert!(run("WALES", "2015-04-01", "2016-03-31", 30), "Wales 2015/16: 70-day test applies");
+    assert!(!run("WALES", "2015-04-01", "2016-03-31", 70), "Wales 2015/16: 70 days qualifies");
+}
+

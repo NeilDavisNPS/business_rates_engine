@@ -201,9 +201,9 @@
   "flag_renewable_desc": "Faochadh sreathaichte fo SSI 2010/336: 100% (RV ≤ £145k), 50% (RV ≤ £200k), 25% (RV ≤ £250k), 10% (RV ≤ £1m).",
   "property_conditions_title": "Cùmhnantan Gabhaltais & Seilbhe",
   "property_conditions_sub": "Saoraidhean falamh, teisteanasan fèin-frithealaidh, agus sgrùdaidhean gèillidh",
-  "holiday_desc_scotland": "Feumaidh e a bhith air a thoirt air màl gu fìor ≥ 182 latha agus ri fhaighinn ≥ 140 latha (SSI 2022/86) gus fuireach air liosta NDR. Ma dh'fhàilligeas e, thèid a ghluasad gu Cìs Comhairle (£0 NDR).",
+  "holiday_desc_scotland": "Feumaidh e a bhith air a thoirt air màl gu fìor ≥ 70 latha agus ri fhaighinn ≥ 140 latha sa bhliadhna ionmhais bho 2022/23 (S.S.I. 2021/489) gus fuireach air liosta NDR. Ma dh'fhàilligeas e, thèid a ghluasad gu Cìs Comhairle (£0 NDR).",
   "holiday_desc_wales": "Feumaidh e a bhith air a thoirt air màl gu fìor ≥ 182 latha agus ri fhaighinn ≥ 252 latha bho 2023/24 (W.S.I. 2022/563) gus fuireach air liosta NDR. Ma dh'fhàilligeas e, thèid a ghluasad gu Cìs Comhairle (£0 NDR).",
-  "holiday_desc_england": "Feumaidh e a bhith air a thoirt air màl gu fìor ≥ 70 latha agus ri fhaighinn ≥ 140 latha (LGFA 1988 e.66) gus fuireach air liosta NDR. Ma dh'fhàilligeas e, thèid a ghluasad gu Cìs Comhairle (£0 NDR).",
+  "holiday_desc_england": "Feumaidh e a bhith air a thoirt air màl gu fìor ≥ 70 latha agus ri fhaighinn ≥ 140 latha bho 2023/24 (LGFA 1988 e.66(2B) / S.I. 2022/217; 140 latha ri fhaighinn a-mhàin roimhe sin) gus fuireach air liosta NDR. Ma dh'fhàilligeas e, thèid a ghluasad gu Cìs Comhairle (£0 NDR).",
   "holiday_desc_eng_wales": "Feumaidh e a bhith air a thoirt air màl gu fìor ≥ 70 latha (LGFA 1988 e.66) gus fuireach air liosta NDR. Ma dh'fhàilligeas e, thèid a ghluasad gu Cìs Comhairle (£0 NDR).",
   "installments_plan_label": "Plana Cuibhreannan Reachdail",
   "installments_10_opt": "10 Cuibhreannan Mìosail (Bun-roghainn)",
@@ -638,9 +638,9 @@
           "primary": false
         },
         {
-          "key": "SSI 2022/86 (Slatan-tomhais Loidseadh Saor-làithean)",
-          "url": "https://www.legislation.gov.uk/ssi/2022/86/contents/made",
-          "title": "Riaghailtean Cìs Comhairle (Caochladh airson Dachaighean Neo-chòmhnaidh) (Alba) 2022 (S.S.I. 2022/86)",
+          "key": "SSI 2021/489 (Slatan-tomhais Loidseadh Saor-làithean)",
+          "url": "https://www.legislation.gov.uk/ssi/2021/489/contents/made",
+          "title": "Riaghailtean Cìs Comhairle (Dachaighean agus Cuspairean Pàirt-chòmhnaidh) (Alba) (Atharrachadh) 2021 (S.S.I. 2021/489)",
           "primary": false
         },
         {
@@ -765,9 +765,9 @@
           "list": "Liosta 2017",
           "years": "2017/18 – 2022/23",
           "multipliers": "Punndachd Bhunaiteach (46.6sg ann an 2017/18 ag èirigh gu 49.8sg ann an 2022/23); Leasachadh Gnìomhachas Mòr air a chur an sàs air LR > £51k",
-          "sbrr": "SBBS 100% faochadh suas gu £15,000 LR. Slatan-tomhais latha màil loidseadh saor-làithean S.S.I. 2022/86 (70 latha air màl, 140 latha ri fhaighinn).",
+          "sbrr": "SBBS 100% faochadh suas gu £15,000 LR. Slatan-tomhais latha màil loidseadh saor-làithean S.S.I. 2021/489 bho 2022/23 (70 latha air màl, 140 latha ri fhaighinn; 140 latha ri fhaighinn a-mhàin roimhe sin).",
           "transition": "Riaghailtean faochadh eadar-amail na h-Alba",
-          "statute": "S.S.I. 2017/85 / Achd NDR 2020 / S.S.I. 2022/86"
+          "statute": "S.S.I. 2017/85 / Achd NDR 2020 / S.S.I. 2021/489"
         },
         {
           "list": "Liosta 2023",

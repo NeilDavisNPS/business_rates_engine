@@ -201,9 +201,9 @@
   "flag_renewable_desc": "Tiered relief under SSI 2010/336: 100% (RV ≤ £145k), 50% (RV ≤ £200k), 25% (RV ≤ £250k), 10% (RV ≤ £1m).",
   "property_conditions_title": "Occupancy & Property Conditions",
   "property_conditions_sub": "Empty exemptions, self-catering qualifications, and compliance checks",
-  "holiday_desc_scotland": "Must be actually let ≥ 182 days and available ≥ 140 days (SSI 2022/86) to remain on NDR list. Failing transfers to Council Tax (£0 NDR).",
+  "holiday_desc_scotland": "Must be actually let ≥ 70 days and available ≥ 140 days in the financial year from 2022/23 (S.S.I. 2021/489) to remain on NDR list. Failing transfers to Council Tax (£0 NDR).",
   "holiday_desc_wales": "Must be actually let ≥ 182 days and available ≥ 252 days from 2023/24 (W.S.I. 2022/563) to remain on NDR list. Failing transfers to Council Tax (£0 NDR).",
-  "holiday_desc_england": "Must be actually let ≥ 70 days and available ≥ 140 days (LGFA 1988 s.66) to remain on NDR list. Failing transfers to Council Tax (£0 NDR).",
+  "holiday_desc_england": "Must be actually let ≥ 70 days and available ≥ 140 days from 2023/24 (LGFA 1988 s.66(2B) / S.I. 2022/217; 140 days available only before then) to remain on NDR list. Failing transfers to Council Tax (£0 NDR).",
   "holiday_desc_eng_wales": "Must be actually let ≥ 70 days (LGFA 1988 s.66) to remain on NDR list. Failing transfers to Council Tax (£0 NDR).",
   "installments_plan_label": "Statutory Installment Plan",
   "installments_10_opt": "10 Monthly Installments (Default)",
@@ -638,9 +638,9 @@
           "primary": false
         },
         {
-          "key": "SSI 2022/86 (Holiday Let Criteria)",
-          "url": "https://www.legislation.gov.uk/ssi/2022/86/contents/made",
-          "title": "The Council Tax (Variation for Unoccupied Dwellings) (Scotland) Regulations 2022 (S.S.I. 2022/86)",
+          "key": "SSI 2021/489 (Holiday Let Criteria)",
+          "url": "https://www.legislation.gov.uk/ssi/2021/489/contents/made",
+          "title": "The Council Tax (Dwellings and Part Residential Subjects) (Scotland) Amendment Regulations 2021 (S.S.I. 2021/489)",
           "primary": false
         },
         {
@@ -765,9 +765,9 @@
           "list": "2017 List",
           "years": "2017/18 – 2022/23",
           "multipliers": "Basic Poundage (46.6p in 2017/18 rising to 49.8p in 2022/23); Large Business Supplement applied to RV > £51k",
-          "sbrr": "SBBS 100% relief up to £15,000 RV. S.S.I. 2022/86 holiday let letting days criteria (70 days actual let, 140 days available).",
+          "sbrr": "SBBS 100% relief up to £15,000 RV. S.S.I. 2021/489 holiday let letting days criteria from 2022/23 (70 days actual let, 140 days available; 140 days available only before then).",
           "transition": "Scottish transitional relief regulations",
-          "statute": "S.S.I. 2017/85 / NDR Act 2020 / S.S.I. 2022/86"
+          "statute": "S.S.I. 2017/85 / NDR Act 2020 / S.S.I. 2021/489"
         },
         {
           "list": "2023 List",

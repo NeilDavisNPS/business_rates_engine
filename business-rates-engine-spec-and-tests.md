@@ -133,7 +133,9 @@ The calculation engine's business logic, zero-hardcoding parameter tables, and s
 130:   - [**The Council Tax and Non-Domestic Rating (Demand Notices) (England) Regulations 2003 (S.I. 2003/2613)**](https://www.legislation.gov.uk/uksi/2003/2613/contents/made), [**The Non-Domestic Rating (Demand Notes) (Wales) Regulations 2017 (W.S.I. 2017/113 / W. 38)**](https://www.legislation.gov.uk/wsi/2017/113/contents/made), and [**The Non-Domestic Rating (Demand Notes) (Scotland) Regulations 2008 (S.S.I. 2008/28)**](https://www.legislation.gov.uk/ssi/2008/28/contents/made) — Statutory content of non-domestic rates demand notices across the three jurisdictions.
 131:   - [**The Non-Domestic Rating (Alteration of Lists and Appeals) (Wales) Regulations 2023 (W.S.I. 2023/1162)**](https://www.legislation.gov.uk/wsi/2023/1162/contents/made) — Welsh Check, Challenge, Appeal (CCA) procedures and Valuation Tribunal for Wales appeals.
 132:   - [**The Non-Domestic Rating (Artificial Avoidance Arrangements) (Local Lists) (Wales) Regulations 2026 (W.S.I. 2026/43)**](https://www.legislation.gov.uk/wsi/2026/43/contents/made) — Welsh artificial avoidance countermeasures; WSI 2026/43 civil financial penalties (£500 flat + 3% RV).
-133:   - [**The Council Tax (Dwellings and Part Residential Subjects) (Scotland) Amendment Regulations 2026 (S.S.I. 2026/50)**](https://www.legislation.gov.uk/ssi/2026/50/contents/made) — Scottish self-catering 182-day actual letting test (and 140 days available to let) and Valuation Roll transfers.
+133:   - [**The Council Tax (Dwellings and Part Residential Subjects) (Scotland) Amendment Regulations 2021 (S.S.I. 2021/489)**](https://www.legislation.gov.uk/ssi/2021/489/contents/made) — Scottish self-catering statutory criteria under Schedule 2 paragraph 2 of S.I. 1992/2955 (as amended from 1 April 2022): commercially available $\ge 140$ days and actually let $\ge 70$ days in the financial year.
+   - [**The Non-Domestic Rating (Definition of Domestic Property) (England) Order 2022 (S.I. 2022/217)**](https://www.legislation.gov.uk/uksi/2022/217/contents/made) — Amends LGFA 1988 s.66(2B) from 1 April 2023 to introduce the 70-day actual letting test in England (prior to which only 140 days available to let applied).
+   - [**The Non-Domestic Rating (Definition of Domestic Property) (Wales) Order 2010 (W.S.I. 2010/682 / W. 67)**](https://www.legislation.gov.uk/wsi/2010/682/contents/made) — Introduces the 70-day actual letting test in Wales from 1 April 2010.
 134:   - [**The Non-Domestic Rating (Amendment of Definition of Hereditament) (Wales) Order 2022 (W.S.I. 2022/563 / W. 130)**](https://www.legislation.gov.uk/wsi/2022/563/contents/made) — Welsh self-catering letting test post-1 April 2023: commercially available $\ge 252$ days and actually let $\ge 182$ days.
 
 ### 1.5 Valuation Office Agency (VOA) Manuals & Policy Guidance
@@ -344,7 +346,7 @@ All relief eligibility determinations are driven by strongly typed flags within 
 | `is_scottish_island` | `bool` | Scotland | Hereditament on a Scottish island designated under Islands (Scotland) Act 2018 (qualifying for 100% island relief). |
 | `is_scottish_remote_mainland` | `bool` | Scotland | Situated in Cape Wrath, Knoydart, or Scoraig qualifying for 100% relief under S.S.I. 2026/69 reg. 5. |
 | `has_short_term_let_licence` | `bool?` | Scotland | Short-term let licence held under Civic Government (Scotland) Act 1982 / S.S.I. 2022/86; required for Scottish self-catering RHL and 15% transitional cap. |
-| `holiday_let_days_let` | `i32?` | All Jurisdictions | Days commercially let in preceding 12 months (minimum 182 days in Scotland / Wales post-2023, 70 days in England). |
+| `holiday_let_days_let` | `i32?` | All Jurisdictions | Days commercially let in preceding 12 months (minimum 70 days in Scotland from 2022/23 under S.S.I. 2021/489; minimum 70 days in England from 2023/24 under S.I. 2022/217; minimum 70 days in Wales from 2010 under W.S.I. 2010/682 rising to 182 days from 2023/24 under W.S.I. 2022/563). |
 | `holiday_let_days_available` | `i32?` | All Jurisdictions | Days commercially available to let in preceding 12 months (minimum 252 days in Wales post-2023 under W.S.I. 2022/563, 140 days elsewhere). |
 | `is_rural_settlement` | `bool` | All Jurisdictions | Mandatory 100% rural settlement relief under LGFA 1988 s.43(6A) / S.S.I. 2009/64. |
 | `is_public_lavatory` | `bool` | England, Wales | 100% exemption for standalone public conveniences under Rating (Public Lavatories) Act 2021. |
@@ -575,14 +577,14 @@ The in-memory parameter repository and statutory documentation are exposed direc
 
 ## 4. Test Cases Specification & Scenario Fixtures
 
-### Test Suite Overview (142 Passing Integration Tests)
+### Test Suite Overview (144 Passing Integration Tests)
 
-The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **142 automated integration tests**:
+The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **144 automated integration tests**:
 
 - **Suite A: Canonical Multi-Jurisdiction Scenario Fixture Tests (Scenarios 1–11)** ([`tests/integration_tests/suite_a_scenarios.rs`](tests/integration_tests/suite_a_scenarios.rs) — 11 tests):
   - `test_scenario_1_england_sbrr_and_rhl_multi_year` (`scenario_1_sbrr_rhl_england.json`): Multi-year slicing (2025/26 & 2026/27), SBRR linear taper, England 2026/27 RHL expiration verification, and Transitional Relief caps.
   - `test_scenario_2_wales_petrol_station` (`scenario_2_wales_petrol_station.json`): SCAT 211 forecourt valuation under Welsh Local Government Finance Act 2024.
-  - `test_scenario_3_scotland_self_catering` (`scenario_3_scotland_self_catering.json`): Scottish SBBS £12k threshold and 182-day actual letting compliance.
+  - `test_scenario_3_scotland_self_catering` (`scenario_3_scotland_self_catering.json`): Scottish SBBS £12k threshold and self-catering actual letting compliance.
   - `test_scenario_4_welsh_artificial_avoidance` (`scenario_4_welsh_artificial_avoidance.json`): Statutory avoidance penalty triggered by `is_artificial_avoidance_suspected` flag (£500 + 3% RV penalty under WSI 2026/43).
   - `test_scenario_5_airport_high_value` (`scenario_5_airport_high_value.json`): High-value hereditament (RV £1.25m) using English standard national multiplier.
   - `test_mandatory_charitable_relief_80_percent` (`scenario_6_charity_mandatory_80.json`): LGFA 1988 s.43(5) & LG(R)S 1962 s.4(2) mandatory 80% charitable reduction.
@@ -627,7 +629,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_licenses_endpoints`: Validates `/licenses` (HTML interface styled with unified `/assets/app.css` under CSP), `/licenses.md` (raw Markdown attribution document), and `/api/v1/licenses?format=md` query routing.
   - `test_health_check_endpoints`: Validates both root `/health` and `/api/v1/health` return HTTP 200 with OWASP security headers, subsystem health checks (`engine_api: pass`, `parameters_repository: pass`, `frontend_bundle: pass`), and deployment build metadata (`version`, `commit_hash`, `build_number`, `build_timestamp`).
 
-- **Suite E: English Multipliers, Transitional Phasing, Grace Periods & SSBR** ([`tests/integration_tests/suite_e_england_schemes.rs`](tests/integration_tests/suite_e_england_schemes.rs) — 16 tests):
+- **Suite E: English Multipliers, Transitional Phasing, Grace Periods & SSBR** ([`tests/integration_tests/suite_e_england_schemes.rs`](tests/integration_tests/suite_e_england_schemes.rs) — 17 tests):
   - `test_england_2026_five_multipliers_rhl_vs_non_rhl`: Verifies Autumn Budget 2024 / NDRA 2023 five-multiplier regime in England for 2026/27 (38.2p, 43.2p, 43.0p, 48.0p, 50.8p).
   - `test_england_sbrr_second_property_grace_period`: Verifies statutory 12-month grace period on primary hereditament when taking on an additional hereditament (S.I. 2017/411 art. 3(4) under LGFA 1988 s.43(4B)).
   - `test_statutory_sbrr_england_linear_taper`: Exact mathematical formula verification for English £12k–£15k SBRR linear taper.
@@ -698,7 +700,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_scottish_renewable_energy_generation_relief`: Verifies tiered renewable energy generation relief under S.S.I. 2010/336.
   - `test_scotland_2025_26_intermediate_and_higher_multipliers`: Validates 2025/26 Intermediate (0.554) and Higher (0.568) property rates under S.S.I. 2025/37 and S.S.I. 2025/38 regs 5(4) & 6(4).
 
-- **Suite H: Cross-Jurisdictional Reliefs, Lifespans, Holiday Lets & Empty Property** ([`tests/integration_tests/suite_h_cross_jurisdictional.rs`](tests/integration_tests/suite_h_cross_jurisdictional.rs) — 21 tests):
+- **Suite H: Cross-Jurisdictional Reliefs, Lifespans, Holiday Lets & Empty Property** ([`tests/integration_tests/suite_h_cross_jurisdictional.rs`](tests/integration_tests/suite_h_cross_jurisdictional.rs) — 23 tests):
   - `test_statutory_heat_network_exemption`: NDRA 2023 s.2 100% heat network discount.
   - `test_heat_network_relief_not_granted_before_1_april_2024`: Proves heat network relief cannot be awarded before 1 April 2024.
   - `test_heat_network_relief_not_granted_on_or_after_1_april_2035`: Proves heat network relief sunsets on 31 March 2035.
@@ -715,7 +717,9 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_statutory_empty_property_prior_unoccupied_days`: Calculation accounting for prior unoccupied days deducted from statutory allowance.
   - `test_rhl_relief_applies_in_sbrr_taper_band_england_and_wales`: Proves RHL relief applies to net liability after SBRR taper in England and Wales.
   - `test_rhl_cash_cap_enforced_per_financial_year_across_segments`: Validates £110,000 cash cap enforced across all billing segments within the same financial year.
-  - `test_self_catering_holiday_let_letting_days_test`: Minimum letting days thresholds (182 Scotland, 70 England, pre-2023 Wales).
+  - `test_self_catering_holiday_let_letting_days_test`: Minimum letting days thresholds (70 days Scotland from 2022/23, 70 days England from 2023/24, 70 days pre-2023 / 182 days post-2023 Wales).
+  - `test_scotland_self_catering_70_day_letting_test`: Validates Scottish self-catering statutory criteria under S.S.I. 2021/489 (70 days actual let, 140 days available; 60 days let fails and transfers to Council Tax).
+  - `test_holiday_let_actual_letting_test_start_dates_england_wales`: Validates letting test start dates (England: 70-day actual letting starts 1 April 2023 under S.I. 2022/217; Wales: 70-day test starts 1 April 2010 under W.S.I. 2010/682).
   - `test_welsh_holiday_let_182_days_qualifies_post_2023`: Validates 182-day actual letting test in Wales post-1 April 2023 under W.S.I. 2022/563.
   - `test_welsh_holiday_let_70_days_disqualified_post_2023`: Confirms 70 days actually let is disqualified in Wales post-1 April 2023.
   - `test_welsh_holiday_let_70_days_qualifies_pre_2023`: Confirms 70 days qualified in Wales prior to 1 April 2023.
@@ -751,7 +755,7 @@ To build, verify, and run the project:
 # 1. Compile the Svelte 5 frontend component framework with Vite
 ./build-frontend.sh
 
-# 2. Run the automated test suite (142 integration tests)
+# 2. Run the automated test suite (144 integration tests)
 cargo test --test integration_tests
 
 # 3. Start the HTTP API & Single-Page Application server (default port 8080)

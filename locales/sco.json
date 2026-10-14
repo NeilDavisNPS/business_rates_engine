@@ -37,7 +37,7 @@
       "disqualified_status": "    - Status: Disqualified frae Non-Domestic Rating Leet; transferred tae Domestic Council Tax Valuation Leet (£0 NDR leeabeelity).",
       "qualified_actual": "    - Assessed unner statutary criteria: actually let for {actual} days (meets minimum {threshold} days).",
       "qualified_status": "    - Status: Qualified commercial halyday let; retainit on Non-Domestic Rating Leet.",
-      "default_actual": "    - Assessed unner Council Tax (Dwellings) (Scotland) Regs 2026 / Inglis 140/70 day rule / Welsh 252/182 day rule (W.S.I. 2022/563).",
+      "default_actual": "    - Assessed unner the Scots 140/70 day rule (S.I. 1992/2955 / S.S.I. 2021/489) / Inglis 140/70 day rule / Welsh 252/182 day rule (W.S.I. 2022/563).",
       "default_status": "    - Status: Qualified commercial halyday let; retainit on Non-Domestic Rating Leet."
     },
     "total_net_payable": "HALE NET AMOUNT TAE PAY: £{total_net}",
@@ -277,7 +277,7 @@
       },
       "COUNCIL_TAX_TRANSFER": {
         "label": "Council Tax Transfer (Holiday Let Disqualification)",
-        "description": "Disqualification from non-domestic rating list where self-catering accommodation fails statutory actual letting days threshold (182 days Scotland, 70 days England/Wales)."
+        "description": "Disqualification from non-domestic rating list where self-catering accommodation fails the statutory letting days test (Scotland from 2022/23: 70 days let, 140 available; Wales from 2023/24: 182 let, 252 available; England: 70 let, 140 available)."
       }
     },
     "SCAT_CODE": {

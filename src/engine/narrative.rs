@@ -1,4 +1,3 @@
-use chrono::NaiveDate;
 use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
 use crate::models::calculation::{LiabilityCalculationRequest, AnnualBillingSegment, QualifyingReliefFlags};
@@ -141,15 +140,10 @@ pub fn generate_narrative(
 
     if req.hereditament.scat_code == "249" {
         lines.push(n.holiday_let.header.clone());
-        let period_start = req.occupation_period.start_date;
-        let is_wales_post_2023 = req.hereditament.jurisdiction == Jurisdiction::WALES
-            && period_start >= NaiveDate::from_ymd_opt(2023, 4, 1).unwrap();
-        let threshold = if is_wales_post_2023 || req.hereditament.jurisdiction == Jurisdiction::SCOTLAND {
-            182
-        } else {
-            70
-        };
-        let avail_threshold = if is_wales_post_2023 { 252 } else { 140 };
+        let (threshold, avail_threshold) = crate::engine::calculator::CalculationEngine::holiday_let_thresholds(
+            req.hereditament.jurisdiction,
+            start_d,
+        );
 
         let actual_disqualified = req.qualifying_relief_flags.holiday_let_actual_days_let
             .map(|act| act < threshold)
@@ -158,7 +152,8 @@ pub fn generate_narrative(
             .map(|av| av < avail_threshold)
             .unwrap_or(false);
 
-        if req.qualifying_relief_flags.holiday_let_actual_days_let.is_some() || req.qualifying_relief_flags.holiday_let_days_available.is_some() {
+        let has_let_test = threshold > 0 && req.qualifying_relief_flags.holiday_let_actual_days_let.is_some();
+        if has_let_test || avail_disqualified {
             if actual_disqualified || avail_disqualified {
                 let actual = req.qualifying_relief_flags.holiday_let_actual_days_let.unwrap_or(0);
                 let act_str = actual.to_string();

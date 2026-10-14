@@ -37,7 +37,7 @@
       "disqualified_status": "    - Inbhe: Dì-cheadaichte bhon Liosta Ìrean Neo-Dachaigheil; air a ghluasad gu Liosta Luachaidh Cìs Comhairle (£0 buailteachd NDR).",
       "qualified_actual": "    - Aseswyd fo shlatan-tomhais reachdail: air mhàl airson {actual} làithean (a' coinneachadh ris an ìre as lugha de {threshold} làithean).",
       "qualified_status": "    - Inbhe: Màl saor-làithean malairteach barrantaichte air a chumail air an Liosta Ìrean.",
-      "default_actual": "    - Air a mheasadh fo Riaghailtean Cìs Comhairle (Alba) 2026 / riaghailt 140/70 Shasainn / riaghailt 252/182 na Cuimrigh (W.S.I. 2022/563).",
+      "default_actual": "    - Air a mheasadh fo riaghailt 140/70 na h-Alba (S.I. 1992/2955 / S.S.I. 2021/489) / riaghailt 140/70 Shasainn / riaghailt 252/182 na Cuimrigh (W.S.I. 2022/563).",
       "default_status": "    - Inbhe: Màl saor-làithean malairteach barrantaichte air a chumail air an Liosta Ìrean."
     },
     "total_net_payable": "IOMLAN GLAN RI PHÀIGHEADH: £{total_net}",
@@ -277,7 +277,7 @@
       },
       "COUNCIL_TAX_TRANSFER": {
         "label": "Council Tax Transfer (Holiday Let Disqualification)",
-        "description": "Disqualification from non-domestic rating list where self-catering accommodation fails statutory actual letting days threshold (182 days Scotland, 70 days England/Wales)."
+        "description": "Disqualification from non-domestic rating list where self-catering accommodation fails the statutory letting days test (Scotland from 2022/23: 70 days let, 140 available; Wales from 2023/24: 182 let, 252 available; England: 70 let, 140 available)."
       }
     },
     "SCAT_CODE": {

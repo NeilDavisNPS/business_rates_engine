@@ -1288,7 +1288,7 @@ impl RepoData {
         add("RELIEF_CODE", "TELECOM", "Telecommunications Infrastructure Relief", "100% statutory relief for new fibre telecommunications infrastructure under Telecommunications Infrastructure Act 2018 / SSI 2019/111.", None, 15);
         add("RELIEF_CODE", "CHARITY_TOPUP", "Discretionary Charitable Relief Top-Up", "Up to 20% discretionary top-up relief by billing authorities under LGFA 1988 s.47(2)(a) / 1962 Act s.4(5).", None, 16);
         add("RELIEF_CODE", "RENEWABLE", "Renewable Energy Generation Relief", "Tiered relief for renewable energy generation hereditaments under SSI 2010/336 (100% up to £145k RV, scaling to 10% up to £1m RV).", Some("SCOTLAND"), 17);
-        add("RELIEF_CODE", "COUNCIL_TAX_TRANSFER", "Council Tax Transfer (Holiday Let Disqualification)", "Disqualification from non-domestic rating list where self-catering accommodation fails statutory actual letting days threshold (182 days Scotland, 70 days England/Wales).", None, 18);
+        add("RELIEF_CODE", "COUNCIL_TAX_TRANSFER", "Council Tax Transfer (Holiday Let Disqualification)", "Disqualification from non-domestic rating list where self-catering accommodation fails the statutory letting days test (Scotland from 2022/23: 70 days let, 140 available; Wales from 2023/24: 182 let, 252 available; England: 70 let, 140 available).", None, 18);
 
         // MULTIPLIER_TYPE
         add("MULTIPLIER_TYPE", "STANDARD", "Standard Multiplier", "National baseline non-domestic rating multiplier.", None, 1);

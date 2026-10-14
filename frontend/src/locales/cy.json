@@ -201,9 +201,9 @@
   "flag_renewable_desc": "Rhyddhad haenog o dan SSI 2010/336: 100% (RV ≤ £145k), 50% (RV ≤ £200k), 25% (RV ≤ £250k), 10% (RV ≤ £1m).",
   "property_conditions_title": "Amodau Meddiannaeth ac Eiddo",
   "property_conditions_sub": "Eithriadau gwag, cymwysterau hunanarlwyo, a gwiriadau cydymffurfiaeth",
-  "holiday_desc_scotland": "Rhaid ei osod mewn gwirionedd am ≥ 182 diwrnod ac ar gael am ≥ 140 diwrnod (SSI 2022/86) i aros ar restr NDR. Os methir, trosglwyddir i'r Dreth Gyngor (£0 NDR).",
+  "holiday_desc_scotland": "Rhaid ei osod mewn gwirionedd am ≥ 70 diwrnod ac ar gael am ≥ 140 diwrnod yn y flwyddyn ariannol o 2022/23 (S.S.I. 2021/489) i aros ar restr NDR. Os methir, trosglwyddir i'r Dreth Gyngor (£0 NDR).",
   "holiday_desc_wales": "Rhaid ei osod mewn gwirionedd am ≥ 182 diwrnod ac ar gael am ≥ 252 diwrnod o 2023/24 (O.S.C. 2022/563) i aros ar restr NDR. Os methir, trosglwyddir i'r Dreth Gyngor (£0 NDR).",
-  "holiday_desc_england": "Rhaid ei osod mewn gwirionedd am ≥ 70 diwrnod ac ar gael am ≥ 140 diwrnod (DCLL 1988 a.66) i aros ar restr NDR. Os methir, trosglwyddir i'r Dreth Gyngor (£0 NDR).",
+  "holiday_desc_england": "Rhaid ei osod mewn gwirionedd am ≥ 70 diwrnod ac ar gael am ≥ 140 diwrnod o 2023/24 (DCLL 1988 a.66(2B) / O.S. 2022/217; 140 diwrnod ar gael yn unig cyn hynny) i aros ar restr NDR. Os methir, trosglwyddir i'r Dreth Gyngor (£0 NDR).",
   "holiday_desc_eng_wales": "Rhaid ei osod mewn gwirionedd am ≥ 70 diwrnod (DCLL 1988 a.66) i aros ar restr NDR. Os methir, trosglwyddir i'r Dreth Gyngor (£0 NDR).",
   "installments_plan_label": "Cynllun Rhandaliadau Statudol",
   "installments_10_opt": "10 Rhandaliad Misol (Diofyn)",
@@ -638,9 +638,9 @@
           "primary": false
         },
         {
-          "key": "OSA 2022/86 (Meini Prawf Llety Gwyliau)",
-          "url": "https://www.legislation.gov.uk/ssi/2022/86/contents/made",
-          "title": "Rheoliadau Treth y Cyngor (Amrywiad ar gyfer Anheddau Heb eu Meddiannu) (Yr Alban) 2022 (O.S.A. 2022/86)",
+          "key": "OSA 2021/489 (Meini Prawf Llety Gwyliau)",
+          "url": "https://www.legislation.gov.uk/ssi/2021/489/contents/made",
+          "title": "Rheoliadau Treth y Cyngor (Anheddau a Phynciau Rhannol Breswyl) (Yr Alban) (Diwygio) 2021 (O.S.A. 2021/489)",
           "primary": false
         },
         {
@@ -765,9 +765,9 @@
           "list": "Rhestr 2017",
           "years": "2017/18 – 2022/23",
           "multipliers": "Bwndiant Sylfaenol (46.6c yn 2017/18 yn codi i 49.8c yn 2022/23); Atodiad Busnes Mawr wedi'i gymhwyso i GA > £51k",
-          "sbrr": "SBBS 100% rhyddhad hyd at £15,000 GA. Meini prawf diwrnodau gosod llety gwyliau O.S.A. 2022/86 (70 diwrnod gosod gwirioneddol, 140 diwrnod ar gael).",
+          "sbrr": "SBBS 100% rhyddhad hyd at £15,000 GA. Meini prawf diwrnodau gosod llety gwyliau O.S.A. 2021/489 o 2022/23 (70 diwrnod gosod gwirioneddol, 140 diwrnod ar gael; 140 diwrnod ar gael yn unig cyn hynny).",
           "transition": "Rheoliadau rhyddhad trosiannol yr Alban",
-          "statute": "O.S.A. 2017/85 / Deddf NDR 2020 / O.S.A. 2022/86"
+          "statute": "O.S.A. 2017/85 / Deddf NDR 2020 / O.S.A. 2021/489"
         },
         {
           "list": "Rhestr 2023",

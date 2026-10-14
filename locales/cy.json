@@ -37,7 +37,7 @@
       "disqualified_status": "    - Statws: Wedi'i anghymhwyso o'r Rhestr Ardrethu Annomestig; trosglwyddwyd i Restr Brisio'r Dreth Gyngor (£0 o atebolrwydd NDR).",
       "qualified_actual": "    - Aseswyd o dan feini prawf statudol: wedi'i osod am {actual} diwrnod (yn cyrraedd yr isafswm statudol o {threshold} diwrnod).",
       "qualified_status": "    - Statws: Llety gwyliau masnachol cymwys; cadwyd ar y Rhestr Ardrethu Annomestig.",
-      "default_actual": "    - Aseswyd o dan Reoliadau Treth y Cyngor (Anheddau) (Yr Alban) 2026 / Rheol 140/70 diwrnod Lloegr / Rheol 252/182 diwrnod Cymru (O.S.C. 2022/563).",
+      "default_actual": "    - Aseswyd o dan Reol 140/70 diwrnod yr Alban (O.S. 1992/2955 / S.S.I. 2021/489) / Rheol 140/70 diwrnod Lloegr / Rheol 252/182 diwrnod Cymru (O.S.C. 2022/563).",
       "default_status": "    - Statws: Llety gwyliau masnachol cymwys; cadwyd ar y Rhestr Ardrethu Annomestig."
     },
     "total_net_payable": "CYFANSWM Y SWM NET I'W DALU: £{total_net}",
@@ -327,7 +327,7 @@
       },
       "COUNCIL_TAX_TRANSFER": {
         "label": "Council Tax Transfer (Holiday Let Disqualification)",
-        "description": "Disqualification from non-domestic rating list where self-catering accommodation fails statutory actual letting days threshold (182 days Scotland, 70 days England/Wales)."
+        "description": "Disqualification from non-domestic rating list where self-catering accommodation fails the statutory letting days test (Scotland from 2022/23: 70 days let, 140 available; Wales from 2023/24: 182 let, 252 available; England: 70 let, 140 available)."
       }
     },
     "MULTIPLIER_TYPE": {
