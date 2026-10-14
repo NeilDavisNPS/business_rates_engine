@@ -567,11 +567,11 @@ The in-memory parameter repository and statutory documentation are exposed direc
 
 ## 4. Test Cases Specification & Scenario Fixtures
 
-### Test Suite Overview (143 Passing Integration Tests)
+### Test Suite Overview (137 Passing Integration Tests)
 
-The test suite in [`tests/integration_tests.rs`](tests/integration_tests.rs) rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **143 automated integration tests**:
+The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **137 automated integration tests**:
 
-- **Suite A: Canonical Multi-Jurisdiction Scenario Fixture Tests (Scenarios 1–11)**:
+- **Suite A: Canonical Multi-Jurisdiction Scenario Fixture Tests (Scenarios 1–11)** ([`tests/integration_tests/suite_a_scenarios.rs`](tests/integration_tests/suite_a_scenarios.rs) — 11 tests):
   - `test_scenario_1_england_sbrr_and_rhl_multi_year` (`scenario_1_sbrr_rhl_england.json`): Multi-year slicing (2025/26 & 2026/27), SBRR linear taper, England 2026/27 RHL expiration verification, and Transitional Relief caps.
   - `test_scenario_2_wales_petrol_station` (`scenario_2_wales_petrol_station.json`): SCAT 211 forecourt valuation under Welsh Local Government Finance Act 2024.
   - `test_scenario_3_scotland_self_catering` (`scenario_3_scotland_self_catering.json`): Scottish SBBS £12k threshold and 182-day actual letting compliance.
@@ -584,7 +584,7 @@ The test suite in [`tests/integration_tests.rs`](tests/integration_tests.rs) rig
   - `test_statutory_10_and_12_installments_schedule` (`scenario_10_statutory_12_installments.json`): Statutory payment schedules under SI 1989/1058 (10 monthly installments) and ratepayer election of 12 monthly installments (LGA 2003 / SI 2014/466).
   - `test_statutory_rural_settlement_relief` (`scenario_11_rural_settlement_relief.json`): Mandatory 100% rural settlement relief under LGFA 1988 s.43(6A) for sole village shops, food stores, post offices, and pubs.
 
-- **Suite B: Multi-Occupancy, Mid-Year RV Slicing & Period Validation**:
+- **Suite B: Multi-Occupancy, Mid-Year RV Slicing & Period Validation** ([`tests/integration_tests/suite_b_multi_occupancy.rs`](tests/integration_tests/suite_b_multi_occupancy.rs) — 7 tests):
   - `test_multi_occupancy_api_endpoint_json_serialization`: JSON payload serialization and billing segment output for multi-occupancy arrays.
   - `test_mid_year_rateable_value_change_splits_billing_segments`: Validates segment slicing across mid-year rateable value alterations (`rateable_value_history` effective date boundaries).
   - `test_calculate_liability_period_before_first_rv_returns_bad_request`: Returns HTTP 400 Bad Request if calculation period begins prior to the earliest RV record.
@@ -593,7 +593,7 @@ The test suite in [`tests/integration_tests.rs`](tests/integration_tests.rs) rig
   - `test_empty_property_prior_unoccupied_days_out_of_order_periods`: Ensures robust ordering and prior empty days tracking even when episodes are submitted out of chronological order.
   - `test_unseeded_year_raises_error_not_045_default`: Confirms requesting an unseeded rating year outside 1990–2027 returns a structured domain error rather than an arbitrary fallback multiplier.
 
-- **Suite C: 4-Language Internationalization (i18n) & Content Negotiation**:
+- **Suite C: 4-Language Internationalization (i18n) & Content Negotiation** ([`tests/integration_tests/suite_c_i18n.rs`](tests/integration_tests/suite_c_i18n.rs) — 12 tests):
   - `test_i18n_welsh_narrative_and_relief_names`: Welsh audit narrative headers and localized relief naming (*"Rhyddhad Elusennol Gorfodol"*).
   - `test_i18n_scots_and_gaelic_narrative_and_relief_names`: Scots (*"Mandatar Chairitable Rate Relief"*) and Scottish Gaelic (*"Faochadh Ìrean Carthannais Èigneachail"*) narratives and reliefs.
   - `test_i18n_reference_codes_localized_welsh_and_english`: Bilingual reference code resolution for jurisdictions and reliefs.
@@ -607,7 +607,7 @@ The test suite in [`tests/integration_tests.rs`](tests/integration_tests.rs) rig
   - `test_domain_error_status_codes_and_codes`: Verifies strongly-typed `AppError` status codes and error identifiers.
   - `test_narrative_relief_assessment_audit_unawarded_reliefs`: Verifies localized statutory audit justification for disqualified/unawarded reliefs across English, Welsh, Scots, and Scottish Gaelic.
 
-- **Suite D: Reference Codes, Parameter Resolution, Public API Access & OpenAPI**:
+- **Suite D: Reference Codes, Parameter Resolution, Public API Access & OpenAPI** ([`tests/integration_tests/suite_d_api_and_parameters.rs`](tests/integration_tests/suite_d_api_and_parameters.rs) — 10 tests):
   - `test_app_state_repository_access`: Validates thread-safe parameter repository access on `AppState`.
   - `test_zero_hardcoding_historical_multipliers_1990_to_2026`: Complete verification of English, Welsh, and Scottish rating multipliers from 1990 to 2026.
   - `test_preseeded_reference_codes_and_allowable_values`: Pre-seeded values for jurisdictions, party types, and reliefs.
@@ -616,13 +616,10 @@ The test suite in [`tests/integration_tests.rs`](tests/integration_tests.rs) rig
   - `test_http_sso_endpoints`: Verifies unmapped SSO endpoints return `404 NOT FOUND`.
   - `test_http_parameters_endpoints`: Validates all 5 parameter catalog endpoints return valid HTTP 200 JSON arrays.
   - `test_openapi_and_swagger_endpoints`: Validates OpenAPI 3.1.0 specifications (`/api/v1/openapi.json`, `/api/v1/openapi.yaml`), `/docs` Scalar HTML rendering with query parameter templating, self-hosted zero-CDN `scalar.js`, and confirms unsupported aliases return 404.
-  - `test_licenses_endpoint`: Validates `GET /licenses` serves the third-party software licenses HTML interface styled with unified `/assets/app.css` under CSP.
-  - `test_api_v1_licenses_endpoint`: Validates `GET /api/v1/licenses` serves third-party license data in JSON format or content-negotiated responses.
-  - `test_licenses_markdown_format`: Validates `GET /api/v1/licenses?format=markdown` returns the complete third-party licenses Markdown document.
-  - `test_health_check_endpoint`: Validates root `GET /healthz` returns `{"status":"ok"}`.
-  - `test_api_v1_health_check_endpoint`: Validates `GET /api/v1/healthz` returns `{"status":"ok"}`.
+  - `test_licenses_endpoints`: Validates `/licenses` (HTML interface styled with unified `/assets/app.css` under CSP), `/licenses.md` (raw Markdown attribution document), and `/api/v1/licenses?format=md` query routing.
+  - `test_health_check_endpoints`: Validates both root `/health` and `/api/v1/health` return HTTP 200 with OWASP security headers and subsystem health checks (`engine_api: pass`, `parameters_repository: pass`, `frontend_bundle: pass`).
 
-- **Suite E: English Multipliers, Transitional Phasing, Grace Periods & SSBR**:
+- **Suite E: English Multipliers, Transitional Phasing, Grace Periods & SSBR** ([`tests/integration_tests/suite_e_england_schemes.rs`](tests/integration_tests/suite_e_england_schemes.rs) — 14 tests):
   - `test_england_2026_five_multipliers_rhl_vs_non_rhl`: Verifies Autumn Budget 2024 / NDRA 2023 five-multiplier regime in England for 2026/27 (38.2p, 43.2p, 43.0p, 48.0p, 50.8p).
   - `test_england_sbrr_second_property_grace_period`: Verifies statutory 12-month grace period on primary hereditament when taking on an additional hereditament (S.I. 2017/411 art. 3(4) under LGFA 1988 s.43(4B)).
   - `test_statutory_sbrr_england_linear_taper`: Exact mathematical formula verification for English £12k–£15k SBRR linear taper.
@@ -638,7 +635,7 @@ The test suite in [`tests/integration_tests.rs`](tests/integration_tests.rs) rig
   - `test_ssbr_not_awarded_to_charities`: Proves SSBR cannot be awarded to charities receiving mandatory charitable relief.
   - `test_sector_relief_england_2025_vs_2026`: Verifies English RHL 40% relief in 2025/26 and statutory expiration (0%) in 2026/27 under NDRA 2023.
 
-- **Suite F: Welsh Multipliers, SBRR, Exemptions, Anti-Avoidance & Transitional Schemes**:
+- **Suite F: Welsh Multipliers, SBRR, Exemptions, Anti-Avoidance & Transitional Schemes** ([`tests/integration_tests/suite_f_wales_schemes.rs`](tests/integration_tests/suite_f_wales_schemes.rs) — 29 tests):
   - `test_wales_multiplier_2025_26_is_0568`: Validates Welsh uniform multiplier for 2025/26 is 0.568 under W.S.I. 2025/214.
   - `test_wales_2026_three_multipliers`: Verifies Welsh 2026/27 three-tier multiplier regime under *Local Government Finance (Wales) Act 2024* (Retail 35.0p, Standard 50.2p, Higher 51.5p).
   - `test_wales_retail_multiplier_given_to_retail_shop`: Validates 35.0p retail multiplier awarded to qualifying retail shop.
@@ -649,8 +646,7 @@ The test suite in [`tests/integration_tests.rs`](tests/integration_tests.rs) rig
   - `test_wales_sbrr_two_properties_in_billing_authority`: Enforces two-property limit per billing authority under W.S.I. 2017/1229 art. 12.
   - `test_wales_sbrr_excepted_hereditaments_no_relief`: Disqualifies excepted hereditaments (betting shops, payday lenders) under W.S.I. 2017/1229 art. 3.
   - `test_wales_sbrr_part_occupied_excluded`: Confirms partly occupied apportionments do not receive SBRR in Wales.
-  - `test_wales_empty_property_under_2200_is_exempt`: Verifies Welsh unoccupied property low-value exemption threshold of £2,200 under W.S.I. 2008/2499 reg 4(g).
-  - `test_wales_empty_property_between_2200_and_2900_not_exempt`: Confirms properties between £2,200 and £2,900 are NOT exempt in Wales (unlike England).
+  - `test_wales_empty_property_low_value_threshold_boundaries`: Evaluates Welsh unoccupied property low-value threshold boundaries under W.S.I. 2008/2499 reg 4(g), confirming RV £2,000 is 100% exempt and RV £2,500 (between Welsh £2,200 and English £2,900) is non-exempt.
   - `test_wales_telecoms_infrastructure_relief_not_granted`: Confirms telecoms infrastructure relief is not granted in Wales under LGFA 1988 s.43(4E).
   - `test_welsh_artificial_avoidance_penalty_charged_once_across_segments`: Verifies W.S.I. 2026/43 penalty (£500 + 3% RV) is assessed only once across multiple segments.
   - `test_wales_petrol_station_qualifies_for_rhl_2023_24_75_percent`: Petrol filling stations qualify for Welsh RHL 75% in 2023/24.
@@ -670,7 +666,7 @@ The test suite in [`tests/integration_tests.rs`](tests/integration_tests.rs) rig
   - `test_wales_2005_list_no_transitional_relief`: Confirms Wales operated no general transitional relief in 2005.
   - `test_wales_2010_list_no_transitional_relief`: Confirms Wales operated no general transitional relief in 2010.
 
-- **Suite G: Scottish Property Rates, SBBS Tapers, 40% Hospitality & Transitional Relief**:
+- **Suite G: Scottish Property Rates, SBBS Tapers, 40% Hospitality & Transitional Relief** ([`tests/integration_tests/suite_g_scotland_schemes.rs`](tests/integration_tests/suite_g_scotland_schemes.rs) — 17 tests):
   - `test_scotland_2026_multipliers_basic_intermediate_higher`: Validates 2026/27 rates: Basic 0.481, Intermediate 0.535, Higher 0.548 (S.S.I. 2026/39).
   - `test_scotland_sbbs_taper_band_12k_to_15k`: Verifies linear taper between 100% and 25% for RV £12k–£15k under S.S.I. 2026/68 reg 3(3).
   - `test_scotland_sbbs_taper_band_15k_to_20k`: Verifies linear taper between 25% and 0% for RV £15k–£20k under S.S.I. 2026/68 reg 3(3).
@@ -689,18 +685,16 @@ The test suite in [`tests/integration_tests.rs`](tests/integration_tests.rs) rig
   - `test_scottish_unoccupied_property_relief_50_percent`: Verifies 50% empty relief for 3 months and £1,700 low RV exemption under S.S.I. 2018/77.
   - `test_scottish_renewable_energy_generation_relief`: Verifies tiered renewable energy generation relief under S.S.I. 2010/336.
 
-- **Suite H: Cross-Jurisdictional Reliefs, Lifespans, Holiday Lets & Empty Property**:
+- **Suite H: Cross-Jurisdictional Reliefs, Lifespans, Holiday Lets & Empty Property** ([`tests/integration_tests/suite_h_cross_jurisdictional.rs`](tests/integration_tests/suite_h_cross_jurisdictional.rs) — 21 tests):
   - `test_statutory_heat_network_exemption`: NDRA 2023 s.2 100% heat network discount.
   - `test_heat_network_relief_not_granted_before_1_april_2024`: Proves heat network relief cannot be awarded before 1 April 2024.
   - `test_heat_network_relief_not_granted_on_or_after_1_april_2035`: Proves heat network relief sunsets on 31 March 2035.
-  - `test_heat_network_granted_in_wales_from_2024`: Validates heat network relief is active in Wales from 1 April 2024.
+  - `test_ndra_2023_reliefs_granted_in_wales_from_2024`: Confirms both Improvement Relief (G-factor) and Heat Network Relief are active in Wales from 1 April 2024 under W.S.I. 2024/249.
   - `test_improvement_relief_not_granted_before_1_april_2024`: Proves improvement relief cannot be awarded before 1 April 2024.
   - `test_improvement_relief_not_granted_on_or_after_1_april_2029`: Proves improvement relief sunsets on 31 March 2029.
   - `test_improvement_and_heat_network_not_granted_to_scotland`: Confirms neither improvement nor heat network relief applies in Scotland.
-  - `test_improvement_and_heat_network_granted_in_wales_from_2024`: Confirms improvement and heat network relief apply in Wales from 2024.
   - `test_statutory_telecommunications_infrastructure_relief_england_and_scotland`: 100% fibre relief in England and Scotland under Telecommunications Infrastructure Act 2018.
   - `test_statutory_public_lavatory_exemption`: Rating (Public Lavatories) Act 2021 100% discount.
-  - `test_statutory_rural_settlement_relief`: LGFA 1988 s.43(6B) rural commercial relief.
   - `test_rural_settlement_relief_rv_cap_enforcement`: Statutory rateable value caps for mandatory rural relief (£8,500 / £12,500).
   - `test_discretionary_charitable_relief_top_up`: Billing authority 20% discretionary top-up bringing total charitable relief to 100%.
   - `test_part_occupied_charity_reliefs_capped_at_occupied_chargeable`: Caps charitable relief at the occupied portion's chargeable amount under s.44A.
@@ -714,16 +708,15 @@ The test suite in [`tests/integration_tests.rs`](tests/integration_tests.rs) rig
   - `test_welsh_holiday_let_70_days_qualifies_pre_2023`: Confirms 70 days qualified in Wales prior to 1 April 2023.
   - `test_welsh_holiday_let_availability_threshold_disqualification`: Validates Welsh 252-day commercial availability threshold under W.S.I. 2022/563.
 
-- **Suite I: Component UI Serving & OWASP Security**:
-  - `test_root_ui_route_and_static_assets_with_owasp_headers`: Verifies `/` and bundled assets `/assets/*` serve with strict OWASP CSP headers.
+- **Suite I: Component UI Serving & OWASP Security** ([`tests/integration_tests/suite_i_ui_and_security.rs`](tests/integration_tests/suite_i_ui_and_security.rs) — 6 tests):
+  - `test_owasp_secure_headers_on_static_routes`: Verifies `/` serves the Svelte 5 single-page application mount `<div id="app">`, bundled assets `/assets/*` serve with correct MIME types, and all 9 OWASP security headers (strict CSP without unsafe-inline, nosniff, DENY, HSTS, strict-origin, COOP, CORP) are enforced.
   - `test_ui_html_rendering_english_default`: Verifies `/` serves the Svelte 5 single-page application mount `<div id="app">`.
   - `test_ui_decommissioned_alias_routes_return_404`: Verifies unsupported UI alias routes (`/admin`, `/component-ui`, `/app`) return `404 NOT FOUND`.
-  - `test_owasp_secure_headers_on_html_ui_response`: Verifies complete suite of OWASP headers on HTML responses.
   - `test_owasp_secure_headers_on_api_json_response`: Verifies OWASP security headers on API JSON responses.
   - `test_owasp_secure_headers_on_error_and_unauthorized_responses`: Verifies OWASP security headers on 422/404 error responses.
   - `test_static_assets_served_with_correct_content_types`: CSS and Vite assets served with proper MIME types; unmapped static asset paths return 404.
 
-- **Suite J: Historical Statutory Parameters & Revaluations (1990–2022)**:
+- **Suite J: Historical Statutory Parameters & Revaluations (1990–2022)** ([`tests/integration_tests/suite_j_historical.rs`](tests/integration_tests/suite_j_historical.rs) — 10 tests):
   - `test_historical_calculation_1990_91_inaugural_nndr`: Validates inaugural non-domestic rating calculation under LGFA 1988 (1990/91) with zero SBRR discount.
   - `test_historical_transitional_phasing_1991_92`: Validates 1991/92 revaluation year 2 transitional upward cap (+15%) based on 1990/91 baseline.
   - `test_historical_transitional_phasing_1993_94`: Validates 1993/94 revaluation upward cap (+15%) under SI 1989/1358 based on 1992/93 baseline.
@@ -731,6 +724,8 @@ The test suite in [`tests/integration_tests.rs`](tests/integration_tests.rs) rig
   - `test_historical_sbrr_pre_2005_returns_no_relief`: Proves 2003/04 sole-property small business occupier receives 0% discount (prior to LGA 2003 s.61).
   - `test_historical_sbrr_2005_list_england_full_and_taper`: Verifies 2007/08 full 50% discount and 25% linear taper under SI 2004/3315.
   - `test_historical_sbrr_2010_list_england_and_scotland`: Verifies 2012/13 doubled 100% taper under SI 2010/1959 and Scottish 3-tier SBBS under SSI 2010/37.
+  - `test_historical_transitional_phasing_2000_list`: Validates 2000/01 revaluation upward cap (+12.5%) under SI 1999/3379.
+  - `test_historical_welsh_transitional_relief_2017_list`: Validates 2017/18 Welsh small business transitional relief (75% phasing) under W.S.I. 2016/1247.
   - `test_historical_transitional_phasing_2017_list_revaluation`: Verifies 2017/18 large property revaluation upward cap (+42%) under SI 2016/1265.
 
 ---
@@ -743,7 +738,7 @@ To build, verify, and run the project:
 # 1. Compile the Svelte 5 frontend component framework with Vite
 ./build-frontend.sh
 
-# 2. Run the automated test suite (143 integration tests)
+# 2. Run the automated test suite (137 integration tests)
 cargo test --test integration_tests
 
 # 3. Start the HTTP API & Single-Page Application server (default port 8080)
