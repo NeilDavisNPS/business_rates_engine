@@ -604,9 +604,9 @@ The in-memory parameter repository and documentation are exposed via REST endpoi
 
 ## 4. Test Cases Specification & Scenario Fixtures
 
-### Test Suite Overview (160 Passing Integration Tests)
+### Test Suite Overview (161 Passing Integration Tests)
 
-The test suite is organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, documentation, third-party licenses, and web security across **160 integration tests**:
+The test suite is organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, documentation, third-party licenses, and web security across **161 integration tests**:
 
 - **Suite A: Multi-Jurisdiction Scenario Fixture Tests (Scenarios 1–11)** ([`tests/integration_tests/suite_a_scenarios.rs`](tests/integration_tests/suite_a_scenarios.rs) — 11 tests):
   - `test_scenario_1_england_sbrr_and_rhl_multi_year` (`scenario_1_sbrr_rhl_england.json`): Multi-year slicing (2025/26 & 2026/27), SBRR linear taper, England 2026/27 RHL expiration verification, and Transitional Relief caps.
@@ -766,13 +766,14 @@ The test suite is organized under [`tests/integration_tests/`](tests/integration
   - `test_welsh_holiday_let_70_days_qualifies_pre_2023`: Confirms 70 days qualified in Wales prior to 1 April 2023.
   - `test_welsh_holiday_let_availability_threshold_disqualification`: Validates Welsh 252-day commercial availability threshold under W.S.I. 2022/563.
 
-- **Suite I: Component UI Serving & OWASP Security** ([`tests/integration_tests/suite_i_ui_and_security.rs`](tests/integration_tests/suite_i_ui_and_security.rs) — 6 tests):
+- **Suite I: Component UI Serving & OWASP Security** ([`tests/integration_tests/suite_i_ui_and_security.rs`](tests/integration_tests/suite_i_ui_and_security.rs) — 7 tests):
   - `test_owasp_secure_headers_on_static_routes`: Verifies `/` serves the Svelte 5 single-page application mount `<div id="app">`, bundled assets `/assets/*` serve with correct MIME types, and OWASP security headers with strict Content Security Policy are enforced.
   - `test_ui_html_rendering_english_default`: Verifies `/` serves the Svelte 5 single-page application mount `<div id="app">`.
   - `test_ui_decommissioned_alias_routes_return_404`: Verifies unsupported UI alias routes (`/admin`, `/component-ui`, `/app`) return `404 NOT FOUND`.
   - `test_owasp_secure_headers_on_api_json_response`: Verifies OWASP security headers on API JSON responses.
   - `test_owasp_secure_headers_on_error_and_unauthorized_responses`: Verifies OWASP security headers on 422/404 error responses.
   - `test_static_assets_served_with_correct_content_types`: CSS and Vite assets served with proper MIME types; unmapped static asset paths return 404.
+  - `test_static_assets_etag_cache_control_and_version_busting`: Validates runtime ETag generation, 304 Not Modified conditional responses on matching If-None-Match, immutable Cache-Control on version-tagged assets, and dynamic ?v= cache busting for app.js, app.css, and scalar.js.
 
 - **Suite J: Historical Statutory Parameters & Revaluations (1990–2022)** ([`tests/integration_tests/suite_j_historical.rs`](tests/integration_tests/suite_j_historical.rs) — 12 tests):
   - `test_historical_calculation_1990_91_inaugural_nndr`: Validates inaugural non-domestic rating calculation under LGFA 1988 (1990/91) with zero SBRR discount.
@@ -798,7 +799,7 @@ To build, verify, and run the project:
 # 1. Build the Svelte 5 frontend with Vite
 ./build-frontend.sh
 
-# 2. Run the integration test suite (160 tests)
+# 2. Run the integration test suite (161 tests)
 cargo test --test integration_tests
 
 # 3. Start the HTTP server (default port 8080)

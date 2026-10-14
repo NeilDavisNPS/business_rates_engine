@@ -20,7 +20,18 @@ const buildTimestamp = process.env.VITE_BUILD_TIMESTAMP || new Date().toISOStrin
 const appVersion = process.env.npm_package_version || '0.0.1';
 
 export default defineConfig({
-  plugins: [svelte()],
+  plugins: [
+    svelte(),
+    {
+      name: 'asset-version-tag',
+      transformIndexHtml(html) {
+        const versionTag = `?v=${appVersion}-${commitHash}`;
+        return html
+          .replace(/\/assets\/app\.js/g, `/assets/app.js${versionTag}`)
+          .replace(/\/assets\/app\.css/g, `/assets/app.css${versionTag}`);
+      },
+    },
+  ],
   define: {
     __APP_VERSION__: JSON.stringify(appVersion),
     __BUILD_NUMBER__: JSON.stringify(buildNumber),
@@ -45,11 +56,13 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       output: {
+        entryFileNames: 'assets/app.js',
+        chunkFileNames: 'assets/[name].js',
         assetFileNames: (assetInfo) => {
           if (assetInfo.name && assetInfo.name.endsWith('.css')) {
             return 'assets/app.css';
           }
-          return 'assets/[name]-[hash][extname]';
+          return 'assets/[name][extname]';
         },
       },
     },

@@ -70,7 +70,7 @@ The user interface is a modern Single-Page Application (SPA) located in `fronten
 
 This compiles:
 1. Tailwind utility classes from `styles/input.css` into `frontend/src/tailwind.css`.
-2. Svelte 5 components and styles into a **unified stylesheet** (`dist/assets/app.css`) and JS bundle (`dist/assets/index-[hash].js`).
+2. Svelte 5 components and styles into a **unified stylesheet** (`dist/assets/app.css`) and JS bundle (`dist/assets/app.js`).
 3. Output directory: `frontend/dist/`.
 
 ### Step B: Build the Rust Backend

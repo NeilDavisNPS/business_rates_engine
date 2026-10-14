@@ -150,7 +150,7 @@ async fn test_ui_html_rendering_english_default() {
     assert!(html.contains(r#"<div id="app"></div>"#));
     assert!(html.contains("<title>Business Rates Engine — Statutory Calculation Sandbox</title>"));
     assert!(html.contains(r#"<link rel="icon" type="image/svg+xml""#));
-    assert!(html.contains("/assets/index-") && html.contains(".css"));
+    assert!((html.contains("/assets/app.js") || html.contains("/assets/index-")) && html.contains(".css"));
 }
 
 #[tokio::test]
@@ -257,3 +257,94 @@ async fn test_static_assets_served_with_correct_content_types() {
     let res = app.clone().oneshot(req).await.unwrap();
     assert_eq!(res.status(), StatusCode::NOT_FOUND, "Missing CSS asset must return 404");
 }
+
+#[tokio::test]
+async fn test_static_assets_etag_cache_control_and_version_busting() {
+    let app = create_test_app();
+
+    // 1. Root / UI serves index.html with no-cache and versioned script/css tags
+    let req_root = Request::builder()
+        .uri("/")
+        .method("GET")
+        .body(Body::empty())
+        .unwrap();
+    let res_root = app.clone().oneshot(req_root).await.unwrap();
+    assert_eq!(res_root.status(), StatusCode::OK);
+    assert_eq!(
+        res_root.headers().get(header::CACHE_CONTROL).unwrap(),
+        "no-cache, must-revalidate"
+    );
+    let html_root = body_to_string(res_root.into_body()).await;
+    assert!(html_root.contains("/assets/app.js?v="));
+    assert!(html_root.contains("/assets/app.css?v="));
+
+    // 2. /docs serves scalar.html with no-cache and versioned scalar.js tag
+    let req_docs = Request::builder()
+        .uri("/docs")
+        .method("GET")
+        .body(Body::empty())
+        .unwrap();
+    let res_docs = app.clone().oneshot(req_docs).await.unwrap();
+    assert_eq!(res_docs.status(), StatusCode::OK);
+    assert_eq!(
+        res_docs.headers().get(header::CACHE_CONTROL).unwrap(),
+        "no-cache, must-revalidate"
+    );
+    let html_docs = body_to_string(res_docs.into_body()).await;
+    assert!(html_docs.contains("/assets/scalar.js?v="));
+
+    // 3. /assets/app.js with ?v= query returns immutable cache header and ETag
+    let req_app_js = Request::builder()
+        .uri("/assets/app.js?v=0.0.1-test")
+        .method("GET")
+        .body(Body::empty())
+        .unwrap();
+    let res_app_js = app.clone().oneshot(req_app_js).await.unwrap();
+    assert_eq!(res_app_js.status(), StatusCode::OK);
+    assert_eq!(
+        res_app_js.headers().get(header::CACHE_CONTROL).unwrap(),
+        "public, max-age=31536000, immutable"
+    );
+    let app_js_etag = res_app_js.headers().get(header::ETAG).unwrap().to_str().unwrap().to_string();
+    assert!(app_js_etag.starts_with('"') && app_js_etag.ends_with('"'));
+
+    // 4. /assets/app.js with matching If-None-Match returns 304 NOT MODIFIED
+    let req_app_js_304 = Request::builder()
+        .uri("/assets/app.js?v=0.0.1-test")
+        .method("GET")
+        .header(header::IF_NONE_MATCH, &app_js_etag)
+        .body(Body::empty())
+        .unwrap();
+    let res_app_js_304 = app.clone().oneshot(req_app_js_304).await.unwrap();
+    assert_eq!(res_app_js_304.status(), StatusCode::NOT_MODIFIED);
+    assert_eq!(res_app_js_304.headers().get(header::ETAG).unwrap(), &app_js_etag);
+    let body_304 = body_to_string(res_app_js_304.into_body()).await;
+    assert!(body_304.is_empty(), "304 response body must be empty");
+
+    // 5. /assets/scalar.js with ?v= query returns immutable cache header and ETag
+    let req_scalar = Request::builder()
+        .uri("/assets/scalar.js?v=0.0.1-test")
+        .method("GET")
+        .body(Body::empty())
+        .unwrap();
+    let res_scalar = app.clone().oneshot(req_scalar).await.unwrap();
+    assert_eq!(res_scalar.status(), StatusCode::OK);
+    assert_eq!(
+        res_scalar.headers().get(header::CACHE_CONTROL).unwrap(),
+        "public, max-age=31536000, immutable"
+    );
+    let scalar_etag = res_scalar.headers().get(header::ETAG).unwrap().to_str().unwrap().to_string();
+
+    // 6. /assets/scalar.js with matching If-None-Match returns 304 NOT MODIFIED
+    let req_scalar_304 = Request::builder()
+        .uri("/assets/scalar.js")
+        .method("GET")
+        .header(header::IF_NONE_MATCH, &scalar_etag)
+        .body(Body::empty())
+        .unwrap();
+    let res_scalar_304 = app.oneshot(req_scalar_304).await.unwrap();
+    assert_eq!(res_scalar_304.status(), StatusCode::NOT_MODIFIED);
+    let scalar_body_304 = body_to_string(res_scalar_304.into_body()).await;
+    assert!(scalar_body_304.is_empty(), "304 response body must be empty for scalar.js");
+}
+
