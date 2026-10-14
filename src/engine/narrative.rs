@@ -55,6 +55,25 @@ pub fn generate_narrative(
             &[("multiplier_type", &seg.multiplier_used.multiplier_type), ("rate", &rate_str)],
         ));
 
+        let mult_key = match (req.hereditament.jurisdiction, seg.multiplier_used.multiplier_type.as_str()) {
+            (Jurisdiction::ENGLAND, "SMALL_BUSINESS") => Some("multiplier_eng_small"),
+            (Jurisdiction::ENGLAND, "STANDARD") => Some("multiplier_eng_standard"),
+            (Jurisdiction::ENGLAND, "HIGH_VALUE") => Some("multiplier_eng_high_value"),
+            (Jurisdiction::ENGLAND, "SMALL_BUSINESS_RHL") => Some("multiplier_eng_small_rhl"),
+            (Jurisdiction::ENGLAND, "STANDARD_RHL") => Some("multiplier_eng_standard_rhl"),
+            (Jurisdiction::WALES, "RETAIL" | "RETAIL_PROVISIONAL") => Some("multiplier_wal_retail"),
+            (Jurisdiction::WALES, "HIGHER" | "HIGHER_PROVISIONAL") => Some("multiplier_wal_higher"),
+            (Jurisdiction::WALES, "STANDARD" | "STANDARD_PROVISIONAL" | "WELSH_DIFFERENTIAL") => Some("multiplier_wal_standard"),
+            (Jurisdiction::SCOTLAND, "BASIC") => Some("multiplier_sco_basic"),
+            (Jurisdiction::SCOTLAND, "INTERMEDIATE") => Some("multiplier_sco_intermediate"),
+            (Jurisdiction::SCOTLAND, "HIGHER") => Some("multiplier_sco_higher"),
+            _ => None,
+        };
+        if let Some(key) = mult_key {
+            let note = get_disqualification(bundle, key, &[("rv", &seg.rateable_value.to_string()), ("rate", &rate_str)]);
+            lines.push(format!("    - {}", note));
+        }
+
         if seg.multiplier_used.multiplier_type.ends_with("_PROVISIONAL") {
             if let Some(note) = n.disqualifications.get("multiplier_wales_2027_provisional") {
                 lines.push(format!("    - {}", note));
@@ -91,11 +110,14 @@ pub fn generate_narrative(
                 &n.lines.transitional_adjustment,
                 &[("type", trans_type), ("amount", &amount_str)],
             ));
+            let trans_note = get_disqualification(bundle, "transitional_phasing_note", &[]);
+            lines.push(format!("    - {}", trans_note));
         }
 
         if seg.itemized_reliefs.is_empty() {
             lines.push(n.lines.applied_reliefs_none.clone());
         } else {
+            let seg_flags = resolve_segment_flags(req, seg);
             for r in &seg.itemized_reliefs {
                 let pct_str = r.discount_percentage.to_string();
                 let amt_str = r.amount_deducted.to_string();
@@ -109,6 +131,25 @@ pub fn generate_narrative(
                         ("statutory_authority", &r.statutory_authority),
                     ],
                 ));
+                if r.relief_code.starts_with("SB") {
+                    let is_childcare = seg_flags.is_registered_childcare || req.hereditament.scat_code.trim() == "084";
+                    let is_post_office = seg_flags.is_post_office || req.hereditament.scat_code.trim() == "227";
+                    if let Some(e) = crate::db::repository::ParameterRepository::default().sbrr_taper_divisor(req.hereditament.jurisdiction, &seg.financial_year, seg.rateable_value, is_childcare, is_post_office) {
+                        let e_str = e.to_string();
+                        let note = get_disqualification(bundle, "sbrr_taper_divisor_note", &[("divisor", &e_str)]);
+                        lines.push(format!("        * {}", note));
+                    }
+                }
+                if r.relief_code == "EMPTY_LOW_VALUE" {
+                    let thresh = crate::db::repository::ParameterRepository::default().resolve_empty_property_threshold(req.hereditament.jurisdiction, seg.segment_period.start_date)
+                        .map(|t| t.0.to_string()).unwrap_or_else(|| "0".to_string());
+                    let note = get_disqualification(bundle, "empty_low_value_note", &[("rv", &seg.rateable_value.to_string()), ("threshold", &thresh), ("authority", &r.statutory_authority)]);
+                    lines.push(format!("        * {}", note));
+                }
+                if r.relief_code == "EMPTY_PROPERTY_EXEMPTION" {
+                    let note = get_disqualification(bundle, "empty_calendar_months_note", &[]);
+                    lines.push(format!("        * {}", note));
+                }
             }
         }
 
@@ -136,6 +177,15 @@ pub fn generate_narrative(
         }
 
         lines.push(crate::i18n::format_template(&n.lines.net_segment_payable, &[("net_segment_payable", &seg.net_segment_payable.to_string())]));
+
+        if let Some(ref installments_tmpl) = n.lines.statutory_installments {
+            if let Some(ref insts) = seg.statutory_installments {
+                if !insts.is_empty() {
+                    let count_str = insts.len().to_string();
+                    lines.push(crate::i18n::format_template(installments_tmpl, &[("count", &count_str)]));
+                }
+            }
+        }
     }
 
     if req.hereditament.scat_code == "249" {

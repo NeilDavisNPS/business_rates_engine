@@ -2,6 +2,8 @@ use chrono::{Datelike, NaiveDate, Duration};
 use crate::models::calculation::{DateRange, SegmentPeriod, OccupancyPeriodInput, QualifyingReliefFlags, PartOccupiedApportionment, RvEntry};
 use crate::models::enums::OccupancyType;
 
+/// Window representing a continuous billing segment within a single financial year
+/// governed by the daily chargeable amount rules under LGFA 1988 s.43(1)-(2) and s.45(1)-(2).
 #[derive(Debug, Clone)]
 pub struct BillingSegmentWindow {
     pub financial_year: String,
@@ -9,6 +11,8 @@ pub struct BillingSegmentWindow {
     pub year_days: i64,
 }
 
+/// A sliced billing window combining financial year boundaries, rateable value alteration dates,
+/// occupancy status, and relief flags as required under LGFA 1988 s.43, s.44A, and s.45.
 #[derive(Debug, Clone)]
 pub struct SlicedPeriodWindow {
     pub financial_year: String,
@@ -19,21 +23,27 @@ pub struct SlicedPeriodWindow {
     pub part_apportionment: Option<PartOccupiedApportionment>,
 }
 
+/// Determines whether a calendar year is a leap year to establish statutory denominator C
+/// (365 days, or 366 days in a leap year) under LGFA 1988 s.43(2)(a) and s.45(2).
 fn is_leap_year(year: i32) -> bool {
     (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)
 }
 
+/// Slices an overall occupation date range across statutory financial year boundaries (1 April - 31 March)
+/// under LGFA 1988 s.43(1) and s.45(1), calculating elapsed days and the statutory denominator C.
 pub fn slice_occupation_period(range: &DateRange) -> Vec<BillingSegmentWindow> {
     let mut segments = Vec::new();
     let mut current_start = range.start_date;
 
     while current_start <= range.end_date {
         let start_year = current_start.year();
+        // UK financial years begin on 1st April and end on 31st March (LGFA 1988 s.145)
         let fy_start_year = if current_start.month() >= 4 { start_year } else { start_year - 1 };
         let fy_end_date = NaiveDate::from_ymd_opt(fy_start_year + 1, 3, 31).unwrap();
 
         let current_end = if range.end_date < fy_end_date { range.end_date } else { fy_end_date };
         let days = (current_end - current_start).num_days() + 1;
+        // Statutory denominator C is 366 in leap years (e.g. 2023/24) and 365 otherwise (LGFA 1988 s.43(2)(a))
         let year_days = if is_leap_year(fy_start_year + 1) { 366 } else { 365 };
 
         segments.push(BillingSegmentWindow {
@@ -51,6 +61,9 @@ pub fn slice_occupation_period(range: &DateRange) -> Vec<BillingSegmentWindow> {
     segments
 }
 
+/// Slices multiple occupancy periods and intersects them with rateable value alteration dates
+/// (LGFA 1988 s.43(1), s.44A, s.54; NDRA 2023) so that each discrete billing window has a constant
+/// rateable value, statutory multiplier, and occupancy classification.
 pub fn slice_occupancy_periods(
     periods: &[OccupancyPeriodInput],
     global_flags: &QualifyingReliefFlags,

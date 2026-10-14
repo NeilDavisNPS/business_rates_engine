@@ -29,6 +29,7 @@
       "audit_header": "    - Sgrùdadh Measaidh Faochaidhean (Faochaidhean gun Dleastanas):",
       "audit_item": "        * {note}",
       "statutory_penalty_item": "    - Peanas Reachdail [{penalty_type}] +£{amount} [{calculation_formula} - {statutory_authority}]",
+      "statutory_installments": "    - Clàr-ama Pàighidh Reachdail: {count} cuibhreannan mìosail (notaichean slàn air an cruinneachadh fo S.I. 1989/1058 / LGFA 1988 Clàr 9 para 2)",
       "net_segment_payable": "    - Glan an Earrann ri Phàigheadh: £{net_segment_payable}"
     },
     "holiday_let": {
@@ -112,7 +113,22 @@
       "ssbr_default": "Supporting Small Business Relief: Not applicable — bill increase did not exceed statutory annual cap (£600/£800) over previous financial year [LGFA 1988 s.47].",
       "empty_property_expired": "Ùine Saor bho Ìrean Togalach Falamh: Dh'fhalbh an ùine — tha an ùine reachdail (3 mìosan malairteach / 6 mìosan gnìomhachais) seachad [Achd 1975 e.7A].",
       "multiplier_wales_2027_provisional": "Tha iomadairean na Cuimrigh airson 2027/28 nan tuairmsean sealach stèidhichte air luachan 2026/27 a' feitheamh ri reachdachadh riaghailtean reachdail.",
-      "multiplier_wales_higher_excepted": "Tha an oighreachd air a saoradh bho àrd-iomadair na Cuimrigh (>£100k RV); chaidh iomadair àbhaisteach ({rate}) a chur an gnìomh fo Achd Ionmhais Riaghaltas Ionadail (A' Chuimrigh) 2024."
+      "multiplier_wales_higher_excepted": "Tha an oighreachd air a saoradh bho àrd-iomadair na Cuimrigh (>£100k RV); chaidh iomadair àbhaisteach ({rate}) a chur an gnìomh fo Achd Ionmhais Riaghaltas Ionadail (A' Chuimrigh) 2024.",
+      "multiplier_eng_small": "Co-dhùnadh Iomadair: Teisteanasach airson Iomadair Gnìomhachasan Beaga (Luach Cìseil £{rv} <= stairsneach £50,999) [LGFA 1988 Clàr 7 para B1 / NDRA 2023 e.1].",
+      "multiplier_eng_standard": "Co-dhùnadh Iomadair: Air a mheasadh air Iomadair Àbhaisteach (Luach Cìseil £{rv} >= stairsneach £51,000) [LGFA 1988 Clàr 7 para A1 / NDRA 2023 e.1].",
+      "multiplier_eng_high_value": "Co-dhùnadh Iomadair: Air a mheasadh air Iomadair Àrd-Luach (Luach Cìseil £{rv} >= stairsneach £500,000) [NDRA 2023 e.1].",
+      "multiplier_eng_small_rhl": "Co-dhùnadh Iomadair: Air a mheasadh air Iomadair RHL Gnìomhachasan Beaga (RV £{rv} <= £50,999 agus reic/aoigheachd/cur-seachad iomchaidh) [NDRA 2023 e.1].",
+      "multiplier_eng_standard_rhl": "Co-dhùnadh Iomadair: Air a mheasadh air Iomadair RHL Àbhaisteach (£51,000 <= RV £{rv} < £500,000 agus reic/aoigheachd/cur-seachad iomchaidh) [NDRA 2023 e.1].",
+      "multiplier_wal_retail": "Co-dhùnadh Iomadair: Air a mheasadh air Iomadair Reic na Cuimrigh (RV £{rv} <= £51,000 agus togalach reic iomchaidh) [LGF(W)A 2024 e.1 / W.S.I. 2026/43].",
+      "multiplier_wal_higher": "Co-dhùnadh Iomadair: Air a mheasadh air Àrd-Iomadair na Cuimrigh (Luach Cìseil £{rv} > stairsneach £100,000) [LGF(W)A 2024 e.1 / W.S.I. 2026/43].",
+      "multiplier_wal_standard": "Co-dhùnadh Iomadair: Air a mheasadh air Iomadair Àbhaisteach na Cuimrigh [LGFA 1988 Clàr 7 / LGF(W)A 2024 e.1].",
+      "multiplier_sco_basic": "Co-dhùnadh Iomadair: Air a mheasadh air Ìre Seilbhe Bunasach (Luach Cìseil £{rv} <= stairsneach £51,000) [Achd Riaghaltas Ionadail (Alba) 1975 e.7B / SSI 2023/30].",
+      "multiplier_sco_intermediate": "Co-dhùnadh Iomadair: Air a mheasadh air Ìre Seilbhe Eadar-mheadhanach (£51,001 <= RV £{rv} <= stairsneach £100,000) [Achd Riaghaltas Ionadail (Alba) 1975 e.7B / SSI 2023/30].",
+      "multiplier_sco_higher": "Co-dhùnadh Iomadair: Air a mheasadh air Àrd-Ìre Seilbhe (Luach Cìseil £{rv} > stairsneach £100,000) [Achd Riaghaltas Ionadail (Alba) 1975 e.7B / SSI 2023/30].",
+      "sbrr_taper_divisor_note": "Measadh Lùghdachadh SBRR: Air a mheasadh a' cleachdadh roinniche reachdail E (foirmle ri phàigheadh (A x M) / E) [S.I. 2017/102 art. 3 / W.S.I. 2017/1229 art. 11(3)].",
+      "empty_low_value_note": "Co-dhùnadh Togalach Falamh: Tha Luach Cìseil £{rv} fo mhullach saoraidh reachdail de £{threshold} [{authority}].",
+      "empty_calendar_months_note": "Ùine Saor bho Chìs Togalach Falamh: Air a mheasadh airson na ciad ùine reachdail saor bho chìs (3 mìosan mìosachain malairteach / 6 mìosan mìosachain tionnsgalach) [LGFA 1988 e.45 / S.I. 2008/386 riagh 4 / W.S.I. 2008/2499 riagh 4].",
+      "transitional_phasing_note": "Co-dhùnadh Ceumachadh Sealach: Buailteachd bhunasach air a luachadh an aghaidh àireamh sa cheud a' chapa reachdail; atharrachadh sealach air a chur an gnìomh [LGFA 1988 e.57A / Riaghailtean Suimean ri Phàigheadh NDR]."
     }
   },
   "relief_names": {

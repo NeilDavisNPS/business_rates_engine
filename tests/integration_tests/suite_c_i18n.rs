@@ -551,3 +551,49 @@ async fn test_narrative_relief_assessment_audit_unawarded_reliefs() {
     let nar_unocc = &res_unocc_fail.calculation_narrative;
     assert!(nar_unocc.contains("Rural Settlement Relief: Disqualified — property is unoccupied (mandatory rural settlement relief requires qualifying occupation)"));
 }
+
+#[tokio::test]
+async fn test_narrative_decision_traceability_across_languages() {
+    let repo = ParameterRepository::new_mock();
+    let engine = CalculationEngine::new(repo);
+
+    // 1. SBRR in taper band (RV £13,500 in England) with 10 monthly instalments
+    for (lang, expected_mult, expected_taper, expected_inst) in [
+        ("en", "Multiplier Determination: Qualified for Small Business Multiplier", "SBRR Taper Evaluation: Assessed using statutory divisor E", "Statutory Payment Schedule: 10 monthly instalments"),
+        ("cy", "Penderfyniad ar Luosydd: Yn gymwys ar gyfer Lluosydd Busnesau Bach", "Gwerthusiad Taper SBRR: Aseswyd gan ddefnyddio rhannydd statudol E", "Atodlen Daliadau Statudol: 10 rhandaliad misol"),
+        ("sco", "Multiplier Determination: Qualified fer Sma Business Multiplier", "SBRR Taper Evaluation: Assessed uisin statutary divisor E", "Statutary Payment Schedule: 10 monthly instalments"),
+        ("gd", "Co-dhùnadh Iomadair: Teisteanasach airson Iomadair Gnìomhachasan Beaga", "Measadh Lùghdachadh SBRR: Air a mheasadh a' cleachdadh roinniche reachdail E", "Clàr-ama Pàighidh Reachdail: 10 cuibhreannan mìosail"),
+    ] {
+        let req = LiabilityCalculationRequest {
+            party_type: PartyType::INDIVIDUAL,
+            occupation_period: DateRange {
+                start_date: NaiveDate::from_ymd_opt(2024, 4, 1).unwrap(),
+                end_date: NaiveDate::from_ymd_opt(2025, 3, 31).unwrap(),
+            },
+            hereditament: HereditamentInput {
+                jurisdiction: Jurisdiction::ENGLAND,
+                scat_code: "091".to_string(),
+                rateable_value_history: vec![RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(13500.00),
+                }],
+            },
+            occupancy_type: OccupancyType::OCCUPIED,
+            qualifying_relief_flags: QualifyingReliefFlags {
+                is_small_business_sole_property: true,
+                payment_installments_count: Some(10),
+                ..Default::default()
+            },
+            occupancy_periods: None,
+            language: Some(lang.to_string()),
+        };
+
+        let res = engine.calculate(req);
+        let narrative = &res.calculation_narrative;
+        assert!(narrative.contains(expected_mult), "Language {} missing multiplier justification: {}", lang, narrative);
+        assert!(narrative.contains(expected_taper), "Language {} missing taper divisor note: {}", lang, narrative);
+        assert!(narrative.contains(expected_inst), "Language {} missing installment schedule note: {}", lang, narrative);
+    }
+}
+

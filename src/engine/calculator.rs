@@ -101,14 +101,8 @@ impl CalculationEngine {
     /// - England from 1 April 2023: 70 let / 140 available (LGFA 1988 s.66(2B) as amended by S.I. 2022/217)
     /// - England before 1 April 2023 and Wales before 1 April 2010: 140 days available only (LGFA 1988 s.66(2B))
     pub(crate) fn holiday_let_thresholds(jurisdiction: Jurisdiction, date: NaiveDate) -> (i64, i64) {
-        let on_or_after = |y: i32, m: u32, d: u32| date >= NaiveDate::from_ymd_opt(y, m, d).unwrap();
-        match jurisdiction {
-            Jurisdiction::WALES if on_or_after(2023, 4, 1) => (182, 252),
-            Jurisdiction::WALES if on_or_after(2010, 4, 1) => (70, 140),
-            Jurisdiction::SCOTLAND if on_or_after(2022, 4, 1) => (70, 140),
-            Jurisdiction::ENGLAND if on_or_after(2023, 4, 1) => (70, 140),
-            _ => (0, 140),
-        }
+        let (min_let, min_avail, _) = ParameterRepository::default().resolve_holiday_let_thresholds(jurisdiction, date);
+        (min_let, min_avail)
     }
 
     /// Number of days from `from` to the same day `months` calendar months later (e.g. 1 Dec + 3 months = 90 days)
@@ -126,46 +120,20 @@ impl CalculationEngine {
     /// - England 2010/11: £18,000 (S.I. 2010/408 reg 2(2)(b))
     /// - England 2009/10: £15,000 (S.I. 2008/3283 reg 2)
     /// - England before 2009/10: £2,200 (S.I. 2008/386 reg 4(g))
+    #[allow(dead_code)]
     pub(crate) fn empty_low_value_threshold(jurisdiction: Jurisdiction, date: NaiveDate) -> Decimal {
-        let on_or_after = |y: i32, m: u32, d: u32| date >= NaiveDate::from_ymd_opt(y, m, d).unwrap();
-        match jurisdiction {
-            Jurisdiction::SCOTLAND => dec!(1700.00),
-            Jurisdiction::WALES => dec!(2200.00),
-            Jurisdiction::ENGLAND => {
-                if on_or_after(2017, 4, 1) {
-                    dec!(2900.00)
-                } else if on_or_after(2011, 4, 1) {
-                    dec!(2600.00)
-                } else if on_or_after(2010, 4, 1) {
-                    dec!(18000.00)
-                } else if on_or_after(2009, 4, 1) {
-                    dec!(15000.00)
-                } else {
-                    dec!(2200.00)
-                }
-            }
-        }
+        ParameterRepository::default()
+            .resolve_empty_property_threshold(jurisdiction, date)
+            .map(|t| t.0)
+            .unwrap_or(dec!(0.00))
     }
 
+    #[allow(dead_code)]
     pub(crate) fn empty_low_value_statutory_authority(jurisdiction: Jurisdiction, date: NaiveDate) -> String {
-        let on_or_after = |y: i32, m: u32, d: u32| date >= NaiveDate::from_ymd_opt(y, m, d).unwrap();
-        match jurisdiction {
-            Jurisdiction::SCOTLAND => "Local Government (Scotland) Act 1975 s.7A / S.S.I. 2018/77".to_string(),
-            Jurisdiction::WALES => "LGFA 1988 s.45 / W.S.I. 2008/2499 reg. 4(g)".to_string(),
-            Jurisdiction::ENGLAND => {
-                if on_or_after(2017, 4, 1) {
-                    "LGFA 1988 s.45 / S.I. 2017/102 art. 4".to_string()
-                } else if on_or_after(2011, 4, 1) {
-                    "LGFA 1988 s.45 / S.I. 2010/408 reg. 2(2)(a)".to_string()
-                } else if on_or_after(2010, 4, 1) {
-                    "LGFA 1988 s.45 / S.I. 2010/408 reg. 2(2)(b)".to_string()
-                } else if on_or_after(2009, 4, 1) {
-                    "LGFA 1988 s.45 / S.I. 2008/3283 reg. 2".to_string()
-                } else {
-                    "LGFA 1988 s.45 / S.I. 2008/386 reg. 4(g)".to_string()
-                }
-            }
-        }
+        ParameterRepository::default()
+            .resolve_empty_property_threshold(jurisdiction, date)
+            .map(|t| t.1)
+            .unwrap_or_else(|| "LGFA 1988 s.45".to_string())
     }
 
 
@@ -562,9 +530,10 @@ impl CalculationEngine {
                     || win.period_relief_flags.is_rural_settlement;
 
                 if is_defined_hereditament && !is_exempt_from_supplement {
-                    let rs = dec!(0.010);
-                    mult.rate += rs;
-                    gross_liability = ((rv * mult.rate) / year_days_dec * days_dec).round_dp(2);
+                    if let Some((rs, _auth)) = self.repo.resolve_transitional_supplement(req.hereditament.jurisdiction, &win.financial_year) {
+                        mult.rate += rs;
+                        gross_liability = ((rv * mult.rate) / year_days_dec * days_dec).round_dp(2);
+                    }
                 }
             }
 
@@ -580,13 +549,7 @@ impl CalculationEngine {
                 OccupancyType::OCCUPIED => {
                     consecutive_occupied_days += win.period.days;
                     // Reset threshold under NDRA 2023 s.15: 91 days (13 weeks) in England post-1 April 2024; 42 days (6 weeks) in Wales/Scotland or pre-2024
-                    let reset_threshold: i64 = if req.hereditament.jurisdiction == Jurisdiction::ENGLAND
-                        && win.period.start_date >= NaiveDate::from_ymd_opt(2024, 4, 1).unwrap()
-                    {
-                        91
-                    } else {
-                        42
-                    };
+                    let (reset_threshold, _auth) = self.repo.resolve_occupancy_reset_days(req.hereditament.jurisdiction, win.period.start_date);
                     if consecutive_occupied_days >= reset_threshold {
                         cumulative_unoccupied_days = 0;
                     }
@@ -594,8 +557,8 @@ impl CalculationEngine {
                     // Priority 5: Self-Catering Holiday Accommodation Letting Days Test (LGFA 1988 s.66 / W.S.I. 2022/563 / S.I. 1992/2955 as amended by S.S.I. 2021/489)
                     let holiday_let_disqualified = if req.hereditament.scat_code == "249" {
                         let mut disqualified = false;
-                        let (min_let_days, min_available_days) =
-                            Self::holiday_let_thresholds(req.hereditament.jurisdiction, win.period.start_date);
+                        let (min_let_days, min_available_days, auth) =
+                            self.repo.resolve_holiday_let_thresholds(req.hereditament.jurisdiction, win.period.start_date);
 
                         // 1. Minimum actual letting days
                         if let Some(actual_days) = flags.holiday_let_actual_days_let {
@@ -611,29 +574,18 @@ impl CalculationEngine {
                             }
                         }
 
-                        disqualified
+                        if disqualified {
+                            Some(auth)
+                        } else {
+                            None
+                        }
                     } else {
-                        false
+                        None
                     };
 
-                    if holiday_let_disqualified {
+                    if let Some(auth) = holiday_let_disqualified {
                         let amount = chargeable_before_reliefs;
                         segment_relief_total += amount;
-                        let auth = if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND {
-                            if win.period.start_date >= NaiveDate::from_ymd_opt(2022, 4, 1).unwrap() {
-                                "S.I. 1992/2955 sched 2 para 2(b) / S.S.I. 2021/489".to_string()
-                            } else {
-                                "S.I. 1992/2955 sched 2 para 2(b)".to_string()
-                            }
-                        } else if req.hereditament.jurisdiction == Jurisdiction::WALES {
-                            if win.period.start_date >= NaiveDate::from_ymd_opt(2023, 4, 1).unwrap() {
-                                "LGFA 1988 s.66(2BB) / W.S.I. 2022/563".to_string()
-                            } else {
-                                "LGFA 1988 s.66(2B) / W.S.I. 2010/682".to_string()
-                            }
-                        } else {
-                            "LGFA 1988 s.66(2B) / S.I. 2022/217".to_string()
-                        };
                         reliefs.push(ItemizedRelief {
                             relief_code: "COUNCIL_TAX_TRANSFER".to_string(),
                             relief_name: crate::i18n::localize_relief_name("Council Tax Transfer (Holiday Let Disqualification)", lang),
@@ -782,11 +734,7 @@ impl CalculationEngine {
                         // Priority 4: Rural Settlement Relief (100%) - LGFA 1997 / LGFA 1988 s.43(6B)
                         // Mandatory relief applies only if RV <= £8,500 (general store/post office) or <= £12,500 (pub/petrol station)
                         if flags.is_rural_settlement && segment_relief_total < chargeable_before_reliefs {
-                            let rv_cap = if req.hereditament.scat_code == "209" || req.hereditament.scat_code == "211" {
-                                dec!(12500.00)
-                            } else {
-                                dec!(8500.00)
-                            };
+                            let (rv_cap, default_auth) = self.repo.resolve_rural_settlement_cap(&req.hereditament.scat_code);
                             if rv <= rv_cap {
                                 let amount = chargeable_before_reliefs - segment_relief_total;
                                 if amount > dec!(0.00) {
@@ -794,7 +742,7 @@ impl CalculationEngine {
                                     let auth = if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND {
                                         "Local Government (Scotland) Act 1975 Sched 1A / LGFA 1997".to_string()
                                     } else {
-                                        "LGFA 1988 s.43(6B) / LGFA 1997".to_string()
+                                        default_auth
                                     };
                                     reliefs.push(ItemizedRelief {
                                         relief_code: "RURAL_SETTLEMENT".to_string(),
@@ -812,17 +760,7 @@ impl CalculationEngine {
                             && flags.is_renewable_energy_generation
                             && segment_relief_total < chargeable_before_reliefs
                         {
-                            let renew_pct = if rv <= dec!(145000.00) {
-                                dec!(100.00)
-                            } else if rv <= dec!(200000.00) {
-                                dec!(50.00)
-                            } else if rv <= dec!(250000.00) {
-                                dec!(25.00)
-                            } else if rv <= dec!(1000000.00) {
-                                dec!(10.00)
-                            } else {
-                                dec!(0.00)
-                            };
+                            let (renew_pct, auth) = self.repo.resolve_renewable_energy_relief_pct(rv);
 
                             if renew_pct > dec!(0.00) {
                                 let remaining = chargeable_before_reliefs - segment_relief_total;
@@ -832,7 +770,7 @@ impl CalculationEngine {
                                     reliefs.push(ItemizedRelief {
                                         relief_code: "RENEWABLE_ENERGY_RELIEF".to_string(),
                                         relief_name: crate::i18n::localize_relief_name("Renewable Energy Generation Relief", lang),
-                                        statutory_authority: "Non-Domestic Rates (Renewable Energy Generation Relief) (Scotland) Regs 2010 (SSI 2010/336)".to_string(),
+                                        statutory_authority: auth,
                                         discount_percentage: renew_pct,
                                         amount_deducted: amount,
                                     });
@@ -1102,16 +1040,16 @@ impl CalculationEngine {
                     let empty_since = win.period.start_date - chrono::Duration::days(cumulative_unoccupied_days);
                     let max_exempt_days: i64 = Self::calendar_months_in_days(empty_since, if is_industrial { 6 } else { 3 });
 
-                    let low_value_threshold = Self::empty_low_value_threshold(req.hereditament.jurisdiction, win.period.start_date);
+                    let (low_value_threshold, low_value_auth) = self.repo.resolve_empty_property_threshold(req.hereditament.jurisdiction, win.period.start_date)
+                        .unwrap_or((dec!(0.00), "LGFA 1988 s.45".to_string()));
 
                     if rv < low_value_threshold {
                         let amount = chargeable_before_reliefs - segment_relief_total;
                         segment_relief_total += amount;
-                        let auth = Self::empty_low_value_statutory_authority(req.hereditament.jurisdiction, win.period.start_date);
                         reliefs.push(ItemizedRelief {
                             relief_code: "EMPTY_LOW_VALUE".to_string(),
                             relief_name: crate::i18n::localize_relief_name("Empty Property Low RV Exemption", lang),
-                            statutory_authority: auth,
+                            statutory_authority: low_value_auth,
                             discount_percentage: dec!(100.00),
                             amount_deducted: amount,
                         });
@@ -1198,7 +1136,9 @@ impl CalculationEngine {
                     // (S.I. 2008/386 reg 4(a)-(b); W.S.I. 2008/2499 reg 4(a)-(b); Interpretation Act 1978 Sched 1)
                     let empty_since = win.period.start_date - chrono::Duration::days(cumulative_unoccupied_days);
                     let max_exempt_days: i64 = Self::calendar_months_in_days(empty_since, if is_industrial { 6 } else { 3 });
-                    let low_value_threshold = Self::empty_low_value_threshold(req.hereditament.jurisdiction, win.period.start_date);
+                    let low_value_threshold = self.repo.resolve_empty_property_threshold(req.hereditament.jurisdiction, win.period.start_date)
+                        .map(|t| t.0)
+                        .unwrap_or(dec!(0.00));
 
                     if unocc_rv < low_value_threshold {
                         if unocc_chargeable > dec!(0.00) {
@@ -1343,11 +1283,11 @@ impl CalculationEngine {
                 && !welsh_avoidance_penalty_charged
             {
                 welsh_avoidance_penalty_charged = true;
-                let penalty_amount = dec!(500.00) + (rv * dec!(0.03)).round_dp(2);
+                let (penalty_amount, calc_formula, auth) = self.repo.resolve_welsh_avoidance_penalty(rv);
                 segment_penalties.push(StatutoryPenalty {
                     penalty_type: "WELSH_ARTIFICIAL_AVOIDANCE".to_string(),
-                    statutory_authority: "NDR (Artificial Avoidance Arrangements) (Wales) Regs 2026 (WSI 2026/43)".to_string(),
-                    calculation_formula: format!("£500 flat fee + 3% of Rateable Value (£{})", rv),
+                    statutory_authority: auth,
+                    calculation_formula: calc_formula,
                     amount: penalty_amount,
                 });
                 total_penalties += penalty_amount;

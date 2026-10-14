@@ -545,7 +545,27 @@ pub struct ParameterRepository {
   - **2005 & 2010 Lists**: Wales did not operate general transitional phasing schemes.
 - **2017 Revaluation List (England)**: Historical upward and downward statutory phasing percentages.
 
-#### 5. Statutory Reference Codes (`ParamReferenceCode`)
+#### 5. Empty Property Low-Value Thresholds (`ParamEmptyPropertyThreshold`)
+- Pre-seeded statutory low-value rateable value exemption thresholds across all lists (1990–2027) for England, Wales, and Scotland:
+  - **England**: £2,200 (2005 list under SI 2005/211), £15,000 (2008/09 temporary), £18,000 (2009/10 temporary), £2,600 (2010 list under SI 2010/407), £2,900 (2017 & 2023 lists under SI 2017/101 & SI 2022/1263).
+  - **Wales**: £2,200 (1990–2027 under WSI 2008/2672).
+  - **Scotland**: £1,700 (2018–2027 under S.S.I. 2018/77).
+
+#### 6. Holiday Let Letting Test Requirements (`ParamLettingTest`)
+- Pre-seeded actual let and commercial availability statutory thresholds:
+  - **England**: 140 days available and 70 days actual let (effective 1 April 2023 under SI 2022/217).
+  - **Wales**: 140 days available and 70 days actual let (1 April 2010–31 March 2023 under WSI 2010/682); 252 days available and 182 days actual let (from 1 April 2023 under WSI 2022/563).
+  - **Scotland**: 140 days available and 70 days actual let (from 1 April 2022 under S.S.I. 2021/489).
+
+#### 7. Devolved Scheme Caps & Statutory Additions (`ParamSchemeCap`)
+- Dynamic parameter storage for scheme-specific financial limits, statutory additions, and penalty schedules:
+  - **Rural Settlement Relief Caps**: £8,500 RV for sole general store/post office; £12,500 RV for sole pub/petrol filling station (LGFA 1988 s.43(6A)–(6E)).
+  - **Scottish Renewable Energy Generation Relief**: Tiered rateable value relief percentages (100% $\le £145\text{k}$, 50% $£145\text{k}–£430\text{k}$, 25% $£430\text{k}–£860\text{k}$, 10% $£860\text{k}–£4.3\text{m}$, 2.5% $> £4.3\text{m}$ under S.S.I. 2010/336).
+  - **Empty Property Occupancy Reset Period**: 91 days (13 weeks) for England post-1 April 2024 (NDRA 2023 s.15 / SI 2024/400); 42 days (6 weeks) historically and for Wales and Scotland.
+  - **Transitional Relief Supplement (TRS)**: 0.010 addition to transitional multiplier in England for small/medium properties (SI 2016/1265 reg 10(7)).
+  - **Welsh Artificial Avoidance Penalty**: £500 fixed sum + 3% rateable value variable addition under Local Government Finance (Wales) Act 2024 s.19.
+
+#### 8. Statutory Reference Codes (`ParamReferenceCode`)
 - Pre-seeded dictionaries for `JURISDICTION`, `OCCUPATION_STATUS`, `SCAT_CODE`, `BILLING_FREQUENCY`, `RELIEF_TYPE`, and `LANGUAGE` with localized titles and descriptions across English (`en`), Welsh (`cy`), Scots (`sco`), and Scottish Gaelic (`gd`).
 
 ### 3.2 Lookup Methods
@@ -558,6 +578,13 @@ impl ParameterRepository {
     pub fn calculate_sbrr_sbbs_discount(&self, jurisdiction: Jurisdiction, financial_year: &str, rv: Decimal) -> Decimal;
     pub fn get_sector_relief(&self, jurisdiction: Jurisdiction, financial_year: &str, relief_code: &str) -> Option<&ParamSectorRelief>;
     pub fn resolve_transitional_cap(&self, jurisdiction: Jurisdiction, financial_year: &str, rv: Decimal) -> Option<&ParamTransitionalCap>;
+    pub fn resolve_empty_property_threshold(&self, jurisdiction: Jurisdiction, financial_year: &str) -> (Decimal, &'static str);
+    pub fn resolve_holiday_let_thresholds(&self, jurisdiction: Jurisdiction, financial_year: &str) -> (u32, u32);
+    pub fn resolve_rural_settlement_cap(&self, category: &str) -> Decimal;
+    pub fn resolve_renewable_energy_relief_pct(&self, rv: Decimal) -> Decimal;
+    pub fn resolve_occupancy_reset_days(&self, jurisdiction: Jurisdiction, financial_year: &str) -> i64;
+    pub fn resolve_transitional_supplement(&self, jurisdiction: Jurisdiction, financial_year: &str, property_size: &str) -> Decimal;
+    pub fn resolve_welsh_avoidance_penalty(&self) -> (Decimal, Decimal);
     pub fn get_reference_codes(&self, category: &str) -> Vec<&ParamReferenceCode>;
 }
 ```
@@ -577,9 +604,9 @@ The in-memory parameter repository and statutory documentation are exposed direc
 
 ## 4. Test Cases Specification & Scenario Fixtures
 
-### Test Suite Overview (150 Passing Integration Tests)
+### Test Suite Overview (151 Passing Integration Tests)
 
-The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **150 automated integration tests**:
+The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **151 automated integration tests**:
 
 - **Suite A: Canonical Multi-Jurisdiction Scenario Fixture Tests (Scenarios 1–11)** ([`tests/integration_tests/suite_a_scenarios.rs`](tests/integration_tests/suite_a_scenarios.rs) — 11 tests):
   - `test_scenario_1_england_sbrr_and_rhl_multi_year` (`scenario_1_sbrr_rhl_england.json`): Multi-year slicing (2025/26 & 2026/27), SBRR linear taper, England 2026/27 RHL expiration verification, and Transitional Relief caps.
@@ -603,7 +630,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_empty_property_prior_unoccupied_days_out_of_order_periods`: Ensures robust ordering and prior empty days tracking even when episodes are submitted out of chronological order.
   - `test_unseeded_year_raises_error_not_045_default`: Confirms requesting an unseeded rating year outside 1990–2027 returns a structured domain error rather than an arbitrary fallback multiplier.
 
-- **Suite C: 4-Language Internationalization (i18n) & Content Negotiation** ([`tests/integration_tests/suite_c_i18n.rs`](tests/integration_tests/suite_c_i18n.rs) — 12 tests):
+- **Suite C: 4-Language Internationalization (i18n) & Content Negotiation** ([`tests/integration_tests/suite_c_i18n.rs`](tests/integration_tests/suite_c_i18n.rs) — 13 tests):
   - `test_i18n_welsh_narrative_and_relief_names`: Welsh audit narrative headers and localized relief naming (*"Rhyddhad Elusennol Gorfodol"*).
   - `test_i18n_scots_and_gaelic_narrative_and_relief_names`: Scots (*"Mandatar Chairitable Rate Relief"*) and Scottish Gaelic (*"Faochadh Ìrean Carthannais Èigneachail"*) narratives and reliefs.
   - `test_i18n_reference_codes_localized_welsh_and_english`: Bilingual reference code resolution for jurisdictions and reliefs.
@@ -616,6 +643,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_http_calculate_liability_bad_payload_error`: Validates HTTP 422 `PAYLOAD_DESERIALIZATION_ERROR` response on malformed JSON payload.
   - `test_domain_error_status_codes_and_codes`: Verifies strongly-typed `AppError` status codes and error identifiers.
   - `test_narrative_relief_assessment_audit_unawarded_reliefs`: Verifies localized statutory audit justification for disqualified/unawarded reliefs across English, Welsh, Scots, and Scottish Gaelic.
+  - `test_narrative_decision_traceability_across_languages`: Verifies comprehensive step-by-step decision justification lines (multiplier determination, transitional relief phasing, SBRR taper divisor $E$, empty property rate-free calendar months, and statutory installment schedule) with statutory citations across English, Welsh, Scots, and Scottish Gaelic maintaining 100% key parity.
 
 - **Suite D: Reference Codes, Parameter Resolution, Public API Access & OpenAPI** ([`tests/integration_tests/suite_d_api_and_parameters.rs`](tests/integration_tests/suite_d_api_and_parameters.rs) — 10 tests):
   - `test_app_state_repository_access`: Validates thread-safe parameter repository access on `AppState`.
@@ -761,7 +789,7 @@ To build, verify, and run the project:
 # 1. Compile the Svelte 5 frontend component framework with Vite
 ./build-frontend.sh
 
-# 2. Run the automated test suite (149 integration tests)
+# 2. Run the automated test suite (151 integration tests)
 cargo test --test integration_tests
 
 # 3. Start the HTTP API & Single-Page Application server (default port 8080)

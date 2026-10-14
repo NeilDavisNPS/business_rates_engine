@@ -29,6 +29,7 @@
       "audit_header": "    - Relief Assessment Audit (Unawarded Reliefs):",
       "audit_item": "        * {note}",
       "statutory_penalty_item": "    - Statutary Penalty [{penalty_type}] +£{amount} [{calculation_formula} - {statutory_authority}]",
+      "statutory_installments": "    - Statutary Payment Schedule: {count} monthly instalments (haill pounds roondit unner S.I. 1989/1058 / LGFA 1988 Sched 9 para 2)",
       "net_segment_payable": "    - Net Segment Tae Pay: £{net_segment_payable}"
     },
     "holiday_let": {
@@ -112,7 +113,22 @@
       "ssbr_default": "Supporting Small Business Relief: Not applicable — bill increase did not exceed statutory annual cap (£600/£800) over previous financial year [LGFA 1988 s.47].",
       "empty_property_expired": "Tuim Proaperty Rate-Free Period: Expired — statutary rate-free period (3 month commercial / 6 month industrial) is up [1975 Act s.7A / SSI 2018/77].",
       "multiplier_wales_2027_provisional": "Welsh multipliers fer 2027/28 are provisional estimates based on 2026/27 values pendin the passin o statutary regulations.",
-      "multiplier_wales_higher_excepted": "Hereditament is exemptit frae the Welsh heicher multiplier (>£100k RV); standard multiplier ({rate}) applee'd unner Local Government Finance (Wales) Act 2024."
+      "multiplier_wales_higher_excepted": "Hereditament is exemptit frae the Welsh heicher multiplier (>£100k RV); standard multiplier ({rate}) applee'd unner Local Government Finance (Wales) Act 2024.",
+      "multiplier_eng_small": "Multiplier Determination: Qualified fer Sma Business Multiplier (Rateable Value £{rv} <= £50,999 threshold) [LGFA 1988 Sched 7 para B1 / NDRA 2023 s.1].",
+      "multiplier_eng_standard": "Multiplier Determination: Assessed on Standard Multiplier (Rateable Value £{rv} >= £51,000 threshold) [LGFA 1988 Sched 7 para A1 / NDRA 2023 s.1].",
+      "multiplier_eng_high_value": "Multiplier Determination: Assessed on Heich-Value Multiplier (Rateable Value £{rv} >= £500,000 threshold) [NDRA 2023 s.1].",
+      "multiplier_eng_small_rhl": "Multiplier Determination: Assessed on Sma Business RHL Multiplier (RV £{rv} <= £50,999 an qualifyin retail/hospitality/leisure) [NDRA 2023 s.1].",
+      "multiplier_eng_standard_rhl": "Multiplier Determination: Assessed on Standard RHL Multiplier (£51,000 <= RV £{rv} < £500,000 an qualifyin retail/hospitality/leisure) [NDRA 2023 s.1].",
+      "multiplier_wal_retail": "Multiplier Determination: Assessed on Welsh Retail Multiplier (RV £{rv} <= £51,000 an qualifyin retail premises) [LGF(W)A 2024 s.1 / W.S.I. 2026/43].",
+      "multiplier_wal_higher": "Multiplier Determination: Assessed on Welsh Heicher Multiplier (Rateable Value £{rv} > £100,000 threshold) [LGF(W)A 2024 s.1 / W.S.I. 2026/43].",
+      "multiplier_wal_standard": "Multiplier Determination: Assessed on Welsh Standard Multiplier [LGFA 1988 Sched 7 / LGF(W)A 2024 s.1].",
+      "multiplier_sco_basic": "Multiplier Determination: Assessed on Basic Property Rate (Rateable Value £{rv} <= £51,000 threshold) [Local Government (Scotland) Act 1975 s.7B / SSI 2023/30].",
+      "multiplier_sco_intermediate": "Multiplier Determination: Assessed on Intermediate Property Rate (£51,001 <= RV £{rv} <= £100,000 threshold) [Local Government (Scotland) Act 1975 s.7B / SSI 2023/30].",
+      "multiplier_sco_higher": "Multiplier Determination: Assessed on Heicher Property Rate (Rateable Value £{rv} > £100,000 threshold) [Local Government (Scotland) Act 1975 s.7B / SSI 2023/30].",
+      "sbrr_taper_divisor_note": "SBRR Taper Evaluation: Assessed uisin statutary divisor E (chargeable formula (A x M) / E) [S.I. 2017/102 art. 3 / W.S.I. 2017/1229 art. 11(3)].",
+      "empty_low_value_note": "Empty Property Determination: Rateable Value £{rv} is ablo the statutary exemption ceilin o £{threshold} [{authority}].",
+      "empty_calendar_months_note": "Empty Property Rate-Free Period: Assessed fer initial statutary rate-free period (3 calendar months commercial / 6 calendar months industrial) [LGFA 1988 s.45 / S.I. 2008/386 reg. 4 / W.S.I. 2008/2499 reg. 4].",
+      "transitional_phasing_note": "Transitional Phasin Decision: Base liability evaluated agin the statutary cap percentage; transitional adjustment applee'd [LGFA 1988 s.57A / NDR Chargeable Amounts Regs]."
     }
   },
   "relief_names": {

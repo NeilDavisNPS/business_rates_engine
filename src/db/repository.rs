@@ -122,6 +122,44 @@ pub struct ParamReferenceCode {
     pub display_order: i32,
 }
 
+/// Statutory rateable value exemption threshold for unoccupied property
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ParamEmptyPropertyThreshold {
+    pub parameter_id: String,
+    pub jurisdiction: Jurisdiction,
+    pub threshold_rv: Decimal,
+    pub statutory_authority: String,
+    pub effective_from: NaiveDate,
+    pub effective_to: NaiveDate,
+}
+
+/// Statutory letting requirements for self-catering holiday accommodation
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ParamLettingTest {
+    pub parameter_id: String,
+    pub jurisdiction: Jurisdiction,
+    pub min_actual_let_days: i64,
+    pub min_available_days: i64,
+    pub statutory_authority: String,
+    pub effective_from: NaiveDate,
+    pub effective_to: NaiveDate,
+}
+
+/// Statutory scheme thresholds, caps, and rates
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ParamSchemeCap {
+    pub parameter_id: String,
+    pub scheme_code: String,
+    pub financial_year: Option<String>,
+    pub jurisdiction: Option<Jurisdiction>,
+    pub cap_value: Decimal,
+    pub secondary_cap_value: Option<Decimal>,
+    pub cap_unit: String,
+    pub statutory_authority: String,
+    pub effective_from: Option<NaiveDate>,
+    pub effective_to: Option<NaiveDate>,
+}
+
 /// In-memory parameter repository storage
 #[derive(Clone, Debug)]
 pub struct RepoData {
@@ -130,6 +168,9 @@ pub struct RepoData {
     sector_reliefs: Vec<ParamSectorRelief>,
     transitional_caps: Vec<ParamTransitionalCap>,
     reference_codes: Vec<ParamReferenceCode>,
+    empty_property_thresholds: Vec<ParamEmptyPropertyThreshold>,
+    letting_tests: Vec<ParamLettingTest>,
+    scheme_caps: Vec<ParamSchemeCap>,
     versions: ParameterVersionIds,
 }
 
@@ -191,6 +232,18 @@ impl ParameterRepository {
 
     pub fn all_transitional_caps(&self) -> &[ParamTransitionalCap] {
         &self.transitional_caps
+    }
+
+    pub fn all_empty_property_thresholds(&self) -> &[ParamEmptyPropertyThreshold] {
+        &self.empty_property_thresholds
+    }
+
+    pub fn all_letting_tests(&self) -> &[ParamLettingTest] {
+        &self.letting_tests
+    }
+
+    pub fn all_scheme_caps(&self) -> &[ParamSchemeCap] {
+        &self.scheme_caps
     }
 
     pub fn all_reference_codes(&self) -> &[ParamReferenceCode] {
@@ -458,12 +511,42 @@ impl ParameterRepository {
     /// Returns None outside the taper band, where the relief percentage applies directly.
     pub fn sbrr_taper_divisor(&self, jurisdiction: Jurisdiction, financial_year: &str, rv: Decimal, is_childcare: bool, is_post_office: bool) -> Option<Decimal> {
         use rust_decimal::RoundingStrategy;
+        if is_childcare || is_post_office {
+            return None;
+        }
+
+        // Statutory divisor E was introduced in England from 2017/18 (S.I. 2017/102 art. 3)
+        // and in Wales from 2018/19 (W.S.I. 2017/1229 art. 11(3))
+        let divisor_applies = match jurisdiction {
+            Jurisdiction::ENGLAND => financial_year >= "2017/18",
+            Jurisdiction::WALES => financial_year >= "2018/19",
+            _ => false,
+        };
+        if !divisor_applies {
+            return None;
+        }
+
+        let record = self.sbrr_thresholds.iter().find(|s| {
+            s.jurisdiction == jurisdiction
+                && s.financial_year == financial_year
+                && s.is_tapered
+                && rv >= s.min_rv
+                && rv <= s.max_rv
+        })?;
+
+        let base = record.min_rv.floor();
+        let span = record.max_rv - base;
+        let diff = rv - base;
+        if diff.is_zero() {
+            return None;
+        }
+
         match jurisdiction {
-            Jurisdiction::ENGLAND if financial_year >= "2017/18" && rv > dec!(12000.00) && rv <= dec!(15000.00) => {
-                Some((dec!(3000) / (rv - dec!(12000))).round_dp_with_strategy(3, RoundingStrategy::MidpointTowardZero))
+            Jurisdiction::ENGLAND => {
+                Some((span / diff).round_dp_with_strategy(3, RoundingStrategy::MidpointTowardZero))
             }
-            Jurisdiction::WALES if financial_year >= "2018/19" && !is_childcare && !is_post_office && rv > dec!(6000.00) && rv <= dec!(12000.00) => {
-                Some((dec!(6000) / (rv - dec!(6000))).round_dp_with_strategy(3, RoundingStrategy::MidpointAwayFromZero))
+            Jurisdiction::WALES => {
+                Some((span / diff).round_dp_with_strategy(3, RoundingStrategy::MidpointAwayFromZero))
             }
             _ => None,
         }
@@ -478,16 +561,16 @@ impl ParameterRepository {
         is_childcare: bool,
         is_post_office: bool,
     ) -> Option<SbrrResolution> {
-        if is_childcare {
+        if is_childcare && financial_year >= "2019/20" {
             // W.S.I. 2017/1229 art. 8 as amended by W.S.I. 2018/1193:
             // 100% relief for premises wholly used for child minding or day care up to £100,000 RV (from 2019/20)
-            if financial_year >= "2019/20" {
-                if rv <= Decimal::from(100_000) {
+            if let Some(cap) = self.scheme_caps.iter().find(|c| c.scheme_code == "WELSH_SBRR_CHILDCARE") {
+                if rv <= cap.cap_value {
                     return Some(SbrrResolution {
                         relief_code: "SBRR_WALES".to_string(),
                         relief_name: "Welsh Small Business Rates Relief (Registered Childcare)".to_string(),
-                        statutory_authority: "W.S.I. 2017/1229 art. 8 / W.S.I. 2018/1193".to_string(),
-                        discount_percentage: Decimal::from(100),
+                        statutory_authority: cap.statutory_authority.clone(),
+                        discount_percentage: cap.secondary_cap_value.unwrap_or(dec!(100.00)),
                     });
                 } else {
                     return None;
@@ -498,23 +581,27 @@ impl ParameterRepository {
         if is_post_office {
             // W.S.I. 2017/1229 art. 9 & 11(2):
             // 100% relief up to £9,000 RV, 50% relief for £9,001 to £12,000 RV
-            if rv <= Decimal::from(9_000) {
-                return Some(SbrrResolution {
-                    relief_code: "SBRR_WALES".to_string(),
-                    relief_name: "Welsh Small Business Rates Relief (Post Office)".to_string(),
-                    statutory_authority: "W.S.I. 2017/1229 art. 9 & 11(2)".to_string(),
-                    discount_percentage: Decimal::from(100),
-                });
-            } else if rv <= Decimal::from(12_000) {
-                return Some(SbrrResolution {
-                    relief_code: "SBRR_WALES".to_string(),
-                    relief_name: "Welsh Small Business Rates Relief (Post Office)".to_string(),
-                    statutory_authority: "W.S.I. 2017/1229 art. 9 & 11(2)".to_string(),
-                    discount_percentage: Decimal::from(50),
-                });
-            } else {
-                return None;
+            if let Some(cap_full) = self.scheme_caps.iter().find(|c| c.scheme_code == "WELSH_SBRR_POST_OFFICE_FULL") {
+                if rv <= cap_full.cap_value {
+                    return Some(SbrrResolution {
+                        relief_code: "SBRR_WALES".to_string(),
+                        relief_name: "Welsh Small Business Rates Relief (Post Office)".to_string(),
+                        statutory_authority: cap_full.statutory_authority.clone(),
+                        discount_percentage: cap_full.secondary_cap_value.unwrap_or(dec!(100.00)),
+                    });
+                }
             }
+            if let Some(cap_half) = self.scheme_caps.iter().find(|c| c.scheme_code == "WELSH_SBRR_POST_OFFICE_HALF") {
+                if rv <= cap_half.cap_value {
+                    return Some(SbrrResolution {
+                        relief_code: "SBRR_WALES".to_string(),
+                        relief_name: "Welsh Small Business Rates Relief (Post Office)".to_string(),
+                        statutory_authority: cap_half.statutory_authority.clone(),
+                        discount_percentage: cap_half.secondary_cap_value.unwrap_or(dec!(50.00)),
+                    });
+                }
+            }
+            return None;
         }
 
         self.resolve_sbrr(Jurisdiction::WALES, financial_year, rv)
@@ -695,75 +782,127 @@ impl ParameterRepository {
 
     /// Resolves Scottish Small Business Bonus Scheme Transitional Relief (SBBS TR)
     pub fn resolve_sbbs_tr(&self, financial_year: &str) -> Option<SbbsTrResolution> {
-        let (cap_type, authority) = match financial_year {
-            "2023/24" => (
-                SbbsTrCapType::FixedCash(dec!(600.00)),
-                "Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2023 (SSI 2023/31) Part 3",
-            ),
-            "2024/25" => (
-                SbbsTrCapType::FixedCash(dec!(1200.00)),
-                "Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2023 (SSI 2023/31) Part 3",
-            ),
-            "2025/26" => (
-                SbbsTrCapType::FixedCash(dec!(1800.00)),
-                "Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2023 (SSI 2023/31) Part 3",
-            ),
-            "2026/27" => (
-                SbbsTrCapType::PercentageOfIncrease(dec!(25.00)),
-                "Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2026 (SSI 2026/70) reg. 14",
-            ),
-            "2027/28" => (
-                SbbsTrCapType::PercentageOfIncrease(dec!(50.00)),
-                "Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2026 (SSI 2026/70) reg. 14",
-            ),
-            "2028/29" => (
-                SbbsTrCapType::PercentageOfIncrease(dec!(75.00)),
-                "Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2026 (SSI 2026/70) reg. 14",
-            ),
-            _ => return None,
+        let cap = self.scheme_caps.iter().find(|c| {
+            c.scheme_code == "SBBS_TR"
+                && c.financial_year.as_deref() == Some(financial_year)
+                && c.jurisdiction == Some(Jurisdiction::SCOTLAND)
+        })?;
+
+        let cap_type = match cap.cap_unit.as_str() {
+            "PERCENTAGE_INCREASE" => SbbsTrCapType::PercentageOfIncrease(cap.cap_value),
+            _ => SbbsTrCapType::FixedCash(cap.cap_value),
         };
 
         Some(SbbsTrResolution {
             relief_code: "SBBS_TR".to_string(),
             relief_name: "Small Business Bonus Scheme Transitional Relief".to_string(),
-            statutory_authority: authority.to_string(),
+            statutory_authority: cap.statutory_authority.clone(),
             cap_type,
         })
     }
 
     /// Resolves English Supporting Small Business Relief (SSBR) under LGFA 1988 s.47
     pub fn resolve_ssbr(&self, financial_year: &str) -> Option<SsbrResolution> {
-        let (annual_cap, authority) = match financial_year {
-            "2023/24" | "2024/25" | "2025/26" => (
-                dec!(600.00),
-                "LGFA 1988 s.47 / Supporting Small Business Scheme (2023 Revaluation)",
-            ),
-            "2026/27" => (
-                dec!(800.00),
-                "LGFA 1988 s.47 / Supporting Small Business Scheme (2026 Revaluation)",
-            ),
-            _ => return None,
-        };
+        let cap = self.scheme_caps.iter().find(|c| {
+            c.scheme_code == "SSBR"
+                && c.financial_year.as_deref() == Some(financial_year)
+                && c.jurisdiction == Some(Jurisdiction::ENGLAND)
+        })?;
 
         Some(SsbrResolution {
             relief_code: "SSBR".to_string(),
             relief_name: "Supporting Small Business Relief".to_string(),
-            statutory_authority: authority.to_string(),
-            annual_cap,
+            statutory_authority: cap.statutory_authority.clone(),
+            annual_cap: cap.cap_value,
         })
     }
 
     /// Resolves Welsh Transitional Relief scheme parameters under W.S.I. 2025/1371 / W.S.I. 2022/1350 / W.S.I. 2016/1247
-    pub fn resolve_welsh_transitional_relief_rate(&self, financial_year: &str) -> Option<(Decimal, &'static str)> {
-        match financial_year {
-            "2026/27" => Some((dec!(67.00), "LGFA 1988 s.58 / S.I. 2025/1371 (W. 226) / LGF(W)A 2024")),
-            "2027/28" => Some((dec!(34.00), "LGFA 1988 s.58 / S.I. 2025/1371 (W. 226) / LGF(W)A 2024")),
-            "2023/24" => Some((dec!(67.00), "LGFA 1988 s.58 / S.I. 2022/1350 (W. 272)")),
-            "2024/25" => Some((dec!(34.00), "LGFA 1988 s.58 / S.I. 2022/1350 (W. 272)")),
-            "2017/18" => Some((dec!(75.00), "LGFA 1988 s.58 / W.S.I. 2016/1247 (W. 295)")),
-            "2018/19" => Some((dec!(50.00), "LGFA 1988 s.58 / W.S.I. 2016/1247 (W. 295)")),
-            "2019/20" => Some((dec!(25.00), "LGFA 1988 s.58 / W.S.I. 2016/1247 (W. 295)")),
-            _ => None,
+    pub fn resolve_welsh_transitional_relief_rate(&self, financial_year: &str) -> Option<(Decimal, String)> {
+        self.scheme_caps.iter()
+            .find(|c| {
+                c.scheme_code == "WALES_TR"
+                    && c.financial_year.as_deref() == Some(financial_year)
+                    && c.jurisdiction == Some(Jurisdiction::WALES)
+            })
+            .map(|c| (c.cap_value, c.statutory_authority.clone()))
+    }
+
+    /// Resolves the statutory rateable value exemption threshold for unoccupied property (LGFA 1988 s.45 / S.I. 2008/386 / WSI 2008/2499 / SSI 2018/77)
+    pub fn resolve_empty_property_threshold(&self, jurisdiction: Jurisdiction, date: NaiveDate) -> Option<(Decimal, String)> {
+        self.empty_property_thresholds.iter()
+            .find(|t| t.jurisdiction == jurisdiction && date >= t.effective_from && date <= t.effective_to)
+            .map(|t| (t.threshold_rv, t.statutory_authority.clone()))
+    }
+
+    /// Resolves self-catering holiday accommodation statutory letting tests (minimum actual let days, minimum available days, statutory authority)
+    /// (LGFA 1988 s.66(2B)/(2BB) / W.S.I. 2022/563 / S.S.I. 2021/489 reg 2(4) / S.I. 2022/217)
+    pub fn resolve_holiday_let_thresholds(&self, jurisdiction: Jurisdiction, date: NaiveDate) -> (i64, i64, String) {
+        self.letting_tests.iter()
+            .find(|t| t.jurisdiction == jurisdiction && date >= t.effective_from && date <= t.effective_to)
+            .map(|t| (t.min_actual_let_days, t.min_available_days, t.statutory_authority.clone()))
+            .unwrap_or((0, 140, "LGFA 1988 s.66(2B)".to_string()))
+    }
+
+    /// Resolves rural settlement relief rateable value ceiling for given SCAT code (LGFA 1988 s.43(6B) / LGFA 1997 / 1975 Act Sched 1A)
+    pub fn resolve_rural_settlement_cap(&self, scat_code: &str) -> (Decimal, String) {
+        let is_pub_or_petrol = scat_code == "209" || scat_code == "211";
+        let target_code = if is_pub_or_petrol { "RURAL_PUB_PETROL" } else { "RURAL_GENERAL" };
+        self.scheme_caps.iter()
+            .find(|c| c.scheme_code == target_code)
+            .map(|c| (c.cap_value, c.statutory_authority.clone()))
+            .unwrap_or_else(|| (if is_pub_or_petrol { dec!(12500.00) } else { dec!(8500.00) }, "LGFA 1988 s.43(6B) / LGFA 1997".to_string()))
+    }
+
+    /// Resolves Scottish renewable energy generation relief percentage for rateable value (SSI 2010/336)
+    pub fn resolve_renewable_energy_relief_pct(&self, rv: Decimal) -> (Decimal, String) {
+        let matching = self.scheme_caps.iter()
+            .filter(|c| c.scheme_code == "RENEWABLE_ENERGY_SCOTLAND" && rv <= c.cap_value)
+            .min_by_key(|c| c.cap_value);
+        if let Some(c) = matching {
+            (c.secondary_cap_value.unwrap_or(dec!(0.00)), c.statutory_authority.clone())
+        } else {
+            (dec!(0.00), "Non-Domestic Rates (Renewable Energy Generation Relief) (Scotland) Regs 2010 (SSI 2010/336)".to_string())
+        }
+    }
+
+    /// Resolves consecutive occupied days required to reset empty property rate-free period (NDRA 2023 s.15 / LGFA 1988 s.45A)
+    pub fn resolve_occupancy_reset_days(&self, jurisdiction: Jurisdiction, date: NaiveDate) -> (i64, String) {
+        self.scheme_caps.iter()
+            .find(|c| {
+                c.scheme_code == "EMPTY_OCCUPIED_RESET"
+                    && (c.jurisdiction.is_none() || c.jurisdiction == Some(jurisdiction))
+                    && c.effective_from.is_none_or(|f| date >= f)
+                    && c.effective_to.is_none_or(|t| date <= t)
+            })
+            .map(|c| (c.cap_value.to_string().parse::<i64>().unwrap_or(42), c.statutory_authority.clone()))
+            .unwrap_or((42, "LGFA 1988 s.45A / WSI 2008/2499 / SSI 2008/77".to_string()))
+    }
+
+    /// Resolves Transitional Relief Supplement (TRS) addition (S.I. 2026/81 reg. 16)
+    pub fn resolve_transitional_supplement(&self, jurisdiction: Jurisdiction, financial_year: &str) -> Option<(Decimal, String)> {
+        self.scheme_caps.iter()
+            .find(|c| {
+                c.scheme_code == "TRANSITIONAL_RELIEF_SUPPLEMENT"
+                    && c.jurisdiction == Some(jurisdiction)
+                    && c.financial_year.as_deref() == Some(financial_year)
+            })
+            .map(|c| (c.cap_value, c.statutory_authority.clone()))
+    }
+
+    /// Resolves Welsh anti-avoidance statutory penalty (W.S.I. 2026/43 / LGF(W)A 2024)
+    pub fn resolve_welsh_avoidance_penalty(&self, rv: Decimal) -> (Decimal, String, String) {
+        let matching = self.scheme_caps.iter()
+            .find(|c| c.scheme_code == "WELSH_AVOIDANCE_PENALTY");
+        if let Some(c) = matching {
+            let fixed = c.cap_value;
+            let rate = c.secondary_cap_value.unwrap_or(dec!(0.03));
+            let total = fixed + (rv * rate).round_dp(2);
+            let formula = format!("£{} fixed fee + {}% of Rateable Value (£{})", fixed, (rate * dec!(100.00)).round_dp(0), rv);
+            (total, formula, c.statutory_authority.clone())
+        } else {
+            let total = dec!(500.00) + (rv * dec!(0.03)).round_dp(2);
+            (total, format!("£500 flat fee + 3% of Rateable Value (£{})", rv), "NDR (Artificial Avoidance Arrangements) (Wales) Regs 2026 (WSI 2026/43)".to_string())
         }
     }
 }
@@ -782,6 +921,9 @@ impl RepoData {
             sector_reliefs: Vec::new(),
             transitional_caps: Vec::new(),
             reference_codes: Vec::new(),
+            empty_property_thresholds: Vec::new(),
+            letting_tests: Vec::new(),
+            scheme_caps: Vec::new(),
             versions,
         };
 
@@ -790,6 +932,9 @@ impl RepoData {
         data.seed_sector_reliefs();
         data.seed_transitional_caps();
         data.seed_reference_codes();
+        data.seed_empty_property_thresholds();
+        data.seed_letting_tests();
+        data.seed_scheme_caps();
 
         data
     }
@@ -1045,6 +1190,7 @@ impl RepoData {
             add(&format!("sbrr_wal_tap_{}", fy), fy, Jurisdiction::WALES, dec!(6000.01), dec!(12000.00), dec!(100.00), true, &start, &end);
             add(&format!("sbbs_sco_full_{}", fy), fy, Jurisdiction::SCOTLAND, dec!(0.00), dec!(12000.00), dec!(100.00), false, &start, &end);
             add(&format!("sbbs_sco_tap_{}", fy), fy, Jurisdiction::SCOTLAND, dec!(12000.01), dec!(15000.00), dec!(25.00), false, &start, &end);
+            add(&format!("sbbs_sco_tap2_{}", fy), fy, Jurisdiction::SCOTLAND, dec!(15000.01), dec!(20000.00), dec!(25.00), true, &start, &end);
         }
     }
 
@@ -1348,5 +1494,134 @@ impl RepoData {
         add("MULTIPLIER_TYPE", "STANDARD_RHL", "Standard RHL Multiplier", "Permanent reduced multiplier for qualifying retail, hospitality, leisure £51k-£500k RV in England.", Some("ENGLAND"), 5);
         add("MULTIPLIER_TYPE", "RETAIL", "Welsh Retail Multiplier", "Lower statutory multiplier for small retail premises under £51k RV in Wales under LGF(W)A 2024 (35.0p in 2026/27).", Some("WALES"), 6);
         add("MULTIPLIER_TYPE", "HIGHER", "Higher Multiplier (Wales)", "Higher statutory multiplier for properties exceeding £100k RV in Wales under LGF(W)A 2024 (51.5p in 2026/27).", Some("WALES"), 7);
+    }
+
+    fn seed_empty_property_thresholds(&mut self) {
+        let mut add = |id: &str, jur: Jurisdiction, threshold: Decimal, auth: &str, start: &str, end: &str| {
+            self.empty_property_thresholds.push(ParamEmptyPropertyThreshold {
+                parameter_id: id.to_string(),
+                jurisdiction: jur,
+                threshold_rv: threshold,
+                statutory_authority: auth.to_string(),
+                effective_from: NaiveDate::parse_from_str(start, "%Y-%m-%d").unwrap(),
+                effective_to: NaiveDate::parse_from_str(end, "%Y-%m-%d").unwrap(),
+            });
+        };
+
+        // Scotland: £1,700 (Local Government (Scotland) Act 1975 s.7A / S.S.I. 2018/77)
+        add("ept_sco_default", Jurisdiction::SCOTLAND, dec!(1700.00), "Local Government (Scotland) Act 1975 s.7A / S.S.I. 2018/77", "1990-04-01", "2099-12-31");
+
+        // Wales: £2,200 (LGFA 1988 s.45 / W.S.I. 2008/2499 reg. 4(g))
+        add("ept_wal_default", Jurisdiction::WALES, dec!(2200.00), "LGFA 1988 s.45 / W.S.I. 2008/2499 reg. 4(g)", "1990-04-01", "2099-12-31");
+
+        // England: Historical thresholds
+        // Pre-2009/10: £2,200 (LGFA 1988 s.45 / S.I. 2008/386 reg. 4(g))
+        add("ept_eng_pre2009", Jurisdiction::ENGLAND, dec!(2200.00), "LGFA 1988 s.45 / S.I. 2008/386 reg. 4(g)", "1990-04-01", "2009-03-31");
+        // 2009/10: £15,000 (LGFA 1988 s.45 / S.I. 2008/3283 reg. 2)
+        add("ept_eng_2009", Jurisdiction::ENGLAND, dec!(15000.00), "LGFA 1988 s.45 / S.I. 2008/3283 reg. 2", "2009-04-01", "2010-03-31");
+        // 2010/11: £18,000 (LGFA 1988 s.45 / S.I. 2010/408 reg. 2(2)(b))
+        add("ept_eng_2010", Jurisdiction::ENGLAND, dec!(18000.00), "LGFA 1988 s.45 / S.I. 2010/408 reg. 2(2)(b)", "2010-04-01", "2011-03-31");
+        // 2011/12 - 2016/17: £2,600 (LGFA 1988 s.45 / S.I. 2010/408 reg. 2(2)(a))
+        add("ept_eng_2011", Jurisdiction::ENGLAND, dec!(2600.00), "LGFA 1988 s.45 / S.I. 2010/408 reg. 2(2)(a)", "2011-04-01", "2017-03-31");
+        // 2017/18 onwards: £2,900 (LGFA 1988 s.45 / S.I. 2017/102 art. 4)
+        add("ept_eng_2017", Jurisdiction::ENGLAND, dec!(2900.00), "LGFA 1988 s.45 / S.I. 2017/102 art. 4", "2017-04-01", "2099-12-31");
+    }
+
+    fn seed_letting_tests(&mut self) {
+        let mut add = |id: &str, jur: Jurisdiction, let_days: i64, avail_days: i64, auth: &str, start: &str, end: &str| {
+            self.letting_tests.push(ParamLettingTest {
+                parameter_id: id.to_string(),
+                jurisdiction: jur,
+                min_actual_let_days: let_days,
+                min_available_days: avail_days,
+                statutory_authority: auth.to_string(),
+                effective_from: NaiveDate::parse_from_str(start, "%Y-%m-%d").unwrap(),
+                effective_to: NaiveDate::parse_from_str(end, "%Y-%m-%d").unwrap(),
+            });
+        };
+
+        // Wales
+        add("let_wal_pre2010", Jurisdiction::WALES, 0, 140, "LGFA 1988 s.66(2B)", "1990-04-01", "2010-03-31");
+        add("let_wal_2010", Jurisdiction::WALES, 70, 140, "LGFA 1988 s.66(2B) / W.S.I. 2010/682", "2010-04-01", "2023-03-31");
+        add("let_wal_2023", Jurisdiction::WALES, 182, 252, "LGFA 1988 s.66(2BB) / W.S.I. 2022/563", "2023-04-01", "2099-12-31");
+
+        // Scotland
+        add("let_sco_pre2022", Jurisdiction::SCOTLAND, 0, 140, "Council Tax (Dwellings and Part Residential Subjects) (Scotland) Regs 1992 sched 2 para 2(b)", "1990-04-01", "2022-03-31");
+        add("let_sco_2022", Jurisdiction::SCOTLAND, 70, 140, "Council Tax (Dwellings and Part Residential Subjects) (Scotland) Regs 1992 sched 2 para 2(b) / S.S.I. 2021/489 reg 2(4)", "2022-04-01", "2099-12-31");
+
+        // England
+        add("let_eng_pre2023", Jurisdiction::ENGLAND, 0, 140, "LGFA 1988 s.66(2B)", "1990-04-01", "2023-03-31");
+        add("let_eng_2023", Jurisdiction::ENGLAND, 70, 140, "LGFA 1988 s.66(2B) / S.I. 2022/217", "2023-04-01", "2099-12-31");
+    }
+
+    fn seed_scheme_caps(&mut self) {
+        let mut add = |id: &str, scheme: &str, fy: Option<&str>, jur: Option<Jurisdiction>, cap: Decimal, sec_cap: Option<Decimal>, unit: &str, auth: &str, start: Option<&str>, end: Option<&str>| {
+            self.scheme_caps.push(ParamSchemeCap {
+                parameter_id: id.to_string(),
+                scheme_code: scheme.to_string(),
+                financial_year: fy.map(|s| s.to_string()),
+                jurisdiction: jur,
+                cap_value: cap,
+                secondary_cap_value: sec_cap,
+                cap_unit: unit.to_string(),
+                statutory_authority: auth.to_string(),
+                effective_from: start.map(|s| NaiveDate::parse_from_str(s, "%Y-%m-%d").unwrap()),
+                effective_to: end.map(|s| NaiveDate::parse_from_str(s, "%Y-%m-%d").unwrap()),
+            });
+        };
+
+        // Rural Settlement Relief Caps (LGFA 1988 s.43(6B) / LGFA 1997 / S.I. 1997/1888)
+        add("cap_rural_pub_petrol", "RURAL_PUB_PETROL", None, None, dec!(12500.00), None, "GBP_RV", "LGFA 1988 s.43(6B) / LGFA 1997", None, None);
+        add("cap_rural_general", "RURAL_GENERAL", None, None, dec!(8500.00), None, "GBP_RV", "LGFA 1988 s.43(6B) / LGFA 1997", None, None);
+
+        // Renewable Energy Generation Relief (Scotland) (SSI 2010/336 reg. 3)
+        add("cap_renew_tier1", "RENEWABLE_ENERGY_SCOTLAND", None, Some(Jurisdiction::SCOTLAND), dec!(145000.00), Some(dec!(100.00)), "GBP_RV", "SSI 2010/336 reg. 3", None, None);
+        add("cap_renew_tier2", "RENEWABLE_ENERGY_SCOTLAND", None, Some(Jurisdiction::SCOTLAND), dec!(200000.00), Some(dec!(50.00)), "GBP_RV", "SSI 2010/336 reg. 3", None, None);
+        add("cap_renew_tier3", "RENEWABLE_ENERGY_SCOTLAND", None, Some(Jurisdiction::SCOTLAND), dec!(250000.00), Some(dec!(25.00)), "GBP_RV", "SSI 2010/336 reg. 3", None, None);
+        add("cap_renew_tier4", "RENEWABLE_ENERGY_SCOTLAND", None, Some(Jurisdiction::SCOTLAND), dec!(1000000.00), Some(dec!(10.00)), "GBP_RV", "SSI 2010/336 reg. 3", None, None);
+
+        // Occupancy Reset Days for Empty Property Relief
+        // England post-1 April 2024: 91 days (13 weeks) under NDRA 2023 s.15 / S.I. 2024/412
+        add("cap_reset_eng_2024", "EMPTY_OCCUPIED_RESET", None, Some(Jurisdiction::ENGLAND), dec!(91.00), None, "DAYS", "NDRA 2023 s.15 / S.I. 2024/412", Some("2024-04-01"), Some("2099-12-31"));
+        // England pre-2024: 42 days (6 weeks) under LGFA 1988 s.45A / S.I. 2008/386 reg. 4(d)
+        add("cap_reset_eng_pre2024", "EMPTY_OCCUPIED_RESET", None, Some(Jurisdiction::ENGLAND), dec!(42.00), None, "DAYS", "LGFA 1988 s.45A / S.I. 2008/386 reg. 4(d)", Some("1990-04-01"), Some("2024-03-31"));
+        // Wales: 42 days (6 weeks) under LGFA 1988 s.45A / W.S.I. 2008/2499 reg. 4(d)
+        add("cap_reset_wal", "EMPTY_OCCUPIED_RESET", None, Some(Jurisdiction::WALES), dec!(42.00), None, "DAYS", "LGFA 1988 s.45A / W.S.I. 2008/2499 reg. 4(d)", Some("1990-04-01"), Some("2099-12-31"));
+        // Scotland: 42 days (6 weeks) under Local Government (Scotland) Act 1975 s.7A / S.S.I. 2008/77
+        add("cap_reset_sco", "EMPTY_OCCUPIED_RESET", None, Some(Jurisdiction::SCOTLAND), dec!(42.00), None, "DAYS", "Local Government (Scotland) Act 1975 s.7A / S.S.I. 2008/77", Some("1990-04-01"), Some("2099-12-31"));
+
+        // Transitional Relief Supplement (TRS) Addition in England (S.I. 2026/81 reg. 16)
+        add("cap_trs_eng_2026", "TRANSITIONAL_RELIEF_SUPPLEMENT", Some("2026/27"), Some(Jurisdiction::ENGLAND), dec!(0.010), None, "MULTIPLIER_ADDITION", "Non-Domestic Rating (Chargeable Amounts) (England) Regulations 2026 (S.I. 2026/81) reg. 16", Some("2026-04-01"), Some("2027-03-31"));
+
+        // Welsh Anti-Avoidance Statutory Penalty (W.S.I. 2026/43 / LGF(W)A 2024)
+        add("cap_welsh_avoidance", "WELSH_AVOIDANCE_PENALTY", None, Some(Jurisdiction::WALES), dec!(500.00), Some(dec!(0.03)), "GBP_AND_RATE", "NDR (Artificial Avoidance Arrangements) (Wales) Regs 2026 (WSI 2026/43)", None, None);
+
+        // Welsh SBRR Special Scheme Caps (W.S.I. 2017/1229)
+        add("cap_wal_sbrr_childcare", "WELSH_SBRR_CHILDCARE", None, Some(Jurisdiction::WALES), dec!(100000.00), Some(dec!(100.00)), "GBP_RV", "W.S.I. 2017/1229 art. 8 / W.S.I. 2018/1193", Some("2019-04-01"), Some("2099-12-31"));
+        add("cap_wal_sbrr_po_full", "WELSH_SBRR_POST_OFFICE_FULL", None, Some(Jurisdiction::WALES), dec!(9000.00), Some(dec!(100.00)), "GBP_RV", "W.S.I. 2017/1229 art. 9 & 11(2)", None, None);
+        add("cap_wal_sbrr_po_half", "WELSH_SBRR_POST_OFFICE_HALF", None, Some(Jurisdiction::WALES), dec!(12000.00), Some(dec!(50.00)), "GBP_RV", "W.S.I. 2017/1229 art. 9 & 11(2)", None, None);
+
+        // Scottish SBBS Transitional Relief Caps (SSI 2023/31 / SSI 2026/70)
+        add("cap_sbbs_tr_2023", "SBBS_TR", Some("2023/24"), Some(Jurisdiction::SCOTLAND), dec!(600.00), None, "FIXED_CASH", "Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2023 (SSI 2023/31) Part 3", Some("2023-04-01"), Some("2024-03-31"));
+        add("cap_sbbs_tr_2024", "SBBS_TR", Some("2024/25"), Some(Jurisdiction::SCOTLAND), dec!(1200.00), None, "FIXED_CASH", "Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2023 (SSI 2023/31) Part 3", Some("2024-04-01"), Some("2025-03-31"));
+        add("cap_sbbs_tr_2025", "SBBS_TR", Some("2025/26"), Some(Jurisdiction::SCOTLAND), dec!(1800.00), None, "FIXED_CASH", "Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2023 (SSI 2023/31) Part 3", Some("2025-04-01"), Some("2026-03-31"));
+        add("cap_sbbs_tr_2026", "SBBS_TR", Some("2026/27"), Some(Jurisdiction::SCOTLAND), dec!(25.00), None, "PERCENTAGE_INCREASE", "Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2026 (SSI 2026/70) reg. 14", Some("2026-04-01"), Some("2027-03-31"));
+        add("cap_sbbs_tr_2027", "SBBS_TR", Some("2027/28"), Some(Jurisdiction::SCOTLAND), dec!(50.00), None, "PERCENTAGE_INCREASE", "Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2026 (SSI 2026/70) reg. 14", Some("2027-04-01"), Some("2028-03-31"));
+        add("cap_sbbs_tr_2028", "SBBS_TR", Some("2028/29"), Some(Jurisdiction::SCOTLAND), dec!(75.00), None, "PERCENTAGE_INCREASE", "Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2026 (SSI 2026/70) reg. 14", Some("2028-04-01"), Some("2029-03-31"));
+
+        // English Supporting Small Business Relief (SSBR) Caps (LGFA 1988 s.47)
+        add("cap_ssbr_2023", "SSBR", Some("2023/24"), Some(Jurisdiction::ENGLAND), dec!(600.00), None, "GBP_PER_YEAR", "LGFA 1988 s.47 / Supporting Small Business Scheme (2023 Revaluation)", Some("2023-04-01"), Some("2024-03-31"));
+        add("cap_ssbr_2024", "SSBR", Some("2024/25"), Some(Jurisdiction::ENGLAND), dec!(600.00), None, "GBP_PER_YEAR", "LGFA 1988 s.47 / Supporting Small Business Scheme (2023 Revaluation)", Some("2024-04-01"), Some("2025-03-31"));
+        add("cap_ssbr_2025", "SSBR", Some("2025/26"), Some(Jurisdiction::ENGLAND), dec!(600.00), None, "GBP_PER_YEAR", "LGFA 1988 s.47 / Supporting Small Business Scheme (2023 Revaluation)", Some("2025-04-01"), Some("2026-03-31"));
+        add("cap_ssbr_2026", "SSBR", Some("2026/27"), Some(Jurisdiction::ENGLAND), dec!(800.00), None, "GBP_PER_YEAR", "LGFA 1988 s.47 / Supporting Small Business Scheme (2026 Revaluation)", Some("2026-04-01"), Some("2027-03-31"));
+
+        // Welsh Transitional Relief Percentages (LGFA 1988 s.58 / W.S.I. 2025/1371 / W.S.I. 2022/1350 / W.S.I. 2016/1247)
+        add("cap_wal_tr_2017", "WALES_TR", Some("2017/18"), Some(Jurisdiction::WALES), dec!(75.00), None, "PERCENTAGE", "LGFA 1988 s.58 / W.S.I. 2016/1247 (W. 295)", Some("2017-04-01"), Some("2018-03-31"));
+        add("cap_wal_tr_2018", "WALES_TR", Some("2018/19"), Some(Jurisdiction::WALES), dec!(50.00), None, "PERCENTAGE", "LGFA 1988 s.58 / W.S.I. 2016/1247 (W. 295)", Some("2018-04-01"), Some("2019-03-31"));
+        add("cap_wal_tr_2019", "WALES_TR", Some("2019/20"), Some(Jurisdiction::WALES), dec!(25.00), None, "PERCENTAGE", "LGFA 1988 s.58 / W.S.I. 2016/1247 (W. 295)", Some("2019-04-01"), Some("2020-03-31"));
+        add("cap_wal_tr_2023", "WALES_TR", Some("2023/24"), Some(Jurisdiction::WALES), dec!(67.00), None, "PERCENTAGE", "LGFA 1988 s.58 / S.I. 2022/1350 (W. 272)", Some("2023-04-01"), Some("2024-03-31"));
+        add("cap_wal_tr_2024", "WALES_TR", Some("2024/25"), Some(Jurisdiction::WALES), dec!(34.00), None, "PERCENTAGE", "LGFA 1988 s.58 / S.I. 2022/1350 (W. 272)", Some("2024-04-01"), Some("2025-03-31"));
+        add("cap_wal_tr_2026", "WALES_TR", Some("2026/27"), Some(Jurisdiction::WALES), dec!(67.00), None, "PERCENTAGE", "LGFA 1988 s.58 / S.I. 2025/1371 (W. 226) / LGF(W)A 2024", Some("2026-04-01"), Some("2027-03-31"));
+        add("cap_wal_tr_2027", "WALES_TR", Some("2027/28"), Some(Jurisdiction::WALES), dec!(34.00), None, "PERCENTAGE", "LGFA 1988 s.58 / S.I. 2025/1371 (W. 226) / LGF(W)A 2024", Some("2027-04-01"), Some("2028-03-31"));
     }
 }

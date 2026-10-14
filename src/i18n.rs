@@ -129,6 +129,8 @@ pub struct NarrativeLinesLocale {
     pub audit_header: String,
     pub audit_item: String,
     pub statutory_penalty_item: String,
+    #[serde(default)]
+    pub statutory_installments: Option<String>,
     pub net_segment_payable: String,
 }
 
