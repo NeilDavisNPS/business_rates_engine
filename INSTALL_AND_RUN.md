@@ -1,6 +1,6 @@
 # Installation, Running & Deployment Guide
 
-This guide details how to install, build, configure, test, and deploy the **Business Rates Calculation Engine & Interactive Component Sandbox** across Great Britain (England, Wales, and Scotland) for both **Testing / QA** and **High-Performance Production** environments.
+This guide details how to install, build, configure, test, and deploy the **Business Rates Calculation Engine** across England, Wales, and Scotland for local development, testing, and production environments.
 
 ---
 
@@ -30,8 +30,8 @@ Before getting started, ensure you have the following installed on your machine:
 - **Node.js & npm**: Node.js 20+ or 24+ (LTS)  
   *Verify:* `node -v` and `npm -v`  
   *(Note: In WSL/Linux environments without global Node, run `./setup-node.sh` to install a local portable Node binary into `./bin/`).*
-- **(Optional) Podman (or Docker)**: For rootless, daemonless containerized deployment using Podman with the multi-stage [`Dockerfile`](Dockerfile).  
-  *(Note: The calculation engine includes an in-memory repository pre-seeded with all 1990–2027 statutory parameters across Great Britain, operating with zero external database dependencies).*
+- **(Optional) Podman or Docker**: For containerized deployment using the multi-stage [`Containerfile`](Containerfile).  
+  *(Note: The calculation engine includes an in-memory repository pre-seeded with all 1990–2027 statutory parameters across England, Wales, and Scotland, operating without external database dependencies).*
 
 ---
 
@@ -40,20 +40,20 @@ Before getting started, ensure you have the following installed on your machine:
 From the project root directory:
 
 ```bash
-# 1. Compile Tailwind styles and the Svelte 5 frontend into a single bundle
+# 1. Compile Tailwind styles and the Svelte 5 frontend bundle
 ./build-frontend.sh
 
-# 2. Run the full automated integration test suite (83 tests)
+# 2. Run the integration test suite (161 tests across 10 test suites)
 cargo test
 
 # 3. Launch the application server
 cargo run
 ```
 
-Once running, navigate your web browser to:
-👉 **[http://localhost:8080/](http://localhost:8080/)** (Interactive Calculation Sandbox)  
-👉 **[http://localhost:8080/docs](http://localhost:8080/docs)** (Interactive Scalar API Reference)  
-👉 **[http://localhost:8080/licenses](http://localhost:8080/licenses)** (Third-Party Software Licenses)
+Once running, open the following endpoints in a web browser:
+- **[http://localhost:8080/](http://localhost:8080/)**: Interactive Calculation Sandbox & Parameter Explorer  
+- **[http://localhost:8080/docs](http://localhost:8080/docs)**: Interactive Scalar API Reference (OpenAPI 3.1)  
+- **[http://localhost:8080/licenses](http://localhost:8080/licenses)**: Third-Party Software Licenses & Attribution  
 
 ---
 
@@ -61,25 +61,25 @@ Once running, navigate your web browser to:
 
 ### Step A: Build the Svelte 5 Frontend
 
-The user interface is a modern Single-Page Application (SPA) located in `frontend/`, built with **Svelte 5 Runes**, **Vite 6**, **TypeScript 5.7**, and **Tailwind CSS**.
+The web interface is a Single-Page Application (SPA) located in `frontend/`, built with **Svelte 5 Runes**, **Vite 6**, **TypeScript 5.7**, and **Tailwind CSS**.
 
 ```bash
-# Automated single-command build:
+# Build frontend bundle:
 ./build-frontend.sh
 ```
 
 This compiles:
 1. Tailwind utility classes from `styles/input.css` into `frontend/src/tailwind.css`.
-2. Svelte 5 components and styles into a **unified stylesheet** (`dist/assets/app.css`) and JS bundle (`dist/assets/app.js`).
+2. Svelte 5 components and styles into a unified stylesheet (`dist/assets/app.css`) and JavaScript bundle (`dist/assets/app.js`).
 3. Output directory: `frontend/dist/`.
 
 ### Step B: Build the Rust Backend
 
 ```bash
-# Debug build (fast compile for testing):
+# Debug build:
 cargo build
 
-# Release build (heavily optimized for production):
+# Release build:
 cargo build --release
 ```
 
@@ -99,23 +99,26 @@ PORT=9090 cargo run
 
 ### Application URLs & Routes
 
-| Path | Description | Access |
+| Path | Description | Method |
 | :--- | :--- | :--- |
-| `http://localhost:8080/` | Main Interactive Calculation Sandbox & Audit Interface | Public (GET) |
-| `http://localhost:8080/docs` | Interactive Scalar API Reference (zero-CDN self-hosted) | Public (GET) |
-| `http://localhost:8080/licenses` | Third-Party Software Licenses Web Page | Public (GET) |
-| `http://localhost:8080/assets/:filename` | Bundled Static Frontend & Scalar Assets | Public (GET) |
-| `http://localhost:8080/api/v1/calculate-liability` | Core Statutory Calculation REST Endpoint | Public (POST) |
-| `http://localhost:8080/api/v1/reference-codes` | Statutory Reference Codes & Allowable Values Catalog | Public (GET) |
-| `http://localhost:8080/api/v1/parameters` | Aggregated Statutory Parameter Repository Catalog | Public (GET) |
-| `http://localhost:8080/api/v1/parameters/multipliers` | Rating Multipliers Catalog (1990–2027) | Public (GET) |
-| `http://localhost:8080/api/v1/parameters/sbrr-thresholds` | SBRR / SBBS Statutory Thresholds Catalog | Public (GET) |
-| `http://localhost:8080/api/v1/parameters/sector-reliefs` | Devolved Sector Relief Schemes Catalog | Public (GET) |
-| `http://localhost:8080/api/v1/parameters/transitional-caps` | Statutory Transitional Phasing Caps Catalog | Public (GET) |
-| `http://localhost:8080/api/v1/licenses` | Third-Party Licenses (Markdown or JSON format) | Public (GET) |
-| `http://localhost:8080/api/v1/openapi.json` | OpenAPI 3.1.0 Specification (JSON format) | Public (GET) |
-| `http://localhost:8080/api/v1/openapi.yaml` | OpenAPI 3.1.0 Specification (YAML format) | Public (GET) |
-| `http://localhost:8080/healthz` | Service Health Check | Public (GET) |
+| `http://localhost:8080/` | Interactive Calculation Sandbox & Audit Interface | GET |
+| `http://localhost:8080/docs` | Interactive Scalar API Reference (self-hosted) | GET |
+| `http://localhost:8080/licenses` | Third-Party Software Licenses (HTML) | GET |
+| `http://localhost:8080/licenses.md` | Third-Party Software Licenses (Markdown) | GET |
+| `http://localhost:8080/assets/:filename` | Bundled Static Frontend Assets | GET |
+| `http://localhost:8080/api/v1/calculate-liability` | Statutory Calculation REST Endpoint | POST |
+| `http://localhost:8080/api/v1/reference-codes` | Statutory Reference Codes & Allowable Values | GET |
+| `http://localhost:8080/api/v1/parameters` | Aggregated Statutory Parameter Repository Catalog | GET |
+| `http://localhost:8080/api/v1/parameters/multipliers` | Rating Multipliers Catalog (1990–2027) | GET |
+| `http://localhost:8080/api/v1/parameters/sbrr-thresholds` | SBRR / SBBS Statutory Thresholds Catalog | GET |
+| `http://localhost:8080/api/v1/parameters/sector-reliefs` | Devolved Sector Relief Schemes Catalog | GET |
+| `http://localhost:8080/api/v1/parameters/transitional-caps` | Statutory Transitional Phasing Caps Catalog | GET |
+| `http://localhost:8080/api/v1/parameters/empty-property` | Empty Property Rate-Free Periods & RV Thresholds | GET |
+| `http://localhost:8080/api/v1/parameters/letting-tests` | Self-Catering Holiday Let Qualifying Day Tests | GET |
+| `http://localhost:8080/api/v1/parameters/scheme-caps` | Retail, Hospitality & Leisure Cash Caps | GET |
+| `http://localhost:8080/api/v1/openapi.json` | OpenAPI 3.1.0 Specification (JSON format) | GET |
+| `http://localhost:8080/api/v1/openapi.yaml` | OpenAPI 3.1.0 Specification (YAML format) | GET |
+| `http://localhost:8080/health` | Service Health Check | GET |
 
 ---
 
@@ -141,7 +144,7 @@ For live code editing with instant Hot Module Replacement:
 Run the test suite verifying multi-jurisdiction calculations, multi-occupancy slicing, Section 44A apportionments, 4-language i18n, parameter endpoints, Scalar documentation, and OWASP security headers:
 
 ```bash
-# Run all 83 integration tests
+# Run all 161 integration tests
 cargo test
 
 # Run tests with detailed backtrace on failure
@@ -180,7 +183,7 @@ node -v && npm -v
 # 3. Execute all unit and integration tests
 cargo test --verbose
 
-# 4. Compile the testing release binary
+# 4. Compile the release binary
 cargo build --release
 ```
 
@@ -210,16 +213,14 @@ curl -f -s http://staging-server:8080/docs | grep -q 'scalar.js' && echo "Scalar
 
 ### Option A: Multi-Stage Container Deployment (Podman / Docker / Kubernetes)
 
-A production-ready [`Containerfile`](Containerfile) is provided in the root directory. It uses a **3-stage multi-stage build**:
-1. **Frontend Builder (`node:24-slim`)**: Automatically fetches verified standalone Tailwind CLI and compiles Svelte 5 frontend assets via Vite.
-2. **Backend Builder (`rust:1-slim-bookworm`)**: Compiles the Rust binary with `--release` optimizations, baking OpenAPI definitions and Scalar templates directly into the binary.
-3. **Runtime (`debian:bookworm-slim`)**: Minimal (~90 MB) secure runtime executing as an **unprivileged non-root service account** (`appuser`, UID/GID 1001).
-
-Podman is daemonless and rootless by default, requiring no root privileges or background daemon.
+The repository provides a multi-stage [`Containerfile`](Containerfile):
+1. **Frontend Builder (`node:24-slim`)**: Compiles Tailwind CSS and Svelte 5 frontend assets via Vite.
+2. **Backend Builder (`rust:1-slim-bookworm`)**: Compiles the Rust binary in `--release` mode.
+3. **Runtime (`debian:bookworm-slim`)**: Executes the compiled binary and static assets under an unprivileged service account (`appuser`, UID/GID 1001).
 
 #### 1. Build the Container Image with Podman
 ```bash
-# Build using rootless Podman (automatically detects Containerfile):
+# Build using Podman (automatically detects Containerfile):
 podman build -t business-rates-engine:latest .
 ```
 *(Docker drop-in equivalent: `docker build -f Containerfile -t business-rates-engine:latest .`)*
@@ -244,7 +245,7 @@ podman logs -f business-rates-engine
 # Verify built-in container healthcheck
 podman healthcheck run business-rates-engine
 
-# Graceful stop (triggers SIGTERM; shuts down cleanly in milliseconds)
+# Graceful stop (sends SIGTERM):
 podman stop business-rates-engine
 ```
 
@@ -438,11 +439,11 @@ rates.example.gov.uk {
 
 ## 9. REST API Endpoints & cURL Reference
 
-The REST API operates as an **unauthenticated public service**; requests do not require API keys (`X-API-Key`) or bearer tokens.
+The REST API accepts unauthenticated requests without API keys or bearer tokens.
 
 ### 1. Calculate Liability via Canonical Test Fixtures (Scenarios 1–11)
 
-The test suite includes 11 canonical statutory scenario fixtures under `tests/fixtures/` covering major non-domestic rating workflows across England, Wales, and Scotland:
+The test suite includes 11 canonical statutory scenario fixtures under `tests/fixtures/` covering non-domestic rating calculations across England, Wales, and Scotland:
 
 ```bash
 # Scenario 1: England Small Business (SBRR) & RHL Multi-Year Calculation
@@ -549,6 +550,15 @@ curl -s http://localhost:8080/api/v1/parameters/sector-reliefs
 
 # Statutory transitional phasing caps
 curl -s http://localhost:8080/api/v1/parameters/transitional-caps
+
+# Empty property rate-free periods and low-value thresholds
+curl -s http://localhost:8080/api/v1/parameters/empty-property
+
+# Self-catering holiday let qualifying letting tests
+curl -s http://localhost:8080/api/v1/parameters/letting-tests
+
+# Scheme cash caps (e.g. Retail, Hospitality & Leisure £110k cap)
+curl -s http://localhost:8080/api/v1/parameters/scheme-caps
 ```
 
 ### 5. OpenAPI 3.1.0 Specification & Self-Hosted Scalar Reference
@@ -559,7 +569,7 @@ curl -s http://localhost:8080/api/v1/openapi.json
 # Fetch OpenAPI 3.1.0 YAML specification
 curl -s http://localhost:8080/api/v1/openapi.yaml
 
-# Open Interactive Scalar Reference in browser (default solarized dark theme)
+# Open Interactive Scalar Reference in browser
 open http://localhost:8080/docs
 
 # Open Scalar Reference with custom theme & layout query parameters
@@ -568,14 +578,14 @@ open "http://localhost:8080/docs?theme=kepler&layout=modern"
 
 ### 6. Third-Party Licenses & Health Check
 ```bash
-# Fetch third-party licenses web page
+# Fetch third-party licenses web page (HTML)
 curl -s http://localhost:8080/licenses
 
 # Fetch raw third-party licenses Markdown
-curl -s http://localhost:8080/api/v1/licenses
+curl -s http://localhost:8080/licenses.md
 
 # Check service health status
-curl -s http://localhost:8080/healthz
+curl -s http://localhost:8080/health
 ```
 
 ---
@@ -584,14 +594,14 @@ curl -s http://localhost:8080/healthz
 
 ```
 business_rates_engine/
-├── docs/                         # Official API Specifications
-│   ├── openapi.yaml              # OpenAPI 3.1.0 specification (YAML)
-│   └── openapi.json              # OpenAPI 3.1.0 specification (JSON)
+├── docs/                         # OpenAPI 3.1.0 Specifications
+│   ├── openapi.yaml              # OpenAPI specification (YAML)
+│   └── openapi.json              # OpenAPI specification (JSON)
 ├── templates/                    # Server-rendered HTML templates
-│   ├── licenses.html             # CSP-compliant third-party licenses template
-│   └── scalar.html               # Configurable, offline Scalar UI template
-├── frontend/                     # Modern Svelte 5 SPA framework
-│   ├── public/assets/            # Self-hosted static assets (scalar.js)
+│   ├── licenses.html             # Third-party licenses template
+│   └── scalar.html               # Scalar API reference template
+├── frontend/                     # Svelte 5 web interface
+│   ├── public/assets/            # Static assets (scalar.js, scalar-guardian.js)
 │   ├── src/
 │   │   ├── components/           # UI Components (Navbar, S.44A Table, Matrix, Catalogs)
 │   │   ├── stores/               # Reactive calculation & form state ($state Runes)
@@ -599,7 +609,7 @@ business_rates_engine/
 │   │   └── types/                # TypeScript statutory interfaces
 │   ├── vite.config.ts            # Vite 6 configuration (with API proxy)
 │   └── package.json
-├── src/                          # High-performance Axum backend
+├── src/                          # Axum backend
 │   ├── api/                      # REST Handlers, Routers & OWASP middleware
 │   ├── db/                       # ParameterRepository (1990–2027 statutory parameters)
 │   ├── engine/                   # CalculationEngine (Statutory slicer, multipliers, reliefs)
@@ -609,18 +619,21 @@ business_rates_engine/
 │   ├── lib.rs
 │   └── main.rs                   # Server entrypoint (supports PORT env var)
 ├── tests/
-│   ├── fixtures/                 # Pre-configured test scenario JSON files (Scenarios 1-11)
-│   └── integration_tests.rs      # Complete test suite (83 passing tests)
-├── scripts/                      # Build, licensing & toolchain helper scripts
+│   ├── fixtures/                 # Test scenario JSON fixtures (Scenarios 1-11)
+│   ├── integration_tests/        # 10 test suites (161 integration tests)
+│   └── integration_tests.rs      # Root integration test harness
+├── scripts/                      # Build, licensing & toolchain scripts
 │   ├── check-licenses.js         # License compliance validator
-│   ├── generate-licenses.js      # License catalog & attribution generator
+│   ├── generate-licenses.js      # License catalog generator
 │   ├── generate-sbom.sh          # CycloneDX SBOM generator script
-│   └── ensure-tailwind.sh        # Pinned standalone Tailwind CLI downloader
-├── build-frontend.sh             # Build script for Svelte 5 frontend (Tailwind + Vite bundle)
-├── watch-css.sh                  # Tailwind CSS watch mode for Vite development
-├── setup-node.sh                 # Local Node.js environment setup helper
+│   ├── ensure-tailwind.sh        # Standalone Tailwind CLI downloader
+│   ├── update-scalar.sh          # Scalar bundle upgrade tool
+│   └── generate-third-party-licenses.sh # Shell wrapper for license generation
+├── build-frontend.sh             # Build script for Svelte 5 frontend (Tailwind + Vite)
+├── watch-css.sh                  # Tailwind CSS watch mode for development
+├── setup-node.sh                 # Node.js environment setup helper
 ├── LICENSE.md                    # MIT License specification
 ├── THIRD_PARTY_LICENSES.md       # Third-party open-source attribution notices
-├── Dockerfile                    # Multi-stage production container build (Podman / Docker)
+├── Containerfile                 # Multi-stage container build (Podman / Docker)
 └── Cargo.toml                    # Rust dependencies & package manifest
 ```
