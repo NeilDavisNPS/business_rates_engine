@@ -4,16 +4,16 @@
 > **Backend Architecture:** Axum 0.7 + Tokio 1.38 + Built-In Parameter Repository (Seeded 1990–2027)  
 > **Frontend Architecture:** Svelte 5 (Runes `$state`, `$derived`) + Vite 6 + TypeScript 5.7 + Standalone Tailwind CSS (`frontend/`)  
 > **API Access Mode:** Public REST API  
-> **API Documentation:** Interactive Scalar API Reference (`/docs`) with Self-Hosted `scalar.js` (Zero CDN) & OpenAPI 3.1.0 (`/api/v1/openapi.json`)  
-> **Internationalization (i18n):** Native 4-language support: English (`en`), Welsh (`cy`), Scots (`sco`), and Scottish Gaelic (`gd`) across UI, statutory narratives, relief names, error payloads, and reference codes  
-> **Security Baseline:** OWASP-compliant HTTP security headers with strict Content Security Policy (zero `'unsafe-inline'` scripts, zero external CDNs)  
+> **API Documentation:** Interactive Scalar API Reference (`/docs`) & OpenAPI 3.1.0 (`/api/v1/openapi.json`)  
+> **Internationalization (i18n):** Four-language support: English (`en`), Welsh (`cy`), Scots (`sco`), and Scottish Gaelic (`gd`) across UI, statutory narratives, relief names, error payloads, and reference codes  
+> **Security Baseline:** OWASP-compliant HTTP security headers with strict Content Security Policy  
 > **Coverage Period:** 1 April 1990 – 31 March 2027 (England, Wales, and Scotland)  
 
 ---
 
 ## 1. Statutory Source Index & Legislative References
 
-The calculation engine's business logic, zero-hardcoding parameter tables, and statutory audit narrative rules are grounded in primary legislation acts, secondary statutory instruments (SIs / SSIs / WSIs), and executive guidance manuals across England, Wales, and Scotland:
+The calculation engine's business logic, parameter tables, and statutory audit narrative rules are grounded in primary legislation, secondary statutory instruments (SIs, SSIs, WSIs), and guidance manuals across England, Wales, and Scotland:
 
 ### 1.1 Primary Legislation & Core Rating Acts
 1. [**Local Government Finance Act 1988 (c. 41)**](https://www.legislation.gov.uk/ukpga/1988/41/contents) — Foundation of national non-domestic rating across England and Wales; sections 43 (occupied liability), 44A (partly occupied apportionments), 45 (unoccupied liability), 47 (discretionary relief), 57A (transitional relief power), and 64 (hereditament definition).
@@ -32,108 +32,108 @@ The calculation engine's business logic, zero-hardcoding parameter tables, and s
 14. [**Civic Government (Scotland) Act 1982 (Licensing of Short-term Lets) Order 2022 (S.S.I. 2022/86)**](https://www.legislation.gov.uk/ssi/2022/86/contents/made) — Statutory licensing scheme for short-term lets under Civic Government (Scotland) Act 1982 s.44; short-term let licence is mandatory for self-catering holiday accommodation to qualify for Scottish RHL relief (S.S.I. 2026/69 reg 4(2)(b)) and the 15% transitional relief cap (S.S.I. 2026/135 reg 4).
 ### 1.2 Statutory Instruments — Transitional Relief & Phasing Schemes
 - **Scotland**:
-- [**The Non-Domestic Rates (Transitional Relief) (Scotland) Regulations 2026 (S.S.I. 2026/70)**](https://www.legislation.gov.uk/ssi/2026/70/contents/made):
-- [**Regulation 9**](https://www.legislation.gov.uk/ssi/2026/70/regulation/9/made): 2026 Revaluation List General Transitional Relief capping gross liability increases for Small ($\text{RV} \le £20\text{k}$: +15%), Medium ($£20\text{k} < \text{RV} \le £100\text{k}$: +30%), and Large ($\text{RV} > £100\text{k}$: +50%) properties.
-- [**Regulation 14**](https://www.legislation.gov.uk/ssi/2026/70/regulation/14/made): Part 3 Small Business Bonus Scheme Transitional Relief (SBBS TR) limiting the ratepayer's liability on net bill escalation to 25% in 2026/27 (relief deducts 75% of increase), stepping up to 50% in 2027/28 and 75% in 2028/29.
-- [**The Non-Domestic Rates (Transitional Relief) (Scotland) Amendment Regulations 2026 (S.S.I. 2026/135)**](https://www.legislation.gov.uk/ssi/2026/135/contents/made):
-- [**Regulation 4**](https://www.legislation.gov.uk/ssi/2026/135/regulation/4/made): Inserts Regulation 9A establishing a special 15% transitional cap for licensed self-catering holiday accommodation properties regardless of rateable value.
-- [**The Non-Domestic Rates (Transitional Relief) (Scotland) Regulations 2023 (S.S.I. 2023/31)**](https://www.legislation.gov.uk/ssi/2023/31/contents/made):
-- [**Part 2 (Regs 4–9)**](https://www.legislation.gov.uk/ssi/2023/31/part/2/made): Scottish General Revaluation Transitional Relief capping gross liability for Small ($\le £20\text{k}$), Medium ($\le £100\text{k}$), and Large ($> £100\text{k}$) properties across 2023/24 (+12.5%/+25%/+37.5%), 2024/25 (+25%/+50%/+75%), and 2025/26 (+37.5%/+75%/+112.5%).
-- [**Part 3 (Regs 10–14)**](https://www.legislation.gov.uk/ssi/2023/31/part/3/made): Small Business Bonus Scheme Transitional Relief (SBBS TR) capping net bill increases over the 31 March 2023 baseline bill to £600 in 2023/24, £1,200 in 2024/25, and £1,800 in 2025/26.
-- [**Part 4 (Regs 15–18)**](https://www.legislation.gov.uk/ssi/2023/31/part/4/made): Parks Transitional Relief.
-- [**The Non-Domestic Rates (Transitional Relief) (Scotland) Regulations 2017 (S.S.I. 2017/85)**](https://www.legislation.gov.uk/ssi/2017/85/contents/made) — 2017 Revaluation List transitional relief capping hospitality and renewable energy hereditaments in Scotland.
+  - [**The Non-Domestic Rates (Transitional Relief) (Scotland) Regulations 2026 (S.S.I. 2026/70)**](https://www.legislation.gov.uk/ssi/2026/70/contents/made):
+    - [**Regulation 9**](https://www.legislation.gov.uk/ssi/2026/70/regulation/9/made): 2026 Revaluation List General Transitional Relief capping gross liability increases for Small ($\text{RV} \le £20\text{k}$: +15%), Medium ($£20\text{k} < \text{RV} \le £100\text{k}$: +30%), and Large ($\text{RV} > £100\text{k}$: +50%) properties.
+    - [**Regulation 14**](https://www.legislation.gov.uk/ssi/2026/70/regulation/14/made): Part 3 Small Business Bonus Scheme Transitional Relief (SBBS TR) limiting ratepayer liability on net bill escalation to 25% in 2026/27 (relief deducts 75% of increase), stepping up to 50% in 2027/28 and 75% in 2028/29.
+  - [**The Non-Domestic Rates (Transitional Relief) (Scotland) Amendment Regulations 2026 (S.S.I. 2026/135)**](https://www.legislation.gov.uk/ssi/2026/135/contents/made):
+    - [**Regulation 4**](https://www.legislation.gov.uk/ssi/2026/135/regulation/4/made): Inserts Regulation 9A establishing a 15% transitional cap for licensed self-catering holiday accommodation properties regardless of rateable value.
+  - [**The Non-Domestic Rates (Transitional Relief) (Scotland) Regulations 2023 (S.S.I. 2023/31)**](https://www.legislation.gov.uk/ssi/2023/31/contents/made):
+    - [**Part 2 (Regs 4–9)**](https://www.legislation.gov.uk/ssi/2023/31/part/2/made): Scottish General Revaluation Transitional Relief capping gross liability for Small ($\le £20\text{k}$), Medium ($\le £100\text{k}$), and Large ($> £100\text{k}$) properties across 2023/24 (+12.5%/+25%/+37.5%), 2024/25 (+25%/+50%/+75%), and 2025/26 (+37.5%/+75%/+112.5%).
+    - [**Part 3 (Regs 10–14)**](https://www.legislation.gov.uk/ssi/2023/31/part/3/made): Small Business Bonus Scheme Transitional Relief (SBBS TR) capping net bill increases over the 31 March 2023 baseline bill to £600 in 2023/24, £1,200 in 2024/25, and £1,800 in 2025/26.
+    - [**Part 4 (Regs 15–18)**](https://www.legislation.gov.uk/ssi/2023/31/part/4/made): Parks Transitional Relief.
+  - [**The Non-Domestic Rates (Transitional Relief) (Scotland) Regulations 2017 (S.S.I. 2017/85)**](https://www.legislation.gov.uk/ssi/2017/85/contents/made) — 2017 Revaluation List transitional relief capping hospitality and renewable energy hereditaments in Scotland.
 - **England**:
-- [**The Non-Domestic Rating (Chargeable Amounts) (England) Regulations 2026**](https://www.legislation.gov.uk/uksi) — 2026 Revaluation List upward transitional phasing caps: Small (+5%), Medium (+15%), Large (+30%) under LGFA 1988 s.57A / NDRA 2023.
-- [**The Non-Domestic Rating (Chargeable Amounts) (England) Regulations 2022 (S.I. 2022/1403)**](https://www.legislation.gov.uk/uksi/2022/1403/contents/made) (revoking S.I. 2022/1263) — 2023 Revaluation List upward phasing caps: Small (5%/15%/25%), Medium (15%/25%/40%), and Large (30%/40%/55%); regulation 10(5) defines Small hereditaments as $\text{RV} \le £28,000$ in Greater London and $\le £20,000$ outside Greater London.
-- [**The Non-Domestic Rating (Chargeable Amounts) (England) Regulations 2016 (S.I. 2016/1265)**](https://www.legislation.gov.uk/uksi/2016/1265/contents/made) — 2017 Revaluation List upward and downward transitional phasing percentages.
-- [**The Non-Domestic Rating (Chargeable Amounts) (England) Regulations 2009 (S.I. 2009/3178)**](https://www.legislation.gov.uk/uksi/2009/3178/contents/made) — 2010 Revaluation List transitional phasing caps.
-- [**The Non-Domestic Rating (Chargeable Amounts) (England) Regulations 2004 (S.I. 2004/3312)**](https://www.legislation.gov.uk/uksi/2004/3312/contents/made) — 2005 Revaluation List transitional phasing caps.
-- [**The Non-Domestic Rating (Chargeable Amounts) (England) Regulations 1999 (S.I. 1999/3379)**](https://www.legislation.gov.uk/uksi/1999/3379/contents/made) — 2000 Revaluation List transitional phasing caps.
-- [**The Non-Domestic Rating (Chargeable Amounts) Regulations 1994 (S.I. 1994/3279)**](https://www.legislation.gov.uk/uksi/1994/3279/contents/made) — 1995 Revaluation List transitional phasing caps.
-- [**The Non-Domestic Rating (Transitional Period) Regulations 1990 (S.I. 1990/608)**](https://www.legislation.gov.uk/uksi/1990/608/contents/made) & [**The Non-Domestic Rating (Transitional Period) (Amendment) Regulations 1993 (S.I. 1993/616)**](https://www.legislation.gov.uk/uksi/1993/616/contents/made) — Inaugural national non-domestic rating transitional phasing caps.
+  - [**The Non-Domestic Rating (Chargeable Amounts) (England) Regulations 2026**](https://www.legislation.gov.uk/uksi) — 2026 Revaluation List upward transitional phasing caps: Small (+5%), Medium (+15%), Large (+30%) under LGFA 1988 s.57A / NDRA 2023.
+  - [**The Non-Domestic Rating (Chargeable Amounts) (England) Regulations 2022 (S.I. 2022/1403)**](https://www.legislation.gov.uk/uksi/2022/1403/contents/made) (revoking S.I. 2022/1263) — 2023 Revaluation List upward phasing caps: Small (5%/15%/25%), Medium (15%/25%/40%), and Large (30%/40%/55%); regulation 10(5) defines Small hereditaments as $\text{RV} \le £28,000$ in Greater London and $\le £20,000$ outside Greater London.
+  - [**The Non-Domestic Rating (Chargeable Amounts) (England) Regulations 2016 (S.I. 2016/1265)**](https://www.legislation.gov.uk/uksi/2016/1265/contents/made) — 2017 Revaluation List upward and downward transitional phasing percentages.
+  - [**The Non-Domestic Rating (Chargeable Amounts) (England) Regulations 2009 (S.I. 2009/3178)**](https://www.legislation.gov.uk/uksi/2009/3178/contents/made) — 2010 Revaluation List transitional phasing caps.
+  - [**The Non-Domestic Rating (Chargeable Amounts) (England) Regulations 2004 (S.I. 2004/3312)**](https://www.legislation.gov.uk/uksi/2004/3312/contents/made) — 2005 Revaluation List transitional phasing caps.
+  - [**The Non-Domestic Rating (Chargeable Amounts) (England) Regulations 1999 (S.I. 1999/3379)**](https://www.legislation.gov.uk/uksi/1999/3379/contents/made) — 2000 Revaluation List transitional phasing caps.
+  - [**The Non-Domestic Rating (Chargeable Amounts) Regulations 1994 (S.I. 1994/3279)**](https://www.legislation.gov.uk/uksi/1994/3279/contents/made) — 1995 Revaluation List transitional phasing caps.
+  - [**The Non-Domestic Rating (Transitional Period) Regulations 1990 (S.I. 1990/608)**](https://www.legislation.gov.uk/uksi/1990/608/contents/made) & [**The Non-Domestic Rating (Transitional Period) (Amendment) Regulations 1993 (S.I. 1993/616)**](https://www.legislation.gov.uk/uksi/1993/616/contents/made) — Inaugural national non-domestic rating transitional phasing caps.
 - **Wales**:
-- [**The Non-Domestic Rating (Chargeable Amounts) (Wales) Regulations 2025 (W.S.I. 2025/1371 / W. 226)**](https://www.legislation.gov.uk/wsi/2025/1371/contents/made) — 2026 Revaluation List 2-Year Transitional Relief Scheme: applies to net bill increases exceeding **£300** over the 31 March 2026 baseline bill; grants **67% relief** on the excess in Year 1 (2026/27, ratepayer pays 33%), and **34% relief** on the excess in Year 2 (2027/28, ratepayer pays 66%). Reg 6(b) restricts relief strictly to hereditaments continuously occupied by the same ratepayer since list date; partly occupied properties (s.44A) are excluded under Reg 6(c).
-- [**The Non-Domestic Rating (Chargeable Amounts) (Wales) Regulations 2022 (W.S.I. 2022/1350 / W. 272)**](https://www.legislation.gov.uk/wsi/2022/1350/contents/made) — 2023 Revaluation List 2-Year Transitional Relief Scheme: 67% relief in 2023/24 and 34% relief in 2024/25 on net bill increases exceeding £300, subject to continuous occupation by the same ratepayer (Reg 9(b)).
-- [**The Non-Domestic Rating (Chargeable Amounts) (Wales) Regulations 2016 (W.S.I. 2016/1247 / W. 295)**](https://www.legislation.gov.uk/wsi/2016/1247/contents/made) — 2017 Revaluation List Welsh Small Business Transitional Relief Scheme (75% in 2017/18, 50% in 2018/19, 25% in 2019/20 on increases over £100 for ratepayers in receipt of SBRR on 31 March 2017).
-- *Note on Historical Revaluations (2005 & 2010)*: Wales did not enact transitional relief schemes for the 2005 or 2010 Revaluation Lists, unlike England.
+  - [**The Non-Domestic Rating (Chargeable Amounts) (Wales) Regulations 2025 (W.S.I. 2025/1371 / W. 226)**](https://www.legislation.gov.uk/wsi/2025/1371/contents/made) — 2026 Revaluation List 2-Year Transitional Relief Scheme: applies to net bill increases exceeding £300 over the 31 March 2026 baseline bill; grants 67% relief on the excess in Year 1 (2026/27, ratepayer pays 33%), and 34% relief on the excess in Year 2 (2027/28, ratepayer pays 66%). Reg 6(b) restricts relief strictly to hereditaments continuously occupied by the same ratepayer since list date; partly occupied properties (s.44A) are excluded under Reg 6(c).
+  - [**The Non-Domestic Rating (Chargeable Amounts) (Wales) Regulations 2022 (W.S.I. 2022/1350 / W. 272)**](https://www.legislation.gov.uk/wsi/2022/1350/contents/made) — 2023 Revaluation List 2-Year Transitional Relief Scheme: 67% relief in 2023/24 and 34% relief in 2024/25 on net bill increases exceeding £300, subject to continuous occupation by the same ratepayer (Reg 9(b)).
+  - [**The Non-Domestic Rating (Chargeable Amounts) (Wales) Regulations 2016 (W.S.I. 2016/1247 / W. 295)**](https://www.legislation.gov.uk/wsi/2016/1247/contents/made) — 2017 Revaluation List Welsh Small Business Transitional Relief Scheme (75% in 2017/18, 50% in 2018/19, 25% in 2019/20 on increases over £100 for ratepayers in receipt of SBRR on 31 March 2017).
+  - *Historical Revaluations (2005 & 2010)*: Wales did not enact transitional relief schemes for the 2005 or 2010 Revaluation Lists.
 ### 1.3 Statutory Instruments — Small Business Rate Relief (SBRR & SBBS) & Multiplier Frameworks
 - **Scotland (SBBS & Property Rates)**:
-- [**The Non-Domestic Rates (Levying and Setting of Rates) (Scotland) Regulations 2026 (S.S.I. 2026/39)**](https://www.legislation.gov.uk/ssi/2026/39/contents/made) & [**The Non-Domestic Rates (Levying and Setting of Rates and Relief) (Scotland) Amendment Regulations 2026 (S.S.I. 2026/68)**](https://www.legislation.gov.uk/ssi/2026/68/contents/made):
-- Regulations 5–6: Setting 2026/27 Scottish property rates: Basic Property Rate `0.481` ($\text{RV} \le £51,000$), Intermediate Property Rate `0.535` ($£51,000 < \text{RV} \le £100,000$), and Higher Property Rate `0.548` ($\text{RV} > £100,000$).
-- Regulation 3(3): SBBS relief rates: 100% relief for $\text{RV} \le £12,000$; linear taper from 100% to 25% for $£12,000 < \text{RV} \le £15,000$; linear taper from 25% to 0% for $£15,000 < \text{RV} \le £20,000$.
-- Regulation 4: SBBS Multiple-Property Rules: Where a ratepayer occupies more than one non-domestic property in Scotland, 100% relief on an individual property $\le £12,000$ is granted only if the cumulative rateable value across all occupied properties in Scotland does not exceed £12,000. If cumulative RV is between £12,000 and £35,000, 25% relief is granted for any property with $\text{RV} \le £15,000$. If cumulative RV exceeds £35,000, 0% relief is granted across all properties (Reg 4(3)).
-- Regulation 3(5): Statutory exclusions from SBBS (advertising rights, betting shops, etc.).
-- [**The Non-Domestic Rates (Small Business Bonus Scheme) (Scotland) Regulations 2023 (S.S.I. 2023/34)**](https://www.legislation.gov.uk/ssi/2023/34/contents/made) — 2023 List: 100% relief for $\text{RV} \le £12,000$; tapered relief for $£12,001 \le \text{RV} \le £20,000$.
-- [**The Non-Domestic Rates (Small Business Bonus Scheme) (Scotland) Regulations 2017 (S.S.I. 2017/36)**](https://www.legislation.gov.uk/ssi/2017/36/contents/made) — 2017 List: 100% relief for $\text{RV} \le £15,000$; 25% for $£15,001 \le \text{RV} \le £18,000$.
-- [**The Non-Domestic Rates (Small Business Bonus Scheme) (Scotland) Regulations 2010 (S.S.I. 2010/37)**](https://www.legislation.gov.uk/ssi/2010/37/contents/made) — 2010 List 3-tier SBBS framework.
-- [**The Non-Domestic Rates (Small Business Bonus Scheme) (Scotland) Regulations 2008 (S.S.I. 2008/106)**](https://www.legislation.gov.uk/ssi/2008/106/contents/made) — Inaugural SBBS regulations.
-- [**The Non-Domestic Rates (Levying and Setting of Rates) (Scotland) Regulations 2025 (S.S.I. 2025/37)**](https://www.legislation.gov.uk/ssi/2025/37/contents/made) & [**S.S.I. 2025/38 regs 5(4) & 6(4)**](https://www.legislation.gov.uk/ssi/2025/38/contents/made) — Statutory setting of 2025/26 Basic (49.8p), Intermediate (55.4p), and Higher (56.8p) property rates.
+  - [**The Non-Domestic Rates (Levying and Setting of Rates) (Scotland) Regulations 2026 (S.S.I. 2026/39)**](https://www.legislation.gov.uk/ssi/2026/39/contents/made) & [**The Non-Domestic Rates (Levying and Setting of Rates and Relief) (Scotland) Amendment Regulations 2026 (S.S.I. 2026/68)**](https://www.legislation.gov.uk/ssi/2026/68/contents/made):
+    - Regulations 5–6: Setting 2026/27 Scottish property rates: Basic Property Rate `0.481` ($\text{RV} \le £51,000$), Intermediate Property Rate `0.535` ($£51,000 < \text{RV} \le £100,000$), and Higher Property Rate `0.548` ($\text{RV} > £100,000$).
+    - Regulation 3(3): SBBS relief rates: 100% relief for $\text{RV} \le £12,000$; linear taper from 100% to 25% for $£12,000 < \text{RV} \le £15,000$; linear taper from 25% to 0% for $£15,000 < \text{RV} \le £20,000$.
+    - Regulation 4: SBBS Multiple-Property Rules: Where a ratepayer occupies more than one non-domestic property in Scotland, 100% relief on an individual property $\le £12,000$ is granted only if the cumulative rateable value across all occupied properties in Scotland does not exceed £12,000. If cumulative RV is between £12,000 and £35,000, 25% relief is granted for any property with $\text{RV} \le £15,000$. If cumulative RV exceeds £35,000, 0% relief is granted across all properties (Reg 4(3)).
+    - Regulation 3(5): Statutory exclusions from SBBS (advertising rights, betting shops, etc.).
+  - [**The Non-Domestic Rates (Small Business Bonus Scheme) (Scotland) Regulations 2023 (S.S.I. 2023/34)**](https://www.legislation.gov.uk/ssi/2023/34/contents/made) — 2023 List: 100% relief for $\text{RV} \le £12,000$; tapered relief for $£12,001 \le \text{RV} \le £20,000$.
+  - [**The Non-Domestic Rates (Small Business Bonus Scheme) (Scotland) Regulations 2017 (S.S.I. 2017/36)**](https://www.legislation.gov.uk/ssi/2017/36/contents/made) — 2017 List: 100% relief for $\text{RV} \le £15,000$; 25% for $£15,001 \le \text{RV} \le £18,000$.
+  - [**The Non-Domestic Rates (Small Business Bonus Scheme) (Scotland) Regulations 2010 (S.S.I. 2010/37)**](https://www.legislation.gov.uk/ssi/2010/37/contents/made) — 2010 List 3-tier SBBS framework.
+  - [**The Non-Domestic Rates (Small Business Bonus Scheme) (Scotland) Regulations 2008 (S.S.I. 2008/106)**](https://www.legislation.gov.uk/ssi/2008/106/contents/made) — Inaugural SBBS regulations.
+  - [**The Non-Domestic Rates (Levying and Setting of Rates) (Scotland) Regulations 2025 (S.S.I. 2025/37)**](https://www.legislation.gov.uk/ssi/2025/37/contents/made) & [**S.S.I. 2025/38 regs 5(4) & 6(4)**](https://www.legislation.gov.uk/ssi/2025/38/contents/made) — Statutory setting of 2025/26 Basic (49.8p), Intermediate (55.4p), and Higher (56.8p) property rates.
 - **England (SBRR, 2026/27 5-Multiplier Regime & SSBR)**:
   - [**The Non-Domestic Rating (Small Business Rate Relief) (England) Order 2017 (S.I. 2017/411)**](https://www.legislation.gov.uk/uksi/2017/411/contents/made), [**S.I. 2017/102 art. 3**](https://www.legislation.gov.uk/uksi/2017/102/article/3/made), and [**S.I. 2023/1250 reg. 3**](https://www.legislation.gov.uk/uksi/2023/1250/regulation/3/made) — 100% relief for $\text{RV} \le £12,000$; for $£12,001 \le \text{RV} \le £15,000$, chargeable amount is $(A \times M) / E$ where $E = 3000 / (A - 12000)$ rounded to 3 decimal places (adding 0.001 only where remainder > 0.0005).
-  - [**S.I. 2017/411 art. 3(4)**](https://www.legislation.gov.uk/uksi/2017/411/article/3/made) & [**S.I. 2014/43**](https://www.legislation.gov.uk/uksi/2014/43/contents/made) under LGFA 1988 s.43(4B) — Statutory **12-month grace period** allowing a ratepayer who takes on an additional hereditament to retain full SBRR on their primary hereditament for 12 months.
-- [**Autumn Budget 2024 / Non-Domestic Rating Act 2023 Multiplier Framework**](https://www.gov.uk/government/publications/autumn-budget-2024) — Permanent 5-multiplier rating system effective 1 April 2026 replacing temporary RHL relief:
-- Small Business RHL: `38.2p` ($\text{RV} < £51,000$ for qualifying retail, hospitality, leisure)
-- Small Business non-RHL: `43.2p` ($\text{RV} < £51,000$ standard small business rate)
-- Standard RHL: `43.0p` ($£51,000 \le \text{RV} < £500,000$ qualifying retail, hospitality, leisure)
-- Standard non-RHL: `48.0p` ($£51,000 \le \text{RV} < £500,000$ standard national rate)
-- High-Value: `50.8p` ($\text{RV} \ge £500,000$ premium rate)
-- [**The Non-Domestic Rating (Multipliers and Rateable Value Thresholds) (England) Regulations 2026 (S.I. 2026/152)**](https://www.legislation.gov.uk/uksi/2026/152/contents/made) regs 3–5: Small business multipliers apply where RV is less than £51,000; standard multipliers apply where RV is £51,000 or more.
+  - [**S.I. 2017/411 art. 3(4)**](https://www.legislation.gov.uk/uksi/2017/411/article/3/made) & [**S.I. 2014/43**](https://www.legislation.gov.uk/uksi/2014/43/contents/made) under LGFA 1988 s.43(4B) — Statutory 12-month grace period allowing a ratepayer who takes on an additional hereditament to retain full SBRR on their primary hereditament for 12 months.
+  - [**Autumn Budget 2024 / Non-Domestic Rating Act 2023 Multiplier Framework**](https://www.gov.uk/government/publications/autumn-budget-2024) — Permanent 5-multiplier rating system effective 1 April 2026:
+    - Small Business RHL: `38.2p` ($\text{RV} < £51,000$ for qualifying retail, hospitality, leisure)
+    - Small Business non-RHL: `43.2p` ($\text{RV} < £51,000$ standard small business rate)
+    - Standard RHL: `43.0p` ($£51,000 \le \text{RV} < £500,000$ qualifying retail, hospitality, leisure)
+    - Standard non-RHL: `48.0p` ($£51,000 \le \text{RV} < £500,000$ standard national rate)
+    - High-Value: `50.8p` ($\text{RV} \ge £500,000$ premium rate)
+  - [**The Non-Domestic Rating (Multipliers and Rateable Value Thresholds) (England) Regulations 2026 (S.I. 2026/152)**](https://www.legislation.gov.uk/uksi/2026/152/contents/made) regs 3–5: Small business multipliers apply where RV is less than £51,000; standard multipliers apply where RV is £51,000 or more.
   - [**The Non-Domestic Rating (Small Business Rate Relief) (England) Order 2017 (S.I. 2017/102)**](https://www.legislation.gov.uk/uksi/2017/102/contents/made) art. 2: condition for small business multiplier is that RV is not more than £50,999.
   - [**The Non-Domestic Rating (Chargeable Amounts) (England) Regulations / S.I. 2024/1321**](https://www.legislation.gov.uk/uksi/2024/1321/contents/made) — Sets item C for 2025-26 under LGFA 1988 Sched 7 para A6 freezing the Small Business Multiplier at 49.9p; Standard Multiplier is uprated by CPI (1.7%) to 55.5p (0.555).
-  - [**Supporting Small Business Relief Scheme (SSBR) under LGFA 1988 s.47**](https://www.gov.uk/government/publications/business-rates-supporting-small-business-relief-guidance) — Statutory discretionary relief capping annual bill increases to **£600/year** (2023/24–2025/26) and **£800/year** (2026/27) for ratepayers losing or experiencing reduced SBRR, Rural Rate Relief, or 2022/23 RHL relief due to revaluation. Compounding into subsequent years; requires valid prior-year baseline; charities are excluded.
+  - [**Supporting Small Business Relief Scheme (SSBR) under LGFA 1988 s.47**](https://www.gov.uk/government/publications/business-rates-supporting-small-business-relief-guidance) — Statutory discretionary relief capping annual bill increases to £600/year (2023/24–2025/26) and £800/year (2026/27) for ratepayers losing or experiencing reduced SBRR, Rural Rate Relief, or 2022/23 RHL relief due to revaluation. Compounding into subsequent years; requires valid prior-year baseline; charities are excluded.
   - [**The Non-Domestic Rating (Small Business Rate Relief) (England) Order 2012 (S.I. 2012/148)**](https://www.legislation.gov.uk/uksi/2012/148/contents/made) & [**S.I. 2010/1959**](https://www.legislation.gov.uk/uksi/2010/1959/contents/made) — 2010 list SBRR doubled taper; article 3(1)(b) establishes small business multiplier qualification thresholds: $\text{RV} \le £17,999$ outside Greater London and $\text{RV} \le £25,499$ in Greater London.
   - [**The Non-Domestic Rating (Small Business Rate Relief) (England) Order 2004 (S.I. 2004/3315)**](https://www.legislation.gov.uk/uksi/2004/3315/contents/made) — Inaugural SBRR order establishing 50% max relief and linear taper; article 3(1)(b) establishes small business multiplier qualification thresholds: $\text{RV} \le £14,999$ outside Greater London and $\text{RV} \le £21,499$ in Greater London.
 - **Wales (SBRR, Multipliers & Devolved Schemes)**:
   - [**The Non-Domestic Rating (Multiplier) (Wales) Order 2025 (W.S.I. 2025/214 / W. 42)**](https://www.legislation.gov.uk/wsi/2025/214/contents/made) — Sets Welsh national rating multiplier for 2025/26 to **0.568**.
   - [**Local Government Finance (Wales) Act 2024 (asc 6)**](https://www.legislation.gov.uk/asc/2024/6/contents/enacted) — 2026/27 3-Tier Multiplier Framework:
-- **Retail Multiplier**: `35.0p` (`0.350`) for retail premises with $\text{RV} < £51,000$ (strictly for retail shops; holiday lets and pubs excluded).
-- **Standard Multiplier**: `50.2p` (`0.502`) for commercial premises with $\text{RV} \le £100,000$ (non-retail or general commercial).
-- **Higher Multiplier**: `51.5p` (`0.515`) for high-value properties with $\text{RV} > £100,000$.
-- **Higher Multiplier Statutory Exception**: Qualifying high-value properties receive statutory exception paying the standard multiplier (`0.502`).
-- [**The Non-Domestic Rating (Small Business Relief) (Wales) Order 2017 (W.S.I. 2017/1229 / W. 293)**](https://www.legislation.gov.uk/wsi/2017/1229/contents/made):
+    - **Retail Multiplier**: `35.0p` (`0.350`) for retail premises with $\text{RV} < £51,000$ (strictly for retail shops; holiday lets and pubs excluded).
+    - **Standard Multiplier**: `50.2p` (`0.502`) for commercial premises with $\text{RV} \le £100,000$ (non-retail or general commercial).
+    - **Higher Multiplier**: `51.5p` (`0.515`) for high-value properties with $\text{RV} > £100,000$.
+    - **Higher Multiplier Statutory Exception**: Qualifying high-value properties receive statutory exception paying the standard multiplier (`0.502`).
+  - [**The Non-Domestic Rating (Small Business Relief) (Wales) Order 2017 (W.S.I. 2017/1229 / W. 293)**](https://www.legislation.gov.uk/wsi/2017/1229/contents/made):
     - General taper: 100% relief for $\text{RV} \le £6,000$; for $£6,001 \le \text{RV} \le £12,000$, chargeable amount is $(A \times M) / E$ where $E = 6000 / (\text{RV} - 6000)$ rounded to 3 decimal places under Article 11(3).
-- [**Article 4**](https://www.legislation.gov.uk/wsi/2017/1229/article/4/made): Post offices receive 100% relief for $\text{RV} \le £9,000$ and 50% relief for $£9,001 \le \text{RV} \le £12,000$.
-- [**Article 5**](https://www.legislation.gov.uk/wsi/2017/1229/article/5/made): Registered childcare premises (Care Inspectorate Wales) receive 100% relief up to £100,000 RV.
-- [**Article 12**](https://www.legislation.gov.uk/wsi/2017/1229/article/12/made): Multiple properties limit — ratepayer can claim SBRR on at most **two** properties per billing authority.
-- [**Article 3**](https://www.legislation.gov.uk/wsi/2017/1229/article/3/made): Excepted hereditaments (betting shops, payday lenders, partially occupied hereditaments) disqualified from SBRR.
-- [**Welsh Food and Drink Hospitality Rates Relief Scheme (2026/27)**](https://www.gov.wales/non-domestic-rates-relief) under LGFA 1988 s.47 — Successor to Welsh RHL relief providing a **15% discount** capped at £110,000 per business; targeted specifically at qualifying food and drink hospitality premises (pubs, restaurants, cafés, bars, live music venues); excludes petrol filling stations (SCAT 211), holiday accommodation, and properties on the retail multiplier.
-- [**The Non-Domestic Rating (Multiplier) (Wales) Order 2024 (W.S.I. 2024/110 / W. 26)**](https://www.legislation.gov.uk/wsi/2024/110/contents/made) — Frozen Welsh uniform rating multiplier at 0.562 for 2024/25.
-- [**The Non-Domestic Rating (Small Business Relief) (Wales) Order 2015 (W.S.I. 2015/976 / W. 69)**](https://www.legislation.gov.uk/wsi/2015/976/contents/made), [**W.S.I. 2010/248 (W. 34)**](https://www.legislation.gov.uk/wsi/2010/248/contents/made), and [**W.S.I. 2008/707 (W. 75)**](https://www.legislation.gov.uk/wsi/2008/707/contents/made).
-- [**The Non-Domestic Rating (Small Business Relief) (Wales) Order 2005 (W.S.I. 2005/309 / W. 29)**](https://www.legislation.gov.uk/wsi/2005/309/contents/made) — Inaugural Welsh SBRR order establishing 50% relief up to £2,000 RV and 25% for £2,001–£5,000 RV.
+    - [**Article 4**](https://www.legislation.gov.uk/wsi/2017/1229/article/4/made): Post offices receive 100% relief for $\text{RV} \le £9,000$ and 50% relief for $£9,001 \le \text{RV} \le £12,000$.
+    - [**Article 5**](https://www.legislation.gov.uk/wsi/2017/1229/article/5/made): Registered childcare premises (Care Inspectorate Wales) receive 100% relief up to £100,000 RV.
+    - [**Article 12**](https://www.legislation.gov.uk/wsi/2017/1229/article/12/made): Multiple properties limit — ratepayer can claim SBRR on at most **two** properties per billing authority.
+    - [**Article 3**](https://www.legislation.gov.uk/wsi/2017/1229/article/3/made): Excepted hereditaments (betting shops, payday lenders, partially occupied hereditaments) disqualified from SBRR.
+  - [**Welsh Food and Drink Hospitality Rates Relief Scheme (2026/27)**](https://www.gov.wales/non-domestic-rates-relief) under LGFA 1988 s.47 — Successor to Welsh RHL relief providing a **15% discount** capped at £110,000 per business; targeted specifically at qualifying food and drink hospitality premises (pubs, restaurants, cafés, bars, live music venues); excludes petrol filling stations (SCAT 211), holiday accommodation, and properties on the retail multiplier.
+  - [**The Non-Domestic Rating (Multiplier) (Wales) Order 2024 (W.S.I. 2024/110 / W. 26)**](https://www.legislation.gov.uk/wsi/2024/110/contents/made) — Frozen Welsh uniform rating multiplier at 0.562 for 2024/25.
+  - [**The Non-Domestic Rating (Small Business Relief) (Wales) Order 2015 (W.S.I. 2015/976 / W. 69)**](https://www.legislation.gov.uk/wsi/2015/976/contents/made), [**W.S.I. 2010/248 (W. 34)**](https://www.legislation.gov.uk/wsi/2010/248/contents/made), and [**W.S.I. 2008/707 (W. 75)**](https://www.legislation.gov.uk/wsi/2008/707/contents/made).
+  - [**The Non-Domestic Rating (Small Business Relief) (Wales) Order 2005 (W.S.I. 2005/309 / W. 29)**](https://www.legislation.gov.uk/wsi/2005/309/contents/made) — Inaugural Welsh SBRR order establishing 50% relief up to £2,000 RV and 25% for £2,001–£5,000 RV.
 ### 1.4 Statutory Instruments — Relief Exemptions, Unoccupied Rates, Rural Settlements & Compliance
 - **Empty Property & Unoccupied Rating**:
-- [**The Non-Domestic Rating (Unoccupied Property) (England) Regulations 2008 (S.I. 2008/386)**](https://www.legislation.gov.uk/uksi/2008/386/contents/made) — 3-month commercial / 6-month industrial rate-free periods; low value exemption below £2,200 RV (2008/09), amended by [**S.I. 2008/3283**](https://www.legislation.gov.uk/uksi/2008/3283/contents/made) (£15,000 for 2009/10), [**S.I. 2010/408**](https://www.legislation.gov.uk/uksi/2010/408/contents/made) (£18,000 for 2010/11; £2,600 for 2011/12–2016/17), and [**S.I. 2017/102 art. 4**](https://www.legislation.gov.uk/uksi/2017/102/contents/made) (£2,900 from 2017/18 onwards).
-- [**The Non-Domestic Rating (Unoccupied Property) (Wales) Regulations 2008 (W.S.I. 2008/2499 / W. 217)**](https://www.legislation.gov.uk/wsi/2008/2499/contents/made) — Welsh unoccupied property exemptions and reset rules; low value exemption threshold is **£2,200** RV (Reg 4(g)).
-- [**The Non-Domestic Rates (Unoccupied Property) (Scotland) Regulations 2018 (S.S.I. 2018/77)**](https://www.legislation.gov.uk/ssi/2018/77/contents/made) — Scottish unoccupied property relief rules (2018/19–2022/23): other unoccupied property pays 50% for first 3 months, then 90% (10% relief); industrial property is 100% exempt for first 6 months, then 90% (10% relief) under reg 2; £1,700 low RV threshold.
-- [**The Non-Domestic Rates (Transitional and Consequential Provisions) (Scotland) Regulations 2023 (S.S.I. 2023/44)**](https://www.legislation.gov.uk/ssi/2023/44/contents/made) & [**Non-Domestic Rates (Coronavirus) (Scotland) Act 2022 (asp 10)**](https://www.legislation.gov.uk/asp/2022/10/contents) — Devolving empty property rate relief discretion to Scottish local authorities from 1 April 2023.
+  - [**The Non-Domestic Rating (Unoccupied Property) (England) Regulations 2008 (S.I. 2008/386)**](https://www.legislation.gov.uk/uksi/2008/386/contents/made) — 3-month commercial / 6-month industrial rate-free periods; low value exemption below £2,200 RV (2008/09), amended by [**S.I. 2008/3283**](https://www.legislation.gov.uk/uksi/2008/3283/contents/made) (£15,000 for 2009/10), [**S.I. 2010/408**](https://www.legislation.gov.uk/uksi/2010/408/contents/made) (£18,000 for 2010/11; £2,600 for 2011/12–2016/17), and [**S.I. 2017/102 art. 4**](https://www.legislation.gov.uk/uksi/2017/102/contents/made) (£2,900 from 2017/18 onwards).
+  - [**The Non-Domestic Rating (Unoccupied Property) (Wales) Regulations 2008 (W.S.I. 2008/2499 / W. 217)**](https://www.legislation.gov.uk/wsi/2008/2499/contents/made) — Welsh unoccupied property exemptions and reset rules; low value exemption threshold is **£2,200** RV (Reg 4(g)).
+  - [**The Non-Domestic Rates (Unoccupied Property) (Scotland) Regulations 2018 (S.S.I. 2018/77)**](https://www.legislation.gov.uk/ssi/2018/77/contents/made) — Scottish unoccupied property relief rules (2018/19–2022/23): other unoccupied property pays 50% for first 3 months, then 90% (10% relief); industrial property is 100% exempt for first 6 months, then 90% (10% relief) under reg 2; £1,700 low RV threshold.
+  - [**The Non-Domestic Rates (Transitional and Consequential Provisions) (Scotland) Regulations 2023 (S.S.I. 2023/44)**](https://www.legislation.gov.uk/ssi/2023/44/contents/made) & [**Non-Domestic Rates (Coronavirus) (Scotland) Act 2022 (asp 10)**](https://www.legislation.gov.uk/asp/2022/10/contents) — Devolving empty property rate relief discretion to Scottish local authorities from 1 April 2023.
 - **Retail, Hospitality & Leisure (Scotland 2026/27)**:
-- [**The Non-Domestic Rates (Relief for Retail, Hospitality and Leisure) (Scotland) Regulations 2026 (S.S.I. 2026/69)**](https://www.legislation.gov.uk/ssi/2026/69/contents/made) as amended by [**S.S.I. 2026/135**](https://www.legislation.gov.uk/ssi/2026/135/contents/made):
-- Regulation 4: 15% Retail & Leisure relief on Scottish mainland for properties with $\text{RV} \le £100,000$.
-- Regulation 4A: 40% Hospitality relief tier (Schedule 1A: hotels, pubs, restaurants, cafés, live music venues) up to £110k cap per ratepayer.
-- Regulation 5: 100% relief for island properties and designated remote mainland locations (Cape Wrath, Knoydart, Scoraig).
-- Regulations 4(2)(b) & 5(1)(c): Short-term let licence required for self-catering holiday accommodation to qualify.
-- Regulations 4(3) & 4A(3): RHL relief applied against gross liability before other reliefs.
+  - [**The Non-Domestic Rates (Relief for Retail, Hospitality and Leisure) (Scotland) Regulations 2026 (S.S.I. 2026/69)**](https://www.legislation.gov.uk/ssi/2026/69/contents/made) as amended by [**S.S.I. 2026/135**](https://www.legislation.gov.uk/ssi/2026/135/contents/made):
+    - Regulation 4: 15% Retail & Leisure relief on Scottish mainland for properties with $\text{RV} \le £100,000$.
+    - Regulation 4A: 40% Hospitality relief tier (Schedule 1A: hotels, pubs, restaurants, cafés, live music venues) up to £110k cap per ratepayer.
+    - Regulation 5: 100% relief for island properties and designated remote mainland locations (Cape Wrath, Knoydart, Scoraig).
+    - Regulations 4(2)(b) & 5(1)(c): Short-term let licence required for self-catering holiday accommodation to qualify.
+    - Regulations 4(3) & 4A(3): RHL relief applied against gross liability before other reliefs.
 - **Improvement Relief (G-Factor Certificates) & Heat Network Relief**:
-- [**The Non-Domestic Rating (Improvement Relief) (England) Regulations 2024 (S.I. 2024/22)**](https://www.legislation.gov.uk/uksi/2024/22/contents/made) & [**W.S.I. 2024/302**](https://www.legislation.gov.uk/wsi/2024/302/contents/made) (Wales) — 12-month qualifying improvement relief under NDRA 2023 s. 1; applies from 1 April 2024 to 31 March 2029 (5-year scheme); not enacted in Scotland.
-- [**Non-Domestic Rating Act 2023 s. 2**](https://www.legislation.gov.uk/ukpga/2023/53/section/2/enacted) — 100% Heat Network Relief in England and Wales from 1 April 2024 to 31 March 2035; not enacted in Scotland.
+  - [**The Non-Domestic Rating (Improvement Relief) (England) Regulations 2024 (S.I. 2024/22)**](https://www.legislation.gov.uk/uksi/2024/22/contents/made) & [**W.S.I. 2024/302**](https://www.legislation.gov.uk/wsi/2024/302/contents/made) (Wales) — 12-month qualifying improvement relief under NDRA 2023 s. 1; applies from 1 April 2024 to 31 March 2029 (5-year scheme; not enacted in Scotland).
+  - [**Non-Domestic Rating Act 2023 s. 2**](https://www.legislation.gov.uk/ukpga/2023/53/section/2/enacted) — 100% Heat Network Relief in England and Wales from 1 April 2024 to 31 March 2035; not enacted in Scotland.
 - **Rural Settlement Relief Orders**:
-- [**The Non-Domestic Rating (Rural Settlements) (England) Order 2020 (S.I. 2020/1401)**](https://www.legislation.gov.uk/uksi/2020/1401/contents/made) — Statutory designations of rural settlements under LGFA 1988 s.42A.
-- [**The Non-Domestic Rating (Rural Settlements) (Wales) Order 2019 (W.S.I. 2019/1487 / W. 268)**](https://www.legislation.gov.uk/wsi/2019/1487/contents/made) — Statutory designation of rural settlements in Wales.
-- [**The Non-Domestic Rates (Rural Areas) (Scotland) Regulations 2009 (S.S.I. 2009/64)**](https://www.legislation.gov.uk/ssi/2009/64/contents/made) — 100% mandatory relief for qualifying rural shops, post offices, food stores, and petrol stations under £8,500 / £12,500 NAV.
+  - [**The Non-Domestic Rating (Rural Settlements) (England) Order 2020 (S.I. 2020/1401)**](https://www.legislation.gov.uk/uksi/2020/1401/contents/made) — Statutory designations of rural settlements under LGFA 1988 s.42A.
+  - [**The Non-Domestic Rating (Rural Settlements) (Wales) Order 2019 (W.S.I. 2019/1487 / W. 268)**](https://www.legislation.gov.uk/wsi/2019/1487/contents/made) — Statutory designation of rural settlements in Wales.
+  - [**The Non-Domestic Rates (Rural Areas) (Scotland) Regulations 2009 (S.S.I. 2009/64)**](https://www.legislation.gov.uk/ssi/2009/64/contents/made) — 100% mandatory relief for qualifying rural shops, post offices, food stores, and petrol stations under £8,500 / £12,500 NAV.
 - **Part-Occupied Hereditaments (Apportionment)**:
-- [**Local Government Finance Act 1988 s. 44A**](https://www.legislation.gov.uk/ukpga/1988/41/section/44A) & [**Local Government (Scotland) Act 1975 s. 24A**](https://www.legislation.gov.uk/ukpga/1975/30/section/24A) — Statutory apportionment certificates for partly occupied commercial premises in England/Wales and Scotland.
+  - [**Local Government Finance Act 1988 s. 44A**](https://www.legislation.gov.uk/ukpga/1988/41/section/44A) & [**Local Government (Scotland) Act 1975 s. 24A**](https://www.legislation.gov.uk/ukpga/1975/30/section/24A) — Statutory apportionment certificates for partly occupied commercial premises in England/Wales and Scotland.
 - **Renewable Energy & Telecommunications Infrastructure**:
-- [**The Non-Domestic Rates (Renewable Energy Generation Relief) (Scotland) Regulations 2010 (S.S.I. 2010/336)**](https://www.legislation.gov.uk/ssi/2010/336/contents/made) — Commercial rates relief for renewable electricity and community energy installations.
-- [**The Non-Domestic Rating (Telecommunications Infrastructure Relief) (England) Regulations 2018 (S.I. 2018/1199)**](https://www.legislation.gov.uk/uksi/2018/1199/contents/made) & [**S.S.I. 2019/111**](https://www.legislation.gov.uk/ssi/2019/111/contents/made) (Scotland) — 100% rates relief for new fibre telecommunications networks.
+  - [**The Non-Domestic Rates (Renewable Energy Generation Relief) (Scotland) Regulations 2010 (S.S.I. 2010/336)**](https://www.legislation.gov.uk/ssi/2010/336/contents/made) — Commercial rates relief for renewable electricity and community energy installations.
+  - [**The Non-Domestic Rating (Telecommunications Infrastructure Relief) (England) Regulations 2018 (S.I. 2018/1199)**](https://www.legislation.gov.uk/uksi/2018/1199/contents/made) & [**S.S.I. 2019/111**](https://www.legislation.gov.uk/ssi/2019/111/contents/made) (Scotland) — 100% rates relief for new fibre telecommunications networks.
 - **Billing, Appeals, Holiday Lets & Anti-Avoidance**:
-- [**The Non-Domestic Rating (Collection and Enforcement) (Local Lists) Regulations 1989 (S.I. 1989/1058)**](https://www.legislation.gov.uk/uksi/1989/1058/contents/made) & [**Schedule 1**](https://www.legislation.gov.uk/uksi/1989/1058/schedule/1/made) — Statutory 10-installment billing payment schedules, adjustment rules, and mid-year cessation refunds.
-- [**The Council Tax and Non-Domestic Rating (Demand Notices) (England) Regulations 2003 (S.I. 2003/2613)**](https://www.legislation.gov.uk/uksi/2003/2613/contents/made), [**The Non-Domestic Rating (Demand Notes) (Wales) Regulations 2017 (W.S.I. 2017/113 / W. 38)**](https://www.legislation.gov.uk/wsi/2017/113/contents/made), and [**The Non-Domestic Rating (Demand Notes) (Scotland) Regulations 2008 (S.S.I. 2008/28)**](https://www.legislation.gov.uk/ssi/2008/28/contents/made) — Statutory content of non-domestic rates demand notices across the three jurisdictions.
-- [**The Non-Domestic Rating (Alteration of Lists and Appeals) (Wales) Regulations 2023 (W.S.I. 2023/1162)**](https://www.legislation.gov.uk/wsi/2023/1162/contents/made) — Welsh Check, Challenge, Appeal (CCA) procedures and Valuation Tribunal for Wales appeals.
-- [**The Non-Domestic Rating (Artificial Avoidance Arrangements) (Local Lists) (Wales) Regulations 2026 (W.S.I. 2026/43)**](https://www.legislation.gov.uk/wsi/2026/43/contents/made) — Welsh artificial avoidance countermeasures; WSI 2026/43 civil financial penalties (£500 flat + 3% RV).
-- [**The Council Tax (Dwellings and Part Residential Subjects) (Scotland) Amendment Regulations 2021 (S.S.I. 2021/489)**](https://www.legislation.gov.uk/ssi/2021/489/contents/made) — Scottish self-catering statutory criteria under Schedule 2 paragraph 2 of S.I. 1992/2955 (as amended from 1 April 2022): commercially available $\ge 140$ days and actually let $\ge 70$ days in the financial year.
-   - [**The Non-Domestic Rating (Definition of Domestic Property) (England) Order 2022 (S.I. 2022/217)**](https://www.legislation.gov.uk/uksi/2022/217/contents/made) — Amends LGFA 1988 s.66(2B) from 1 April 2023 to introduce the 70-day actual letting test in England (prior to which only 140 days available to let applied).
-   - [**The Non-Domestic Rating (Definition of Domestic Property) (Wales) Order 2010 (W.S.I. 2010/682 / W. 67)**](https://www.legislation.gov.uk/wsi/2010/682/contents/made) — Introduces the 70-day actual letting test in Wales from 1 April 2010.
-- [**The Non-Domestic Rating (Amendment of Definition of Hereditament) (Wales) Order 2022 (W.S.I. 2022/563 / W. 130)**](https://www.legislation.gov.uk/wsi/2022/563/contents/made) — Welsh self-catering letting test post-1 April 2023: commercially available $\ge 252$ days and actually let $\ge 182$ days.
+  - [**The Non-Domestic Rating (Collection and Enforcement) (Local Lists) Regulations 1989 (S.I. 1989/1058)**](https://www.legislation.gov.uk/uksi/1989/1058/contents/made) & [**Schedule 1**](https://www.legislation.gov.uk/uksi/1989/1058/schedule/1/made) — Statutory 10-installment billing payment schedules, adjustment rules, and mid-year cessation refunds.
+  - [**The Council Tax and Non-Domestic Rating (Demand Notices) (England) Regulations 2003 (S.I. 2003/2613)**](https://www.legislation.gov.uk/uksi/2003/2613/contents/made), [**The Non-Domestic Rating (Demand Notes) (Wales) Regulations 2017 (W.S.I. 2017/113 / W. 38)**](https://www.legislation.gov.uk/wsi/2017/113/contents/made), and [**The Non-Domestic Rating (Demand Notes) (Scotland) Regulations 2008 (S.S.I. 2008/28)**](https://www.legislation.gov.uk/ssi/2008/28/contents/made) — Statutory content of non-domestic rates demand notices across the three jurisdictions.
+  - [**The Non-Domestic Rating (Alteration of Lists and Appeals) (Wales) Regulations 2023 (W.S.I. 2023/1162)**](https://www.legislation.gov.uk/wsi/2023/1162/contents/made) — Welsh Check, Challenge, Appeal (CCA) procedures and Valuation Tribunal for Wales appeals.
+  - [**The Non-Domestic Rating (Artificial Avoidance Arrangements) (Local Lists) (Wales) Regulations 2026 (W.S.I. 2026/43)**](https://www.legislation.gov.uk/wsi/2026/43/contents/made) — Welsh artificial avoidance countermeasures; WSI 2026/43 civil financial penalties (£500 flat + 3% RV).
+  - [**The Council Tax (Dwellings and Part Residential Subjects) (Scotland) Amendment Regulations 2021 (S.S.I. 2021/489)**](https://www.legislation.gov.uk/ssi/2021/489/contents/made) — Scottish self-catering statutory criteria under Schedule 2 paragraph 2 of S.I. 1992/2955 (as amended from 1 April 2022): commercially available $\ge 140$ days and actually let $\ge 70$ days in the financial year.
+  - [**The Non-Domestic Rating (Definition of Domestic Property) (England) Order 2022 (S.I. 2022/217)**](https://www.legislation.gov.uk/uksi/2022/217/contents/made) — Amends LGFA 1988 s.66(2B) from 1 April 2023 to introduce the 70-day actual letting test in England (prior to which only 140 days available to let applied).
+  - [**The Non-Domestic Rating (Definition of Domestic Property) (Wales) Order 2010 (W.S.I. 2010/682 / W. 67)**](https://www.legislation.gov.uk/wsi/2010/682/contents/made) — Introduces the 70-day actual letting test in Wales from 1 April 2010.
+  - [**The Non-Domestic Rating (Amendment of Definition of Hereditament) (Wales) Order 2022 (W.S.I. 2022/563 / W. 130)**](https://www.legislation.gov.uk/wsi/2022/563/contents/made) — Welsh self-catering letting test post-1 April 2023: commercially available $\ge 252$ days and actually let $\ge 182$ days.
 
 ### 1.5 Valuation Office Agency (VOA) Manuals & Policy Guidance
 1. [**Common Legislative Solutions: A Guide to Tackling Recurring Policy Issues**](https://www.gov.uk/government/publications/common-legislative-solutions) (Guidance) — Statutory drafting guidelines, licensing frameworks, and administrative powers.
@@ -148,10 +148,10 @@ The calculation engine's business logic, zero-hardcoding parameter tables, and s
 
 ### 2.1 Architecture Overview
 
-The system operates with a decoupled modern architecture:
-- **Interactive Component-Based UI (`frontend/`)**: A modular Svelte 5 Single-Page Application (SPA) compiled with Vite 6 and TypeScript 5.7 into static assets served directly by the backend at `/`. Includes embedded statutory parameter explorers and top navbar link to API reference.
-- **Interactive Documentation Plane (`/docs`, `/api/v1/openapi.json`)**: Self-hosted Scalar API reference rendered via `templates/scalar.html` with zero external CDN dependencies, dynamic query parameter templating, and official OpenAPI 3.1.0 specifications.
-- **Statutory Data Plane (REST API)**: High-performance, unauthenticated Axum endpoints executing sub-millisecond statutory rating calculations, cataloging statutory reference data, and serving parameter repository tables.
+The system comprises three primary components:
+- **Component UI (`frontend/`)**: A Svelte 5 Single-Page Application (SPA) compiled with Vite into static assets served by the backend at `/`.
+- **API Documentation (`/docs`, `/api/v1/openapi.json`)**: Self-hosted Scalar API reference rendered via `templates/scalar.html` with query parameter templating and OpenAPI 3.1.0 specifications.
+- **Calculation API (REST)**: Axum endpoints executing rating calculations, cataloging reference data, and serving parameter repository tables.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
@@ -168,7 +168,7 @@ The system operates with a decoupled modern architecture:
 │   ParameterCatalogs (Multipliers, Thresholds, Reliefs, Caps)           │
 │   ReferenceCodeCatalog (Statutory Dictionary & Category Browser)       │
 └───────────────────────────────────┬────────────────────────────────────┘
-                                    │ Unauthenticated HTTP / JSON
+                                    │ HTTP / JSON
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────┐
 │                     Axum 0.7 REST API Server                           │
@@ -193,7 +193,7 @@ The system operates with a decoupled modern architecture:
 │   GET  /api/v1/openapi.json             -> OpenAPI 3.1.0 Spec (JSON)   │
 │   GET  /api/v1/openapi.yaml             -> OpenAPI 3.1.0 Spec (YAML)   │
 │                                                                        │
-│   OWASP Security Headers Middleware (Strict CSP, Zero 'unsafe-inline') │
+│   OWASP Security Headers Middleware (Content Security Policy)          │
 └───────────────────────────────────┬────────────────────────────────────┘
                                     │
                                     ▼
@@ -207,25 +207,24 @@ The system operates with a decoupled modern architecture:
 ```
 
 #### Key Technical Decisions & Choices:
-1. **Svelte 5 Component UI Architecture**:
-   - Modern component-driven architecture built with Svelte 5 Runes (`$state`, `$derived`).
-   - Clean, modular component decomposition for reactive form state, multi-episode tables, live audit narrative preview, parameter catalog accordions, and bidirectional Form-to-JSON editing.
-   - Built to production dist via `./build-frontend.sh` (`frontend/dist/`).
-2. **Public REST API Access**:
-   - All REST APIs and calculation endpoints are directly accessible as a public service with zero authentication overhead.
-3. **4-Language Internationalization (i18n)**:
-   - Full support for **English (`en`)**, **Welsh (`cy`)**, **Scots (`sco`)**, and **Scottish Gaelic (`gd`)**.
-   - Language is negotiated dynamically based on: Request body `"language"` > Query parameter `?lang=` > `Accept-Language` header > Default `en`.
+1. **Frontend Architecture**:
+   - Built with Svelte 5 runes (`$state`, `$derived`) and TypeScript.
+   - Compiled via `./build-frontend.sh` into `frontend/dist/`.
+2. **REST API Access**:
+   - Endpoints are accessible as a public service without authentication requirements.
+3. **Four-Language Internationalization (i18n)**:
+   - Supports **English (`en`)**, **Welsh (`cy`)**, **Scots (`sco`)**, and **Scottish Gaelic (`gd`)**.
+   - Language is negotiated dynamically: Request body `"language"` > Query parameter `?lang=` > `Accept-Language` header > Default `en`.
 4. **Decoupled Calculation Contract**:
-   - Informational metadata fields (`liable_party_id`, `uarn`, street addresses) are decoupled from the statutory math core.
+   - Informational metadata fields (`liable_party_id`, `uarn`, street addresses) are decoupled from the statutory calculation core.
 5. **Multi-Occupancy Section 44A Support**:
-   - Liable parties can submit multiple occupancy periods (`OCCUPIED`, `UNOCCUPIED`, `PART_OCCUPIED`) in a single calculation request.
-   - Automatically handles statutory occupation reset rules ($\ge 91$ days in England post-April 2024; $\ge 42$ days in Wales/Scotland) and Section 44A dual-portion apportionments.
+   - Supports multiple occupancy periods (`OCCUPIED`, `UNOCCUPIED`, `PART_OCCUPIED`) in a single calculation request.
+   - Handles statutory occupation reset rules ($\ge 91$ days in England post-April 2024; $\ge 42$ days in Wales/Scotland) and Section 44A apportionments.
 6. **OpenAPI 3.1.0 & Self-Hosted Scalar Reference**:
-   - Official OpenAPI 3.1.0 specification stored in [`docs/openapi.yaml`](docs/openapi.yaml) and [`docs/openapi.json`](docs/openapi.json), served strictly at `/api/v1/openapi.json` and `/api/v1/openapi.yaml`.
-   - Built-in interactive documentation served at `/docs` rendered via [`templates/scalar.html`](templates/scalar.html) using self-hosted `/assets/scalar.js`. Operates 100% offline with zero external CDN dependencies and supports dynamic query parameter templating (`title`, `spec_url`, `theme`, `layout`).
-7. **Unified Single REST API Routes**:
-   - Standardized single-namespace REST endpoints directly under `/api/v1/` (`/calculate-liability`, `/reference-codes`, `/parameters/*`, `/openapi.*`).
+   - OpenAPI 3.1.0 specification stored in [`docs/openapi.yaml`](docs/openapi.yaml) and [`docs/openapi.json`](docs/openapi.json), served at `/api/v1/openapi.json` and `/api/v1/openapi.yaml`.
+   - Interactive documentation served at `/docs` rendered via [`templates/scalar.html`](templates/scalar.html) using self-hosted `/assets/scalar.js`, supporting query parameter templating (`title`, `spec_url`, `theme`, `layout`).
+7. **Unified REST API Routes**:
+   - REST endpoints are grouped under `/api/v1/` (`/calculate-liability`, `/reference-codes`, `/parameters/*`, `/openapi.*`).
 
 ---
 
@@ -235,7 +234,7 @@ All HTTP responses (HTML web pages, API JSON responses, static assets, and error
 
 | Header | Production Value | Purpose |
 | :--- | :--- | :--- |
-| `Content-Security-Policy` | `default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self' data:; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; form-action 'self'; base-uri 'self';` | Strict XSS, script injection, and clickjacking prevention. Zero `'unsafe-inline'` script compliance; zero external CDN dependencies. |
+| `Content-Security-Policy` | `default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self' data:; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; form-action 'self'; base-uri 'self';` | Restricts script and style origins and prevents framing. |
 | `X-Content-Type-Options` | `nosniff` | Prevents MIME-type sniffing. |
 | `X-Frame-Options` | `DENY` | Eliminates clickjacking by disallowing framing. |
 | `Strict-Transport-Security` | `max-age=31536000; includeSubDomains` | Enforces secure transport. |
@@ -245,13 +244,13 @@ All HTTP responses (HTML web pages, API JSON responses, static assets, and error
 | `Cross-Origin-Resource-Policy` | `same-origin` | Restricts cross-origin resource sharing. |
 | `X-Permitted-Cross-Domain-Policies` | `none` | Blocks Flash/PDF policy leaks. |
 
-> **Route-Scoped Style CSP Policy:** The `/docs` reference route scopes `style-src 'self' 'unsafe-inline'` exclusively to accommodate Scalar's dynamic CSS variable theme injection, while strictly retaining `script-src 'self'` (zero `'unsafe-inline'` scripts and zero CDN origins). All other routes enforce strict `style-src 'self'`.
+> **Route-Scoped Style CSP Policy:** The `/docs` route allows `style-src 'self' 'unsafe-inline'` for Scalar theme styling, with `script-src 'self'`. All other routes enforce `style-src 'self'`.
 
 ---
 
 ### 2.3 Internationalization (i18n) & Language Resolution
 
-The engine implements compile-time verified multi-lingual support via [`src/i18n.rs`](src/i18n.rs) and the frontend TypeScript dictionary store [`frontend/src/i18n/`](frontend/src/i18n/):
+The engine implements multilingual support via [`src/i18n.rs`](src/i18n.rs) and the frontend catalog store [`frontend/src/locales/`](frontend/src/locales/):
 
 **Precedence Order for Language Resolution:**
 1. Explicit request payload field: `"language": "cy"` / `"sco"` / `"gd"`
@@ -269,7 +268,7 @@ The engine implements compile-time verified multi-lingual support via [`src/i18n
 
 ### 2.4 Core Calculation Engine Contract (`POST /api/v1/calculate-liability`)
 
-> **Single Canonical Calculation Route:** All liability calculations are handled exclusively by `POST /api/v1/calculate-liability`.
+> **Calculation Route:** All liability calculations are handled by `POST /api/v1/calculate-liability`.
 
 #### Multi-Occupancy Request Payload Schema
 ```json
@@ -363,7 +362,7 @@ All relief eligibility determinations are driven by strongly typed flags within 
 | `days_previously_unoccupied` | `i32` | All Jurisdictions | Number of unoccupied days elapsed prior to period start, deducted from initial empty rate-free period. |
 
 > **Statutory Slicing, Validation & Execution Mechanics:**
-> - **Three-Dimensional Slicing Engine**: Calculation periods are partitioned into discrete billing segments whenever crossing:
+> - **Billing Segment Slicing**: Calculation periods are partitioned into discrete billing segments when crossing:
 >   1. **Financial Year Boundaries** (1 April – 31 March).
 >   2. **Occupancy Transitions** (`OCCUPIED` ↔ `UNOCCUPIED` ↔ `PART_OCCUPIED`).
 >   3. **Rateable Value Alteration Dates** (`rateable_value_history` effective date boundaries).
@@ -441,12 +440,7 @@ All relief eligibility determinations are driven by strongly typed flags within 
 
 ## 3. Built-In Statutory Parameter Repository (`src/db/repository.rs`)
 
-The calculation engine operates with a self-contained, in-memory **Built-In Statutory Parameter Repository** (`ParameterRepository` in `src/db/repository.rs`). This architecture provides:
-
-- **Zero External Infrastructure**: Operates independently with zero database services, connection strings, or migration scripts.
-- **Deterministic Sub-Millisecond Latency**: Microsecond in-memory indexing and lookups with zero network overhead.
-- **Statutory Parameter Immutability**: Exact legal parameters pre-seeded from primary acts and secondary regulations (1990–2027) across England, Wales, and Scotland.
-- **Turnkey Portability**: The single compiled release binary or OCI container (Podman / Docker) runs anywhere out of the box.
+The calculation engine uses an in-memory repository (`ParameterRepository` in `src/db/repository.rs`) pre-seeded with statutory parameters from 1990 to 2027 for England, Wales, and Scotland, requiring no external database service.
 
 ### 3.1 Repository Structure & Seeded Models
 
@@ -466,8 +460,8 @@ pub struct ParameterRepository {
 ```
 
 #### 1. Multipliers (`ParamMultiplier`)
-- **Coverage**: Complete temporal coverage from **1 April 1990 to 31 March 2027**.
-- **Devolved Disaggregation**:
+- **Coverage**: Temporal coverage from **1 April 1990 to 31 March 2027**.
+- **Jurisdiction Breakdown**:
   - **England**: Standard Multiplier, Small Business Multiplier, City of London Standard, City of London Small Business.
     - 2023/24: Small Business `0.499`, Standard `0.512`.
     - 2024/25: Small Business `0.499`, Standard `0.546`.
@@ -573,7 +567,7 @@ pub struct ParameterRepository {
 
 ### 3.2 Lookup Methods
 
-The repository exposes synchronous, zero-copy query methods:
+The repository exposes query methods:
 
 ```rust
 impl ParameterRepository {
@@ -594,7 +588,7 @@ impl ParameterRepository {
 
 ### 3.3 Statutory Parameter REST Endpoints & OpenAPI Documentation
 
-The in-memory parameter repository and statutory documentation are exposed directly via dedicated REST endpoints:
+The in-memory parameter repository and documentation are exposed via REST endpoints:
 - `GET /api/v1/parameters`: Aggregated JSON payload containing all 8 parameter datasets (multipliers, SBRR/SBBS thresholds, sector reliefs, transitional caps, empty property thresholds, holiday let letting tests, devolved scheme caps, and reference codes).
 - `GET /api/v1/parameters/multipliers`: Temporal rating multipliers array (1990–2027) disaggregated by jurisdiction.
 - `GET /api/v1/parameters/sbrr-thresholds`: SBRR / SBBS rateable value thresholds and statutory linear relief rules.
@@ -603,8 +597,8 @@ The in-memory parameter repository and statutory documentation are exposed direc
 - `GET /api/v1/parameters/empty-property`: Low-value empty property rateable value exemption thresholds across all lists (1990–2027) for England, Wales, and Scotland.
 - `GET /api/v1/parameters/letting-tests`: Statutory holiday let actual let and commercial availability days thresholds.
 - `GET /api/v1/parameters/scheme-caps`: Scheme-specific financial limits, statutory additions, reset days, and penalty schedules.
-- `GET /api/v1/openapi.json` & `GET /api/v1/openapi.yaml`: Official OpenAPI 3.1.0 specifications documenting all statutory models, calculation endpoints, schemas, and parameter filters.
-- `GET /docs`: Interactive self-hosted Scalar API reference UI rendered from `templates/scalar.html` with zero external CDN dependencies, strict script CSP, and dynamic query parameter templating (`?title=...&spec_url=...&theme=...&layout=...`).
+- `GET /api/v1/openapi.json` & `GET /api/v1/openapi.yaml`: OpenAPI 3.1.0 specifications documenting models, calculation endpoints, schemas, and parameter filters.
+- `GET /docs`: Scalar API reference UI rendered from `templates/scalar.html` with query parameter templating (`?title=...&spec_url=...&theme=...&layout=...`).
 
 ---
 
@@ -612,9 +606,9 @@ The in-memory parameter repository and statutory documentation are exposed direc
 
 ### Test Suite Overview (160 Passing Integration Tests)
 
-The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **160 automated integration tests**:
+The test suite is organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, documentation, third-party licenses, and web security across **160 integration tests**:
 
-- **Suite A: Canonical Multi-Jurisdiction Scenario Fixture Tests (Scenarios 1–11)** ([`tests/integration_tests/suite_a_scenarios.rs`](tests/integration_tests/suite_a_scenarios.rs) — 11 tests):
+- **Suite A: Multi-Jurisdiction Scenario Fixture Tests (Scenarios 1–11)** ([`tests/integration_tests/suite_a_scenarios.rs`](tests/integration_tests/suite_a_scenarios.rs) — 11 tests):
   - `test_scenario_1_england_sbrr_and_rhl_multi_year` (`scenario_1_sbrr_rhl_england.json`): Multi-year slicing (2025/26 & 2026/27), SBRR linear taper, England 2026/27 RHL expiration verification, and Transitional Relief caps.
   - `test_scenario_2_wales_petrol_station` (`scenario_2_wales_petrol_station.json`): SCAT 211 forecourt valuation under Welsh Local Government Finance Act 2024.
   - `test_scenario_3_scotland_self_catering` (`scenario_3_scotland_self_catering.json`): Scottish SBBS £12k threshold and self-catering actual letting compliance.
@@ -622,7 +616,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_scenario_5_airport_high_value` (`scenario_5_airport_high_value.json`): High-value hereditament (RV £1.25m) using English standard national multiplier.
   - `test_mandatory_charitable_relief_80_percent` (`scenario_6_charity_mandatory_80.json`): LGFA 1988 s.43(5) & LG(R)S 1962 s.4(2) mandatory 80% charitable reduction.
   - `test_multi_occupancy_periods_single_liable_party` (`scenario_7_multi_occupancy_episodes.json`): 3 episodes across 2024/25 (`UNOCCUPIED` → `OCCUPIED` → `PART_OCCUPIED`), Section 44A dual-portion apportionments, and statutory reset triggers.
-  - `test_suite_8_empty_property_exemption` (`scenario_8_empty_property_exemption.json`): 100% exemption for initial statutory period and "box-shifting" reset rules under SI 2008/386.
+  - `test_suite_8_empty_property_exemption` (`scenario_8_empty_property_exemption.json`): 100% exemption for initial statutory period and reset rules under SI 2008/386.
   - `test_ndra_2023_improvement_relief_g_factor` (`scenario_9_improvement_relief_g_factor.json`): Non-Domestic Rating Act 2023 s.1 G-factor certificate reduction on qualifying property improvements.
   - `test_statutory_10_and_12_installments_schedule` (`scenario_10_statutory_12_installments.json`): Statutory payment schedules under SI 1989/1058 (10 monthly installments) and ratepayer election of 12 monthly installments (LGA 2003 / SI 2014/466).
   - `test_statutory_rural_settlement_relief` (`scenario_11_rural_settlement_relief.json`): Mandatory 100% rural settlement relief under LGFA 1988 s.43(6A) for sole village shops, food stores, post offices, and pubs.
@@ -632,8 +626,8 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_mid_year_rateable_value_change_splits_billing_segments`: Validates segment slicing across mid-year rateable value alterations (`rateable_value_history` effective date boundaries).
   - `test_calculate_liability_period_before_first_rv_returns_bad_request`: Returns HTTP 400 Bad Request if calculation period begins prior to the earliest RV record.
   - `test_overlapping_occupancy_periods_rejected`: Validates rejection of overlapping temporal episodes (`AppError::OverlappingOccupancyPeriods`).
-  - `test_open_ended_occupation_empty_string_and_null`: Open-ended occupation handling (`""`, `null`, omitted `end_date`) defaulting cleanly to 2027-03-31.
-  - `test_empty_property_prior_unoccupied_days_out_of_order_periods`: Ensures robust ordering and prior empty days tracking even when episodes are submitted out of chronological order.
+  - `test_open_ended_occupation_empty_string_and_null`: Open-ended occupation handling (`""`, `null`, omitted `end_date`) defaulting to 2027-03-31.
+  - `test_empty_property_prior_unoccupied_days_out_of_order_periods`: Ensures ordering and prior empty days tracking when episodes are submitted out of chronological order.
   - `test_unseeded_year_raises_error_not_045_default`: Confirms requesting an unseeded rating year outside 1990–2027 returns a structured domain error rather than an arbitrary fallback multiplier.
 
 - **Suite C: 4-Language Internationalization (i18n) & Content Negotiation** ([`tests/integration_tests/suite_c_i18n.rs`](tests/integration_tests/suite_c_i18n.rs) — 13 tests):
@@ -649,17 +643,17 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_http_calculate_liability_bad_payload_error`: Validates HTTP 422 `PAYLOAD_DESERIALIZATION_ERROR` response on malformed JSON payload.
   - `test_domain_error_status_codes_and_codes`: Verifies strongly-typed `AppError` status codes and error identifiers.
   - `test_narrative_relief_assessment_audit_unawarded_reliefs`: Verifies localized statutory audit justification for disqualified/unawarded reliefs across English, Welsh, Scots, and Scottish Gaelic.
-  - `test_narrative_decision_traceability_across_languages`: Verifies comprehensive step-by-step decision justification lines (multiplier determination, transitional relief phasing, SBRR taper divisor $E$, empty property rate-free calendar months, and statutory installment schedule) with statutory citations across English, Welsh, Scots, and Scottish Gaelic maintaining 100% key parity.
+  - `test_narrative_decision_traceability_across_languages`: Verifies decision justification lines (multiplier determination, transitional relief phasing, SBRR taper divisor $E$, empty property rate-free calendar months, and statutory installment schedule) with statutory citations across English, Welsh, Scots, and Scottish Gaelic maintaining 100% key parity.
 
 - **Suite D: Reference Codes, Parameter Resolution, Public API Access & OpenAPI** ([`tests/integration_tests/suite_d_api_and_parameters.rs`](tests/integration_tests/suite_d_api_and_parameters.rs) — 12 tests):
   - `test_app_state_repository_access`: Validates thread-safe parameter repository access on `AppState`.
-  - `test_zero_hardcoding_historical_multipliers_1990_to_2026`: Complete verification of English, Welsh, and Scottish rating multipliers from 1990 to 2026.
+  - `test_zero_hardcoding_historical_multipliers_1990_to_2026`: Validates English, Welsh, and Scottish rating multipliers from 1990 to 2026.
   - `test_preseeded_reference_codes_and_allowable_values`: Pre-seeded values for jurisdictions, party types, and reliefs.
   - `test_http_reference_codes_endpoints`: Validates public `GET /api/v1/reference-codes` and verifies unmapped prefix path returns `404 NOT FOUND`.
   - `test_http_calculate_liability_unauthenticated_access`: Verifies calculation succeeds on `POST /api/v1/calculate-liability` without requiring authorization headers.
   - `test_http_sso_endpoints`: Verifies unmapped SSO endpoints return `404 NOT FOUND`.
   - `test_http_parameters_endpoints`: Validates all 8 parameter catalog endpoints return valid HTTP 200 JSON arrays.
-  - `test_openapi_and_swagger_endpoints`: Validates OpenAPI 3.1.0 specifications (`/api/v1/openapi.json`, `/api/v1/openapi.yaml`), `/docs` Scalar HTML rendering with query parameter templating, self-hosted zero-CDN `scalar.js`, and confirms unsupported aliases return 404.
+  - `test_openapi_and_swagger_endpoints`: Validates OpenAPI 3.1.0 specifications (`/api/v1/openapi.json`, `/api/v1/openapi.yaml`), `/docs` Scalar HTML rendering with query parameter templating, static `scalar.js`, and confirms unsupported aliases return 404.
   - `test_licenses_endpoints`: Validates `/licenses` (HTML interface styled with unified `/assets/app.css` under CSP), `/licenses.md` (raw Markdown attribution document), and `/api/v1/licenses?format=md` query routing.
   - `test_health_check_endpoints`: Validates both root `/health` and `/api/v1/health` return HTTP 200 with OWASP security headers, subsystem health checks (`engine_api: pass`, `parameters_repository: pass`, `frontend_bundle: pass`), and deployment build metadata (`version`, `commit_hash`, `build_number`, `build_timestamp`).
   - `test_openapi_app_error_response_enum_matches_engine_codes`: Validates AppErrorResponse.error enum in OpenAPI 3.1.0 spec includes all strongly-typed domain error codes returned by the engine (including MISSING_MULTIPLIER_FOR_PERIOD and RATEABLE_VALUE_MISSING_FOR_PERIOD).
@@ -668,7 +662,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
 - **Suite E: English Multipliers, Transitional Phasing, Grace Periods & SSBR** ([`tests/integration_tests/suite_e_england_schemes.rs`](tests/integration_tests/suite_e_england_schemes.rs) — 23 tests):
   - `test_england_2026_five_multipliers_rhl_vs_non_rhl`: Verifies Autumn Budget 2024 / NDRA 2023 five-multiplier regime in England for 2026/27 (38.2p, 43.2p, 43.0p, 48.0p, 50.8p).
   - `test_england_sbrr_second_property_grace_period`: Verifies statutory 12-month grace period on primary hereditament when taking on an additional hereditament (S.I. 2017/411 art. 3(4) under LGFA 1988 s.43(4B)).
-  - `test_statutory_sbrr_england_linear_taper`: Exact mathematical formula verification for English £12k–£15k SBRR linear taper.
+  - `test_statutory_sbrr_england_linear_taper`: Validates English £12k–£15k SBRR linear taper.
   - `test_suite_7_transitional_phasing_relief_cap`: Chargeable amounts ceiling capping year-on-year bill escalation under NDRA 2023.
   - `test_suite_7_transitional_relief_none_when_under_cap`: Zero transitional adjustment when calculated liability remains under cap.
   - `test_england_transitional_relief_opt_out`: Verifies setting `apply_transitional_relief: Some(false)` calculates unphased gross liability without transitional relief deduction.
@@ -677,8 +671,8 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_england_supporting_small_business_relief_2023_cap_600`: Verifies SSBR under LGFA 1988 s.47 capping net bill increase to £600/year in 2023/24 for ratepayers losing SBRR.
   - `test_england_supporting_small_business_relief_2026_cap_800`: Verifies SSBR under LGFA 1988 s.47 capping net bill increase to £800/year in 2026/27.
   - `test_ssbr_compounds_into_year_2`: Confirms SSBR cap compounds into year 2 on top of the preceding year's capped bill.
-  - `test_ssbr_not_awarded_for_new_property_without_baseline`: Proves SSBR is not awarded to new properties lacking a prior-year baseline.
-  - `test_ssbr_not_awarded_to_charities`: Proves SSBR cannot be awarded to charities receiving mandatory charitable relief.
+  - `test_ssbr_not_awarded_for_new_property_without_baseline`: Validates SSBR is not awarded to new properties lacking a prior-year baseline.
+  - `test_ssbr_not_awarded_to_charities`: Validates SSBR cannot be awarded to charities receiving mandatory charitable relief.
   - `test_sector_relief_england_2025_vs_2026`: Verifies English RHL 40% relief in 2025/26 and statutory expiration (0%) in 2026/27 under NDRA 2023.
   - `test_england_multiplier_2025_26_standard_is_0555`: Validates England 2025/26 standard multiplier is 0.555 (55.5p) under LGFA 1988 Sched 7 para A4 and S.I. 2024/1321.
   - `test_england_small_business_multiplier_boundary_at_51000`: Validates small business multiplier applies up to £50,999 RV and standard multiplier applies at £51,000 RV under S.I. 2017/102 art. 2 and S.I. 2026/152 regs 3–5.
@@ -687,15 +681,15 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_england_empty_property_historical_low_value_thresholds`: Validates historical English empty property low-value rateable value thresholds under S.I. 2008/386 reg 4(g) (£2,200 in 2008/09), S.I. 2008/3283 reg 2 (£15,000 in 2009/10), S.I. 2010/408 reg 2(2)(b) (£18,000 in 2010/11), S.I. 2010/408 reg 2(2)(a) (£2,600 in 2011/12–2016/17), and S.I. 2017/102 art 4 (£2,900 from 2017/18 onwards).
   - `test_statutory_installments_whole_pounds_si_1989_1058`: Verifies statutory instalment calculation under S.I. 1989/1058 Schedule 1 Part I para 1(4)-(5) where all instalments except the first are whole pounds ($A = C / D$ rounded to nearest pound) and the first instalment takes the balancing difference ($B = C - (D - 1) \times A$).
   - `test_england_transitional_relief_greater_london_small_band_threshold_28000`: Validates Greater London small-band threshold (£28,000 RV vs £20,000 outside London) under S.I. 2022/1403 reg 10(5), awarding small-band cap (+5%) rather than medium-band (+15%) to an RV £25,000 London hereditament.
-  - `test_england_2026_transitional_supplement`: Validates England 2026/27 Transitional Relief Supplement (TRS) of 1p ($RS = 0.010$) replacing multiplier $M$ with $(M + RS)$ under S.I. 2026/81 reg 16 for defined hereditaments not receiving transitional relief under reg 12, and proves statutory exemptions for charities (reg 16(1)(c)) and newly created hereditaments (reg 5(2)).
+  - `test_england_2026_transitional_supplement`: Validates England 2026/27 Transitional Relief Supplement (TRS) of 1p ($RS = 0.010$) replacing multiplier $M$ with $(M + RS)$ under S.I. 2026/81 reg 16 for defined hereditaments not receiving transitional relief under reg 12, and statutory exemptions for charities (reg 16(1)(c)) and newly created hereditaments (reg 5(2)).
   - `test_england_small_business_multiplier_threshold_pre_2017`: Validates historical English small business multiplier qualification thresholds prior to 2017/18 under LGFA 1988 s.43(4A), S.I. 2004/3315 art 3(1)(b) (£14,999 outside London / £21,499 in London), and S.I. 2012/148 art 3(1)(b) (£17,999 outside London / £25,499 in London), confirming that properties with RV exceeding these thresholds pay the standard multiplier, and verifying Greater London threshold differentiation.
 
 - **Suite F: Welsh Multipliers, SBRR, Exemptions, Anti-Avoidance & Transitional Schemes** ([`tests/integration_tests/suite_f_wales_schemes.rs`](tests/integration_tests/suite_f_wales_schemes.rs) — 31 tests):
   - `test_wales_multiplier_2025_26_is_0568`: Validates Welsh uniform multiplier for 2025/26 is 0.568 under W.S.I. 2025/214.
   - `test_wales_2026_three_multipliers`: Verifies Welsh 2026/27 three-tier multiplier regime under *Local Government Finance (Wales) Act 2024* (Retail 35.0p, Standard 50.2p, Higher 51.5p).
   - `test_wales_retail_multiplier_given_to_retail_shop`: Validates 35.0p retail multiplier awarded to qualifying retail shop.
-  - `test_wales_retail_multiplier_not_given_to_holiday_let_or_pub_with_rhl_flag`: Proves holiday lets and pubs are excluded from the retail multiplier.
-  - `test_wales_higher_multiplier_exception_pays_standard_rate`: Proves qualifying excepted property pays Standard 0.502 instead of Higher 0.515.
+  - `test_wales_retail_multiplier_not_given_to_holiday_let_or_pub_with_rhl_flag`: Validates holiday lets and pubs are excluded from the retail multiplier.
+  - `test_wales_higher_multiplier_exception_pays_standard_rate`: Validates qualifying excepted property pays Standard 0.502 instead of Higher 0.515.
   - `test_wales_sbrr_childcare_100_percent_up_to_100k`: Verifies 100% SBRR for CIW-registered childcare premises up to £100k RV (W.S.I. 2017/1229 art. 5).
   - `test_wales_sbrr_post_office_tiered_relief`: Verifies post office tiered relief (100% $\le £9k$, 50% $£9k–£12k$ under W.S.I. 2017/1229 art. 4).
   - `test_wales_sbrr_two_properties_in_billing_authority`: Enforces two-property limit per billing authority under W.S.I. 2017/1229 art. 12.
@@ -707,8 +701,8 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_wales_petrol_station_qualifies_for_rhl_2023_24_75_percent`: Petrol filling stations qualify for Welsh RHL 75% in 2023/24.
   - `test_wales_petrol_station_qualifies_for_rhl_2024_25_40_percent`: Petrol stations are excluded from Welsh RHL 40% in 2024/25.
   - `test_sector_relief_wales_2026_food_drink_hospitality`: Verifies Welsh 15% Food & Drink Hospitality relief for pubs, restaurants, and cafés in 2026/27.
-  - `test_wales_holiday_let_excluded_from_2026_27_food_drink_relief`: Proves holiday lets are excluded from Welsh food and drink relief.
-  - `test_wales_retail_shop_on_retail_multiplier_excluded_from_2026_27_food_drink_relief`: Proves shops receiving the retail multiplier do not receive food & drink relief.
+  - `test_wales_holiday_let_excluded_from_2026_27_food_drink_relief`: Validates holiday lets are excluded from Welsh food and drink relief.
+  - `test_wales_retail_shop_on_retail_multiplier_excluded_from_2026_27_food_drink_relief`: Validates shops receiving the retail multiplier do not receive food & drink relief.
   - `test_wales_transitional_relief_2026_year_1_67_percent`: Verifies Welsh 2-year TR scheme (W.S.I. 2025/1371) granting 67% relief on increases > £300 in 2026/27.
   - `test_wales_transitional_relief_2027_year_2_34_percent`: Verifies Welsh 2-year TR scheme granting 34% relief on increases > £300 in 2027/28.
   - `test_wales_transitional_relief_under_300_no_relief`: Zero relief when net bill increase is $\le £300$.
@@ -721,14 +715,14 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_wales_2005_list_no_transitional_relief`: Confirms Wales operated no general transitional relief in 2005.
   - `test_wales_2010_list_no_transitional_relief`: Confirms Wales operated no general transitional relief in 2010.
   - `test_sbrr_taper_uses_statutory_e_divisor_wales`: Validates Welsh SBRR taper chargeable amount $(A \times M) / E$ where $E = 6000 / (\text{RV} - 6000)$ to 3 decimal places under W.S.I. 2017/1229 art. 11(3).
-  - `test_wales_2026_has_no_fictitious_upward_caps_in_transitional_caps`: Validates absence of fictitious upward caps for Wales 2026 in transitional caps repository, confirming W.S.I. 2025/1371 operates exclusively as a share-of-increase scheme (67%/34%) published under scheme caps.
+  - `test_wales_2026_has_no_fictitious_upward_caps_in_transitional_caps`: Validates absence of upward caps for Wales 2026 in transitional caps repository, as W.S.I. 2025/1371 operates as a share-of-increase scheme (67%/34%) published under scheme caps.
 
 - **Suite G: Scottish Property Rates, SBBS Tapers, 40% Hospitality & Transitional Relief** ([`tests/integration_tests/suite_g_scotland_schemes.rs`](tests/integration_tests/suite_g_scotland_schemes.rs) — 21 tests):
   - `test_scotland_2026_multipliers_basic_intermediate_higher`: Validates 2026/27 rates: Basic 0.481, Intermediate 0.535, Higher 0.548 (S.S.I. 2026/39).
   - `test_scotland_sbbs_taper_band_12k_to_15k`: Verifies linear taper between 100% and 25% for RV £12k–£15k under S.S.I. 2026/68 reg 3(3).
   - `test_scotland_sbbs_taper_band_15k_to_20k`: Verifies linear taper between 25% and 0% for RV £15k–£20k under S.S.I. 2026/68 reg 3(3).
   - `test_scotland_sbbs_multiple_properties_rule_reg_4`: Verifies multiple property rule granting 25% relief for properties $\le £15k$ when cumulative RV is $£12k–£35k$.
-  - `test_scotland_sbbs_multiple_properties_exceeding_35k_cap`: Proves 0% SBBS relief across all properties when cumulative RV exceeds £35,000 (reg 4(3)).
+  - `test_scotland_sbbs_multiple_properties_exceeding_35k_cap`: Validates 0% SBBS relief across all properties when cumulative RV exceeds £35,000 (reg 4(3)).
   - `test_scotland_2026_rhl_retail_15_percent_shop`: Verifies 15% Retail & Leisure relief for mainland shop $\le £100k$ RV under S.S.I. 2026/69 reg 4.
   - `test_scotland_2026_rhl_hospitality_40_percent_pub`: Verifies 40% Hospitality relief tier for pubs, restaurants, and hotels under S.S.I. 2026/69 reg 4A.
   - `test_scotland_2026_remote_mainland_rhl_100_percent`: Verifies 100% relief for Cape Wrath, Knoydart, and Scoraig under S.S.I. 2026/69 reg 5.
@@ -748,11 +742,11 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
 
 - **Suite H: Cross-Jurisdictional Reliefs, Lifespans, Holiday Lets & Empty Property** ([`tests/integration_tests/suite_h_cross_jurisdictional.rs`](tests/integration_tests/suite_h_cross_jurisdictional.rs) — 24 tests):
   - `test_statutory_heat_network_exemption`: NDRA 2023 s.2 100% heat network discount.
-  - `test_heat_network_relief_not_granted_before_1_april_2024`: Proves heat network relief cannot be awarded before 1 April 2024.
-  - `test_heat_network_relief_not_granted_on_or_after_1_april_2035`: Proves heat network relief sunsets on 31 March 2035.
+  - `test_heat_network_relief_not_granted_before_1_april_2024`: Validates heat network relief is not awarded before 1 April 2024.
+  - `test_heat_network_relief_not_granted_on_or_after_1_april_2035`: Validates heat network relief sunsets on 31 March 2035.
   - `test_ndra_2023_reliefs_granted_in_wales_from_2024`: Confirms both Improvement Relief (G-factor) and Heat Network Relief are active in Wales from 1 April 2024 under W.S.I. 2024/249.
-  - `test_improvement_relief_not_granted_before_1_april_2024`: Proves improvement relief cannot be awarded before 1 April 2024.
-  - `test_improvement_relief_not_granted_on_or_after_1_april_2029`: Proves improvement relief sunsets on 31 March 2029.
+  - `test_improvement_relief_not_granted_before_1_april_2024`: Validates improvement relief is not awarded before 1 April 2024.
+  - `test_improvement_relief_not_granted_on_or_after_1_april_2029`: Validates improvement relief sunsets on 31 March 2029.
   - `test_improvement_and_heat_network_not_granted_to_scotland`: Confirms neither improvement nor heat network relief applies in Scotland.
   - `test_statutory_telecommunications_infrastructure_relief_england_and_scotland`: 100% fibre relief in England and Scotland under Telecommunications Infrastructure Act 2018.
   - `test_statutory_public_lavatory_exemption`: Rating (Public Lavatories) Act 2021 100% discount.
@@ -761,7 +755,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_part_occupied_charity_reliefs_capped_at_occupied_chargeable`: Caps charitable relief at the occupied portion's chargeable amount under s.44A.
   - `test_statutory_empty_low_value_exemption`: Low value unoccupied exemptions (£2,900 England, £2,200 Wales, £1,700 Scotland).
   - `test_statutory_empty_property_prior_unoccupied_days`: Calculation accounting for prior unoccupied days deducted from statutory allowance (62 exempt days — three calendar months from 2 March).
-  - `test_rhl_relief_applies_in_sbrr_taper_band_england_and_wales`: Proves RHL relief applies to net liability after SBRR taper in England and Wales.
+  - `test_rhl_relief_applies_in_sbrr_taper_band_england_and_wales`: Validates RHL relief applies to net liability after SBRR taper in England and Wales.
   - `test_rhl_cash_cap_enforced_per_financial_year_across_segments`: Validates £110,000 cash cap enforced across all billing segments within the same financial year.
   - `test_historical_rhl_relief_england_wales_scotland`: Validates historical retail, hospitality and leisure reliefs across England (Expanded Retail Discount 100% in 2020/21; 100% Q1 & 66% Q2-Q4 in 2021/22 under LGFA 1988 s.47; 50% in 2022/23), Wales (100% in 2020/21 & 2021/22 for RV <= £500,000; 50% in 2022/23), and Scotland (100% island hospitality in 2024/25; 40% mainland hospitality in 2025/26 for RV <= £51,000).
   - `test_self_catering_holiday_let_letting_days_test`: Minimum letting days thresholds (70 days Scotland from 2022/23, 70 days England from 2023/24, 70 days pre-2023 / 182 days post-2023 Wales).
@@ -773,7 +767,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_welsh_holiday_let_availability_threshold_disqualification`: Validates Welsh 252-day commercial availability threshold under W.S.I. 2022/563.
 
 - **Suite I: Component UI Serving & OWASP Security** ([`tests/integration_tests/suite_i_ui_and_security.rs`](tests/integration_tests/suite_i_ui_and_security.rs) — 6 tests):
-  - `test_owasp_secure_headers_on_static_routes`: Verifies `/` serves the Svelte 5 single-page application mount `<div id="app">`, bundled assets `/assets/*` serve with correct MIME types, and all 9 OWASP security headers (strict CSP without unsafe-inline, nosniff, DENY, HSTS, strict-origin, COOP, CORP) are enforced.
+  - `test_owasp_secure_headers_on_static_routes`: Verifies `/` serves the Svelte 5 single-page application mount `<div id="app">`, bundled assets `/assets/*` serve with correct MIME types, and OWASP security headers with strict Content Security Policy are enforced.
   - `test_ui_html_rendering_english_default`: Verifies `/` serves the Svelte 5 single-page application mount `<div id="app">`.
   - `test_ui_decommissioned_alias_routes_return_404`: Verifies unsupported UI alias routes (`/admin`, `/component-ui`, `/app`) return `404 NOT FOUND`.
   - `test_owasp_secure_headers_on_api_json_response`: Verifies OWASP security headers on API JSON responses.
@@ -785,7 +779,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_historical_transitional_phasing_1991_92`: Validates 1991/92 revaluation year 2 transitional upward cap (+15%) based on 1990/91 baseline.
   - `test_historical_transitional_phasing_1993_94`: Validates 1993/94 revaluation upward cap (+15%) under SI 1989/1358 based on 1992/93 baseline.
   - `test_historical_transitional_phasing_1995_list_revaluation`: Validates 1995/96 large property revaluation upward cap (+20%) under SI 1994/3279.
-  - `test_historical_sbrr_pre_2005_returns_no_relief`: Proves 2003/04 sole-property small business occupier receives 0% discount (prior to LGA 2003 s.61).
+  - `test_historical_sbrr_pre_2005_returns_no_relief`: Validates 2003/04 sole-property small business occupier receives 0% discount (prior to LGA 2003 s.61).
   - `test_historical_sbrr_2005_list_england_full_and_taper`: Verifies 2007/08 full 50% discount and 25% linear taper under SI 2004/3315.
   - `test_historical_sbrr_2010_list_england_and_scotland`: Verifies 2012/13 doubled 100% taper under SI 2010/1959 and Scottish 3-tier SBBS under SSI 2010/37.
   - `test_historical_transitional_phasing_2000_list`: Validates 2000/01 revaluation upward cap (+12.5%) under SI 1999/3379.
@@ -801,13 +795,13 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
 To build, verify, and run the project:
 
 ```bash
-# 1. Compile the Svelte 5 frontend component framework with Vite
+# 1. Build the Svelte 5 frontend with Vite
 ./build-frontend.sh
 
-# 2. Run the automated test suite (160 integration tests)
+# 2. Run the integration test suite (160 tests)
 cargo test --test integration_tests
 
-# 3. Start the HTTP API & Single-Page Application server (default port 8080)
+# 3. Start the HTTP server (default port 8080)
 cargo run --bin business_rates_engine
 
 # 4. Execute a calculation via curl (Public REST API)
@@ -824,12 +818,12 @@ curl -s -X POST http://localhost:8080/api/v1/calculate-liability \
 # 6. Retrieve statutory parameters
 curl -s http://localhost:8080/api/v1/parameters
 
-# 7. Access the Component Framework UI in your browser
+# 7. Access the web UI in your browser
 open http://localhost:8080/
 
-# 8. Access the Interactive Scalar API Reference in your browser
+# 8. Access the Scalar API reference in your browser
 open http://localhost:8080/docs
 
-# 9. Access Third-Party Software Licenses in your browser
+# 9. Access third-party software licenses in your browser
 open http://localhost:8080/licenses
 ```
