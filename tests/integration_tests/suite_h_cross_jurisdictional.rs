@@ -1240,3 +1240,308 @@ async fn test_holiday_let_actual_letting_test_start_dates_england_wales() {
     assert!(!run("WALES", "2015-04-01", "2016-03-31", 70), "Wales 2015/16: 70 days qualifies");
 }
 
+#[tokio::test]
+async fn test_historical_rhl_relief_england_wales_scotland() {
+    let app = create_test_app();
+
+    // 1. ENG-RHL-2022/23-40000: England 2022/23, RV £40,000, RHL 50%
+    let payload_eng_2022 = serde_json::json!({
+        "party_type": "CORPORATE",
+        "occupation_period": {
+            "start_date": "2022-04-01",
+            "end_date": "2023-03-31"
+        },
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "091",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2005-04-01",
+                    "effective_to": null,
+                    "rateable_value": 40000.0
+                }
+            ]
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": false,
+            "is_rhl_qualifying": true
+        }
+    });
+    let req1 = Request::builder()
+        .uri("/api/v1/calculate-liability")
+        .method("POST")
+        .header(header::CONTENT_TYPE, "application/json")
+        .body(Body::from(serde_json::to_vec(&payload_eng_2022).unwrap()))
+        .unwrap();
+    let res1 = app.clone().oneshot(req1).await.unwrap();
+    assert_eq!(res1.status(), StatusCode::OK);
+    let body1: Value = serde_json::from_str(&body_to_string(res1.into_body()).await).unwrap();
+    let seg1 = &body1["annual_billing_segments"][0];
+    let r1 = seg1["itemized_reliefs"].as_array().unwrap().iter().find(|r| r["relief_code"].as_str().unwrap().starts_with("RHL")).expect("RHL relief must be present for England 2022/23");
+    assert_eq!(r1["discount_percentage"], 50.0);
+    assert_eq!(seg1["net_segment_payable"], 9980.0);
+
+    // 2. WAL-RHL-2022/23-40000: Wales 2022/23, RV £40,000, RHL 50%
+    let payload_wal_2022 = serde_json::json!({
+        "party_type": "CORPORATE",
+        "occupation_period": {
+            "start_date": "2022-04-01",
+            "end_date": "2023-03-31"
+        },
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "091",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2005-04-01",
+                    "effective_to": null,
+                    "rateable_value": 40000.0
+                }
+            ]
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": false,
+            "is_rhl_qualifying": true
+        }
+    });
+    let req2 = Request::builder()
+        .uri("/api/v1/calculate-liability")
+        .method("POST")
+        .header(header::CONTENT_TYPE, "application/json")
+        .body(Body::from(serde_json::to_vec(&payload_wal_2022).unwrap()))
+        .unwrap();
+    let res2 = app.clone().oneshot(req2).await.unwrap();
+    assert_eq!(res2.status(), StatusCode::OK);
+    let body2: Value = serde_json::from_str(&body_to_string(res2.into_body()).await).unwrap();
+    let seg2 = &body2["annual_billing_segments"][0];
+    let r2 = seg2["itemized_reliefs"].as_array().unwrap().iter().find(|r| r["relief_code"].as_str().unwrap().starts_with("RHL")).expect("RHL relief must be present for Wales 2022/23");
+    assert_eq!(r2["discount_percentage"], 50.0);
+    assert_eq!(seg2["net_segment_payable"], 10700.0);
+
+    // 3. ENG-RHL-2020/21-40000: England 2020/21, RV £40,000, Expanded Retail Discount 100%
+    let payload_eng_2020 = serde_json::json!({
+        "party_type": "CORPORATE",
+        "occupation_period": {
+            "start_date": "2020-04-01",
+            "end_date": "2021-03-31"
+        },
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "091",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2005-04-01",
+                    "effective_to": null,
+                    "rateable_value": 40000.0
+                }
+            ]
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": false,
+            "is_rhl_qualifying": true
+        }
+    });
+    let req3 = Request::builder()
+        .uri("/api/v1/calculate-liability")
+        .method("POST")
+        .header(header::CONTENT_TYPE, "application/json")
+        .body(Body::from(serde_json::to_vec(&payload_eng_2020).unwrap()))
+        .unwrap();
+    let res3 = app.clone().oneshot(req3).await.unwrap();
+    assert_eq!(res3.status(), StatusCode::OK);
+    let body3: Value = serde_json::from_str(&body_to_string(res3.into_body()).await).unwrap();
+    let seg3 = &body3["annual_billing_segments"][0];
+    assert_eq!(seg3["net_segment_payable"], 0.0);
+
+    // 4. ENG-RHL-2021/22: England 2021/22 full year: Q1 (100%) and Q2-Q4 (66%)
+    let payload_eng_2021 = serde_json::json!({
+        "party_type": "CORPORATE",
+        "occupation_period": {
+            "start_date": "2021-04-01",
+            "end_date": "2022-03-31"
+        },
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "091",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2005-04-01",
+                    "effective_to": null,
+                    "rateable_value": 40000.0
+                }
+            ]
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": false,
+            "is_rhl_qualifying": true
+        }
+    });
+    let req4 = Request::builder()
+        .uri("/api/v1/calculate-liability")
+        .method("POST")
+        .header(header::CONTENT_TYPE, "application/json")
+        .body(Body::from(serde_json::to_vec(&payload_eng_2021).unwrap()))
+        .unwrap();
+    let res4 = app.clone().oneshot(req4).await.unwrap();
+    assert_eq!(res4.status(), StatusCode::OK);
+    let body4: Value = serde_json::from_str(&body_to_string(res4.into_body()).await).unwrap();
+    let segs4 = body4["annual_billing_segments"].as_array().unwrap();
+    assert_eq!(segs4.len(), 2, "2021/22 in England must slice at 2021-07-01");
+    assert_eq!(segs4[0]["itemized_reliefs"][0]["discount_percentage"], 100.0);
+    assert_eq!(segs4[0]["net_segment_payable"], 0.0);
+    assert_eq!(segs4[1]["itemized_reliefs"][0]["discount_percentage"], 66.0);
+
+    // 5. WAL-RHL-2021/22: Wales 2021/22 RV £40,000 (100% relief for RV <= £500k)
+    let payload_wal_2021 = serde_json::json!({
+        "party_type": "CORPORATE",
+        "occupation_period": {
+            "start_date": "2021-04-01",
+            "end_date": "2022-03-31"
+        },
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "091",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2005-04-01",
+                    "effective_to": null,
+                    "rateable_value": 40000.0
+                }
+            ]
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": false,
+            "is_rhl_qualifying": true
+        }
+    });
+    let req5 = Request::builder()
+        .uri("/api/v1/calculate-liability")
+        .method("POST")
+        .header(header::CONTENT_TYPE, "application/json")
+        .body(Body::from(serde_json::to_vec(&payload_wal_2021).unwrap()))
+        .unwrap();
+    let res5 = app.clone().oneshot(req5).await.unwrap();
+    assert_eq!(res5.status(), StatusCode::OK);
+    let body5: Value = serde_json::from_str(&body_to_string(res5.into_body()).await).unwrap();
+    assert_eq!(body5["annual_billing_segments"][0]["itemized_reliefs"][0]["discount_percentage"], 100.0);
+    assert_eq!(body5["annual_billing_segments"][0]["net_segment_payable"], 0.0);
+
+    // 6. WAL-RHL-2021/22-OVER-500K: Wales 2021/22 RV £600,000 (disqualified, RV > £500,000)
+    let payload_wal_over = serde_json::json!({
+        "party_type": "CORPORATE",
+        "occupation_period": {
+            "start_date": "2021-04-01",
+            "end_date": "2022-03-31"
+        },
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "091",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2005-04-01",
+                    "effective_to": null,
+                    "rateable_value": 600000.0
+                }
+            ]
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": false,
+            "is_rhl_qualifying": true
+        }
+    });
+    let req6 = Request::builder()
+        .uri("/api/v1/calculate-liability")
+        .method("POST")
+        .header(header::CONTENT_TYPE, "application/json")
+        .body(Body::from(serde_json::to_vec(&payload_wal_over).unwrap()))
+        .unwrap();
+    let res6 = app.clone().oneshot(req6).await.unwrap();
+    assert_eq!(res6.status(), StatusCode::OK);
+    let body6: Value = serde_json::from_str(&body_to_string(res6.into_body()).await).unwrap();
+    assert!(body6["annual_billing_segments"][0]["itemized_reliefs"].as_array().unwrap().is_empty());
+
+    // 7. SCO-RHL-2024/25-ISLANDS: Scotland 2024/25 Island hospitality property (100% relief capped at £110k)
+    let payload_sco_2024 = serde_json::json!({
+        "party_type": "CORPORATE",
+        "occupation_period": {
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31"
+        },
+        "hereditament": {
+            "jurisdiction": "SCOTLAND",
+            "scat_code": "209",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 40000.0
+                }
+            ]
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": false,
+            "is_rhl_qualifying": true,
+            "is_island_property": true
+        }
+    });
+    let req7 = Request::builder()
+        .uri("/api/v1/calculate-liability")
+        .method("POST")
+        .header(header::CONTENT_TYPE, "application/json")
+        .body(Body::from(serde_json::to_vec(&payload_sco_2024).unwrap()))
+        .unwrap();
+    let res7 = app.clone().oneshot(req7).await.unwrap();
+    assert_eq!(res7.status(), StatusCode::OK);
+    let body7: Value = serde_json::from_str(&body_to_string(res7.into_body()).await).unwrap();
+    let seg7 = &body7["annual_billing_segments"][0];
+    let r7 = seg7["itemized_reliefs"].as_array().unwrap().iter().find(|r| r["relief_code"] == "RHL_SCOTLAND_ISLANDS_2024").expect("Island relief must apply in Scotland 2024/25");
+    assert_eq!(r7["discount_percentage"], 100.0);
+    assert_eq!(seg7["net_segment_payable"], 0.0);
+
+    // 8. SCO-RHL-2025/26-HOSPITALITY: Scotland 2025/26 Hospitality (40% relief for RV <= £51k)
+    let payload_sco_2025 = serde_json::json!({
+        "party_type": "CORPORATE",
+        "occupation_period": {
+            "start_date": "2025-04-01",
+            "end_date": "2026-03-31"
+        },
+        "hereditament": {
+            "jurisdiction": "SCOTLAND",
+            "scat_code": "209",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 40000.0
+                }
+            ]
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": false,
+            "is_rhl_qualifying": true,
+            "is_hospitality_premises": true
+        }
+    });
+    let req8 = Request::builder()
+        .uri("/api/v1/calculate-liability")
+        .method("POST")
+        .header(header::CONTENT_TYPE, "application/json")
+        .body(Body::from(serde_json::to_vec(&payload_sco_2025).unwrap()))
+        .unwrap();
+    let res8 = app.clone().oneshot(req8).await.unwrap();
+    assert_eq!(res8.status(), StatusCode::OK);
+    let body8: Value = serde_json::from_str(&body_to_string(res8.into_body()).await).unwrap();
+    let seg8 = &body8["annual_billing_segments"][0];
+    let r8 = seg8["itemized_reliefs"].as_array().unwrap().iter().find(|r| r["relief_code"] == "RHL_SCOTLAND_HOSPITALITY_2025").expect("Hospitality relief must apply in Scotland 2025/26");
+    assert_eq!(r8["discount_percentage"], 40.0);
+}
+
+

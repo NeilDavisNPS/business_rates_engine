@@ -610,9 +610,9 @@ The in-memory parameter repository and statutory documentation are exposed direc
 
 ## 4. Test Cases Specification & Scenario Fixtures
 
-### Test Suite Overview (159 Passing Integration Tests)
+### Test Suite Overview (160 Passing Integration Tests)
 
-The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **159 automated integration tests**:
+The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **160 automated integration tests**:
 
 - **Suite A: Canonical Multi-Jurisdiction Scenario Fixture Tests (Scenarios 1–11)** ([`tests/integration_tests/suite_a_scenarios.rs`](tests/integration_tests/suite_a_scenarios.rs) — 11 tests):
   - `test_scenario_1_england_sbrr_and_rhl_multi_year` (`scenario_1_sbrr_rhl_england.json`): Multi-year slicing (2025/26 & 2026/27), SBRR linear taper, England 2026/27 RHL expiration verification, and Transitional Relief caps.
@@ -746,7 +746,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_scotland_sbbs_2023_onward_published_thresholds_have_both_tapers`: Validates published SBBS threshold parameters for Scotland 2023/24 onward include 100% full relief band (£0–£12k), 100%->25% linear taper band (£12k–£15k, is_tapered: true), and 25%->0% linear taper band (£15k–£20k, is_tapered: true) under S.S.I. 2023/31 and S.S.I. 2026/68 reg 3(3).
   - `test_scotland_large_business_supplement_and_property_rates_historical`: Validates Scottish Large Business Supplement (LBS) for properties exceeding statutory thresholds (> £35k from 2010/11 to 2016/17; > £51k from 2017/18 to 2019/20) and Intermediate/Higher Property Rates for 2020/21–2022/23 under Local Government (Scotland) Act 1975 s.7B, S.S.I. 2010/38, S.S.I. 2014/40, S.S.I. 2018/76, and S.S.I. 2021/63.
 
-- **Suite H: Cross-Jurisdictional Reliefs, Lifespans, Holiday Lets & Empty Property** ([`tests/integration_tests/suite_h_cross_jurisdictional.rs`](tests/integration_tests/suite_h_cross_jurisdictional.rs) — 23 tests):
+- **Suite H: Cross-Jurisdictional Reliefs, Lifespans, Holiday Lets & Empty Property** ([`tests/integration_tests/suite_h_cross_jurisdictional.rs`](tests/integration_tests/suite_h_cross_jurisdictional.rs) — 24 tests):
   - `test_statutory_heat_network_exemption`: NDRA 2023 s.2 100% heat network discount.
   - `test_heat_network_relief_not_granted_before_1_april_2024`: Proves heat network relief cannot be awarded before 1 April 2024.
   - `test_heat_network_relief_not_granted_on_or_after_1_april_2035`: Proves heat network relief sunsets on 31 March 2035.
@@ -763,6 +763,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_statutory_empty_property_prior_unoccupied_days`: Calculation accounting for prior unoccupied days deducted from statutory allowance (62 exempt days — three calendar months from 2 March).
   - `test_rhl_relief_applies_in_sbrr_taper_band_england_and_wales`: Proves RHL relief applies to net liability after SBRR taper in England and Wales.
   - `test_rhl_cash_cap_enforced_per_financial_year_across_segments`: Validates £110,000 cash cap enforced across all billing segments within the same financial year.
+  - `test_historical_rhl_relief_england_wales_scotland`: Validates historical retail, hospitality and leisure reliefs across England (Expanded Retail Discount 100% in 2020/21; 100% Q1 & 66% Q2-Q4 in 2021/22 under LGFA 1988 s.47; 50% in 2022/23), Wales (100% in 2020/21 & 2021/22 for RV <= £500,000; 50% in 2022/23), and Scotland (100% island hospitality in 2024/25; 40% mainland hospitality in 2025/26 for RV <= £51,000).
   - `test_self_catering_holiday_let_letting_days_test`: Minimum letting days thresholds (70 days Scotland from 2022/23, 70 days England from 2023/24, 70 days pre-2023 / 182 days post-2023 Wales).
   - `test_scotland_self_catering_70_day_letting_test`: Validates Scottish self-catering statutory criteria under S.S.I. 2021/489 (70 days actual let, 140 days available; 60 days let fails and transfers to Council Tax).
   - `test_holiday_let_actual_letting_test_start_dates_england_wales`: Validates letting test start dates (England: 70-day actual letting starts 1 April 2023 under S.I. 2022/217; Wales: 70-day test starts 1 April 2010 under W.S.I. 2010/682).
@@ -803,7 +804,7 @@ To build, verify, and run the project:
 # 1. Compile the Svelte 5 frontend component framework with Vite
 ./build-frontend.sh
 
-# 2. Run the automated test suite (159 integration tests)
+# 2. Run the automated test suite (160 integration tests)
 cargo test --test integration_tests
 
 # 3. Start the HTTP API & Single-Page Application server (default port 8080)

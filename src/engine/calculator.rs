@@ -953,10 +953,20 @@ impl CalculationEngine {
                         }
 
                         // 7. Dynamic Sector Relief (RHL / Food & Drink) resolved from parameter repository tables
+                        // England: LGFA 1988 s.47 (Expanded Retail Discount 2020-2022; RHL Relief 2022-2026)
+                        // Wales: LGFA 1988 s.47 / LGF(W)A 2024 (RLHRR 2020-2026; Food & Drink 2026/27)
+                        // Scotland: Local Government (Financial Provisions) (Scotland) Act 1962 s.4;
+                        // Non-Domestic Rates (Retail, Hospitality and Leisure Relief) (Scotland) Regulations 2026 (S.S.I. 2026/69)
                         let rhl_requested = flags.is_rhl_qualifying || flags.is_food_and_drink;
                         if rhl_requested && segment_relief_total < gross_liability {
                             let eligible_rv = if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND && !flags.is_island_property && !flags.is_scottish_remote_mainland {
-                                rv <= dec!(100000.00)
+                                if win.financial_year == "2025/26" {
+                                    rv <= dec!(51000.00)
+                                } else {
+                                    rv <= dec!(100000.00)
+                                }
+                            } else if req.hereditament.jurisdiction == Jurisdiction::WALES && (win.financial_year == "2020/21" || win.financial_year == "2021/22") {
+                                rv <= dec!(500000.00)
                             } else {
                                 true
                             };
@@ -967,12 +977,13 @@ impl CalculationEngine {
                                 let is_hospitality = flags.is_hospitality_premises
                                     || (req.hereditament.jurisdiction == Jurisdiction::SCOTLAND && (req.hereditament.scat_code.trim() == "209" || flags.is_food_and_drink));
 
-                                if let Some(sec) = self.repo.resolve_sector_relief(
+                                if let Some(sec) = self.repo.resolve_sector_relief_for_date(
                                     req.hereditament.jurisdiction,
                                     &win.financial_year,
                                     true,
                                     is_island,
                                     is_hospitality,
+                                    Some(win.period.start_date),
                                 ) {
                                     let qualifies = match req.hereditament.jurisdiction {
                                         Jurisdiction::SCOTLAND => {

@@ -748,13 +748,30 @@ impl ParameterRepository {
         is_island: bool,
         is_hospitality: bool,
     ) -> Option<SectorReliefResolution> {
+        self.resolve_sector_relief_for_date(jurisdiction, financial_year, is_rhl, is_island, is_hospitality, None)
+    }
+
+    pub fn resolve_sector_relief_for_date(
+        &self,
+        jurisdiction: Jurisdiction,
+        financial_year: &str,
+        is_rhl: bool,
+        is_island: bool,
+        is_hospitality: bool,
+        date: Option<NaiveDate>,
+    ) -> Option<SectorReliefResolution> {
         if !is_rhl {
             return None;
         }
 
-        let record = self.sector_reliefs.iter().find(|s| {
+        let mut matches: Vec<&ParamSectorRelief> = self.sector_reliefs.iter().filter(|s| {
             if s.jurisdiction != jurisdiction || s.financial_year != financial_year {
                 return false;
+            }
+            if let Some(d) = date {
+                if d < s.effective_from || d > s.effective_to {
+                    return false;
+                }
             }
             if jurisdiction == Jurisdiction::SCOTLAND {
                 if is_island {
@@ -767,18 +784,34 @@ impl ParameterRepository {
             } else {
                 s.relief_code.starts_with("RHL")
             }
-        })?;
+        }).collect();
+
+        // Sort by effective_from so if date is None, latest applies
+        matches.sort_by_key(|s| s.effective_from);
+        let record = matches.last().copied()?;
 
         let authority = match jurisdiction {
-            Jurisdiction::ENGLAND => "LGFA 1988 s.47".to_string(),
+            Jurisdiction::ENGLAND => {
+                if financial_year == "2020/21" || financial_year == "2021/22" {
+                    "LGFA 1988 s.47 (Expanded Retail Discount)".to_string()
+                } else {
+                    "LGFA 1988 s.47".to_string()
+                }
+            }
             Jurisdiction::WALES => "LGFA 1988 s.47 / LGF(W)A 2024".to_string(),
             Jurisdiction::SCOTLAND => {
-                if is_island {
-                    "Non-Domestic Rates (Retail, Hospitality and Leisure Relief) (Scotland) Regs 2026 (SSI 2026/69) reg. 5 / SSI 2026/135 / Islands (Scotland) Act 2018".to_string()
-                } else if is_hospitality {
-                    "Non-Domestic Rates (Retail, Hospitality and Leisure Relief) (Scotland) Regs 2026 (SSI 2026/69) reg. 4A / SSI 2026/135".to_string()
+                if financial_year >= "2026/27" {
+                    if is_island {
+                        "Non-Domestic Rates (Retail, Hospitality and Leisure Relief) (Scotland) Regs 2026 (SSI 2026/69) reg. 5 / SSI 2026/135 / Islands (Scotland) Act 2018".to_string()
+                    } else if is_hospitality {
+                        "Non-Domestic Rates (Retail, Hospitality and Leisure Relief) (Scotland) Regs 2026 (SSI 2026/69) reg. 4A / SSI 2026/135".to_string()
+                    } else {
+                        "Non-Domestic Rates (Retail, Hospitality and Leisure Relief) (Scotland) Regs 2026 (SSI 2026/69) reg. 4".to_string()
+                    }
+                } else if is_island {
+                    "Islands (Scotland) Act 2018 / Local Government (Financial Provisions) (Scotland) Act 1962 s.4".to_string()
                 } else {
-                    "Non-Domestic Rates (Retail, Hospitality and Leisure Relief) (Scotland) Regs 2026 (SSI 2026/69) reg. 4".to_string()
+                    "Local Government (Financial Provisions) (Scotland) Act 1962 s.4 / Scottish Budget".to_string()
                 }
             }
         };
@@ -1319,21 +1352,42 @@ impl RepoData {
             });
         };
 
-        // England Retail, Hospitality & Leisure Relief (RHL)
+        // England Retail, Hospitality & Leisure Relief (RHL) / Expanded Retail Discount
+        // 2020/21: Expanded Retail Discount 100% (no cash cap) under LGFA 1988 s.47
+        // 2021/22: 100% up to 30 June 2021, 66% with £105,000 cash cap from 1 July 2021 to 31 March 2022
+        // 2022/23: 50% with £110,000 cash cap
+        // 2023/24 - 2024/25: 75% with £110,000 cash cap
+        // 2025/26: 40% with £110,000 cash cap
         // Ceased on 31 March 2026; no percentage relief in 2026/27 (replaced by lower high-street multipliers)
+        add("sec_eng_rhl_2020", "2020/21", Jurisdiction::ENGLAND, "RHL_2020", dec!(100.00), None, "2020-04-01", "2021-03-31");
+        add("sec_eng_rhl_2021_q1", "2021/22", Jurisdiction::ENGLAND, "RHL_2021_Q1", dec!(100.00), None, "2021-04-01", "2021-06-30");
+        add("sec_eng_rhl_2021_q2_4", "2021/22", Jurisdiction::ENGLAND, "RHL_2021_Q2_4", dec!(66.00), Some(dec!(105000.00)), "2021-07-01", "2022-03-31");
+        add("sec_eng_rhl_2022", "2022/23", Jurisdiction::ENGLAND, "RHL_2022", dec!(50.00), Some(dec!(110000.00)), "2022-04-01", "2023-03-31");
         add("sec_eng_rhl_2023", "2023/24", Jurisdiction::ENGLAND, "RHL_2023", dec!(75.00), Some(dec!(110000.00)), "2023-04-01", "2024-03-31");
         add("sec_eng_rhl_2024", "2024/25", Jurisdiction::ENGLAND, "RHL_2024", dec!(75.00), Some(dec!(110000.00)), "2024-04-01", "2025-03-31");
         add("sec_eng_rhl_2025", "2025/26", Jurisdiction::ENGLAND, "RHL_2025", dec!(40.00), Some(dec!(110000.00)), "2025-04-01", "2026-03-31");
 
         // Wales Retail, Leisure & Hospitality
+        // 2020/21 & 2021/22: 100% relief for qualifying properties with RV <= £500,000 under LGFA 1988 s.47
+        // 2022/23: 50% relief capped at £110,000
+        // 2023/24: 75% relief capped at £110,000
+        // 2024/25 - 2025/26: 40% relief capped at £110,000
         // 2026/27 transitions to 15% Food and Drink Hospitality scheme (capped at £110k)
+        add("sec_wal_rhl_2020", "2020/21", Jurisdiction::WALES, "RHL_WALES_2020", dec!(100.00), None, "2020-04-01", "2021-03-31");
+        add("sec_wal_rhl_2021", "2021/22", Jurisdiction::WALES, "RHL_WALES_2021", dec!(100.00), None, "2021-04-01", "2022-03-31");
+        add("sec_wal_rhl_2022", "2022/23", Jurisdiction::WALES, "RHL_WALES_2022", dec!(50.00), Some(dec!(110000.00)), "2022-04-01", "2023-03-31");
         add("sec_wal_rhl_2023", "2023/24", Jurisdiction::WALES, "RHL_WALES_2023", dec!(75.00), Some(dec!(110000.00)), "2023-04-01", "2024-03-31");
         add("sec_wal_rhl_2024", "2024/25", Jurisdiction::WALES, "RHL_WALES_2024", dec!(40.00), Some(dec!(110000.00)), "2024-04-01", "2025-03-31");
         add("sec_wal_rhl_2025", "2025/26", Jurisdiction::WALES, "RHL_WALES_2025", dec!(40.00), Some(dec!(110000.00)), "2025-04-01", "2026-03-31");
         add("sec_wal_rhl_2026", "2026/27", Jurisdiction::WALES, "RHL_WALES_2026", dec!(15.00), Some(dec!(110000.00)), "2026-04-01", "2027-03-31");
 
         // Scotland Retail, Hospitality & Leisure Relief
+        // 2024/25: 100% island hospitality relief (cap £110k)
+        // 2025/26: 40% mainland hospitality (RV <= £51,000, cap £110k) or 100% on islands (cap £110k)
         // 2026/27: 15% mainland retail/leisure (RV <= £100k), 40% hospitality (RV <= £100k), or 100% on islands/remote mainland, £110k cap
+        add("sec_sco_rhl_islands_2024", "2024/25", Jurisdiction::SCOTLAND, "RHL_SCOTLAND_ISLANDS_2024", dec!(100.00), Some(dec!(110000.00)), "2024-04-01", "2025-03-31");
+        add("sec_sco_rhl_hospitality_2025", "2025/26", Jurisdiction::SCOTLAND, "RHL_SCOTLAND_HOSPITALITY_2025", dec!(40.00), Some(dec!(110000.00)), "2025-04-01", "2026-03-31");
+        add("sec_sco_rhl_islands_2025", "2025/26", Jurisdiction::SCOTLAND, "RHL_SCOTLAND_ISLANDS_2025", dec!(100.00), Some(dec!(110000.00)), "2025-04-01", "2026-03-31");
         add("sec_sco_rhl_mainland_2026", "2026/27", Jurisdiction::SCOTLAND, "RHL_SCOTLAND_MAINLAND_2026", dec!(15.00), Some(dec!(110000.00)), "2026-04-01", "2027-03-31");
         add("sec_sco_rhl_hospitality_2026", "2026/27", Jurisdiction::SCOTLAND, "RHL_SCOTLAND_HOSPITALITY_2026", dec!(40.00), Some(dec!(110000.00)), "2026-04-01", "2027-03-31");
         add("sec_sco_rhl_islands_2026", "2026/27", Jurisdiction::SCOTLAND, "RHL_SCOTLAND_ISLANDS_2026", dec!(100.00), Some(dec!(110000.00)), "2026-04-01", "2027-03-31");
