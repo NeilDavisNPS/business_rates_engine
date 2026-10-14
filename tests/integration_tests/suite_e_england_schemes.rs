@@ -667,3 +667,43 @@ async fn test_sector_relief_england_2025_vs_2026() {
     assert!(!seg2.itemized_reliefs.iter().any(|r| r.relief_code.starts_with("RHL")),
         "Expected NO RHL relief in England 2026/27");
 }
+
+#[test]
+fn test_england_multiplier_2025_26_standard_is_0555() {
+    // Reproduction for Issue #48
+    // LGFA 1988 Sched 7 para A4 & S.I. 2024/1321:
+    // Small business multiplier is frozen at 49.9p (0.499).
+    // Standard multiplier is uprated by CPI (1.7%) from 0.546 to 0.555 (55.5p).
+    let engine = CalculationEngine::new(business_rates_engine::db::repository::ParameterRepository::new_seeded());
+    let json = serde_json::json!({
+        "party_type": "CORPORATE",
+        "occupation_period": {
+            "start_date": "2025-04-01",
+            "end_date": "2026-03-31"
+        },
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "091",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2023-04-01",
+                    "effective_to": null,
+                    "rateable_value": 60000.00
+                }
+            ]
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": false
+        }
+    });
+
+    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+    let resp = engine.calculate(request);
+    let seg = &resp.annual_billing_segments[0];
+    assert_eq!(seg.multiplier_used.rate, dec!(0.555));
+    assert_eq!(seg.multiplier_used.multiplier_type, "STANDARD");
+    assert_eq!(seg.gross_liability, dec!(33300.00));
+}
+
+

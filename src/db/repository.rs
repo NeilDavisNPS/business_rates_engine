@@ -878,7 +878,7 @@ impl RepoData {
 
         // 2025/26
         add("m_eng_sm_2025", "2025/26", Jurisdiction::ENGLAND, "SMALL_BUSINESS", dec!(0.00), Some(dec!(51000.00)), dec!(0.499), "2025-04-01", "2026-03-31");
-        add("m_eng_st_2025", "2025/26", Jurisdiction::ENGLAND, "STANDARD", dec!(51000.01), None, dec!(0.546), "2025-04-01", "2026-03-31");
+        add("m_eng_st_2025", "2025/26", Jurisdiction::ENGLAND, "STANDARD", dec!(51000.01), None, dec!(0.555), "2025-04-01", "2026-03-31");
         add("m_wal_2025", "2025/26", Jurisdiction::WALES, "STANDARD", dec!(0.00), None, dec!(0.568), "2025-04-01", "2026-03-31");
         add("m_sco_b_2025", "2025/26", Jurisdiction::SCOTLAND, "BASIC", dec!(0.00), Some(dec!(51000.00)), dec!(0.498), "2025-04-01", "2026-03-31");
         add("m_sco_i_2025", "2025/26", Jurisdiction::SCOTLAND, "INTERMEDIATE", dec!(51000.01), Some(dec!(100000.00)), dec!(0.545), "2025-04-01", "2026-03-31");
