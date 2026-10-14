@@ -302,6 +302,18 @@
           "url": "https://www.legislation.gov.uk/uksi/2008/386/contents/made",
           "title": "Rheoliadau Ardrethu Annomestig (Eiddo Heb ei Feddiannu) (Lloegr) 2008",
           "primary": false
+        },
+        {
+          "key": "OS 2024/22 (Rhyddhad Gwella)",
+          "url": "https://www.legislation.gov.uk/uksi/2024/22/contents/made",
+          "title": "Rheoliadau Ardrethu Annomestig (Rhyddhad Gwella) (Lloegr) 2024 (O.S. 2024/22)",
+          "primary": false
+        },
+        {
+          "key": "OS 2022/1263 (Rhyddhad Trosiannol)",
+          "url": "https://www.legislation.gov.uk/uksi/2022/1263/contents/made",
+          "title": "Rheoliadau Ardrethu Annomestig (Symiau y Gellir eu Codi) (Lloegr) 2022 (O.S. 2022/1263)",
+          "primary": false
         }
       ],
       "currentRegimeSummary": {
@@ -345,12 +357,12 @@
             "desc": "Yn capio codiadau biliau net blynyddol ar £600/blwyddyn ar gyfer 2023–2026, ac £800/blwyddyn ar gyfer 2026/27 o dan a.47."
           },
           {
-            "title": "Dileu Capiau tuag i Lawr",
-            "desc": "Capiau rhyddhad trosiannol tuag i lawr wedi'u diddymu'n barhaol o 2023/24; capiau pontio tuag i fyny yn unig o dan a.57A."
+            "title": "Dileu Capiau ar i Lawr",
+            "desc": "Capiau rhyddhad trosiannol ar i lawr wedi'u diddymu'n barhaol o 2023/24; capiau pontio ar i fyny yn unig o dan a.57A ac O.S. 2022/1263."
           },
           {
             "title": "Eithriadau wedi'u Targedu",
-            "desc": "Rhyddhad Gwella 100% am 12 mis (NDRA 2023 a.1 Ffactor-G), Rhwydweithiau Gwres Carbon Isel 100% (a.2), Rhyddhad Toiledau Cyhoeddus 100%."
+            "desc": "Rhyddhad Gwella 100% am 12 mis (NDRA 2023 a.1 a ffactor G O.S. 2024/22), Rhwydweithiau Gwres Carbon Isel 100% (a.2), Rhyddhad Toiledau Cyhoeddus 100%."
           }
         ]
       },
@@ -418,18 +430,18 @@
         {
           "list": "Rhestr 2023",
           "years": "2023/24 – 2025/26",
-          "multipliers": "Lluosyddion datgysylltiedig o dan NDRA 2023. Lluosydd Busnesau Bach wedi'i rewi ar 49.9c; Safonol 51.2c yn codi i 54.6c",
+          "multipliers": "Lluosyddion datgysylltiedig o dan NDRA 2023. Lluosydd Busnesau Bach wedi'i rewi ar 49.9c; Safonol 51.2c (2023/24) yn codi i 54.6c (2024/25 a 2025/26)",
           "sbrr": "100% hyd at £12k GA; rhyddhad RHL 75% yn 2023–2025, 40% yn 2025/26 (cap £110k). SSBR yn capio biliau ar £600/blwyddyn.",
-          "transition": "Capiau pontio tuag i lawr wedi'u diddymu'n barhaol (arbedion ar unwaith ar gyfer gostyngiadau GA). Capiau cynnydd yn unig.",
-          "statute": "NDRA 2023 / O.S. 2022/1239"
+          "transition": "Capiau pontio ar i lawr wedi'u diddymu'n barhaol (arbedion ar unwaith ar gyfer gostyngiadau GA). Capiau ar i fyny yn unig o dan O.S. 2022/1263.",
+          "statute": "NDRA 2023 / O.S. 2022/1263"
         },
         {
           "list": "Rhestr 2026",
           "years": "2026/27 – 2028/29",
           "multipliers": "5 Lluosydd: Busnes Bach RHL (38.2c), Safonol RHL (43.0c), Bach Di-RHL (43.2c), Safonol Di-RHL (48.0c), Gwerth Uchel (50.8c)",
           "sbrr": "Lluosyddion stryd fawr is parhaol yn disodli rhyddhad RHL dros dro. 100% SBRR hyd at £12k GA. Cap SSBR £800 yn 2026/27.",
-          "transition": "Capiau pontio cynnydd; Rhyddhad Gwella 12 mis (100% Ffactor-G); eithriad Rhwydweithiau Gwres 100%",
-          "statute": "NDRA 2023 / Rhestrau Ardrethu 2026"
+          "transition": "Capiau trosiannol ar i fyny; Rhyddhad Gwella 12 mis (ffactor G 100% o dan O.S. 2024/22); eithriad Rhwydweithiau Gwres 100%",
+          "statute": "NDRA 2023 / O.S. 2024/22 / Rhestrau Ardrethu 2026"
         }
       ]
     },
@@ -465,6 +477,18 @@
           "url": "https://www.legislation.gov.uk/wsi/2022/575/contents/made",
           "title": "Gorchymyn Ardrethu Annomestig (Diffinio Eiddo Domestig) (Cymru) 2022 (O.S.C. 2022/575)",
           "primary": false
+        },
+        {
+          "key": "OSC 2025/214 (Lluosydd 2025/26)",
+          "url": "https://www.legislation.gov.uk/wsi/2025/214/contents/made",
+          "title": "Gorchymyn Ardrethu Annomestig (Lluosydd) (Cymru) 2025 (O.S.C. 2025/214)",
+          "primary": false
+        },
+        {
+          "key": "OSC 2017/1229 (SBRR)",
+          "url": "https://www.legislation.gov.uk/wsi/2017/1229/contents/made",
+          "title": "Gorchymyn Ardrethu Annomestig (Rhyddhad Busnesau Bach) (Cymru) 2017 (O.S.C. 2017/1229)",
+          "primary": false
         }
       ],
       "currentRegimeSummary": {
@@ -491,7 +515,7 @@
         "reliefHighlights": [
           {
             "title": "Rhyddhad Ardrethi Busnesau Bach Cymru",
-            "desc": "100% rhyddhad hyd at £6,000 GA; tapr llinol i £12,000 GA. Cyfyngedig i uchafswm o 2 eiddo fesul trethdalwr fesul awdurdod bilio."
+            "desc": "100% rhyddhad hyd at £6,000 GA; tapr llinol i £12,000 GA (uchafswm o 2 eiddo). Gofal plant cofrestredig 100% i £100k GA; Swyddfa'r Post 100% i £9k GA a 50% i £12k GA o dan O.S.C. 2017/1229."
           },
           {
             "title": "Cyfnodoldeb Trosiannol 2-Flynedd (O.S.C. 2025/1371)",
@@ -499,7 +523,7 @@
           },
           {
             "title": "Rhyddhad Bwyd a Diod a Lletygarwch",
-            "desc": "Gostyngiad o 15% ar gyfer 2026/27 (wedi'i gapio ar £110,000 ar draws Cymru). Eithrir gorsafoedd petrol (SCAT 211) yn benodol."
+            "desc": "Gostyngiad o 15% ar gyfer 2026/27 (wedi'i gapio ar £110,000 ar draws Cymru). Mae gorsafoedd llenwi petrol (SCAT 211) ac eiddo lluosydd manwerthu wedi'u heithrio'n benodol."
           },
           {
             "title": "Fframwaith Gwrth-Osgoi (O.S.C. 2026/43)",
@@ -547,7 +571,7 @@
         {
           "list": "Rhestr 2005",
           "years": "2005/06 – 2009/10",
-          "multipliers": "Cadw Un Lluosydd Cymreig (42.2c yn 2005/06 yn codi i 48.5c yn 2009/10)",
+          "multipliers": "Cadw Un Lluosydd Cymreig (42.1c yn 2005/06 yn codi i 48.9c yn 2009/10)",
           "sbrr": "Cyflwyno SBRR Bandiedig Cymreig: 50% rhyddhad am GA ≤ £2,000; 25% rhyddhad am GA £2,001–£5,000",
           "transition": "Cynllun pontio datganoledig. Diddymodd Deddf Ardrethu (Eiddo Gwag) 2007 ardrethi gwag 50% ar 1 Ebrill 2008",
           "statute": "O.S.C. 2005/257 / Deddf 2007"
@@ -571,16 +595,16 @@
         {
           "list": "Rhestr 2023",
           "years": "2023/24 – 2025/26",
-          "multipliers": "Lluosydd Cymru (53.5c yn 2023/24, 56.2c yn 2024/25 a 2025/26)",
-          "sbrr": "100% hyd at £6k GA, tapr i £12k GA. Rhyddhad dros dro Manwerthu, Hamdden a Lletygarwch Cymru: 75% yn 2023/24, 40% yn 2024/25 a 2025/26 (cap £110k).",
+          "multipliers": "Lluosydd Cymru (53.5c yn 2023/24, 56.2c yn 2024/25, 56.8c yn 2025/26 o dan O.S.C. 2025/214)",
+          "sbrr": "100% hyd at £6k GA, tapr i £12k GA. Rhyddhad dros dro Manwerthu, Hamdden a Lletygarwch Cymru: 75% yn 2023/24, 40% yn 2024/25 a 2025/26 (cap £110k). Gofal Plant 100% i £100k GA; Swyddfa Bost 100%/50%.",
           "transition": "Cynllun rhyddhad trosiannol 2-flynedd o dan O.S.C. 2022/1350 yn capio codiadau biliau net",
-          "statute": "LGFA 1988 / O.S.C. 2022/1350"
+          "statute": "LGFA 1988 / O.S.C. 2022/1350 / O.S.C. 2025/214"
         },
         {
           "list": "Rhestr 2026",
           "years": "2026/27 – 2028/29",
           "multipliers": "3 Lluosydd o dan LGF(W)A 2024: Lluosydd Manwerthu (35.0c am GA ≤ £51k), Safonol (50.2c ≤ £100k), Uwch (51.5c > £100k)",
-          "sbrr": "100% hyd at £6k GA, tapr i £12k GA. Rhyddhad Lletygarwch Bwyd a Diod 15% (eithrir gorsafoedd petrol).",
+          "sbrr": "100% hyd at £6k GA, tapr i £12k GA. Rhyddhad Lletygarwch Bwyd a Diod 15% (gorsafoedd petrol a lluosydd manwerthu wedi'u heithrio).",
           "transition": "Cynllun TR 2-flynedd o dan O.S.C. 2025/1371 (67% Blwyddyn 1, 34% Blwyddyn 2 dros £300). Gwrth-osgoi O.S.C. 2026/43 (ailosod 180 diwrnod).",
           "statute": "LGF(W)A 2024 (dccc 6) / O.S.C. 2025/1371 / O.S.C. 2026/43"
         }
@@ -624,41 +648,59 @@
           "url": "https://www.legislation.gov.uk/ssi/2010/336/contents/made",
           "title": "Rheoliadau Ardrethi Annomestig (Rhyddhad Cynhyrchu Ynni Adnewyddadwy) (Yr Alban) 2010",
           "primary": false
+        },
+        {
+          "key": "OSA 2026/39 ac 2026/68 (Cyfraddau ac SBBS 2026)",
+          "url": "https://www.legislation.gov.uk/ssi/2026/39/contents/made",
+          "title": "Rheoliadau Ardrethi Annomestig (Codi a Gosod Cyfraddau a Rhyddhad) (Yr Alban) 2026 (O.S.A. 2026/39 ac O.S.A. 2026/68)",
+          "primary": false
+        },
+        {
+          "key": "OSA 2026/69 ac 2026/135 (RHL a Lletygarwch)",
+          "url": "https://www.legislation.gov.uk/ssi/2026/69/contents/made",
+          "title": "Rheoliadau Ardrethi Annomestig (Rhyddhad ar gyfer Manwerthu, Lletygarwch a Hamdden) (Yr Alban) 2026 (O.S.A. 2026/69 ac O.S.A. 2026/135)",
+          "primary": false
+        },
+        {
+          "key": "OSA 2026/70 (Rhyddhad Trosiannol 2026)",
+          "url": "https://www.legislation.gov.uk/ssi/2026/70/contents/made",
+          "title": "Rheoliadau Ardrethi Annomestig (Rhyddhad Trosiannol) (Yr Alban) 2026 (O.S.A. 2026/70)",
+          "primary": false
         }
       ],
       "currentRegimeSummary": {
         "frameworkTitle": "Trefn Gyfredol ac i Ddod (2023–2027)",
         "frameworkSub": "Deddf Llywodraeth Leol (Yr Alban) 1975 a Deddf Ardrethi Annomestig (Yr Alban) 2020",
-        "multiplierTitle": "System Bwndiant Tair-Haen (Cyfraddau Datgysylltiedig Adolygiad Barclay):",
+        "multiplierTitle": "System Bwndiant Tair-Haen 2026/27 (O.S.A. 2026/39):",
         "multipliers": [
           {
             "label": "Cyfradd Eiddo Sylfaenol (BPR)",
-            "rate": "49.8c",
+            "rate": "48.1c",
             "rvThreshold": "GA ≤ £51,000"
           },
           {
             "label": "Cyfradd Eiddo Canolraddol",
-            "rate": "54.5c",
+            "rate": "53.5c",
             "rvThreshold": "GA £51,001 i £100,000"
           },
           {
             "label": "Cyfradd Eiddo Uwch (HPR)",
-            "rate": "55.9c",
+            "rate": "54.8c",
             "rvThreshold": "GA > £100,000"
           }
         ],
         "reliefHighlights": [
           {
             "title": "Cynllun Bonws Busnesau Bach (SBBS)",
-            "desc": "100% rhyddhad am GA ≤ £12,000; taprau haenog: 100% i 25% am GA £12,001–£15,000; 25% i 0% am GA £15,001–£20,000; cap cronnus £35,000 ar draws sawl eiddo."
+            "desc": "100% rhyddhad am GA ≤ £12,000; taprau haenog: 100% i 25% am GA £12,001–£15,000; 25% i 0% am GA £15,001–£20,000; cap cronnus £35,000 ar draws sawl eiddo (meysydd parcio, siopau betio, benthycwyr diwrnod cyflog wedi'u heithrio o dan O.S.A. 2023/30 ac O.S.A. 2026/68)."
           },
           {
-            "title": "Rhyddhad Trosiannol (O.S.A. 2023/45 a 2026/50)",
-            "desc": "TR Cyffredinol ac SBBS TR yn capio codiadau biliau ar £600 (Blwyddyn 1), £1,200 (Blwyddyn 2), £1,800 (Blwyddyn 3), a chap o 25% yn 2026/27."
+            "title": "Rhyddhad Trosiannol (O.S.A. 2023/45 a 2026/70)",
+            "desc": "TR Cyffredinol ac SBBS TR yn capio codiadau biliau ar £600 (Blwyddyn 1), £1,200 (Blwyddyn 2), £1,800 (Blwyddyn 3), a chap o 25% yn 2026/27 o dan O.S.A. 2026/68 ac O.S.A. 2026/70."
           },
           {
             "title": "Manwerthu, Lletygarwch a Hamdden (RHL)",
-            "desc": "Gostyngiad o 15% ar y tir mawr (GA ≤ £100k) neu 100% ar ynysoedd o dan Ddeddf Ynysoedd (Yr Alban) 2018 (cap £110k)."
+            "desc": "Gostyngiad o 40% ar gyfer lletygarwch (tafarndai, bwytai, gwestai) a 15% ar gyfer manwerthu ar y tir mawr (GA ≤ £100k); 100% ar ynysoedd a thir mawr anghysbell o dan O.S.A. 2026/69 ac O.S.A. 2026/135 (cap £110k)."
           },
           {
             "title": "Rhyddhad Cynhyrchu Ynni Adnewyddadwy",
@@ -722,7 +764,7 @@
         {
           "list": "Rhestr 2017",
           "years": "2017/18 – 2022/23",
-          "multipliers": "Datgysylltu Adolygiad Barclay: Sylfaenol (46.6c yn codi i 49.8c), Canolraddol (51.1c), Uwch (52.4c)",
+          "multipliers": "Bwndiant Sylfaenol (46.6c yn 2017/18 yn codi i 49.8c yn 2022/23); Atodiad Busnes Mawr wedi'i gymhwyso i GA > £51k",
           "sbrr": "SBBS 100% rhyddhad hyd at £15,000 GA. Meini prawf diwrnodau gosod llety gwyliau O.S.A. 2022/86 (70 diwrnod gosod gwirioneddol, 140 diwrnod ar gael).",
           "transition": "Rheoliadau rhyddhad trosiannol yr Alban",
           "statute": "O.S.A. 2017/85 / Deddf NDR 2020 / O.S.A. 2022/86"
@@ -730,7 +772,7 @@
         {
           "list": "Rhestr 2023",
           "years": "2023/24 – 2025/26",
-          "multipliers": "Bwndiant 3-Haen: Sylfaenol (49.8c ≤ £51k), Canolraddol (54.5c £51k–£100k), Uwch (55.9c > £100k)",
+          "multipliers": "Bwndiant 3-Haen: Sylfaenol (49.8c ≤ £51k); Canolraddol (51.1c yn 2023/24, 54.5c yn 2024/25 a 2025/26); Uwch (52.4c yn 2023/24, 55.9c yn 2024/25 a 2025/26)",
           "sbrr": "Diwygio SBBS gyda thaprau haenog (100% ≤ £12k, 100% → 25% £12k–£15k, 25% → 0% £15k–£20k; cap cronnus £35k)",
           "transition": "TR Cyffredinol ac SBBS TR o dan O.S.A. 2023/45 yn capio codiadau biliau ar £600 (Blwyddyn 1), £1,200 (Blwyddyn 2), £1,800 (Blwyddyn 3)",
           "statute": "Deddf NDR (Yr Alban) 2020 / O.S.A. 2023/45"
@@ -738,10 +780,10 @@
         {
           "list": "Rhestr 2026",
           "years": "2026/27 – 2028/29",
-          "multipliers": "Bwndiant 3-Haen: Sylfaenol (49.8c ≤ £51k), Canolraddol (54.5c £51k–£100k), Uwch (55.9c > £100k)",
-          "sbrr": "100% SBBS hyd at £12k GA gyda thaprau haenog i £20k GA. Cap codiad bil 25% SBBS TR yn 2026/27 o dan O.S.A. 2026/50. Rhyddhad RHL 15% tir mawr / 100% ynysoedd.",
-          "transition": "Cap 25% SBBS TR; Rhyddhad Cynhyrchu Ynni Adnewyddadwy (hyd at 100% o dan O.S.A. 2010/336)",
-          "statute": "Deddf NDR 2020 / O.S.A. 2026/50 / Deddf Ynysoedd 2018"
+          "multipliers": "Bwndiant 3-Haen: Sylfaenol (48.1c ≤ £51k), Canolraddol (53.5c £51k–£100k), Uwch (54.8c > £100k) o dan O.S.A. 2026/39",
+          "sbrr": "100% SBBS hyd at £12k GA gyda thaprau haenog i £20k GA (cap cronnus £35k o dan O.S.A. 2026/68). 40% lletygarwch / 15% manwerthu / 100% ynysoedd a thir mawr anghysbell.",
+          "transition": "TR Cyffredinol (+15%/+30%/+50% o dan O.S.A. 2026/70); cap TR SBBS 25%; cap llety hunan-ddarpar trwyddedig 15% o dan O.S.A. 2026/135.",
+          "statute": "Deddf NDR 2020 / O.S.A. 2026/39 / O.S.A. 2026/68 / O.S.A. 2026/69 / O.S.A. 2026/70 / O.S.A. 2026/135"
         }
       ]
     }

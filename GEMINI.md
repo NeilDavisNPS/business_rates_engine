@@ -87,6 +87,8 @@ Before committing any changes:
    - Verify key parity across `frontend/src/locales/{en,cy,sco,gd}.json` (no missing keys).
 5. **Documentation & OpenAPI Specification Audit**:
    - Verify that all newly cited legislation, Acts of Parliament, statutory instruments (SIs, SSIs, WSIs), regulations, and new tests are recorded in `business-rates-engine-spec-and-tests.md`.
+   - Verify that all newly identified legislation, statutory instruments, and regulations are added to the country-specific statutory basis information on the sandbox page across `frontend/src/locales/{en,cy,sco,gd}.json`.
+   - Fully review all sections below `legislation` in the statutory framework catalog (`currentRegimeSummary`, `preDevolution`, `ratingLists`) across all 4 locales (`frontend/src/locales/{en,cy,sco,gd}.json`) to ensure ongoing statutory accuracy, complete citations, correct multipliers, relief highlights, and rating list descriptions.
    - Verify that `docs/openapi.json` and `docs/openapi.yaml` accurately document any new domain interface fields, request/response models, or relief flags.
 
 ---
@@ -108,10 +110,14 @@ Whenever investigating, fixing, or resolving an issue raised on GitHub against t
 6. **Review Documentation, Specifications & OpenAPI Interfaces**:
    - Review and update all documentation before committing the fix.
    - Ensure that any citations, legislation, statutory instruments (SIs, SSIs, WSIs), regulations, and newly created tests are added to `business-rates-engine-spec-and-tests.md`.
+   - Where new legislation, statutory instruments, or regulations are identified or updated, ensure they are added to the country-specific statutory basis information on the sandbox page (within the `statutory_framework` catalog across `frontend/src/locales/{en,cy,sco,gd}.json` rendered in `SummaryKpiCards.svelte`), maintaining strict key parity across all 4 languages.
+   - Fully review the information below `legislation` in the statutory framework catalog—including `currentRegimeSummary` (regime subtitles, multiplier architecture grids, relief highlights), `preDevolution` (era narrative and historical rules), and `ratingLists` (multipliers, SBRR rules, transition rules, and statutory authorities)—to ensure they are still completely correct and accurately reflect any newly added or amended statutory provisions, multipliers, relief qualifications, or exclusions.
    - Ensure the OpenAPI documents (`docs/openapi.json` and `docs/openapi.yaml`) are updated synchronously with any changes to the interfaces, data models, or relief flags.
 7. **Run Full Test Suite (Zero Regressions)**:
    - Run the complete test suite (`cargo test`, `cargo clippy --all-targets -- -D warnings`, `npm run check`, `npm run build`) to confirm there are no regression issues.
 8. **Commit the Fix Referencing the Issue**:
    - Commit the fix referencing the GitHub issue number in the commit message (e.g. `fix: ... (fixes #123)`). Always obtain explicit user confirmation before committing.
-9. **Batched Push Policy**:
+9. **Update GitHub Issue with Fix Analysis**:
+   - Update the GitHub issue with a clear, comprehensive analysis of the fix done, explaining the statutory/legislative context, the reproducing test case, the implementation details, the documentation/OpenAPI updates, and verification results.
+10. **Batched Push Policy**:
    - If multiple issues are being fixed in a batch or session, commit each fix individually, but only push to GitHub once ALL of the targeted issues have been completely fixed and verified.

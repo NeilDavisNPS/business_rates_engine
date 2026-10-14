@@ -302,6 +302,18 @@
           "url": "https://www.legislation.gov.uk/uksi/2008/386/contents/made",
           "title": "Riaghailtean Reataichean Neo-Dhachaigheil (Togalaichean Neo-Oifigeil) (Sasainn) 2008",
           "primary": false
+        },
+        {
+          "key": "SI 2024/22 (Faochadh Leasachaidh)",
+          "url": "https://www.legislation.gov.uk/uksi/2024/22/contents/made",
+          "title": "Riaghailtean Reataichean Neo-Dhachaigheil (Faochadh Leasachaidh) (Sasainn) 2024 (S.I. 2024/22)",
+          "primary": false
+        },
+        {
+          "key": "SI 2022/1263 (Faochadh Gluasaid)",
+          "url": "https://www.legislation.gov.uk/uksi/2022/1263/contents/made",
+          "title": "Riaghailtean Reataichean Neo-Dhachaigheil (Suimean Ri Phàigheadh) (Sasainn) 2022 (S.I. 2022/1263)",
+          "primary": false
         }
       ],
       "currentRegimeSummary": {
@@ -346,11 +358,11 @@
           },
           {
             "title": "Cur às do Chrìochan Lùghdachaidh",
-            "desc": "Crìochan faochadh eadar-amail lùghdachaidh air an cur às gu maireannach bho 2023/24; crìochan àrdachaidh a-mhàin fo e.57A."
+            "desc": "Crìochan faochadh gluasaid lùghdachaidh air an cur às gu buan bho 2023/24; crìochan àrdachaidh a-mhàin fo e.57A & S.I. 2022/1263."
           },
           {
             "title": "Saoraidhean Cuimsichte",
-            "desc": "Faochadh Leasachaidh 100% airson 12 mìosan (NDRA 2023 e.1 Factar-G), Lìonraidhean Teas Carbon-Iosal 100% (e.2), Faochadh Taighean-beaga Poblach 100%."
+            "desc": "Faochadh Leasachaidh 100% airson 12 mìosan (NDRA 2023 e.1 & factar G S.I. 2024/22), Lìonraidhean Teas Carboin Ìosal 100% (e.2), Faochadh Taighean-beaga Poblach 100%."
           }
         ]
       },
@@ -418,18 +430,18 @@
         {
           "list": "Liosta 2023",
           "years": "2023/24 – 2025/26",
-          "multipliers": "Iomadachaidhean neo-cheangailte fo NDRA 2023. Gnìomhachas Beag air a reothadh aig 49.9sg; Coitcheann 51.2sg ag èirigh gu 54.6sg",
+          "multipliers": "Iomadachaidhean neo-cheangailte fo NDRA 2023. Iomadachaidh Gnìomhachais Bhig air a reothadh aig 49.9sg; Coitcheann 51.2sg (2023/24) ag èirigh gu 54.6sg (2024/25 & 2025/26)",
           "sbrr": "100% suas gu £12k LR; faochadh RHL 75% ann an 2023–2025, 40% ann an 2025/26 (crìoch £110k). SSBR a' cur crìoch air bilean aig £600/bliadhna.",
-          "transition": "Crìochan lùghdachaidh air an cur às gu maireannach. Crìochan àrdachaidh a-mhàin.",
-          "statute": "NDRA 2023 / S.I. 2022/1239"
+          "transition": "Crìochan gluasaid lùghdachaidh air an cur às gu buan (sàbhalaidhean sa bhad airson tuiteam ann an LR). Crìochan àrdachaidh a-mhàin fo S.I. 2022/1263.",
+          "statute": "NDRA 2023 / S.I. 2022/1263"
         },
         {
           "list": "Liosta 2026",
           "years": "2026/27 – 2028/29",
           "multipliers": "5 Iomadachaidhean: Gnìomhachas Beag RHL (38.2sg), Coitcheann RHL (43.0sg), Beag Neo-RHL (43.2sg), Coitcheann Neo-RHL (48.0sg), Àrd-Luach (50.8sg)",
           "sbrr": "Iomadachaidhean prìomh shràid nas ìsle maireannach a' dol an àite faochadh RHL sealach. 100% SBRR suas gu £12k LR. Crìoch SSBR £800 ann an 2026/27.",
-          "transition": "Crìochan eadar-amail àrdachaidh; Faochadh Leasachaidh 12 mìosan (100% Factar-G); saoradh Lìonraidhean Teas 100%",
-          "statute": "NDRA 2023 / Liostaichean Reataichean 2026"
+          "transition": "Crìochan eadar-amail àrdachaidh; Faochadh Leasachaidh 12 mìosan (factar G 100% fo S.I. 2024/22); saoradh Lìonraidhean Teas 100%",
+          "statute": "NDRA 2023 / S.I. 2024/22 / Liostaichean Reataichean 2026"
         }
       ]
     },
@@ -465,6 +477,18 @@
           "url": "https://www.legislation.gov.uk/wsi/2022/575/contents/made",
           "title": "Òrdugh Reataichean Neo-Dhachaigheil (Mìneachadh air Togalach Dachaigheil) (A' Chuimrigh) 2022 (W.S.I. 2022/575)",
           "primary": false
+        },
+        {
+          "key": "WSI 2025/214 (Iomadachaidh 2025/26)",
+          "url": "https://www.legislation.gov.uk/wsi/2025/214/contents/made",
+          "title": "Òrdugh Reataichean Neo-Dhachaigheil (Iomadachaidh) (A' Chuimrigh) 2025 (W.S.I. 2025/214)",
+          "primary": false
+        },
+        {
+          "key": "WSI 2017/1229 (SBRR)",
+          "url": "https://www.legislation.gov.uk/wsi/2017/1229/contents/made",
+          "title": "Òrdugh Reataichean Neo-Dhachaigheil (Faochadh Gnìomhachais Bhig) (A' Chuimrigh) 2017 (W.S.I. 2017/1229)",
+          "primary": false
         }
       ],
       "currentRegimeSummary": {
@@ -491,7 +515,7 @@
         "reliefHighlights": [
           {
             "title": "Faochadh Reataichean Gnìomhachais Bhig na Cuimrigh",
-            "desc": "100% faochadh suas gu £6,000 LR; teip loidhneach gu £12,000 LR. Cuingealaichte ri 2 thogalach aig a' char as àirde gach neach-pàighidh reata gach ùghdarras bileachaidh."
+            "desc": "100% faochadh suas gu £6,000 LR; teip loidhneach gu £12,000 LR (2 thogalach aig a' char as àirde). Cùram chloinne clàraichte 100% gu £100k LR; Oifis a' Phuist 100% gu £9k LR agus 50% gu £12k LR fo W.S.I. 2017/1229."
           },
           {
             "title": "Ìrean Eadar-amail 2 Bhliadhna (W.S.I. 2025/1371)",
@@ -499,7 +523,7 @@
           },
           {
             "title": "Faochadh Aoigheachd Bidhe is Dibhe",
-            "desc": "Lasachadh 15% airson 2026/27 (air a chuingealachadh aig £110,000 air feadh na Cuimrigh). Tha stèiseanan peatrail (SCAT 211) air an dùnadh a-mach gu sònraichte."
+            "desc": "Lasachadh 15% airson 2026/27 (air a chuingealachadh aig £110,000 air feadh na Cuimrigh). Tha stèiseanan peatrail (SCAT 211) agus togalaichean iomadachaidh mion-reic air an dùnadh a-mach gu sònraichte."
           },
           {
             "title": "Frèam An-aghaidh Seachnadh (W.S.I. 2026/43)",
@@ -547,7 +571,7 @@
         {
           "list": "Liosta 2005",
           "years": "2005/06 – 2009/10",
-          "multipliers": "Aon Iomadachaidh Cuimreach air a ghleidheadh (42.2sg ann an 2005/06 ag èirigh gu 48.5sg ann an 2009/10)",
+          "multipliers": "Aon Iomadachaidh Cuimreach air a ghleidheadh (42.1sg ann an 2005/06 ag èirigh gu 48.9sg ann an 2009/10)",
           "sbrr": "SBRR le Còmhlain air a thoirt a-steach: 50% faochadh airson LR ≤ £2,000; 25% airson LR £2,001–£5,000",
           "transition": "Sgeama eadar-amail dì-mheadhanaichte. Chuir Achd 2007 às do 50% reataichean falamh air 1 Giblean 2008",
           "statute": "W.S.I. 2005/257 / Achd 2007"
@@ -571,16 +595,16 @@
         {
           "list": "Liosta 2023",
           "years": "2023/24 – 2025/26",
-          "multipliers": "Iomadachaidh na Cuimrigh (53.5sg ann an 2023/24, 56.2sg ann an 2024/25 & 2025/26)",
-          "sbrr": "100% suas gu £6k LR, teip gu £12k LR. Mion-reic, Cur-seachad & Aoigheachd sealach na Cuimrigh: 75% ann an 2023/24, 40% ann an 2024/25 & 2025/26 (crìoch £110k).",
+          "multipliers": "Iomadachaidh na Cuimrigh (53.5sg ann an 2023/24, 56.2sg ann an 2024/25, 56.8sg ann an 2025/26 fo W.S.I. 2025/214)",
+          "sbrr": "100% suas gu £6k LR, teip gu £12k LR. Mion-reic, Cur-seachad & Aoigheachd sealach na Cuimrigh: 75% ann an 2023/24, 40% ann an 2024/25 & 2025/26 (crìoch £110k). Cùram Chloinne 100% gu £100k LR; Oifis a' Phuist 100%/50%.",
           "transition": "Sgeama faochadh eadar-amail 2 bhliadhna fo W.S.I. 2022/1350 a' cur crìoch air àrdachadh bhilean lìon",
-          "statute": "LGFA 1988 / W.S.I. 2022/1350"
+          "statute": "LGFA 1988 / W.S.I. 2022/1350 / W.S.I. 2025/214"
         },
         {
           "list": "Liosta 2026",
           "years": "2026/27 – 2028/29",
           "multipliers": "3 Iomadachaidhean fo LGF(W)A 2024: Mion-reic (35.0sg airson LR ≤ £51k), Coitcheann (50.2sg ≤ £100k), Nas Àirde (51.5sg > £100k)",
-          "sbrr": "100% suas gu £6k LR, teip gu £12k LR. Faochadh Aoigheachd Bidhe is Dibhe 15% (stèiseanan peatrail air an dùnadh a-mach).",
+          "sbrr": "100% suas gu £6k LR, teip gu £12k LR. Faochadh Aoigheachd Bidhe is Dibhe 15% (stèiseanan peatrail agus iomadachaidh mion-reic air an dùnadh a-mach).",
           "transition": "Sgeama TR 2 bhliadhna fo W.S.I. 2025/1371 (67% Bliadhna 1, 34% Bliadhna 2 os cionn £300). An-aghaidh seachnadh W.S.I. 2026/43 (ath-shuidheachadh 180 latha).",
           "statute": "LGF(W)A 2024 (asc 6) / W.S.I. 2025/1371 / W.S.I. 2026/43"
         }
@@ -624,41 +648,59 @@
           "url": "https://www.legislation.gov.uk/ssi/2010/336/contents/made",
           "title": "Riaghailtean Reataichean Neo-Dhachaigheil (Faochadh Gineadh Lùth Ath-nuadhachail) (Alba) 2010",
           "primary": false
+        },
+        {
+          "key": "SSI 2026/39 & 2026/68 (Reataichean & SBBS 2026)",
+          "url": "https://www.legislation.gov.uk/ssi/2026/39/contents/made",
+          "title": "Riaghailtean Reataichean Neo-Dhachaigheil (Togail agus Suidheachadh Reataichean agus Faochadh) (Alba) 2026 (S.S.I. 2026/39 & S.S.I. 2026/68)",
+          "primary": false
+        },
+        {
+          "key": "SSI 2026/69 & 2026/135 (RHL & Aoigheachd)",
+          "url": "https://www.legislation.gov.uk/ssi/2026/69/contents/made",
+          "title": "Riaghailtean Reataichean Neo-Dhachaigheil (Faochadh airson Mion-reic, Aoigheachd agus Cur-seachad) (Alba) 2026 (S.S.I. 2026/69 & S.S.I. 2026/135)",
+          "primary": false
+        },
+        {
+          "key": "SSI 2026/70 (Faochadh Gluasaid 2026)",
+          "url": "https://www.legislation.gov.uk/ssi/2026/70/contents/made",
+          "title": "Riaghailtean Reataichean Neo-Dhachaigheil (Faochadh Gluasaid) (Alba) 2026 (S.S.I. 2026/70)",
+          "primary": false
         }
       ],
       "currentRegimeSummary": {
         "frameworkTitle": "Rèim Làithreach & Ri Thighinn (2023–2027)",
         "frameworkSub": "Achd Riaghaltas Ionadail (Alba) 1975 & Achd Reataichean Neo-Dhachaigheil (Alba) 2020",
-        "multiplierTitle": "Siostam Punndachd Trì-Ìre (Ìrean Neo-cheangailte Ath-bhreithneachadh Barclay):",
+        "multiplierTitle": "Siostam Punndachd Trì-Ìre 2026/27 (S.S.I. 2026/39):",
         "multipliers": [
           {
             "label": "Ìre Togalach Bunaiteach (BPR)",
-            "rate": "49.8sg",
+            "rate": "48.1sg",
             "rvThreshold": "LR ≤ £51,000"
           },
           {
             "label": "Ìre Togalach Meadhanach",
-            "rate": "54.5sg",
+            "rate": "53.5sg",
             "rvThreshold": "LR £51,001 gu £100,000"
           },
           {
             "label": "Ìre Togalach Nas Àirde (HPR)",
-            "rate": "55.9sg",
+            "rate": "54.8sg",
             "rvThreshold": "LR > £100,000"
           }
         ],
         "reliefHighlights": [
           {
             "title": "Sgeama Bònas Gnìomhachais Bhig (SBBS)",
-            "desc": "100% faochadh airson LR ≤ £12,000; teipichean le sreathan: 100% gu 25% airson LR £12,001–£15,000; 25% gu 0% airson LR £15,001–£20,000; crìoch chruinnichte £35,000 thairis air ioma-thogalaichean."
+            "desc": "100% faochadh airson LR ≤ £12,000; teipichean le sreathan: 100% gu 25% airson LR £12,001–£15,000; 25% gu 0% airson LR £15,001–£20,000; crìoch chruinnichte £35,000 thairis air ioma-thogalaichean (pàirceadh chàraichean, oifisean geall, luchd-iasaid latha pàighidh air an dùnadh a-mach fo S.S.I. 2023/30 agus S.S.I. 2026/68)."
           },
           {
-            "title": "Faochadh Eadar-amail (S.S.I. 2023/45 & 2026/50)",
-            "desc": "TR Coitcheann agus SBBS TR a' cur crìoch air àrdachadh bhilean aig £600 (Bliadhna 1), £1,200 (Bliadhna 2), £1,800 (Bliadhna 3), agus crìoch 25% ann an 2026/27."
+            "title": "Faochadh Eadar-amail (S.S.I. 2023/45 & 2026/70)",
+            "desc": "TR Coitcheann agus SBBS TR a' cur crìoch air àrdachadh bhilean aig £600 (Bliadhna 1), £1,200 (Bliadhna 2), £1,800 (Bliadhna 3), agus crìoch 25% ann an 2026/27 fo S.S.I. 2026/68 agus S.S.I. 2026/70."
           },
           {
             "title": "Mion-reic, Aoigheachd & Cur-seachad (RHL)",
-            "desc": "Lasachadh 15% air tìr-mòr (LR ≤ £100k) no 100% air eileanan fo Achd nan Eilean (Alba) 2018 (crìoch £110k)."
+            "desc": "Lasachadh 40% airson aoigheachd (taighean-seinnse, taighean-bìdh, taighean-òsta) agus 15% airson mion-reic air tìr-mòr (LR ≤ £100k); 100% air eileanan agus tìr-mòr iomallach fo S.S.I. 2026/69 & S.S.I. 2026/135 (crìoch £110k)."
           },
           {
             "title": "Faochadh Gineadh Lùth Ath-nuadhachail",
@@ -722,7 +764,7 @@
         {
           "list": "Liosta 2017",
           "years": "2017/18 – 2022/23",
-          "multipliers": "Dì-cheangal Ath-bhreithneachadh Barclay: Bunaiteach (46.6sg ag èirigh gu 49.8sg), Meadhanach (51.1sg), Nas Àirde (52.4sg)",
+          "multipliers": "Punndachd Bhunaiteach (46.6sg ann an 2017/18 ag èirigh gu 49.8sg ann an 2022/23); Leasachadh Gnìomhachas Mòr air a chur an sàs air LR > £51k",
           "sbrr": "SBBS 100% faochadh suas gu £15,000 LR. Slatan-tomhais latha màil loidseadh saor-làithean S.S.I. 2022/86 (70 latha air màl, 140 latha ri fhaighinn).",
           "transition": "Riaghailtean faochadh eadar-amail na h-Alba",
           "statute": "S.S.I. 2017/85 / Achd NDR 2020 / S.S.I. 2022/86"
@@ -730,7 +772,7 @@
         {
           "list": "Liosta 2023",
           "years": "2023/24 – 2025/26",
-          "multipliers": "Punndachd Trì-Ìre: Bunaiteach (49.8sg ≤ £51k), Meadhanach (54.5sg £51k–£100k), Nas Àirde (55.9sg > £100k)",
+          "multipliers": "Punndachd Trì-Ìre: Bunaiteach (49.8sg ≤ £51k); Meadhanach (51.1sg ann an 2023/24, 54.5sg ann an 2024/25 & 2025/26); Nas Àirde (52.4sg ann an 2023/24, 55.9sg ann an 2024/25 & 2025/26)",
           "sbrr": "SBBS air ath-leasachadh le teipichean le sreathan (100% ≤ £12k, 100% → 25% £12k–£15k, 25% → 0% £15k–£20k; crìoch chruinnichte £35k)",
           "transition": "TR Coitcheann agus SBBS TR fo S.S.I. 2023/45 a' cur crìoch air àrdachadh bhilean aig £600 (Bliadhna 1), £1,200 (Bliadhna 2), £1,800 (Bliadhna 3)",
           "statute": "Achd NDR (Alba) 2020 / S.S.I. 2023/45"
@@ -738,10 +780,10 @@
         {
           "list": "Liosta 2026",
           "years": "2026/27 – 2028/29",
-          "multipliers": "Punndachd Trì-Ìre: Bunaiteach (49.8sg ≤ £51k), Meadhanach (54.5sg £51k–£100k), Nas Àirde (55.9sg > £100k)",
-          "sbrr": "100% SBBS suas gu £12k LR le teipichean le sreathan gu £20k LR. Crìoch àrdachadh bile SBBS TR 25% ann an 2026/27 fo S.S.I. 2026/50. Faochadh RHL 15% tìr-mòr / 100% eileanan.",
-          "transition": "Crìoch SBBS TR 25%; Faochadh Gineadh Lùth Ath-nuadhachail (suas gu 100% fo S.S.I. 2010/336)",
-          "statute": "Achd NDR 2020 / S.S.I. 2026/50 / Achd nan Eilean 2018"
+          "multipliers": "Punndachd Trì-Ìre: Bunaiteach (48.1sg ≤ £51k), Meadhanach (53.5sg £51k–£100k), Nas Àirde (54.8sg > £100k) fo S.S.I. 2026/39",
+          "sbrr": "100% SBBS suas gu £12k LR le teipichean le sreathan gu £20k LR (crìoch chruinnichte £35k fo S.S.I. 2026/68). 40% aoigheachd / 15% mion-reic / 100% eileanan agus tìr-mòr iomallach.",
+          "transition": "TR Coitcheann (+15%/+30%/+50% fo S.S.I. 2026/70); Crìoch SBBS TR 25%; crìoch 15% fèin-frithealaidh ceadaichte fo S.S.I. 2026/135.",
+          "statute": "Achd NDR 2020 / S.S.I. 2026/39 / S.S.I. 2026/68 / S.S.I. 2026/69 / S.S.I. 2026/70 / S.S.I. 2026/135"
         }
       ]
     }
