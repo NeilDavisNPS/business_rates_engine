@@ -1007,38 +1007,43 @@ impl CalculationEngine {
                             discount_percentage: dec!(100.00),
                             amount_deducted: amount,
                         });
-                    } else if cumulative_unoccupied_days < max_exempt_days {
-                        let remaining_exempt_days = (max_exempt_days - cumulative_unoccupied_days).min(win.period.days);
-                        let exempt_ratio = Decimal::from(remaining_exempt_days) / days_dec;
-                        let remaining = chargeable_before_reliefs - segment_relief_total;
-
-                        let relief_fraction = if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND {
-                            dec!(0.50)
-                        } else {
-                            dec!(1.00)
+                    } else {
+                        // Initial period relief, and any relief after it:
+                        // - England / Wales: no rate for the initial period, full rate after (LGFA 1988 s.45)
+                        // - Scotland 2018/19-2022/23 (S.S.I. 2018/77 reg 2): 50% payable for 3 months, then 90%;
+                        //   industrial property pays nothing for 6 months, then 90%
+                        // - Scotland other years: 50% relief for the initial period
+                        let in_ssi_2018_77 = req.hereditament.jurisdiction == Jurisdiction::SCOTLAND
+                            && win.financial_year.as_str() >= "2018/19"
+                            && win.financial_year.as_str() <= "2022/23";
+                        let (first_relief, after_relief) = match req.hereditament.jurisdiction {
+                            Jurisdiction::SCOTLAND if in_ssi_2018_77 => (if is_industrial { dec!(1.00) } else { dec!(0.50) }, dec!(0.10)),
+                            Jurisdiction::SCOTLAND => (dec!(0.50), dec!(0.00)),
+                            _ => (dec!(1.00), dec!(0.00)),
                         };
-                        // England and Wales: no rate for the exempt days, so charge the liable days directly
-                        let amount = if relief_fraction == dec!(1.00) {
-                            let liable_days = Decimal::from(win.period.days - remaining_exempt_days);
-                            let liable = if remaining == gross_liability {
-                                // Daily chargeable amount A x M / C summed over the liable days
-                                ((rv * mult.rate) / year_days_dec * liable_days).round_dp(2)
-                            } else {
-                                (remaining * (dec!(1.00) - exempt_ratio)).round_dp(2)
-                            };
-                            (remaining - liable).max(dec!(0.00))
-                        } else {
-                            (remaining * exempt_ratio * relief_fraction).round_dp(2)
-                        };
+                        let remaining_exempt_days = (max_exempt_days - cumulative_unoccupied_days).clamp(0, win.period.days);
+                        let after_days = win.period.days - remaining_exempt_days;
                         cumulative_unoccupied_days += win.period.days;
+                        let remaining = chargeable_before_reliefs - segment_relief_total;
+                        let payable_days = Decimal::from(remaining_exempt_days) * (dec!(1.00) - first_relief)
+                            + Decimal::from(after_days) * (dec!(1.00) - after_relief);
+                        let payable = if remaining == gross_liability {
+                            // Daily chargeable amount A x M / C over the payable days
+                            ((rv * mult.rate) / year_days_dec * payable_days).round_dp(2)
+                        } else {
+                            (remaining * payable_days / days_dec).round_dp(2)
+                        };
+                        let amount = (remaining - payable).max(dec!(0.00));
                         if amount > dec!(0.00) {
                             segment_relief_total += amount;
                             let empty_name = if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND {
-                                if is_industrial { "Empty Industrial Rate Relief (50% for 6 Months)" } else { "Empty Property Rate Relief (50% for 3 Months)" }
-                            } else {
-                                if is_industrial { "Empty Industrial Rate-Free Period (6 Months)" } else { "Empty Property Rate-Free Period (3 Months)" }
-                            };
-                            let auth = if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND {
+                                if in_ssi_2018_77 {
+                                    if is_industrial { "Empty Industrial Rate Relief (100% for 6 Months, then 10%)" } else { "Empty Property Rate Relief (50% for 3 Months, then 10%)" }
+                                } else if is_industrial { "Empty Industrial Rate Relief (50% for 6 Months)" } else { "Empty Property Rate Relief (50% for 3 Months)" }
+                            } else if is_industrial { "Empty Industrial Rate-Free Period (6 Months)" } else { "Empty Property Rate-Free Period (3 Months)" };
+                            let auth = if in_ssi_2018_77 {
+                                "Local Government (Scotland) Act 1966 s.24 / SSI 2018/77 reg. 2".to_string()
+                            } else if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND {
                                 "Local Government (Scotland) Act 1975 s.7A / SSI 2018/77".to_string()
                             } else {
                                 "LGFA 1988 s.45 / Non-Domestic Rating (Unoccupied Property) Regs".to_string()
@@ -1047,12 +1052,10 @@ impl CalculationEngine {
                                 relief_code: "EMPTY_PROPERTY_EXEMPTION".to_string(),
                                 relief_name: crate::i18n::localize_relief_name(empty_name, lang),
                                 statutory_authority: auth,
-                                discount_percentage: (exempt_ratio * relief_fraction * dec!(100.00)).round_dp(2),
+                                discount_percentage: if remaining > dec!(0.00) { (amount / remaining * dec!(100.00)).round_dp(2) } else { dec!(0.00) },
                                 amount_deducted: amount,
                             });
                         }
-                    } else {
-                        cumulative_unoccupied_days += win.period.days;
                     }
                 }
                 OccupancyType::PART_OCCUPIED => {

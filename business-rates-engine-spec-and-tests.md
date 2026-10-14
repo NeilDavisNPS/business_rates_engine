@@ -107,7 +107,7 @@ The calculation engine's business logic, zero-hardcoding parameter tables, and s
 104: - **Empty Property & Unoccupied Rating**:
 105:   - [**The Non-Domestic Rating (Unoccupied Property) (England) Regulations 2008 (S.I. 2008/386)**](https://www.legislation.gov.uk/uksi/2008/386/contents/made) — 3-month commercial / 6-month industrial rate-free periods; low value exemption below £2,900 RV.
 106:   - [**The Non-Domestic Rating (Unoccupied Property) (Wales) Regulations 2008 (W.S.I. 2008/2499 / W. 217)**](https://www.legislation.gov.uk/wsi/2008/2499/contents/made) — Welsh unoccupied property exemptions and reset rules; low value exemption threshold is **£2,200** RV (Reg 4(g)).
-107:   - [**The Non-Domestic Rates (Unoccupied Property) (Scotland) Regulations 2018 (S.S.I. 2018/77)**](https://www.legislation.gov.uk/ssi/2018/77/contents/made) — Scottish unoccupied property relief rules; £1,700 low RV threshold; 50% discount for first 3 months.
+107:   - [**The Non-Domestic Rates (Unoccupied Property) (Scotland) Regulations 2018 (S.S.I. 2018/77)**](https://www.legislation.gov.uk/ssi/2018/77/contents/made) — Scottish unoccupied property relief rules (2018/19–2022/23): other unoccupied property pays 50% for first 3 months, then 90% (10% relief); industrial property is 100% exempt for first 6 months, then 90% (10% relief) under reg 2; £1,700 low RV threshold.
 108:   - [**The Non-Domestic Rates (Transitional and Consequential Provisions) (Scotland) Regulations 2023 (S.S.I. 2023/44)**](https://www.legislation.gov.uk/ssi/2023/44/contents/made) & [**Non-Domestic Rates (Coronavirus) (Scotland) Act 2022 (asp 10)**](https://www.legislation.gov.uk/asp/2022/10/contents) — Devolving empty property rate relief discretion to Scottish local authorities from 1 April 2023.
 109: - **Retail, Hospitality & Leisure (Scotland 2026/27)**:
 110:   - [**The Non-Domestic Rates (Relief for Retail, Hospitality and Leisure) (Scotland) Regulations 2026 (S.S.I. 2026/69)**](https://www.legislation.gov.uk/ssi/2026/69/contents/made) as amended by [**S.S.I. 2026/135**](https://www.legislation.gov.uk/ssi/2026/135/contents/made):
@@ -577,9 +577,9 @@ The in-memory parameter repository and statutory documentation are exposed direc
 
 ## 4. Test Cases Specification & Scenario Fixtures
 
-### Test Suite Overview (145 Passing Integration Tests)
+### Test Suite Overview (146 Passing Integration Tests)
 
-The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **145 automated integration tests**:
+The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **146 automated integration tests**:
 
 - **Suite A: Canonical Multi-Jurisdiction Scenario Fixture Tests (Scenarios 1–11)** ([`tests/integration_tests/suite_a_scenarios.rs`](tests/integration_tests/suite_a_scenarios.rs) — 11 tests):
   - `test_scenario_1_england_sbrr_and_rhl_multi_year` (`scenario_1_sbrr_rhl_england.json`): Multi-year slicing (2025/26 & 2026/27), SBRR linear taper, England 2026/27 RHL expiration verification, and Transitional Relief caps.
@@ -681,7 +681,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_wales_2010_list_no_transitional_relief`: Confirms Wales operated no general transitional relief in 2010.
   - `test_sbrr_taper_uses_statutory_e_divisor_wales`: Validates Welsh SBRR taper chargeable amount $(A \times M) / E$ where $E = 6000 / (\text{RV} - 6000)$ to 3 decimal places under W.S.I. 2017/1229 art. 11(3).
 
-- **Suite G: Scottish Property Rates, SBBS Tapers, 40% Hospitality & Transitional Relief** ([`tests/integration_tests/suite_g_scotland_schemes.rs`](tests/integration_tests/suite_g_scotland_schemes.rs) — 18 tests):
+- **Suite G: Scottish Property Rates, SBBS Tapers, 40% Hospitality & Transitional Relief** ([`tests/integration_tests/suite_g_scotland_schemes.rs`](tests/integration_tests/suite_g_scotland_schemes.rs) — 19 tests):
   - `test_scotland_2026_multipliers_basic_intermediate_higher`: Validates 2026/27 rates: Basic 0.481, Intermediate 0.535, Higher 0.548 (S.S.I. 2026/39).
   - `test_scotland_sbbs_taper_band_12k_to_15k`: Verifies linear taper between 100% and 25% for RV £12k–£15k under S.S.I. 2026/68 reg 3(3).
   - `test_scotland_sbbs_taper_band_15k_to_20k`: Verifies linear taper between 25% and 0% for RV £15k–£20k under S.S.I. 2026/68 reg 3(3).
@@ -700,6 +700,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_scottish_unoccupied_property_relief_50_percent`: Verifies 50% empty relief for 3 months and £1,700 low RV exemption under S.S.I. 2018/77.
   - `test_scottish_renewable_energy_generation_relief`: Verifies tiered renewable energy generation relief under S.S.I. 2010/336.
   - `test_scotland_2025_26_intermediate_and_higher_multipliers`: Validates 2025/26 Intermediate (0.554) and Higher (0.568) property rates under S.S.I. 2025/37 and S.S.I. 2025/38 regs 5(4) & 6(4).
+  - `test_scotland_empty_property_2018_rules_90_percent_after_initial_period`: Validates S.S.I. 2018/77 reg 2 empty property rules for 2018/19–2022/23 (50% for 3 months then 90% payable; industrial 100% exempt for 6 months then 90% payable).
 
 - **Suite H: Cross-Jurisdictional Reliefs, Lifespans, Holiday Lets & Empty Property** ([`tests/integration_tests/suite_h_cross_jurisdictional.rs`](tests/integration_tests/suite_h_cross_jurisdictional.rs) — 23 tests):
   - `test_statutory_heat_network_exemption`: NDRA 2023 s.2 100% heat network discount.
@@ -756,7 +757,7 @@ To build, verify, and run the project:
 # 1. Compile the Svelte 5 frontend component framework with Vite
 ./build-frontend.sh
 
-# 2. Run the automated test suite (145 integration tests)
+# 2. Run the automated test suite (146 integration tests)
 cargo test --test integration_tests
 
 # 3. Start the HTTP API & Single-Page Application server (default port 8080)

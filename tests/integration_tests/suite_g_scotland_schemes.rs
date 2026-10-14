@@ -998,3 +998,36 @@ fn test_scotland_2025_26_intermediate_and_higher_multipliers() {
     assert_eq!(gross_150k, dec!(85200.00));
 }
 
+#[test]
+fn test_scotland_empty_property_2018_rules_90_percent_after_initial_period() {
+    // Reproduction for Issue #58. S.S.I. 2018/77 reg 2: other unoccupied property pays 50% until it has been
+    // unoccupied for a continuous period of 3 months, then 90% (reg 2(3)); industrial property pays nothing for
+    // 6 months, then 90%. These rules applied from 1 April 2018 to 31 March 2023.
+    let engine = CalculationEngine::new(ParameterRepository::new_seeded());
+    let net = |start: &str, end: &str, industrial: bool| {
+        let json = serde_json::json!({
+            "party_type": "CORPORATE",
+            "hereditament": {
+                "jurisdiction": "SCOTLAND",
+                "scat_code": "091",
+                "rateable_value_history": [ { "effective_from": "2017-04-01", "effective_to": null, "rateable_value": 30000.00 } ]
+            },
+            "occupation_period": { "start_date": start, "end_date": end },
+            "occupancy_type": "UNOCCUPIED",
+            "qualifying_relief_flags": {
+                "apply_transitional_relief": false,
+                "days_previously_unoccupied": 0,
+                "is_industrial_hereditament": industrial
+            }
+        });
+        let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+        engine.calculate(request).summary_financials.total_net_payable
+    };
+    // 2019/20 (366 days), RV £30,000 x 0.490 = £14,700: 50% for 91 days, then 90% for 275 days
+    // 14,700 x (91/366 x 0.5 + 275/366 x 0.9) = £11,768.03
+    assert_eq!(net("2019-04-01", "2020-03-31", false), dec!(11768.03));
+    // Industrial, empty from 1 Sep 2019: nothing for six months (to 29 Feb 2020, 182 days), then 90% for the 31 days of
+    // March 2020: 14,700 x 31/366 x 0.9 = £1,120.57
+    assert_eq!(net("2019-09-01", "2020-03-31", true), dec!(1120.57));
+}
+
