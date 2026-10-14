@@ -1706,6 +1706,8 @@
             "enum": [
               "INVALID_OCCUPATION_PERIOD",
               "OVERLAPPING_OCCUPATION_PERIODS",
+              "RATEABLE_VALUE_MISSING_FOR_PERIOD",
+              "MISSING_MULTIPLIER_FOR_PERIOD",
               "PAYLOAD_DESERIALIZATION_ERROR"
             ],
             "example": "INVALID_OCCUPATION_PERIOD",

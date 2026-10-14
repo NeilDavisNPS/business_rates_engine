@@ -598,3 +598,89 @@ async fn test_health_check_endpoints() {
     assert!(v1_json["build_number"].is_string());
     assert!(v1_json["build_timestamp"].is_string());
 }
+
+#[tokio::test]
+async fn test_openapi_app_error_response_enum_matches_engine_codes() {
+    // Reproduction for Issue #68:
+    // Error codes MISSING_MULTIPLIER_FOR_PERIOD and RATEABLE_VALUE_MISSING_FOR_PERIOD
+    // must be present in AppErrorResponse.error enum in OpenAPI specification.
+    let app = create_test_app();
+
+    // 1. Fetch OpenAPI spec
+    let req = Request::builder()
+        .uri("/api/v1/openapi.json")
+        .method("GET")
+        .body(Body::empty())
+        .unwrap();
+    let res = app.clone().oneshot(req).await.unwrap();
+    assert_eq!(res.status(), StatusCode::OK);
+    let body_str = body_to_string(res.into_body()).await;
+    let spec: Value = serde_json::from_str(&body_str).unwrap();
+
+    let error_enum = spec["components"]["schemas"]["AppErrorResponse"]["properties"]["error"]["enum"]
+        .as_array()
+        .expect("AppErrorResponse.error must have an enum array");
+    let error_codes: Vec<String> = error_enum.iter().filter_map(|v| v.as_str().map(|s| s.to_string())).collect();
+
+    assert!(
+        error_codes.contains(&"MISSING_MULTIPLIER_FOR_PERIOD".to_string()),
+        "OpenAPI spec must include MISSING_MULTIPLIER_FOR_PERIOD in AppErrorResponse enum, found: {:?}",
+        error_codes
+    );
+    assert!(
+        error_codes.contains(&"RATEABLE_VALUE_MISSING_FOR_PERIOD".to_string()),
+        "OpenAPI spec must include RATEABLE_VALUE_MISSING_FOR_PERIOD in AppErrorResponse enum, found: {:?}",
+        error_codes
+    );
+
+    // 2. Validate Request 1 (missing multiplier for 2028/29)
+    let payload1 = serde_json::json!({
+        "party_type": "CORPORATE",
+        "occupation_period": { "start_date": "2028-04-01", "end_date": "2029-03-31" },
+        "hereditament": {
+            "jurisdiction": "ENGLAND",
+            "scat_code": "091",
+            "rateable_value_history": [
+                { "effective_from": "2023-04-01", "effective_to": null, "rateable_value": 10000.0 }
+            ]
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": { "apply_transitional_relief": false }
+    });
+    let req1 = Request::builder()
+        .uri("/api/v1/calculate-liability")
+        .method("POST")
+        .header(header::CONTENT_TYPE, "application/json")
+        .body(Body::from(serde_json::to_vec(&payload1).unwrap()))
+        .unwrap();
+    let res1 = app.clone().oneshot(req1).await.unwrap();
+    assert_eq!(res1.status(), StatusCode::BAD_REQUEST);
+    let body1: Value = serde_json::from_str(&body_to_string(res1.into_body()).await).unwrap();
+    assert_eq!(body1["error"], "MISSING_MULTIPLIER_FOR_PERIOD");
+
+    // 3. Validate Request 2 (rateable value missing for period)
+    let payload2 = serde_json::json!({
+        "party_type": "CORPORATE",
+        "occupation_period": { "start_date": "2024-04-01", "end_date": "2025-03-31" },
+        "hereditament": {
+            "jurisdiction": "WALES",
+            "scat_code": "091",
+            "rateable_value_history": [
+                { "effective_from": "2024-10-01", "effective_to": null, "rateable_value": 5000.0 }
+            ]
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": { "apply_transitional_relief": false }
+    });
+    let req2 = Request::builder()
+        .uri("/api/v1/calculate-liability")
+        .method("POST")
+        .header(header::CONTENT_TYPE, "application/json")
+        .body(Body::from(serde_json::to_vec(&payload2).unwrap()))
+        .unwrap();
+    let res2 = app.clone().oneshot(req2).await.unwrap();
+    assert_eq!(res2.status(), StatusCode::BAD_REQUEST);
+    let body2: Value = serde_json::from_str(&body_to_string(res2.into_body()).await).unwrap();
+    assert_eq!(body2["error"], "RATEABLE_VALUE_MISSING_FOR_PERIOD");
+}
+
