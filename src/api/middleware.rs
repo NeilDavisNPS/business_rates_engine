@@ -23,10 +23,10 @@ pub async fn owasp_security_headers(req: Request, next: Next) -> Response {
     let headers = response.headers_mut();
 
     // 1. Content-Security-Policy (CSP)
-    // Both docs and app now execute scripts strictly from 'self' with ZERO 'unsafe-inline' scripts.
-    // The docs route permits 'unsafe-inline' solely for style-src (CSS custom properties and themes injected by Scalar).
+    // The docs route permits 'unsafe-eval' solely for Scalar schema compilation and 'unsafe-inline' for style-src (Scalar themes).
+    // The main app executes scripts strictly from 'self' with ZERO 'unsafe-inline' or 'unsafe-eval'.
     let csp_val = if is_docs_route {
-        "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'self'; form-action 'self'; base-uri 'self';"
+        "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'self'; form-action 'self'; base-uri 'self';"
     } else {
         "default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self' data:; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; form-action 'self'; base-uri 'self';"
     };

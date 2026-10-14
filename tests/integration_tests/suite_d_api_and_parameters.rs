@@ -400,7 +400,8 @@ async fn test_openapi_and_swagger_endpoints() {
         "text/html; charset=utf-8"
     );
     let csp = res.headers().get(header::CONTENT_SECURITY_POLICY).unwrap().to_str().unwrap();
-    assert!(csp.contains("script-src 'self';"), "script-src must be strictly 'self' with zero unsafe-inline");
+    assert!(csp.contains("script-src 'self' 'unsafe-eval';"), "script-src permits unsafe-eval for Scalar schema validation with zero unsafe-inline");
+    assert!(!csp.contains("script-src 'self' 'unsafe-inline'"), "script-src must not contain unsafe-inline");
     assert!(csp.contains("style-src 'self' 'unsafe-inline'"), "style-src permits unsafe-inline for dynamic theme styles");
     assert!(csp.contains("font-src 'self' data:;"), "font-src must be strictly self and data with zero external font CDNs");
     assert!(!csp.contains("cdn.jsdelivr.net"), "CSP should have zero CDN dependencies when self-hosting scalar.js");

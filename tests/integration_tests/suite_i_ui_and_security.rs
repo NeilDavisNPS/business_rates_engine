@@ -290,7 +290,18 @@ async fn test_static_assets_etag_cache_control_and_version_busting() {
         res_docs.headers().get(header::CACHE_CONTROL).unwrap(),
         "no-cache, must-revalidate"
     );
+    // Verify /docs CSP permits unsafe-eval for Scalar compilation without unsafe-inline scripts
+    let docs_csp = res_docs
+        .headers()
+        .get(header::CONTENT_SECURITY_POLICY)
+        .expect("CSP header must be present on /docs");
+    let docs_csp_str = docs_csp.to_str().unwrap();
+    assert!(docs_csp_str.contains("script-src 'self' 'unsafe-eval'"));
+    assert!(!docs_csp_str.contains("script-src 'self' 'unsafe-inline'"));
+    assert!(docs_csp_str.contains("style-src 'self' 'unsafe-inline'"));
+
     let html_docs = body_to_string(res_docs.into_body()).await;
+    assert!(html_docs.contains("/assets/scalar-guardian.js?v="));
     assert!(html_docs.contains("/assets/scalar.js?v="));
 
     // 3. /assets/app.js with ?v= query returns immutable cache header and ETag
