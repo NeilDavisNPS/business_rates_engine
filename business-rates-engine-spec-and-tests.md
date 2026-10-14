@@ -69,7 +69,8 @@ The calculation engine's business logic, zero-hardcoding parameter tables, and s
 69:   - [**The Non-Domestic Rates (Small Business Bonus Scheme) (Scotland) Regulations 2017 (S.S.I. 2017/36)**](https://www.legislation.gov.uk/ssi/2017/36/contents/made) — 2017 List: 100% relief for $\text{RV} \le £15,000$; 25% for $£15,001 \le \text{RV} \le £18,000$.
 70:   - [**The Non-Domestic Rates (Small Business Bonus Scheme) (Scotland) Regulations 2010 (S.S.I. 2010/37)**](https://www.legislation.gov.uk/ssi/2010/37/contents/made) — 2010 List 3-tier SBBS framework.
 71:   - [**The Non-Domestic Rates (Small Business Bonus Scheme) (Scotland) Regulations 2008 (S.S.I. 2008/106)**](https://www.legislation.gov.uk/ssi/2008/106/contents/made) — Inaugural SBBS regulations.
-72:   - [**The Non-Domestic Rates (Levying and Setting of Rates) (Scotland) Regulations 2024 (S.S.I. 2024/76)**](https://www.legislation.gov.uk/ssi/2024/76/contents/made) & [**S.S.I. 2023/73**](https://www.legislation.gov.uk/ssi/2023/73/contents/made) — Statutory setting of Basic (49.8p), Intermediate (54.5p), and Higher (55.9p) property rates.
+72:   - [**The Non-Domestic Rates (Levying and Setting of Rates) (Scotland) Regulations 2025 (S.S.I. 2025/37)**](https://www.legislation.gov.uk/ssi/2025/37/contents/made) & [**S.S.I. 2025/38 regs 5(4) & 6(4)**](https://www.legislation.gov.uk/ssi/2025/38/contents/made) — Statutory setting of 2025/26 Basic (49.8p), Intermediate (55.4p), and Higher (56.8p) property rates.
+  - [**The Non-Domestic Rates (Levying and Setting of Rates) (Scotland) Regulations 2024 (S.S.I. 2024/76)**](https://www.legislation.gov.uk/ssi/2024/76/contents/made) & [**S.S.I. 2023/73**](https://www.legislation.gov.uk/ssi/2023/73/contents/made) — Statutory setting of 2023/24 and 2024/25 Basic (49.8p), Intermediate (54.5p / 51.1p), and Higher (55.9p / 52.4p) property rates.
 73: - **England (SBRR, 2026/27 5-Multiplier Regime & SSBR)**:
 74:   - [**The Non-Domestic Rating (Small Business Rate Relief) (England) Order 2017 (S.I. 2017/411)**](https://www.legislation.gov.uk/uksi/2017/411/contents/made) — 100% relief for $\text{RV} \le £12,000$; linear taper between £12,001 and £15,000 RV.
 75:   - [**S.I. 2017/411 art. 3(4)**](https://www.legislation.gov.uk/uksi/2017/411/article/3/made) & [**S.I. 2014/43**](https://www.legislation.gov.uk/uksi/2014/43/contents/made) under LGFA 1988 s.43(4B) — Statutory **12-month grace period** allowing a ratepayer who takes on an additional hereditament to retain full SBRR on their primary hereditament for 12 months.
@@ -479,6 +480,7 @@ pub struct ParameterRepository {
     - Higher Multiplier: `0.515` ($\text{RV} > £100,000$; ratepayers with statutory exception pay Standard `0.502`)
   - **Scotland**: Three-tier property rate system under Non-Domestic Rates (Scotland) Act 2020:
     - 2023/24 & 2024/25: Basic `0.498` ($\text{RV} \le £51\text{k}$), Intermediate `0.545` ($£51\text{k} < \text{RV} \le £100\text{k}$), Higher `0.559` ($\text{RV} > £100\text{k}$).
+    - 2025/26 (S.S.I. 2025/37 & S.S.I. 2025/38 regs 5(4) & 6(4)): Basic Property Rate `0.498` ($\text{RV} \le £51,000$), Intermediate Property Rate `0.554` ($£51,000 < \text{RV} \le £100,000$), Higher Property Rate `0.568` ($\text{RV} > £100,000$).
     - 2026/27 (S.S.I. 2026/39 & S.S.I. 2026/68 regs 5–6): Basic Property Rate `0.481` ($\text{RV} \le £51,000$), Intermediate Property Rate `0.535` ($£51,000 < \text{RV} \le £100,000$), Higher Property Rate `0.548` ($\text{RV} > £100,000$).
 
 #### 2. Small Business Relief Thresholds (`ParamSbrrSbbsThreshold`)
@@ -574,9 +576,9 @@ The in-memory parameter repository and statutory documentation are exposed direc
 
 ## 4. Test Cases Specification & Scenario Fixtures
 
-### Test Suite Overview (139 Passing Integration Tests)
+### Test Suite Overview (140 Passing Integration Tests)
 
-The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **139 automated integration tests**:
+The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **140 automated integration tests**:
 
 - **Suite A: Canonical Multi-Jurisdiction Scenario Fixture Tests (Scenarios 1–11)** ([`tests/integration_tests/suite_a_scenarios.rs`](tests/integration_tests/suite_a_scenarios.rs) — 11 tests):
   - `test_scenario_1_england_sbrr_and_rhl_multi_year` (`scenario_1_sbrr_rhl_england.json`): Multi-year slicing (2025/26 & 2026/27), SBRR linear taper, England 2026/27 RHL expiration verification, and Transitional Relief caps.
@@ -675,7 +677,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_wales_2005_list_no_transitional_relief`: Confirms Wales operated no general transitional relief in 2005.
   - `test_wales_2010_list_no_transitional_relief`: Confirms Wales operated no general transitional relief in 2010.
 
-- **Suite G: Scottish Property Rates, SBBS Tapers, 40% Hospitality & Transitional Relief** ([`tests/integration_tests/suite_g_scotland_schemes.rs`](tests/integration_tests/suite_g_scotland_schemes.rs) — 17 tests):
+- **Suite G: Scottish Property Rates, SBBS Tapers, 40% Hospitality & Transitional Relief** ([`tests/integration_tests/suite_g_scotland_schemes.rs`](tests/integration_tests/suite_g_scotland_schemes.rs) — 18 tests):
   - `test_scotland_2026_multipliers_basic_intermediate_higher`: Validates 2026/27 rates: Basic 0.481, Intermediate 0.535, Higher 0.548 (S.S.I. 2026/39).
   - `test_scotland_sbbs_taper_band_12k_to_15k`: Verifies linear taper between 100% and 25% for RV £12k–£15k under S.S.I. 2026/68 reg 3(3).
   - `test_scotland_sbbs_taper_band_15k_to_20k`: Verifies linear taper between 25% and 0% for RV £15k–£20k under S.S.I. 2026/68 reg 3(3).
@@ -693,6 +695,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_scottish_sbbs_tr_2026_list_25_percent_cap`: Verifies 2026 SBBS TR limiting ratepayer liability to 25% of net bill escalation under S.S.I. 2026/70 reg 14.
   - `test_scottish_unoccupied_property_relief_50_percent`: Verifies 50% empty relief for 3 months and £1,700 low RV exemption under S.S.I. 2018/77.
   - `test_scottish_renewable_energy_generation_relief`: Verifies tiered renewable energy generation relief under S.S.I. 2010/336.
+  - `test_scotland_2025_26_intermediate_and_higher_multipliers`: Validates 2025/26 Intermediate (0.554) and Higher (0.568) property rates under S.S.I. 2025/37 and S.S.I. 2025/38 regs 5(4) & 6(4).
 
 - **Suite H: Cross-Jurisdictional Reliefs, Lifespans, Holiday Lets & Empty Property** ([`tests/integration_tests/suite_h_cross_jurisdictional.rs`](tests/integration_tests/suite_h_cross_jurisdictional.rs) — 21 tests):
   - `test_statutory_heat_network_exemption`: NDRA 2023 s.2 100% heat network discount.
@@ -747,7 +750,7 @@ To build, verify, and run the project:
 # 1. Compile the Svelte 5 frontend component framework with Vite
 ./build-frontend.sh
 
-# 2. Run the automated test suite (139 integration tests)
+# 2. Run the automated test suite (140 integration tests)
 cargo test --test integration_tests
 
 # 3. Start the HTTP API & Single-Page Application server (default port 8080)

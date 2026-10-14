@@ -881,8 +881,8 @@ impl RepoData {
         add("m_eng_st_2025", "2025/26", Jurisdiction::ENGLAND, "STANDARD", dec!(51000.00), None, dec!(0.555), "2025-04-01", "2026-03-31");
         add("m_wal_2025", "2025/26", Jurisdiction::WALES, "STANDARD", dec!(0.00), None, dec!(0.568), "2025-04-01", "2026-03-31");
         add("m_sco_b_2025", "2025/26", Jurisdiction::SCOTLAND, "BASIC", dec!(0.00), Some(dec!(51000.00)), dec!(0.498), "2025-04-01", "2026-03-31");
-        add("m_sco_i_2025", "2025/26", Jurisdiction::SCOTLAND, "INTERMEDIATE", dec!(51000.01), Some(dec!(100000.00)), dec!(0.545), "2025-04-01", "2026-03-31");
-        add("m_sco_h_2025", "2025/26", Jurisdiction::SCOTLAND, "HIGHER", dec!(100000.01), None, dec!(0.559), "2025-04-01", "2026-03-31");
+        add("m_sco_i_2025", "2025/26", Jurisdiction::SCOTLAND, "INTERMEDIATE", dec!(51000.01), Some(dec!(100000.00)), dec!(0.554), "2025-04-01", "2026-03-31");
+        add("m_sco_h_2025", "2025/26", Jurisdiction::SCOTLAND, "HIGHER", dec!(100000.01), None, dec!(0.568), "2025-04-01", "2026-03-31");
 
         // 2026/27 (Revaluation Year — NDRA 2023 5-multiplier system for England)
         add("m_eng_hv_2026", "2026/27", Jurisdiction::ENGLAND, "HIGH_VALUE", dec!(500000.00), None, dec!(0.508), "2026-04-01", "2027-03-31");

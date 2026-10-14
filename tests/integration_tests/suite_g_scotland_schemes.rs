@@ -635,15 +635,15 @@ async fn test_scotland_2026_self_catering_licensed_transitional_cap_15_percent()
     let response = engine.calculate(request);
     let seg = &response.annual_billing_segments[0];
 
-    // 2025/26 base: £80,000 * 0.545 = £43,600.00
-    // 2026/27 capped gross with X = 1.150: £43,600 * 1.150 = £50,140.00
+    // 2025/26 base: £80,000 * 0.554 = £44,320.00 (S.S.I. 2025/38 reg. 5(4))
+    // 2026/27 capped gross with X = 1.150: £44,320 * 1.150 = £50,968.00
     // 2026/27 gross: £120,000 * 0.548 (higher multiplier) = £65,760.00
-    // TR adjustment: £65,760.00 - £50,140.00 = £15,620.00
+    // TR adjustment: £65,760.00 - £50,968.00 = £14,792.00
     assert_eq!(seg.multiplier_used.rate, dec!(0.548));
     assert_eq!(seg.gross_liability, dec!(65760.00));
     assert_eq!(seg.transitional_adjustment.adjustment_type, "RELIEF");
-    assert_eq!(seg.transitional_adjustment.amount, dec!(15620.00));
-    assert_eq!(seg.net_segment_payable, dec!(50140.00));
+    assert_eq!(seg.transitional_adjustment.amount, dec!(14792.00));
+    assert_eq!(seg.net_segment_payable, dec!(50968.00));
 }
 
 #[tokio::test]
@@ -951,3 +951,50 @@ async fn test_scottish_renewable_energy_generation_relief() {
     assert_eq!(rel2.amount_deducted, dec!(50310.00));
     assert_eq!(seg2.net_segment_payable, dec!(50310.00));
 }
+
+#[test]
+fn test_scotland_2025_26_intermediate_and_higher_multipliers() {
+    // Reproduction for Issue #56
+    // S.S.I. 2025/37: basic property rate is 49.8p (0.498).
+    // S.S.I. 2025/38 regs 5(4) and 6(4): additional factors 0.056 and 0.070,
+    // giving intermediate rate 0.554 (55.4p) and higher rate 0.568 (56.8p).
+    let engine = CalculationEngine::new(business_rates_engine::db::repository::ParameterRepository::new_seeded());
+
+    let calc = |rv: f64| {
+        let json = serde_json::json!({
+            "party_type": "CORPORATE",
+            "occupation_period": { "start_date": "2025-04-01", "end_date": "2026-03-31" },
+            "hereditament": {
+                "jurisdiction": "SCOTLAND",
+                "scat_code": "091",
+                "rateable_value_history": [
+                    { "effective_from": "2023-04-01", "effective_to": null, "rateable_value": rv }
+                ]
+            },
+            "occupancy_type": "OCCUPIED",
+            "qualifying_relief_flags": {
+                "apply_transitional_relief": false
+            }
+        });
+        let req: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+        let resp = engine.calculate(req);
+        (
+            resp.annual_billing_segments[0].multiplier_used.rate,
+            resp.annual_billing_segments[0].multiplier_used.multiplier_type.clone(),
+            resp.annual_billing_segments[0].gross_liability,
+        )
+    };
+
+    // 1. RV £60,000 pays Intermediate Property Rate 0.554 (not 0.545)
+    let (rate_60k, type_60k, gross_60k) = calc(60000.0);
+    assert_eq!(rate_60k, dec!(0.554));
+    assert_eq!(type_60k, "INTERMEDIATE");
+    assert_eq!(gross_60k, dec!(33240.00));
+
+    // 2. RV £150,000 pays Higher Property Rate 0.568 (not 0.559)
+    let (rate_150k, type_150k, gross_150k) = calc(150000.0);
+    assert_eq!(rate_150k, dec!(0.568));
+    assert_eq!(type_150k, "HIGHER");
+    assert_eq!(gross_150k, dec!(85200.00));
+}
+
