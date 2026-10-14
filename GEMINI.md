@@ -116,8 +116,8 @@ Whenever investigating, fixing, or resolving an issue raised on GitHub against t
 7. **Run Full Test Suite (Zero Regressions)**:
    - Run the complete test suite (`cargo test`, `cargo clippy --all-targets -- -D warnings`, `npm run check`, `npm run build`) to confirm there are no regression issues.
 8. **Commit the Fix Referencing the Issue**:
-   - Commit the fix referencing the GitHub issue number in the commit message (e.g. `fix: ... (fixes #123)`). Always obtain explicit user confirmation before committing.
+   - Commit the fix referencing the GitHub issue number in the commit message (e.g. `fix: ... (fixes #123)`).
 9. **Update GitHub Issue with Fix Analysis**:
    - Update the GitHub issue with a clear, comprehensive analysis of the fix done, explaining the statutory/legislative context, the reproducing test case, the implementation details, the documentation/OpenAPI updates, and verification results.
-10. **Batched Push Policy**:
-   - If multiple issues are being fixed in a batch or session, commit each fix individually, but only push to GitHub once ALL of the targeted issues have been completely fixed and verified.
+10. **Batched Push Policy & User Confirmation**:
+   - If multiple issues are being fixed in a batch or session, commit each fix individually, but only push to GitHub once ALL of the targeted issues have been completely fixed and verified. Always obtain explicit user confirmation before batch pushing to GitHub.
