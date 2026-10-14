@@ -118,6 +118,57 @@ impl CalculationEngine {
             .unwrap_or(i64::from(months) * 30)
     }
 
+    /// Statutory rateable value exemption threshold for unoccupied property:
+    /// - Scotland: £1,700 (Local Government (Scotland) Act 1975 s.7A / S.S.I. 2018/77)
+    /// - Wales: £2,200 (LGFA 1988 s.45 / W.S.I. 2008/2499 reg 4(g))
+    /// - England 2017/18+: £2,900 (S.I. 2017/102 art 4)
+    /// - England 2011/12-2016/17: £2,600 (S.I. 2010/408 reg 2(2)(a))
+    /// - England 2010/11: £18,000 (S.I. 2010/408 reg 2(2)(b))
+    /// - England 2009/10: £15,000 (S.I. 2008/3283 reg 2)
+    /// - England before 2009/10: £2,200 (S.I. 2008/386 reg 4(g))
+    pub(crate) fn empty_low_value_threshold(jurisdiction: Jurisdiction, date: NaiveDate) -> Decimal {
+        let on_or_after = |y: i32, m: u32, d: u32| date >= NaiveDate::from_ymd_opt(y, m, d).unwrap();
+        match jurisdiction {
+            Jurisdiction::SCOTLAND => dec!(1700.00),
+            Jurisdiction::WALES => dec!(2200.00),
+            Jurisdiction::ENGLAND => {
+                if on_or_after(2017, 4, 1) {
+                    dec!(2900.00)
+                } else if on_or_after(2011, 4, 1) {
+                    dec!(2600.00)
+                } else if on_or_after(2010, 4, 1) {
+                    dec!(18000.00)
+                } else if on_or_after(2009, 4, 1) {
+                    dec!(15000.00)
+                } else {
+                    dec!(2200.00)
+                }
+            }
+        }
+    }
+
+    pub(crate) fn empty_low_value_statutory_authority(jurisdiction: Jurisdiction, date: NaiveDate) -> String {
+        let on_or_after = |y: i32, m: u32, d: u32| date >= NaiveDate::from_ymd_opt(y, m, d).unwrap();
+        match jurisdiction {
+            Jurisdiction::SCOTLAND => "Local Government (Scotland) Act 1975 s.7A / S.S.I. 2018/77".to_string(),
+            Jurisdiction::WALES => "LGFA 1988 s.45 / W.S.I. 2008/2499 reg. 4(g)".to_string(),
+            Jurisdiction::ENGLAND => {
+                if on_or_after(2017, 4, 1) {
+                    "LGFA 1988 s.45 / S.I. 2017/102 art. 4".to_string()
+                } else if on_or_after(2011, 4, 1) {
+                    "LGFA 1988 s.45 / S.I. 2010/408 reg. 2(2)(a)".to_string()
+                } else if on_or_after(2010, 4, 1) {
+                    "LGFA 1988 s.45 / S.I. 2010/408 reg. 2(2)(b)".to_string()
+                } else if on_or_after(2009, 4, 1) {
+                    "LGFA 1988 s.45 / S.I. 2008/3283 reg. 2".to_string()
+                } else {
+                    "LGFA 1988 s.45 / S.I. 2008/386 reg. 4(g)".to_string()
+                }
+            }
+        }
+    }
+
+
     fn compute_statutory_installments(
         &self,
         net_payable: Decimal,
@@ -986,20 +1037,12 @@ impl CalculationEngine {
                     let empty_since = win.period.start_date - chrono::Duration::days(cumulative_unoccupied_days);
                     let max_exempt_days: i64 = Self::calendar_months_in_days(empty_since, if is_industrial { 6 } else { 3 });
 
-                    let low_value_threshold = match req.hereditament.jurisdiction {
-                        Jurisdiction::SCOTLAND => dec!(1700.00),
-                        Jurisdiction::WALES => dec!(2200.00),
-                        Jurisdiction::ENGLAND => dec!(2900.00),
-                    };
+                    let low_value_threshold = Self::empty_low_value_threshold(req.hereditament.jurisdiction, win.period.start_date);
 
                     if rv < low_value_threshold {
                         let amount = chargeable_before_reliefs - segment_relief_total;
                         segment_relief_total += amount;
-                        let auth = match req.hereditament.jurisdiction {
-                            Jurisdiction::SCOTLAND => "Local Government (Scotland) Act 1975 s.7A / SSI 2018/77".to_string(),
-                            Jurisdiction::WALES => "LGFA 1988 s.45 / W.S.I. 2008/2499 reg. 4(g)".to_string(),
-                            Jurisdiction::ENGLAND => "LGFA 1988 s.45 / SI 2008/386".to_string(),
-                        };
+                        let auth = Self::empty_low_value_statutory_authority(req.hereditament.jurisdiction, win.period.start_date);
                         reliefs.push(ItemizedRelief {
                             relief_code: "EMPTY_LOW_VALUE".to_string(),
                             relief_name: crate::i18n::localize_relief_name("Empty Property Low RV Exemption", lang),
@@ -1090,11 +1133,7 @@ impl CalculationEngine {
                     // (S.I. 2008/386 reg 4(a)-(b); W.S.I. 2008/2499 reg 4(a)-(b); Interpretation Act 1978 Sched 1)
                     let empty_since = win.period.start_date - chrono::Duration::days(cumulative_unoccupied_days);
                     let max_exempt_days: i64 = Self::calendar_months_in_days(empty_since, if is_industrial { 6 } else { 3 });
-                    let low_value_threshold = match req.hereditament.jurisdiction {
-                        Jurisdiction::SCOTLAND => dec!(1700.00),
-                        Jurisdiction::WALES => dec!(2200.00),
-                        Jurisdiction::ENGLAND => dec!(2900.00),
-                    };
+                    let low_value_threshold = Self::empty_low_value_threshold(req.hereditament.jurisdiction, win.period.start_date);
 
                     if unocc_rv < low_value_threshold {
                         if unocc_chargeable > dec!(0.00) {

@@ -818,3 +818,54 @@ fn test_empty_rate_free_period_is_calendar_months() {
     // Wales, empty from 1 Nov 2024: three months end 31 Jan 2025 (92 days); liable 59 days: 30,000 x 0.562 x 59/365 = £2,725.32
     assert_eq!(net("WALES", "2024-11-01", "2025-03-31", false), dec!(2725.32));
 }
+
+#[test]
+fn test_england_empty_property_historical_low_value_thresholds() {
+    // Reproduction for Issue #52.
+    // Statutory thresholds under S.I. 2008/386 reg 4(g) as amended:
+    // - 2008/09: £2,200 (S.I. 2008/386 reg 4(g))
+    // - 2009/10: £15,000 (S.I. 2008/3283 reg 2)
+    // - 2010/11: £18,000 (S.I. 2010/408 reg 2(2)(b))
+    // - 2011/12-2016/17: £2,600 (S.I. 2010/408 reg 2(2)(a))
+    // - 2017/18 onwards: £2,900 (S.I. 2017/102 art 4)
+    let engine = CalculationEngine::new(ParameterRepository::new_seeded());
+    let is_exempt = |start: &str, end: &str, rv: f64| {
+        let json = serde_json::json!({
+            "party_type": "CORPORATE",
+            "hereditament": {
+                "jurisdiction": "ENGLAND",
+                "scat_code": "091",
+                "rateable_value_history": [ { "effective_from": "1990-04-01", "effective_to": None::<String>, "rateable_value": rv } ]
+            },
+            "occupation_period": { "start_date": start, "end_date": end },
+            "occupancy_type": "UNOCCUPIED",
+            "qualifying_relief_flags": {
+                "apply_transitional_relief": false,
+                "days_previously_unoccupied": 91
+            }
+        });
+        let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+        let resp = engine.calculate(request);
+        resp.annual_billing_segments[0].itemized_reliefs.iter().any(|r| r.relief_code == "EMPTY_LOW_VALUE")
+    };
+
+    // 1. 2008/09 (£2,200 threshold)
+    assert!(is_exempt("2008-04-01", "2009-03-31", 2199.00), "RV £2,199 should be exempt in 2008/09");
+    assert!(!is_exempt("2008-04-01", "2009-03-31", 2500.00), "RV £2,500 should NOT be exempt in 2008/09 (threshold £2,200)");
+
+    // 2. 2009/10 (£15,000 threshold under S.I. 2008/3283)
+    assert!(is_exempt("2009-04-01", "2010-03-31", 14999.00), "RV £14,999 should be exempt in 2009/10");
+    assert!(!is_exempt("2009-04-01", "2010-03-31", 15000.00), "RV £15,000 should NOT be exempt in 2009/10");
+
+    // 3. 2010/11 (£18,000 threshold under S.I. 2010/408)
+    assert!(is_exempt("2010-04-01", "2011-03-31", 17999.00), "RV £17,999 should be exempt in 2010/11");
+    assert!(!is_exempt("2010-04-01", "2011-03-31", 18000.00), "RV £18,000 should NOT be exempt in 2010/11");
+
+    // 4. 2011/12-2016/17 (£2,600 threshold under S.I. 2010/408)
+    assert!(is_exempt("2011-04-01", "2012-03-31", 2599.00), "RV £2,599 should be exempt in 2011/12");
+    assert!(!is_exempt("2011-04-01", "2012-03-31", 2700.00), "RV £2,700 should NOT be exempt in 2011/12 (threshold £2,600)");
+
+    // 5. 2017/18 onwards (£2,900 threshold under S.I. 2017/102)
+    assert!(is_exempt("2017-04-01", "2018-03-31", 2899.00), "RV £2,899 should be exempt in 2017/18");
+    assert!(!is_exempt("2017-04-01", "2018-03-31", 2900.00), "RV £2,900 should NOT be exempt in 2017/18");
+}
