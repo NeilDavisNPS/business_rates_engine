@@ -610,9 +610,9 @@ The in-memory parameter repository and statutory documentation are exposed direc
 
 ## 4. Test Cases Specification & Scenario Fixtures
 
-### Test Suite Overview (157 Passing Integration Tests)
+### Test Suite Overview (158 Passing Integration Tests)
 
-The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **157 automated integration tests**:
+The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **158 automated integration tests**:
 
 - **Suite A: Canonical Multi-Jurisdiction Scenario Fixture Tests (Scenarios 1–11)** ([`tests/integration_tests/suite_a_scenarios.rs`](tests/integration_tests/suite_a_scenarios.rs) — 11 tests):
   - `test_scenario_1_england_sbrr_and_rhl_multi_year` (`scenario_1_sbrr_rhl_england.json`): Multi-year slicing (2025/26 & 2026/27), SBRR linear taper, England 2026/27 RHL expiration verification, and Transitional Relief caps.
@@ -778,7 +778,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_owasp_secure_headers_on_error_and_unauthorized_responses`: Verifies OWASP security headers on 422/404 error responses.
   - `test_static_assets_served_with_correct_content_types`: CSS and Vite assets served with proper MIME types; unmapped static asset paths return 404.
 
-- **Suite J: Historical Statutory Parameters & Revaluations (1990–2022)** ([`tests/integration_tests/suite_j_historical.rs`](tests/integration_tests/suite_j_historical.rs) — 11 tests):
+- **Suite J: Historical Statutory Parameters & Revaluations (1990–2022)** ([`tests/integration_tests/suite_j_historical.rs`](tests/integration_tests/suite_j_historical.rs) — 12 tests):
   - `test_historical_calculation_1990_91_inaugural_nndr`: Validates inaugural non-domestic rating calculation under LGFA 1988 (1990/91) with zero SBRR discount.
   - `test_historical_transitional_phasing_1991_92`: Validates 1991/92 revaluation year 2 transitional upward cap (+15%) based on 1990/91 baseline.
   - `test_historical_transitional_phasing_1993_94`: Validates 1993/94 revaluation upward cap (+15%) under SI 1989/1358 based on 1992/93 baseline.
@@ -790,6 +790,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_historical_welsh_transitional_relief_2017_list`: Validates 2017/18 Welsh small business transitional relief (75% phasing) under W.S.I. 2016/1247.
   - `test_historical_transitional_phasing_2017_list_revaluation`: Verifies 2017/18 large property revaluation upward cap (+42%) under SI 2016/1265.
   - `test_england_2017_list_transitional_relief_large_cap_2021_22_is_6_percent`: Validates 2021/22 and 2022/23 large property upward phasing cap of 6% under S.I. 2016/1265 Schedule Table 1 and S.I. 2022/339 reg 2.
+  - `test_historical_sbrr_2010_11_england_pre_and_post_october`: Validates English SBRR in 2010/11: 50% max relief (S.I. 2004/3315 as amended by S.I. 2010/145) from 1 April to 30 September 2010, temporarily doubled to 100% from 1 October 2010 to 31 March 2011 under S.I. 2010/1659, and validates automatic billing segment slicing across the 1 October 2010 boundary.
 
 ---
 
@@ -801,7 +802,7 @@ To build, verify, and run the project:
 # 1. Compile the Svelte 5 frontend component framework with Vite
 ./build-frontend.sh
 
-# 2. Run the automated test suite (157 integration tests)
+# 2. Run the automated test suite (158 integration tests)
 cargo test --test integration_tests
 
 # 3. Start the HTTP API & Single-Page Application server (default port 8080)

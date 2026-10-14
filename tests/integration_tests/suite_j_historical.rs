@@ -581,3 +581,100 @@ async fn test_england_2017_list_transitional_relief_large_cap_2021_22_is_6_perce
     );
 }
 
+#[tokio::test]
+async fn test_historical_sbrr_2010_11_england_pre_and_post_october() {
+    let repo = ParameterRepository::new_mock();
+    let engine = CalculationEngine::new(repo);
+
+    // 1. ENG-SBRR-2010-PRE-OCT: 1 April 2010 – 30 September 2010 (50% max under SI 2004/3315 / SI 2010/145)
+    let req_pre = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2010, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2010, 9, 30).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::ENGLAND,
+            scat_code: "091".to_string(),
+            rateable_value_history: vec![RvEntry {
+                effective_from: NaiveDate::from_ymd_opt(2005, 4, 1).unwrap(),
+                effective_to: None,
+                rateable_value: dec!(5000.00),
+            }],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            apply_transitional_relief: Some(false),
+            is_small_business_sole_property: true,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+    let res_pre = engine.calculate(req_pre);
+    let seg_pre = &res_pre.annual_billing_segments[0];
+    let r_pre = seg_pre.itemized_reliefs.iter().find(|r| r.relief_code == "SBRR").unwrap();
+    assert_eq!(r_pre.discount_percentage, dec!(50.00), "Pre-October 2010 SBRR in England must be 50.00%");
+
+    // 2. ENG-SBRR-2010-POST-OCT: 1 October 2010 – 31 March 2011 (100% max under SI 2010/1659 temporary doubling)
+    let req_post = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2010, 10, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2011, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::ENGLAND,
+            scat_code: "091".to_string(),
+            rateable_value_history: vec![RvEntry {
+                effective_from: NaiveDate::from_ymd_opt(2005, 4, 1).unwrap(),
+                effective_to: None,
+                rateable_value: dec!(5000.00),
+            }],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            apply_transitional_relief: Some(false),
+            is_small_business_sole_property: true,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+    let res_post = engine.calculate(req_post);
+    let seg_post = &res_post.annual_billing_segments[0];
+    let r_post = seg_post.itemized_reliefs.iter().find(|r| r.relief_code == "SBRR").unwrap();
+    assert_eq!(r_post.discount_percentage, dec!(100.00), "Post-October 2010 SBRR in England must be 100.00%");
+
+    // 3. Full rating year 2010/11: slices into 2 segments across 1 October 2010
+    let req_full = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2010, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2011, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::ENGLAND,
+            scat_code: "091".to_string(),
+            rateable_value_history: vec![RvEntry {
+                effective_from: NaiveDate::from_ymd_opt(2005, 4, 1).unwrap(),
+                effective_to: None,
+                rateable_value: dec!(5000.00),
+            }],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            apply_transitional_relief: Some(false),
+            is_small_business_sole_property: true,
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+    let res_full = engine.calculate(req_full);
+    assert_eq!(res_full.annual_billing_segments.len(), 2, "Full year 2010/11 must slice into 2 segments across 1 October 2010");
+    assert_eq!(res_full.annual_billing_segments[0].itemized_reliefs[0].discount_percentage, dec!(50.00));
+    assert_eq!(res_full.annual_billing_segments[1].itemized_reliefs[0].discount_percentage, dec!(100.00));
+}
+
+

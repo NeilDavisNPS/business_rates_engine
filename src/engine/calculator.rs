@@ -814,7 +814,7 @@ impl CalculationEngine {
                                 let is_multiple = flags.is_small_business_multiple_properties || flags.small_business_cumulative_rv.is_some();
                                 self.repo.resolve_scottish_sbbs(&win.financial_year, rv, is_multiple, flags.small_business_cumulative_rv)
                             } else {
-                                self.repo.resolve_sbrr(req.hereditament.jurisdiction, &win.financial_year, rv)
+                                self.repo.resolve_sbrr_for_date(req.hereditament.jurisdiction, &win.financial_year, rv, Some(win.period.start_date))
                             };
 
                             if let Some(mut sbrr) = sbrr_opt {
@@ -1250,7 +1250,7 @@ impl CalculationEngine {
                             let is_multiple = flags.is_small_business_multiple_properties || flags.small_business_cumulative_rv.is_some();
                             self.repo.resolve_scottish_sbbs(&win.financial_year, rv, is_multiple, flags.small_business_cumulative_rv)
                         } else {
-                            self.repo.resolve_sbrr(req.hereditament.jurisdiction, &win.financial_year, rv)
+                            self.repo.resolve_sbrr_for_date(req.hereditament.jurisdiction, &win.financial_year, rv, Some(win.period.start_date))
                         };
                         if let Some(mut sbrr) = sbrr_opt {
                             let remaining = occ_chargeable - occ_relief_total;

@@ -91,6 +91,19 @@ pub fn slice_occupancy_periods(
                     }
                 }
             }
+
+            // Statutory mid-year policy boundaries:
+            // 1. 2010-10-01: England SBRR temporary doubling under S.I. 2010/1659
+            // 2. 2021-07-01: England Expanded Retail Discount step-down from 100% to 66%
+            let statutory_cut_dates = [
+                NaiveDate::from_ymd_opt(2010, 10, 1).unwrap(),
+                NaiveDate::from_ymd_opt(2021, 7, 1).unwrap(),
+            ];
+            for &stat_date in &statutory_cut_dates {
+                if stat_date > win.period.start_date && stat_date <= win.period.end_date {
+                    cut_dates.push(stat_date);
+                }
+            }
             cut_dates.sort();
             cut_dates.dedup();
 

@@ -438,13 +438,33 @@ impl ParameterRepository {
 
     /// Resolves SBRR / SBBS discount percentage and statutory authority
     pub fn resolve_sbrr(&self, jurisdiction: Jurisdiction, financial_year: &str, rv: Decimal) -> Option<SbrrResolution> {
+        self.resolve_sbrr_for_date(jurisdiction, financial_year, rv, None)
+    }
+
+    pub fn resolve_sbrr_for_date(
+        &self,
+        jurisdiction: Jurisdiction,
+        financial_year: &str,
+        rv: Decimal,
+        date: Option<NaiveDate>,
+    ) -> Option<SbrrResolution> {
         if jurisdiction == Jurisdiction::SCOTLAND && financial_year >= "2023/24" {
             return self.resolve_scottish_sbbs(financial_year, rv, false, None);
         }
 
-        let records: Vec<&ParamSbrrSbbsThreshold> = self.sbrr_thresholds.iter()
-            .filter(|s| s.jurisdiction == jurisdiction && s.financial_year == financial_year)
+        let mut records: Vec<&ParamSbrrSbbsThreshold> = self.sbrr_thresholds.iter()
+            .filter(|s| {
+                s.jurisdiction == jurisdiction
+                    && s.financial_year == financial_year
+                    && match date {
+                        Some(d) => d >= s.effective_from && d <= s.effective_to,
+                        None => true,
+                    }
+            })
             .collect();
+
+        // If date is None and multiple records exist (e.g. 2010/11 pre/post October), prefer the later one
+        records.sort_by_key(|r| r.effective_from);
 
         for record in records {
             if rv >= record.min_rv && rv <= record.max_rv {
@@ -459,6 +479,7 @@ impl ParameterRepository {
                     record.relief_percentage
                 };
 
+                let effective_date = date.unwrap_or(record.effective_from);
                 let (code, name, authority) = match jurisdiction {
                     Jurisdiction::ENGLAND => (
                         "SBRR",
@@ -467,8 +488,10 @@ impl ParameterRepository {
                             "LGFA 1988 s.43(4B) / NDRA 2023"
                         } else if financial_year >= "2017/18" {
                             "LGFA 1988 s.43(4B) / SI 2017/411"
+                        } else if financial_year == "2010/11" && effective_date < NaiveDate::from_ymd_opt(2010, 10, 1).unwrap() {
+                            "LGFA 1988 s.43(4B) / SI 2004/3315 / SI 2010/145"
                         } else if financial_year >= "2010/11" {
-                            "LGFA 1988 s.43(4B) / SI 2010/1959"
+                            "LGFA 1988 s.43(4B) / SI 2010/1659"
                         } else {
                             "LGFA 1988 s.43(4B) / SI 2004/3315"
                         },
@@ -1175,12 +1198,30 @@ impl RepoData {
         add("sbbs_sco_t3_2009/10", "2009/10", Jurisdiction::SCOTLAND, dec!(10000.01), dec!(15000.00), dec!(25.00), false, "2009-04-01", "2010-03-31");
 
         // 2010 Revaluation List (2010/11 – 2016/17)
-        for fy in ["2010/11", "2011/12", "2012/13", "2013/14", "2014/15", "2015/16", "2016/17"] {
+        // England 2010/11:
+        // Pre-1 October 2010 (2010-04-01 to 2010-09-30): SI 2004/3315 as amended by SI 2010/145 (50% max up to £6k; linear taper 50% to 0% between £6k and £12k)
+        add("sbrr_eng_full_2010/11_pre", "2010/11", Jurisdiction::ENGLAND, dec!(0.00), dec!(6000.00), dec!(50.00), false, "2010-04-01", "2010-09-30");
+        add("sbrr_eng_tap_2010/11_pre", "2010/11", Jurisdiction::ENGLAND, dec!(6000.01), dec!(12000.00), dec!(50.00), true, "2010-04-01", "2010-09-30");
+        // Post-1 October 2010 (2010-10-01 to 2011-03-31): SI 2010/1659 temporary doubling to 100% up to £6k; linear taper 100% to 0% between £6k and £12k
+        add("sbrr_eng_full_2010/11_post", "2010/11", Jurisdiction::ENGLAND, dec!(0.00), dec!(6000.00), dec!(100.00), false, "2010-10-01", "2011-03-31");
+        add("sbrr_eng_tap_2010/11_post", "2010/11", Jurisdiction::ENGLAND, dec!(6000.01), dec!(12000.00), dec!(100.00), true, "2010-10-01", "2011-03-31");
+
+        // Wales (WSI 2010/248: 100% up to £6,000; tapered £6,001 to £12,000)
+        add("sbrr_wal_full_2010/11", "2010/11", Jurisdiction::WALES, dec!(0.00), dec!(6000.00), dec!(100.00), false, "2010-04-01", "2011-03-31");
+        add("sbrr_wal_tap_2010/11", "2010/11", Jurisdiction::WALES, dec!(6000.01), dec!(12000.00), dec!(100.00), true, "2010-04-01", "2011-03-31");
+
+        // Scotland SBBS (SSI 2010/37: 100% <= £10,000; 50% <= £12,000; 25% <= £18,000)
+        add("sbbs_sco_t1_2010/11", "2010/11", Jurisdiction::SCOTLAND, dec!(0.00), dec!(10000.00), dec!(100.00), false, "2010-04-01", "2011-03-31");
+        add("sbbs_sco_t2_2010/11", "2010/11", Jurisdiction::SCOTLAND, dec!(10000.01), dec!(12000.00), dec!(50.00), false, "2010-04-01", "2011-03-31");
+        add("sbbs_sco_t3_2010/11", "2010/11", Jurisdiction::SCOTLAND, dec!(12000.01), dec!(18000.00), dec!(25.00), false, "2010-04-01", "2011-03-31");
+
+        // Remaining 2010 List years (2011/12 – 2016/17):
+        for fy in ["2011/12", "2012/13", "2013/14", "2014/15", "2015/16", "2016/17"] {
             let start = format!("{}-04-01", &fy[0..4]);
             let next_y: i32 = fy[0..4].parse::<i32>().unwrap() + 1;
             let end = format!("{}-03-31", next_y);
 
-            // England (SI 2010/1959: statutory doubling to 100% up to £6,000; tapered £6,001 to £12,000)
+            // England (SI 2010/1959 / SI 2012/148: statutory doubling to 100% up to £6,000; tapered £6,001 to £12,000)
             add(&format!("sbrr_eng_full_{}", fy), fy, Jurisdiction::ENGLAND, dec!(0.00), dec!(6000.00), dec!(100.00), false, &start, &end);
             add(&format!("sbrr_eng_tap_{}", fy), fy, Jurisdiction::ENGLAND, dec!(6000.01), dec!(12000.00), dec!(100.00), true, &start, &end);
 
