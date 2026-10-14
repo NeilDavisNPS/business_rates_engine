@@ -94,6 +94,22 @@ All multipliers, rateable values, thresholds, and tapers MUST be obtained dynami
 ### B. User Confirmation Requirement for Hardcoding
 - **Ambiguity Protocol**: If you are ever unsure whether a specific financial value, multiplier, rateable value threshold, or taper rule should be hardcoded or obtained from configuration, you MUST obtain explicit user confirmation before hardcoding it in the codebase.
 
+### C. Mandatory End-to-End Exposure of Seeded Parameter Data (API, UI & Catalogs)
+Whenever any new seeded parameter dataset, table, struct, or configuration record is added to or modified in the backend parameter repository (`ParameterRepository` in `src/db/repository.rs`):
+1. **API Exposure & OpenAPI Synchronization**:
+   - The dataset MUST immediately and synchronously be included in the aggregated parameters endpoint payload (`AllParametersResponse` on `GET /api/v1/parameters`), and exposed via its own dedicated REST endpoint (e.g. `GET /api/v1/parameters/<dataset>`).
+   - The OpenAPI 3.1 specifications (`docs/openapi.json` and `docs/openapi.yaml`) MUST synchronously document the endpoint, schema models, and response structures.
+2. **Frontend State & Store Loading**:
+   - The frontend calculation store (`calcStore.loadParameters()` in `frontend/src/stores/calculation.svelte.ts`) and TypeScript domain types (`frontend/src/types/index.ts`) MUST immediately load and store the dataset.
+3. **Frontend UI Visualization & Complete Filtering**:
+   - A dedicated, accessible, collapsible catalog accordion component MUST be added under the **"Explore in-memory seeded statutory rates..."** section in `frontend/src/App.svelte`.
+   - The catalog MUST provide complete table visibility into all seeded fields (including rateable value thresholds, relief/cap percentages, units, statutory authorities, effective date ranges, and national/sub-national tags).
+   - The catalog MUST feature interactive nation filtering buttons (`ALL`, `ENGLAND`, `WALES`, `SCOTLAND`) where applicable, sub-tier or boundary tags (e.g. Greater London vs Outside London), real-time search filtering, and WCAG AAA compliant status badges with distinct jurisdiction colors (England blue, Wales emerald, Scotland purple).
+4. **Text Externalisation (4-Locale Parity)**:
+   - All catalog titles, subtitles, seeded count badges, table headers, search placeholders, filter buttons, and unit labels MUST be externalised into `frontend/src/locales/{en,cy,sco,gd}.json` with 100% key parity across all 4 languages.
+5. **Documentation & Specification Audit**:
+   - The dataset, its fields, seed functions, and lookup methods must immediately be documented in `business-rates-engine-spec-and-tests.md`.
+
 ---
 
 ## 4. Statutory In-Code Comments & Legislative Cross-Referencing Standards
@@ -139,6 +155,8 @@ Before committing any changes:
    - Verify that all newly identified legislation, statutory instruments, and regulations are added to the country-specific statutory basis information on the sandbox page across `frontend/src/locales/{en,cy,sco,gd}.json`.
    - Fully review all sections below `legislation` in the statutory framework catalog (`currentRegimeSummary`, `preDevolution`, `ratingLists`) across all 4 locales (`frontend/src/locales/{en,cy,sco,gd}.json`) to ensure ongoing statutory accuracy, complete citations, correct multipliers, relief highlights, and rating list descriptions.
    - Verify that `docs/openapi.json` and `docs/openapi.yaml` accurately document any new domain interface fields, request/response models, or relief flags.
+9. **Seeded Parameter Exposure Audit**:
+   - Verify that 100% of all seeded datasets and tables in `src/db/repository.rs` are exposed via `/api/v1/parameters`, documented in OpenAPI, loaded into `calcStore`, and visualized in the UI with filterable catalogs, WCAG AAA compliance, and 4-locale i18n parity.
 
 ---
 

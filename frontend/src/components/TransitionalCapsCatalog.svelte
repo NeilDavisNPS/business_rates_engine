@@ -87,6 +87,15 @@
           >
             {calcStore.t.dict_btn_wales}
           </button>
+          <button
+            type="button"
+            onclick={() => { filterNation = 'SCOTLAND'; }}
+            class="px-2.5 py-1 rounded border text-xs font-semibold transition {filterNation === 'SCOTLAND'
+              ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+              : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'}"
+          >
+            {calcStore.t.dict_btn_scotland}
+          </button>
 
           <span class="text-slate-300 mx-1">|</span>
           <span class="text-slate-500 font-semibold mr-1">{calcStore.t.trans_tier_label}</span>
@@ -156,14 +165,25 @@
                 <td class="p-2.5 font-mono font-bold text-slate-900">{item.revaluation_list_year} List</td>
                 <td class="p-2.5 font-mono font-semibold text-slate-800">{item.financial_year}</td>
                 <td class="p-2.5">
-                  <span class="px-2 py-0.5 rounded text-[10px] font-semibold {item.jurisdiction === 'WALES' ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800'}">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-semibold {item.jurisdiction === 'WALES' ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : item.jurisdiction === 'SCOTLAND' ? 'bg-purple-100 text-purple-900 border border-purple-300' : 'bg-blue-100 text-blue-900 border border-blue-300'}">
                     {item.jurisdiction}
                   </span>
                 </td>
                 <td class="p-2.5">
-                  <span class="px-2 py-0.5 rounded text-[10px] font-semibold {item.property_tier === 'SMALL' ? 'bg-cyan-100 text-cyan-800' : item.property_tier === 'MEDIUM' ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800'}">
-                    {item.property_tier}
-                  </span>
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold {item.property_tier === 'SMALL' ? 'bg-cyan-100 text-cyan-900 border border-cyan-300' : item.property_tier === 'MEDIUM' ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-rose-100 text-rose-900 border border-rose-300'}">
+                      {item.property_tier}
+                    </span>
+                    {#if item.is_greater_london === true}
+                      <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-100 text-indigo-900 border border-indigo-300">
+                        {calcStore.t.trans_london}
+                      </span>
+                    {:else if item.is_greater_london === false}
+                      <span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-800 border border-slate-300">
+                        {calcStore.t.trans_outside_london}
+                      </span>
+                    {/if}
+                  </div>
                 </td>
                 <td class="p-2.5 text-slate-700 font-mono text-[11px]">
                   {#if item.rv_threshold_max != null}
@@ -175,11 +195,39 @@
                 <td class="p-2.5 font-mono font-bold text-amber-700 text-sm">
                   +{Number(item.upward_cap_percentage).toFixed(1)}%
                 </td>
-                <td class="p-2.5 text-slate-500 text-[11px]">
-                  {#if item.jurisdiction === 'ENGLAND'}
-                    SI 2022/1209 (Chargeable Amounts)
+                <td class="p-2.5 text-slate-600 text-[11px]">
+                  {#if item.jurisdiction === 'SCOTLAND'}
+                    {#if item.revaluation_list_year === 2026}
+                      S.S.I. 2026/70 reg. 9
+                    {:else}
+                      S.S.I. 2023/31 Part 2
+                    {/if}
+                  {:else if item.jurisdiction === 'WALES'}
+                    {#if item.revaluation_list_year === 2026}
+                      W.S.I. 2025/1371
+                    {:else if item.revaluation_list_year === 2023}
+                      W.S.I. 2022/1350
+                    {:else}
+                      W.S.I. 2016/1247
+                    {/if}
                   {:else}
-                    LGF(W)A 2024 Transitional Rules
+                    {#if item.revaluation_list_year === 2026}
+                      NDRA 2023 / S.I. 2026
+                    {:else if item.revaluation_list_year === 2023}
+                      S.I. 2022/1403
+                    {:else if item.revaluation_list_year === 2017}
+                      S.I. 2016/1265
+                    {:else if item.revaluation_list_year === 2010}
+                      S.I. 2009/3178
+                    {:else if item.revaluation_list_year === 2005}
+                      S.I. 2004/3312
+                    {:else if item.revaluation_list_year === 2000}
+                      S.I. 1999/3379
+                    {:else if item.revaluation_list_year === 1995}
+                      S.I. 1994/3279
+                    {:else}
+                      S.I. 1989/1358
+                    {/if}
                   {/if}
                 </td>
               </tr>

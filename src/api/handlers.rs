@@ -9,8 +9,8 @@ use crate::models::AppState;
 use crate::models::calculation::LiabilityCalculationRequest;
 use crate::engine::calculator::CalculationEngine;
 use crate::db::repository::{
-    ParamMultiplier, ParamReferenceCode, ParamSbrrSbbsThreshold, ParamSectorRelief,
-    ParamTransitionalCap,
+    ParamEmptyPropertyThreshold, ParamLettingTest, ParamMultiplier, ParamReferenceCode,
+    ParamSbrrSbbsThreshold, ParamSchemeCap, ParamSectorRelief, ParamTransitionalCap,
 };
 use crate::error::AppError;
 use crate::i18n::Language;
@@ -166,6 +166,9 @@ pub struct AllParametersResponse {
     pub sbrr_thresholds: Vec<ParamSbrrSbbsThreshold>,
     pub sector_reliefs: Vec<ParamSectorRelief>,
     pub transitional_caps: Vec<ParamTransitionalCap>,
+    pub empty_property_thresholds: Vec<ParamEmptyPropertyThreshold>,
+    pub letting_tests: Vec<ParamLettingTest>,
+    pub scheme_caps: Vec<ParamSchemeCap>,
 }
 
 /// Returns all statutory parameters from the in-memory parameter catalog.
@@ -177,6 +180,9 @@ pub async fn get_all_parameters_handler(
         sbrr_thresholds: state.repo.all_sbrr_thresholds().to_vec(),
         sector_reliefs: state.repo.all_sector_reliefs().to_vec(),
         transitional_caps: state.repo.all_transitional_caps().to_vec(),
+        empty_property_thresholds: state.repo.all_empty_property_thresholds().to_vec(),
+        letting_tests: state.repo.all_letting_tests().to_vec(),
+        scheme_caps: state.repo.all_scheme_caps().to_vec(),
     })
 }
 
@@ -206,6 +212,27 @@ pub async fn get_transitional_caps_handler(
     State(state): State<AppState>,
 ) -> Json<Vec<ParamTransitionalCap>> {
     Json(state.repo.all_transitional_caps().to_vec())
+}
+
+/// Returns all statutory empty property low-value rateable value exemption thresholds
+pub async fn get_empty_property_thresholds_handler(
+    State(state): State<AppState>,
+) -> Json<Vec<ParamEmptyPropertyThreshold>> {
+    Json(state.repo.all_empty_property_thresholds().to_vec())
+}
+
+/// Returns all holiday let / self-catering accommodation letting days test criteria
+pub async fn get_letting_tests_handler(
+    State(state): State<AppState>,
+) -> Json<Vec<ParamLettingTest>> {
+    Json(state.repo.all_letting_tests().to_vec())
+}
+
+/// Returns all devolved scheme caps, statutory reset days, and additions
+pub async fn get_scheme_caps_handler(
+    State(state): State<AppState>,
+) -> Json<Vec<ParamSchemeCap>> {
+    Json(state.repo.all_scheme_caps().to_vec())
 }
 
 /// Serves the modern component-based frontend (Svelte 5 + Vite build)

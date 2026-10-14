@@ -533,6 +533,81 @@
           }
         }
       }
+    },
+    "/api/v1/parameters/empty-property": {
+      "get": {
+        "summary": "Query Statutory Empty Property Low-Value Thresholds",
+        "description": "Returns statutory low-value rateable value exemption thresholds across England (\u00a32,200, \u00a315,000, \u00a318,000, \u00a32,600, \u00a32,900), Wales (\u00a32,200), and Scotland (\u00a31,700).",
+        "operationId": "getEmptyPropertyThresholds",
+        "tags": [
+          "Reference Data & Parameters"
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of statutory empty property low-value exemption thresholds.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ParamEmptyPropertyThreshold"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/parameters/letting-tests": {
+      "get": {
+        "summary": "Query Self-Catering Holiday Let Letting Criteria",
+        "description": "Returns statutory minimum actual let days and commercial availability criteria across England, Wales, and Scotland.",
+        "operationId": "getLettingTests",
+        "tags": [
+          "Reference Data & Parameters"
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of holiday let letting test requirements.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ParamLettingTest"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/parameters/scheme-caps": {
+      "get": {
+        "summary": "Query Devolved Scheme Caps, Additions & Thresholds",
+        "description": "Returns statutory scheme caps and parameters including Rural Settlement relief caps, Scottish renewable energy tiers, empty property reset periods, transitional relief supplements, and Welsh avoidance penalties.",
+        "operationId": "getSchemeCaps",
+        "tags": [
+          "Reference Data & Parameters"
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of devolved scheme caps and statutory additions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ParamSchemeCap"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -913,7 +988,7 @@
           "is_greater_london": {
             "type": "boolean",
             "default": false,
-            "description": "True if hereditament is located in Greater London, qualifying for higher small-band transitional relief threshold (£28,000 RV vs £20,000 outside London under S.I. 2022/1403 reg. 10(5))."
+            "description": "True if hereditament is located in Greater London, qualifying for higher small-band transitional relief threshold (\u00a328,000 RV vs \u00a320,000 outside London under S.I. 2022/1403 reg. 10(5))."
           }
         }
       },
@@ -1555,6 +1630,11 @@
             "type": "number",
             "format": "double",
             "example": 10.0
+          },
+          "is_greater_london": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "True if threshold applies exclusively within Greater London; false if outside London; null if national."
           }
         }
       },
@@ -1564,7 +1644,10 @@
           "multipliers",
           "sbrr_thresholds",
           "sector_reliefs",
-          "transitional_caps"
+          "transitional_caps",
+          "empty_property_thresholds",
+          "letting_tests",
+          "scheme_caps"
         ],
         "properties": {
           "multipliers": {
@@ -1590,6 +1673,24 @@
             "items": {
               "$ref": "#/components/schemas/ParamTransitionalCap"
             }
+          },
+          "empty_property_thresholds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParamEmptyPropertyThreshold"
+            }
+          },
+          "letting_tests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParamLettingTest"
+            }
+          },
+          "scheme_caps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParamSchemeCap"
+            }
           }
         }
       },
@@ -1614,6 +1715,148 @@
             "type": "string",
             "example": "Occupation end date (2023-01-01) cannot precede start date (2024-04-01)",
             "description": "Localized human-readable error narrative."
+          }
+        }
+      },
+      "ParamEmptyPropertyThreshold": {
+        "type": "object",
+        "required": [
+          "parameter_id",
+          "jurisdiction",
+          "threshold_rv",
+          "statutory_authority",
+          "effective_from",
+          "effective_to"
+        ],
+        "properties": {
+          "parameter_id": {
+            "type": "string",
+            "example": "ept_eng_2017"
+          },
+          "jurisdiction": {
+            "$ref": "#/components/schemas/Jurisdiction"
+          },
+          "threshold_rv": {
+            "type": "number",
+            "format": "double",
+            "example": 2900.0
+          },
+          "statutory_authority": {
+            "type": "string",
+            "example": "LGFA 1988 s.45 / S.I. 2017/102 art. 4"
+          },
+          "effective_from": {
+            "type": "string",
+            "format": "date",
+            "example": "2017-04-01"
+          },
+          "effective_to": {
+            "type": "string",
+            "format": "date",
+            "example": "2099-12-31"
+          }
+        }
+      },
+      "ParamLettingTest": {
+        "type": "object",
+        "required": [
+          "parameter_id",
+          "jurisdiction",
+          "min_actual_let_days",
+          "min_available_days",
+          "statutory_authority",
+          "effective_from",
+          "effective_to"
+        ],
+        "properties": {
+          "parameter_id": {
+            "type": "string",
+            "example": "let_wal_2023"
+          },
+          "jurisdiction": {
+            "$ref": "#/components/schemas/Jurisdiction"
+          },
+          "min_actual_let_days": {
+            "type": "integer",
+            "example": 182
+          },
+          "min_available_days": {
+            "type": "integer",
+            "example": 252
+          },
+          "statutory_authority": {
+            "type": "string",
+            "example": "LGFA 1988 s.66(2BB) / W.S.I. 2022/563"
+          },
+          "effective_from": {
+            "type": "string",
+            "format": "date",
+            "example": "2023-04-01"
+          },
+          "effective_to": {
+            "type": "string",
+            "format": "date",
+            "example": "2099-12-31"
+          }
+        }
+      },
+      "ParamSchemeCap": {
+        "type": "object",
+        "required": [
+          "parameter_id",
+          "scheme_code",
+          "cap_value",
+          "cap_unit",
+          "statutory_authority"
+        ],
+        "properties": {
+          "parameter_id": {
+            "type": "string",
+            "example": "cap_reset_eng_2024"
+          },
+          "scheme_code": {
+            "type": "string",
+            "example": "EMPTY_OCCUPIED_RESET"
+          },
+          "financial_year": {
+            "type": "string",
+            "nullable": true,
+            "example": "2026/27"
+          },
+          "jurisdiction": {
+            "nullable": true,
+            "$ref": "#/components/schemas/Jurisdiction"
+          },
+          "cap_value": {
+            "type": "number",
+            "format": "double",
+            "example": 91.0
+          },
+          "secondary_cap_value": {
+            "type": "number",
+            "format": "double",
+            "nullable": true,
+            "example": null
+          },
+          "cap_unit": {
+            "type": "string",
+            "example": "DAYS"
+          },
+          "statutory_authority": {
+            "type": "string",
+            "example": "NDRA 2023 s.15 / S.I. 2024/412"
+          },
+          "effective_from": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "example": "2024-04-01"
+          },
+          "effective_to": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "example": "2099-12-31"
           }
         }
       }

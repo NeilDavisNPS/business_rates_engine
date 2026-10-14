@@ -13,6 +13,10 @@ import type {
   ParamSbrrSbbsThreshold,
   ParamSectorRelief,
   ParamTransitionalCap,
+  ParamEmptyPropertyThreshold,
+  ParamLettingTest,
+  ParamSchemeCap,
+  AllParametersResponse,
 } from '../types';
 import { getDictionary, JURISDICTION_CONFIGS } from '../i18n';
 import { buildInfo, formatUtcTimestamp, type BuildInfo } from '../buildInfo';
@@ -103,6 +107,15 @@ class CalculationStore {
 
   transitionalCaps = $state<ParamTransitionalCap[]>([]);
   isTransitionalCapsExpanded = $state<boolean>(false);
+
+  emptyPropertyThresholds = $state<ParamEmptyPropertyThreshold[]>([]);
+  isEmptyPropertyExpanded = $state<boolean>(false);
+
+  lettingTests = $state<ParamLettingTest[]>([]);
+  isLettingTestsExpanded = $state<boolean>(false);
+
+  schemeCaps = $state<ParamSchemeCap[]>([]);
+  isSchemeCapsExpanded = $state<boolean>(false);
 
   t = $derived(getDictionary(this.language));
   jurisdictionInfo = $derived(JURISDICTION_CONFIGS[this.language][this.jurisdiction]);
@@ -417,11 +430,14 @@ class CalculationStore {
     try {
       const res = await fetch('/api/v1/parameters');
       if (res.ok) {
-        const data = await res.json();
+        const data: AllParametersResponse = await res.json();
         this.multipliers = data.multipliers || [];
         this.sbrrThresholds = data.sbrr_thresholds || [];
         this.sectorReliefs = data.sector_reliefs || [];
         this.transitionalCaps = data.transitional_caps || [];
+        this.emptyPropertyThresholds = data.empty_property_thresholds || [];
+        this.lettingTests = data.letting_tests || [];
+        this.schemeCaps = data.scheme_caps || [];
       }
     } catch (e) {
       console.warn('Failed to load parameters from API:', e);

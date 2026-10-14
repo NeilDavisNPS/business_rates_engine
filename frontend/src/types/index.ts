@@ -220,5 +220,49 @@ export interface ParamTransitionalCap {
   rv_threshold_min: number;
   rv_threshold_max: number | null;
   upward_cap_percentage: number;
+  is_greater_london?: boolean | null;
 }
+
+export interface ParamEmptyPropertyThreshold {
+  parameter_id: string;
+  jurisdiction: Jurisdiction;
+  threshold_rv: number;
+  statutory_authority: string;
+  effective_from: string;
+  effective_to: string;
+}
+
+export interface ParamLettingTest {
+  parameter_id: string;
+  jurisdiction: Jurisdiction;
+  min_actual_let_days: number;
+  min_available_days: number;
+  statutory_authority: string;
+  effective_from: string;
+  effective_to: string;
+}
+
+export interface ParamSchemeCap {
+  parameter_id: string;
+  scheme_code: string;
+  financial_year: string | null;
+  jurisdiction: Jurisdiction | null;
+  cap_value: number;
+  secondary_cap_value: number | null;
+  cap_unit: string;
+  statutory_authority: string;
+  effective_from: string | null;
+  effective_to: string | null;
+}
+
+export interface AllParametersResponse {
+  multipliers: ParamMultiplier[];
+  sbrr_thresholds: ParamSbrrSbbsThreshold[];
+  sector_reliefs: ParamSectorRelief[];
+  transitional_caps: ParamTransitionalCap[];
+  empty_property_thresholds: ParamEmptyPropertyThreshold[];
+  letting_tests: ParamLettingTest[];
+  scheme_caps: ParamSchemeCap[];
+}
+
 

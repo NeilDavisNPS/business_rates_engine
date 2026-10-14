@@ -121,7 +121,7 @@
               <tr class="hover:bg-slate-50/50">
                 <td class="p-2.5 font-mono font-bold text-slate-900">{item.financial_year}</td>
                 <td class="p-2.5">
-                  <span class="px-2 py-0.5 rounded text-[10px] font-semibold {item.jurisdiction === 'WALES' ? 'bg-emerald-100 text-emerald-800' : item.jurisdiction === 'SCOTLAND' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-semibold {item.jurisdiction === 'WALES' ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : item.jurisdiction === 'SCOTLAND' ? 'bg-purple-100 text-purple-900 border border-purple-300' : 'bg-blue-100 text-blue-900 border border-blue-300'}">
                     {item.jurisdiction}
                   </span>
                 </td>
@@ -140,9 +140,13 @@
                   {#if item.jurisdiction === 'ENGLAND'}
                     LGFA 1988 s.47 (Discretionary RHL)
                   {:else if item.jurisdiction === 'WALES'}
-                    LGF(W)A 2024 Welsh Ministers Scheme
+                    {#if item.relief_code.includes('FOOD_DRINK')}
+                      LGF(W)A 2024 (Food &amp; Drink Hospitality)
+                    {:else}
+                      LGFA 1988 s.47 / Welsh Guidance
+                    {/if}
                   {:else}
-                    NDR (Scotland) Special Direction
+                    S.S.I. 2026/69 &amp; S.S.I. 2026/135
                   {/if}
                 </td>
                 <td class="p-2.5 text-slate-500 font-mono text-[11px]">

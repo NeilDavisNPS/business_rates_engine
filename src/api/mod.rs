@@ -8,7 +8,8 @@ use axum::{
 use crate::models::AppState;
 use self::handlers::{
     calculate_liability_handler, component_ui_handler, get_all_parameters_handler,
-    get_multipliers_handler, get_reference_codes_handler, get_sbrr_thresholds_handler,
+    get_empty_property_thresholds_handler, get_letting_tests_handler, get_multipliers_handler,
+    get_reference_codes_handler, get_sbrr_thresholds_handler, get_scheme_caps_handler,
     get_sector_reliefs_handler, get_transitional_caps_handler, health_check_handler,
     licenses_handler, licenses_md_handler, openapi_json_handler, openapi_yaml_handler,
     scalar_ui_handler, static_frontend_asset,
@@ -27,6 +28,9 @@ pub fn create_router(state: AppState) -> Router {
         .route("/parameters/sbrr-thresholds", get(get_sbrr_thresholds_handler))
         .route("/parameters/sector-reliefs", get(get_sector_reliefs_handler))
         .route("/parameters/transitional-caps", get(get_transitional_caps_handler))
+        .route("/parameters/empty-property", get(get_empty_property_thresholds_handler))
+        .route("/parameters/letting-tests", get(get_letting_tests_handler))
+        .route("/parameters/scheme-caps", get(get_scheme_caps_handler))
         .route("/openapi.json", get(openapi_json_handler))
         .route("/openapi.yaml", get(openapi_yaml_handler));
 

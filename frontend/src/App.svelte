@@ -14,6 +14,9 @@
   import SbrrThresholdsCatalog from './components/SbrrThresholdsCatalog.svelte';
   import SectorReliefsCatalog from './components/SectorReliefsCatalog.svelte';
   import TransitionalCapsCatalog from './components/TransitionalCapsCatalog.svelte';
+  import EmptyPropertyCatalog from './components/EmptyPropertyCatalog.svelte';
+  import LettingTestsCatalog from './components/LettingTestsCatalog.svelte';
+  import SchemeCapsCatalog from './components/SchemeCapsCatalog.svelte';
   import Footer from './components/Footer.svelte';
   import { calcStore } from './stores/calculation.svelte';
 
@@ -209,6 +212,9 @@
         <SbrrThresholdsCatalog />
         <SectorReliefsCatalog />
         <TransitionalCapsCatalog />
+        <EmptyPropertyCatalog />
+        <LettingTestsCatalog />
+        <SchemeCapsCatalog />
         <ReferenceCodeCatalog />
       </div>
     </section>

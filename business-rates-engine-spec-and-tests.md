@@ -188,6 +188,9 @@ The system operates with a decoupled modern architecture:
 │   GET  /api/v1/parameters/sbrr-thresholds                              │
 │   GET  /api/v1/parameters/sector-reliefs                               │
 │   GET  /api/v1/parameters/transitional-caps                            │
+│   GET  /api/v1/parameters/empty-property                               │
+│   GET  /api/v1/parameters/letting-tests                                │
+│   GET  /api/v1/parameters/scheme-caps                                  │
 │   GET  /api/v1/licenses                 -> Licenses Markdown / JSON    │
 │   GET  /api/v1/healthz                  -> Service Health Check (JSON) │
 │   GET  /api/v1/openapi.json             -> OpenAPI 3.1.0 Spec (JSON)   │
@@ -450,7 +453,7 @@ The calculation engine operates with a self-contained, in-memory **Built-In Stat
 
 ### 3.1 Repository Structure & Seeded Models
 
-The built-in repository encapsulates 5 core statutory parameter domains:
+The built-in repository encapsulates 8 core statutory parameter domains:
 
 ```rust
 pub struct ParameterRepository {
@@ -458,6 +461,9 @@ pub struct ParameterRepository {
     sbrr_sbbs_thresholds: Vec<ParamSbrrSbbsThreshold>,
     sector_reliefs: Vec<ParamSectorRelief>,
     transitional_caps: Vec<ParamTransitionalCap>,
+    empty_property_thresholds: Vec<ParamEmptyPropertyThreshold>,
+    letting_tests: Vec<ParamLettingTest>,
+    scheme_caps: Vec<ParamSchemeCap>,
     reference_codes: Vec<ParamReferenceCode>,
 }
 ```
@@ -592,11 +598,14 @@ impl ParameterRepository {
 ### 3.3 Statutory Parameter REST Endpoints & OpenAPI Documentation
 
 The in-memory parameter repository and statutory documentation are exposed directly via dedicated REST endpoints:
-- `GET /api/v1/parameters`: Aggregated JSON payload containing all temporal multipliers, SBRR/SBBS thresholds, sector reliefs, and transitional caps.
+- `GET /api/v1/parameters`: Aggregated JSON payload containing all 8 parameter datasets (multipliers, SBRR/SBBS thresholds, sector reliefs, transitional caps, empty property thresholds, holiday let letting tests, devolved scheme caps, and reference codes).
 - `GET /api/v1/parameters/multipliers`: Temporal rating multipliers array (1990–2027) disaggregated by jurisdiction.
 - `GET /api/v1/parameters/sbrr-thresholds`: SBRR / SBBS rateable value thresholds and statutory linear relief rules.
 - `GET /api/v1/parameters/sector-reliefs`: Devolved retail, hospitality, leisure, and special relief schemes.
 - `GET /api/v1/parameters/transitional-caps`: Statutory revaluation transitional phasing percentage caps.
+- `GET /api/v1/parameters/empty-property`: Low-value empty property rateable value exemption thresholds across all lists (1990–2027) for England, Wales, and Scotland.
+- `GET /api/v1/parameters/letting-tests`: Statutory holiday let actual let and commercial availability days thresholds.
+- `GET /api/v1/parameters/scheme-caps`: Scheme-specific financial limits, statutory additions, reset days, and penalty schedules.
 - `GET /api/v1/openapi.json` & `GET /api/v1/openapi.yaml`: Official OpenAPI 3.1.0 specifications documenting all statutory models, calculation endpoints, schemas, and parameter filters.
 - `GET /docs`: Interactive self-hosted Scalar API reference UI rendered from `templates/scalar.html` with zero external CDN dependencies, strict script CSP, and dynamic query parameter templating (`?title=...&spec_url=...&theme=...&layout=...`).
 
@@ -652,7 +661,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_http_reference_codes_endpoints`: Validates public `GET /api/v1/reference-codes` and verifies unmapped prefix path returns `404 NOT FOUND`.
   - `test_http_calculate_liability_unauthenticated_access`: Verifies calculation succeeds on `POST /api/v1/calculate-liability` without requiring authorization headers.
   - `test_http_sso_endpoints`: Verifies unmapped SSO endpoints return `404 NOT FOUND`.
-  - `test_http_parameters_endpoints`: Validates all 5 parameter catalog endpoints return valid HTTP 200 JSON arrays.
+  - `test_http_parameters_endpoints`: Validates all 8 parameter catalog endpoints return valid HTTP 200 JSON arrays.
   - `test_openapi_and_swagger_endpoints`: Validates OpenAPI 3.1.0 specifications (`/api/v1/openapi.json`, `/api/v1/openapi.yaml`), `/docs` Scalar HTML rendering with query parameter templating, self-hosted zero-CDN `scalar.js`, and confirms unsupported aliases return 404.
   - `test_licenses_endpoints`: Validates `/licenses` (HTML interface styled with unified `/assets/app.css` under CSP), `/licenses.md` (raw Markdown attribution document), and `/api/v1/licenses?format=md` query routing.
   - `test_health_check_endpoints`: Validates both root `/health` and `/api/v1/health` return HTTP 200 with OWASP security headers, subsystem health checks (`engine_api: pass`, `parameters_repository: pass`, `frontend_bundle: pass`), and deployment build metadata (`version`, `commit_hash`, `build_number`, `build_timestamp`).

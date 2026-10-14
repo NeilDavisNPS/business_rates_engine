@@ -2,30 +2,32 @@ openapi: 3.1.0
 info:
   title: Business Rates Statutory Calculation Engine API
   version: 1.0.0
-  description: |
-    # Business Rates Statutory Calculation Engine (1993–2027)
-
-    The **Business Rates Statutory Calculation Engine** is a deterministic, microsecond-latency billing engine for non-domestic property rating across the United Kingdom, implementing primary and secondary legislation for:
-    - **England**: *Local Government Finance Act 1988 (LGFA 1988)* & *Non-Domestic Rating Act 2023 (NDRA 2023)*
-    - **Wales**: *Local Government Finance (Wales) Act 2024 (LGF(W)A 2024)* & Welsh Statutory Instruments
-    - **Scotland**: *Non-Domestic Rates (Scotland) Act 2020*, Three-tier multipliers & Small Business Bonus Scheme (SBBS)
-
-    ## Key Capabilities
-    - **Multi-Year Rating Liability**: Exact day-by-day leap-year calculation (365/366-day apportionments) from 1993/94 through 2026/27+.
-    - **Multi-Occupancy Episodes**: Support for multiple successive occupiers, vacant periods, and Section 44A part-occupied apportionments on a single hereditament.
-    - **Devolved Relief Schemes**:
-      - Mandatory Small Business Rate Relief (SBRR / SBBS) with non-linear/linear tapers.
-      - Mandatory 80% Charitable Relief and Community Amateur Sports Clubs (CASC) relief.
-      - Retail, Hospitality & Leisure (RHL) relief (75%, 40%, 35%) with statutory cash cap enforcement (£110,000.00).
-      - Rural Settlement Relief (100% mandatory).
-      - Heat Network & Public Lavatory statutory 100% exemptions.
-      - NDRA 2023 Improvement Relief G-factor RV exclusions.
-      - Section 45 Unoccupied property exemptions (3 calendar months commercial, 6 calendar months industrial, low-value £2,900 threshold).
-      - Section 63B Welsh Artificial Avoidance punitive penalties.
-    - **Multilingual Support**: First-class localized narrative auditing and error reporting in English (`en`), Welsh (`cy`), Scots (`sco`), and Scottish Gaelic (`gd`).
-
-    ## Open Source Licensing & Third-Party Attribution
-    This software is licensed under the [MIT License](https://opensource.org/licenses/MIT). Complete third-party license notices, copyright disclaimers, and dependency inventories are available at [/licenses](/licenses).
+  description: "# Business Rates Statutory Calculation Engine (1993\u20132027)\n\n\
+    The **Business Rates Statutory Calculation Engine** is a deterministic, microsecond-latency\
+    \ billing engine for non-domestic property rating across the United Kingdom, implementing\
+    \ primary and secondary legislation for:\n- **England**: *Local Government Finance\
+    \ Act 1988 (LGFA 1988)* & *Non-Domestic Rating Act 2023 (NDRA 2023)*\n- **Wales**:\
+    \ *Local Government Finance (Wales) Act 2024 (LGF(W)A 2024)* & Welsh Statutory\
+    \ Instruments\n- **Scotland**: *Non-Domestic Rates (Scotland) Act 2020*, Three-tier\
+    \ multipliers & Small Business Bonus Scheme (SBBS)\n\n## Key Capabilities\n- **Multi-Year\
+    \ Rating Liability**: Exact day-by-day leap-year calculation (365/366-day apportionments)\
+    \ from 1993/94 through 2026/27+.\n- **Multi-Occupancy Episodes**: Support for\
+    \ multiple successive occupiers, vacant periods, and Section 44A part-occupied\
+    \ apportionments on a single hereditament.\n- **Devolved Relief Schemes**:\n \
+    \ - Mandatory Small Business Rate Relief (SBRR / SBBS) with non-linear/linear\
+    \ tapers.\n  - Mandatory 80% Charitable Relief and Community Amateur Sports Clubs\
+    \ (CASC) relief.\n  - Retail, Hospitality & Leisure (RHL) relief (75%, 40%, 35%)\
+    \ with statutory cash cap enforcement (\xA3110,000.00).\n  - Rural Settlement\
+    \ Relief (100% mandatory).\n  - Heat Network & Public Lavatory statutory 100%\
+    \ exemptions.\n  - NDRA 2023 Improvement Relief G-factor RV exclusions.\n  - Section\
+    \ 45 Unoccupied property exemptions (3 calendar months commercial, 6 calendar\
+    \ months industrial, low-value \xA32,900 threshold).\n  - Section 63B Welsh Artificial\
+    \ Avoidance punitive penalties.\n- **Multilingual Support**: First-class localized\
+    \ narrative auditing and error reporting in English (`en`), Welsh (`cy`), Scots\
+    \ (`sco`), and Scottish Gaelic (`gd`).\n\n## Open Source Licensing & Third-Party\
+    \ Attribution\nThis software is licensed under the [MIT License](https://opensource.org/licenses/MIT).\
+    \ Complete third-party license notices, copyright disclaimers, and dependency\
+    \ inventories are available at [/licenses](/licenses).\n"
   contact:
     name: Business Rates Engine Team
     email: mark.st.stanley@gmail.com
@@ -33,21 +35,20 @@ info:
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
-
 servers:
-  - url: http://localhost:8080
-    description: Local Development / Sandbox Server
-  - url: /
-    description: Current Server Origin
-
+- url: http://localhost:8080
+  description: Local Development / Sandbox Server
+- url: /
+  description: Current Server Origin
 paths:
   /licenses:
     get:
       summary: Fetch Third-Party Open Source Software Licenses & Attribution
-      description: Returns comprehensive attribution notices, license texts, and dependency provenance for all incorporated third-party Rust crates and NPM packages.
+      description: Returns comprehensive attribution notices, license texts, and dependency
+        provenance for all incorporated third-party Rust crates and NPM packages.
       operationId: getLicenses
       tags:
-        - Metadata & Specification
+      - Metadata & Specification
       responses:
         '200':
           description: Third-party software attribution notices in Markdown format.
@@ -58,10 +59,12 @@ paths:
   /api/v1/health:
     get:
       summary: Service Health Check & Deployment Metadata
-      description: Returns RFC-compliant service health status, component subsystem checks, and deployment build metadata (version, commit hash, build increment number, and build timestamp).
+      description: Returns RFC-compliant service health status, component subsystem
+        checks, and deployment build metadata (version, commit hash, build increment
+        number, and build timestamp).
       operationId: getHealthCheck
       tags:
-        - Metadata & Specification
+      - Metadata & Specification
       responses:
         '200':
           description: Service is healthy and operational.
@@ -72,27 +75,38 @@ paths:
   /api/v1/calculate-liability:
     post:
       summary: Execute Statutory Liability Calculation
-      description: |
-        Calculates non-domestic rates liability over a specified occupation period or multi-occupancy episodes.
-        Automatically segments liability across financial years, applies the appropriate statutory multiplier, evaluates transitional phasing caps, computes mandatory and devolved relief deductions, applies statutory empty property exemptions, and calculates statutory penalties if applicable.
+      description: 'Calculates non-domestic rates liability over a specified occupation
+        period or multi-occupancy episodes.
+
+        Automatically segments liability across financial years, applies the appropriate
+        statutory multiplier, evaluates transitional phasing caps, computes mandatory
+        and devolved relief deductions, applies statutory empty property exemptions,
+        and calculates statutory penalties if applicable.
+
+        '
       operationId: calculateLiability
       tags:
-        - Calculation Engine
+      - Calculation Engine
       parameters:
-        - name: lang
-          in: query
-          required: false
-          description: Preferred language code for audit narrative and error localization (`en`, `cy`, `sco`, `gd`).
-          schema:
-            type: string
-            enum: [en, cy, sco, gd]
-            default: en
-        - name: Accept-Language
-          in: header
-          required: false
-          description: Standard HTTP Accept-Language header (e.g. `cy`, `gd`, `en-GB`).
-          schema:
-            type: string
+      - name: lang
+        in: query
+        required: false
+        description: Preferred language code for audit narrative and error localization
+          (`en`, `cy`, `sco`, `gd`).
+        schema:
+          type: string
+          enum:
+          - en
+          - cy
+          - sco
+          - gd
+          default: en
+      - name: Accept-Language
+        in: header
+        required: false
+        description: Standard HTTP Accept-Language header (e.g. `cy`, `gd`, `en-GB`).
+        schema:
+          type: string
       requestBody:
         required: true
         content:
@@ -109,11 +123,11 @@ paths:
                     end_date: '2026-03-31'
                   hereditament:
                     jurisdiction: ENGLAND
-                    scat_code: '091'
+                    scat_code: 091
                     rateable_value_history:
-                      - effective_from: '2023-04-01'
-                        effective_to: null
-                        rateable_value: 11000.00
+                    - effective_from: '2023-04-01'
+                      effective_to: null
+                      rateable_value: 11000.0
                   occupancy_type: OCCUPIED
                   qualifying_relief_flags:
                     is_small_business_sole_property: true
@@ -128,7 +142,7 @@ paths:
                     is_renewable_energy_generation: false
                     is_public_lavatory: false
                     is_heat_network: false
-                    qualifying_improvement_rv_increment: 0.00
+                    qualifying_improvement_rv_increment: 0.0
                     is_industrial_hereditament: false
                     days_previously_unoccupied: null
                     is_artificial_avoidance_suspected: false
@@ -139,7 +153,8 @@ paths:
                     apply_transitional_relief: true
                   language: en
               rural_settlement_audit:
-                summary: Rural Settlement Evaluation with 12 Monthly Statutory Installments Schedule
+                summary: Rural Settlement Evaluation with 12 Monthly Statutory Installments
+                  Schedule
                 value:
                   party_type: CORPORATE
                   occupation_period:
@@ -147,11 +162,11 @@ paths:
                     end_date: '2027-03-31'
                   hereditament:
                     jurisdiction: ENGLAND
-                    scat_code: '091'
+                    scat_code: 091
                     rateable_value_history:
-                      - effective_from: '2023-04-01'
-                        effective_to: null
-                        rateable_value: 45000.00
+                    - effective_from: '2023-04-01'
+                      effective_to: null
+                      rateable_value: 45000.0
                   occupancy_type: OCCUPIED
                   qualifying_relief_flags:
                     is_small_business_sole_property: false
@@ -166,7 +181,7 @@ paths:
                     is_renewable_energy_generation: false
                     is_public_lavatory: false
                     is_heat_network: false
-                    qualifying_improvement_rv_increment: 0.00
+                    qualifying_improvement_rv_increment: 0.0
                     is_industrial_hereditament: false
                     days_previously_unoccupied: null
                     is_artificial_avoidance_suspected: false
@@ -185,17 +200,18 @@ paths:
                     end_date: '2026-03-31'
                   hereditament:
                     jurisdiction: ENGLAND
-                    scat_code: '096'
+                    scat_code: 096
                     rateable_value_history:
-                      - effective_from: '2023-04-01'
-                        effective_to: null
-                        rateable_value: 20000.00
+                    - effective_from: '2023-04-01'
+                      effective_to: null
+                      rateable_value: 20000.0
                   occupancy_type: OCCUPIED
                   qualifying_relief_flags:
                     is_charitable_purposes: true
                   language: en
               multi_occupancy_episodes:
-                summary: Multi-Occupancy Episodes (Unoccupied -> Occupied SBRR -> S.44A Part-Occupied)
+                summary: Multi-Occupancy Episodes (Unoccupied -> Occupied SBRR ->
+                  S.44A Part-Occupied)
                 value:
                   party_type: INDIVIDUAL
                   occupation_period:
@@ -205,42 +221,44 @@ paths:
                     jurisdiction: ENGLAND
                     scat_code: '225'
                     rateable_value_history:
-                      - effective_from: '2023-04-01'
-                        effective_to: null
-                        rateable_value: 12000.00
+                    - effective_from: '2023-04-01'
+                      effective_to: null
+                      rateable_value: 12000.0
                   occupancy_type: OCCUPIED
                   qualifying_relief_flags:
                     is_small_business_sole_property: true
                   occupancy_periods:
-                    - start_date: '2024-04-01'
-                      end_date: '2024-06-30'
-                      occupancy_type: UNOCCUPIED
-                      qualifying_relief_flags:
-                        days_previously_unoccupied: 0
-                    - start_date: '2024-07-01'
-                      end_date: '2024-12-31'
-                      occupancy_type: OCCUPIED
-                      qualifying_relief_flags:
-                        is_small_business_sole_property: true
-                    - start_date: '2025-01-01'
-                      end_date: '2025-03-31'
-                      occupancy_type: PART_OCCUPIED
-                      qualifying_relief_flags:
-                        is_small_business_sole_property: true
-                      part_occupied_apportionment:
-                        occupied_rateable_value: 6000.00
-                        unoccupied_rateable_value: 6000.00
-                        occupied_percentage: 50.00
+                  - start_date: '2024-04-01'
+                    end_date: '2024-06-30'
+                    occupancy_type: UNOCCUPIED
+                    qualifying_relief_flags:
+                      days_previously_unoccupied: 0
+                  - start_date: '2024-07-01'
+                    end_date: '2024-12-31'
+                    occupancy_type: OCCUPIED
+                    qualifying_relief_flags:
+                      is_small_business_sole_property: true
+                  - start_date: '2025-01-01'
+                    end_date: '2025-03-31'
+                    occupancy_type: PART_OCCUPIED
+                    qualifying_relief_flags:
+                      is_small_business_sole_property: true
+                    part_occupied_apportionment:
+                      occupied_rateable_value: 6000.0
+                      unoccupied_rateable_value: 6000.0
+                      occupied_percentage: 50.0
                   language: en
       responses:
         '200':
-          description: Statutory calculation completed successfully with year-by-year billing segments and audit narrative.
+          description: Statutory calculation completed successfully with year-by-year
+            billing segments and audit narrative.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/LiabilityCalculationResponse'
         '400':
-          description: Invalid request parameters (e.g. occupation end date precedes start date, or occupancy periods overlap).
+          description: Invalid request parameters (e.g. occupation end date precedes
+            start date, or occupancy periods overlap).
           content:
             application/json:
               schema:
@@ -251,23 +269,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AppErrorResponse'
-
   /api/v1/reference-codes:
     get:
       summary: Query Statutory Reference Code Dictionary
-      description: Returns the standardized statutory reference code dictionary (jurisdictions, party types, occupancy types, relief categories, penalty classifications) localized into English, Welsh, Scots, or Scottish Gaelic.
+      description: Returns the standardized statutory reference code dictionary (jurisdictions,
+        party types, occupancy types, relief categories, penalty classifications)
+        localized into English, Welsh, Scots, or Scottish Gaelic.
       operationId: getReferenceCodes
       tags:
-        - Reference Data & Parameters
+      - Reference Data & Parameters
       parameters:
-        - name: lang
-          in: query
-          required: false
-          description: Target language (`en`, `cy`, `sco`, `gd`).
-          schema:
-            type: string
-            enum: [en, cy, sco, gd]
-            default: en
+      - name: lang
+        in: query
+        required: false
+        description: Target language (`en`, `cy`, `sco`, `gd`).
+        schema:
+          type: string
+          enum:
+          - en
+          - cy
+          - sco
+          - gd
+          default: en
       responses:
         '200':
           description: Array of localized statutory reference codes.
@@ -277,14 +300,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ParamReferenceCode'
-
   /api/v1/parameters:
     get:
       summary: Get All Seeded Statutory Parameters
-      description: Retrieves all four seeded in-memory parameter catalogs (multipliers 1993–2027, SBRR/SBBS tapers, devolved sector reliefs, and transitional phasing caps) in a single fast JSON response.
+      description: "Retrieves all four seeded in-memory parameter catalogs (multipliers\
+        \ 1993\u20132027, SBRR/SBBS tapers, devolved sector reliefs, and transitional\
+        \ phasing caps) in a single fast JSON response."
       operationId: getAllParameters
       tags:
-        - Reference Data & Parameters
+      - Reference Data & Parameters
       responses:
         '200':
           description: Complete bundle of all statutory parameters.
@@ -292,14 +316,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AllParametersResponse'
-
   /api/v1/parameters/multipliers:
     get:
-      summary: Query Statutory Rating Multipliers (1993–2027)
-      description: Returns all statutory rating multipliers across England (Standard & Small Business), Wales (Standard & Differential), and Scotland (Basic, Intermediate/Standard, Higher) from 1993/94 through 2026/27.
+      summary: "Query Statutory Rating Multipliers (1993\u20132027)"
+      description: Returns all statutory rating multipliers across England (Standard
+        & Small Business), Wales (Standard & Differential), and Scotland (Basic, Intermediate/Standard,
+        Higher) from 1993/94 through 2026/27.
       operationId: getMultipliers
       tags:
-        - Reference Data & Parameters
+      - Reference Data & Parameters
       responses:
         '200':
           description: Array of statutory rating multipliers.
@@ -309,14 +334,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ParamMultiplier'
-
   /api/v1/parameters/sbrr-thresholds:
     get:
       summary: Query Small Business Rate Relief & SBBS Thresholds
-      description: Returns Small Business Rate Relief (SBRR) and Small Business Bonus Scheme (SBBS) rateable value thresholds, exemption limits, and linear taper mechanisms.
+      description: Returns Small Business Rate Relief (SBRR) and Small Business Bonus
+        Scheme (SBBS) rateable value thresholds, exemption limits, and linear taper
+        mechanisms.
       operationId: getSbrrThresholds
       tags:
-        - Reference Data & Parameters
+      - Reference Data & Parameters
       responses:
         '200':
           description: Array of SBRR/SBBS threshold and taper definitions.
@@ -326,14 +352,14 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ParamSbrrSbbsThreshold'
-
   /api/v1/parameters/sector-reliefs:
     get:
       summary: Query Devolved Sector Relief Schemes (RHL)
-      description: Returns Retail, Hospitality & Leisure (RHL) relief schemes, discount percentages (75%, 40%, 35%), and statutory business cash caps (£110,000.00).
+      description: "Returns Retail, Hospitality & Leisure (RHL) relief schemes, discount\
+        \ percentages (75%, 40%, 35%), and statutory business cash caps (\xA3110,000.00)."
       operationId: getSectorReliefs
       tags:
-        - Reference Data & Parameters
+      - Reference Data & Parameters
       responses:
         '200':
           description: Array of devolved sector relief rules.
@@ -343,14 +369,14 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ParamSectorRelief'
-
   /api/v1/parameters/transitional-caps:
     get:
       summary: Query Transitional Phasing Relief Caps
-      description: Returns upward transitional phasing relief caps across property tiers (Small, Medium, Large) for the 2017, 2023, and 2026 Revaluation Lists.
+      description: Returns upward transitional phasing relief caps across property
+        tiers (Small, Medium, Large) for the 2017, 2023, and 2026 Revaluation Lists.
       operationId: getTransitionalCaps
       tags:
-        - Reference Data & Parameters
+      - Reference Data & Parameters
       responses:
         '200':
           description: Array of transitional relief phasing caps.
@@ -360,14 +386,14 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ParamTransitionalCap'
-
   /api/v1/openapi.json:
     get:
       summary: Fetch OpenAPI 3.1 Specification in JSON Format
-      description: Returns the formal OpenAPI 3.1.0 specification defining all schemas, parameters, endpoints, and error responses in JSON format.
+      description: Returns the formal OpenAPI 3.1.0 specification defining all schemas,
+        parameters, endpoints, and error responses in JSON format.
       operationId: getOpenApiJson
       tags:
-        - Reference Data & Parameters
+      - Reference Data & Parameters
       responses:
         '200':
           description: OpenAPI 3.1.0 specification JSON document.
@@ -375,14 +401,14 @@ paths:
             application/json:
               schema:
                 type: object
-
   /api/v1/openapi.yaml:
     get:
       summary: Fetch OpenAPI 3.1 Specification in YAML Format
-      description: Returns the formal OpenAPI 3.1.0 specification defining all schemas, parameters, endpoints, and error responses in YAML format.
+      description: Returns the formal OpenAPI 3.1.0 specification defining all schemas,
+        parameters, endpoints, and error responses in YAML format.
       operationId: getOpenApiYaml
       tags:
-        - Reference Data & Parameters
+      - Reference Data & Parameters
       responses:
         '200':
           description: OpenAPI 3.1.0 specification YAML document.
@@ -390,31 +416,86 @@ paths:
             text/yaml:
               schema:
                 type: string
-
+  /api/v1/parameters/empty-property:
+    get:
+      summary: Query Statutory Empty Property Low-Value Thresholds
+      description: "Returns statutory low-value rateable value exemption thresholds\
+        \ across England (\xA32,200, \xA315,000, \xA318,000, \xA32,600, \xA32,900),\
+        \ Wales (\xA32,200), and Scotland (\xA31,700)."
+      operationId: getEmptyPropertyThresholds
+      tags:
+      - Reference Data & Parameters
+      responses:
+        '200':
+          description: Array of statutory empty property low-value exemption thresholds.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ParamEmptyPropertyThreshold'
+  /api/v1/parameters/letting-tests:
+    get:
+      summary: Query Self-Catering Holiday Let Letting Criteria
+      description: Returns statutory minimum actual let days and commercial availability
+        criteria across England, Wales, and Scotland.
+      operationId: getLettingTests
+      tags:
+      - Reference Data & Parameters
+      responses:
+        '200':
+          description: Array of holiday let letting test requirements.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ParamLettingTest'
+  /api/v1/parameters/scheme-caps:
+    get:
+      summary: Query Devolved Scheme Caps, Additions & Thresholds
+      description: Returns statutory scheme caps and parameters including Rural Settlement
+        relief caps, Scottish renewable energy tiers, empty property reset periods,
+        transitional relief supplements, and Welsh avoidance penalties.
+      operationId: getSchemeCaps
+      tags:
+      - Reference Data & Parameters
+      responses:
+        '200':
+          description: Array of devolved scheme caps and statutory additions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ParamSchemeCap'
 components:
   schemas:
     HealthCheckResponse:
       type: object
       required:
-        - status
-        - version
-        - commit_hash
-        - build_number
-        - build_timestamp
-        - checks
+      - status
+      - version
+      - commit_hash
+      - build_number
+      - build_timestamp
+      - checks
       properties:
         status:
           type: string
-          enum: [pass, warn, fail]
+          enum:
+          - pass
+          - warn
+          - fail
           example: pass
           description: Overall health status indicator.
         version:
           type: string
-          example: '0.0.1'
+          example: 0.0.1
           description: Application package version.
         commit_hash:
           type: string
-          example: '7ecb659'
+          example: 7ecb659
           description: Short Git commit hash of the deployed build.
         build_number:
           type: string
@@ -427,13 +508,12 @@ components:
           description: UTC timestamp when the build artifact was compiled.
         checks:
           $ref: '#/components/schemas/SubsystemChecks'
-
     SubsystemChecks:
       type: object
       required:
-        - engine_api
-        - parameters_repository
-        - frontend_bundle
+      - engine_api
+      - parameters_repository
+      - frontend_bundle
       properties:
         engine_api:
           type: string
@@ -446,39 +526,36 @@ components:
         frontend_bundle:
           type: string
           example: pass
-          description: Status and presence of the compiled Svelte single-page application bundle.
-
+          description: Status and presence of the compiled Svelte single-page application
+            bundle.
     Jurisdiction:
       type: string
       enum:
-        - ENGLAND
-        - WALES
-        - SCOTLAND
+      - ENGLAND
+      - WALES
+      - SCOTLAND
       description: UK statutory rating jurisdiction.
-
     PartyType:
       type: string
       enum:
-        - CORPORATE
-        - INDIVIDUAL
-        - CHARITY
-        - CASC
-        - LOCAL_AUTHORITY
+      - CORPORATE
+      - INDIVIDUAL
+      - CHARITY
+      - CASC
+      - LOCAL_AUTHORITY
       description: Legal classification of the liable party under rating law.
-
     OccupancyType:
       type: string
       enum:
-        - OCCUPIED
-        - UNOCCUPIED
-        - PART_OCCUPIED
+      - OCCUPIED
+      - UNOCCUPIED
+      - PART_OCCUPIED
       description: Hereditament occupation state.
-
     DateRange:
       type: object
       required:
-        - start_date
-        - end_date
+      - start_date
+      - end_date
       properties:
         start_date:
           type: string
@@ -489,13 +566,13 @@ components:
           type: string
           format: date
           example: '2026-03-31'
-          description: Inclusive end date (YYYY-MM-DD). Defaults to 2027-03-31 if omitted or empty.
-
+          description: Inclusive end date (YYYY-MM-DD). Defaults to 2027-03-31 if
+            omitted or empty.
     RvEntry:
       type: object
       required:
-        - effective_from
-        - rateable_value
+      - effective_from
+      - rateable_value
       properties:
         effective_from:
           type: string
@@ -510,28 +587,28 @@ components:
         rateable_value:
           type: number
           format: double
-          example: 45000.00
-          description: Certified Rateable Value (£ GBP) as compiled on the local rating list.
-
+          example: 45000.0
+          description: "Certified Rateable Value (\xA3 GBP) as compiled on the local\
+            \ rating list."
     HereditamentInput:
       type: object
       required:
-        - jurisdiction
-        - scat_code
-        - rateable_value_history
+      - jurisdiction
+      - scat_code
+      - rateable_value_history
       properties:
         jurisdiction:
           $ref: '#/components/schemas/Jurisdiction'
         scat_code:
           type: string
-          example: '091'
-          description: Special Category (SCAT) code identifying property use (e.g. 091 for Department Stores, 249 for Shops).
+          example: 091
+          description: Special Category (SCAT) code identifying property use (e.g.
+            091 for Department Stores, 249 for Shops).
         rateable_value_history:
           type: array
           items:
             $ref: '#/components/schemas/RvEntry'
           description: Chronological valuation list entries for the property.
-
     PartOccupiedApportionment:
       type: object
       properties:
@@ -539,119 +616,156 @@ components:
           type: number
           format: double
           nullable: true
-          example: 30000.00
+          example: 30000.0
         unoccupied_rateable_value:
           type: number
           format: double
           nullable: true
-          example: 15000.00
+          example: 15000.0
         occupied_percentage:
           type: number
           format: double
           nullable: true
           example: 66.67
-
     QualifyingReliefFlags:
       type: object
       properties:
         is_small_business_sole_property:
           type: boolean
           default: false
-          description: True if hereditament is the sole commercial property occupied in England/Wales (LGFA 1988 s.43(4B)).
+          description: True if hereditament is the sole commercial property occupied
+            in England/Wales (LGFA 1988 s.43(4B)).
         is_small_business_second_property_grace:
           type: boolean
           default: false
-          description: True if hereditament qualifies for the 12-month small business second property grace period under SI 2017/411 art. 3(4).
+          description: True if hereditament qualifies for the 12-month small business
+            second property grace period under SI 2017/411 art. 3(4).
         is_small_business_second_property:
           type: boolean
           default: false
-          description: True if hereditament is a second qualifying small business property in Wales under W.S.I. 2017/1229 art. 12.
+          description: True if hereditament is a second qualifying small business
+            property in Wales under W.S.I. 2017/1229 art. 12.
         is_small_business_multiple_properties:
           type: boolean
           default: false
-          description: True if the ratepayer occupies multiple non-domestic properties in Scotland under SBBS reg. 4 multiple-property rules (SSI 2023/34 / SSI 2026/68).
+          description: True if the ratepayer occupies multiple non-domestic properties
+            in Scotland under SBBS reg. 4 multiple-property rules (SSI 2023/34 / SSI
+            2026/68).
         small_business_cumulative_rv:
           type: number
           format: double
           nullable: true
-          description: Cumulative rateable value across all occupied hereditaments in Scotland, subject to the £35,000 statutory cap under SBBS reg. 4.
+          description: "Cumulative rateable value across all occupied hereditaments\
+            \ in Scotland, subject to the \xA335,000 statutory cap under SBBS reg.\
+            \ 4."
         is_registered_childcare:
           type: boolean
           default: false
-          description: True if premises in Wales are registered as day childcare premises with CIW qualifying for 100% SBRR up to £100k RV under W.S.I. 2017/1229 art. 5.
+          description: "True if premises in Wales are registered as day childcare\
+            \ premises with CIW qualifying for 100% SBRR up to \xA3100k RV under W.S.I.\
+            \ 2017/1229 art. 5."
         is_post_office:
           type: boolean
           default: false
-          description: True if hereditament in Wales operates as a post office qualifying for 100% SBRR up to £9k RV and 50% between £9,001 and £12k RV under W.S.I. 2017/1229 art. 4.
+          description: "True if hereditament in Wales operates as a post office qualifying\
+            \ for 100% SBRR up to \xA39k RV and 50% between \xA39,001 and \xA312k\
+            \ RV under W.S.I. 2017/1229 art. 4."
         is_charitable_purposes:
           type: boolean
           default: false
-          description: True if occupied by a registered charity wholly or mainly for charitable purposes (80% mandatory relief under LGFA 1988 s.43(5) or LG(R)S 1962 s.4(2)).
+          description: True if occupied by a registered charity wholly or mainly for
+            charitable purposes (80% mandatory relief under LGFA 1988 s.43(5) or LG(R)S
+            1962 s.4(2)).
         is_rhl_qualifying:
           type: boolean
           default: false
-          description: True if property qualifies under Retail, Hospitality and Leisure scheme criteria.
+          description: True if property qualifies under Retail, Hospitality and Leisure
+            scheme criteria.
         is_hospitality_premises:
           type: boolean
           default: false
-          description: True if premises qualify as hospitality (hotel, pub, restaurant, café, live music venue) under Schedule 1A of SSI 2026/69 / SSI 2026/135 for 40% relief in Scotland.
+          description: "True if premises qualify as hospitality (hotel, pub, restaurant,\
+            \ caf\xE9, live music venue) under Schedule 1A of SSI 2026/69 / SSI 2026/135\
+            \ for 40% relief in Scotland."
         is_retail_premises:
           type: boolean
           default: false
-          description: True if property qualifies as retail premises under NDRA 2023 for 2026/27 permanent lower multipliers in England.
+          description: True if property qualifies as retail premises under NDRA 2023
+            for 2026/27 permanent lower multipliers in England.
         is_island_property:
           type: boolean
           default: false
-          description: True if hereditament is located on a Scottish island designated under Islands (Scotland) Act 2018 (qualifying for 100% island relief / RHL).
+          description: True if hereditament is located on a Scottish island designated
+            under Islands (Scotland) Act 2018 (qualifying for 100% island relief /
+            RHL).
         is_scottish_remote_mainland:
           type: boolean
           default: false
-          description: True if situated in Cape Wrath, Knoydart or Scoraig qualifying for 100% relief under SSI 2026/69 reg. 5.
+          description: True if situated in Cape Wrath, Knoydart or Scoraig qualifying
+            for 100% relief under SSI 2026/69 reg. 5.
         has_short_term_let_licence:
           type: boolean
           nullable: true
-          description: Whether a short-term let licence is held under Civic Government (Scotland) Act 1982 / SSI 2022/86, required for Scottish self-catering RHL relief and 15% transitional cap.
+          description: Whether a short-term let licence is held under Civic Government
+            (Scotland) Act 1982 / SSI 2022/86, required for Scottish self-catering
+            RHL relief and 15% transitional cap.
         is_rural_settlement:
           type: boolean
           default: false
-          description: True if situated in a designated rural settlement with population below 3,000 (sole village shop, post office, food shop, or pub under LGFA 1988 s.43(6A)).
+          description: True if situated in a designated rural settlement with population
+            below 3,000 (sole village shop, post office, food shop, or pub under LGFA
+            1988 s.43(6A)).
         is_telecommunications_infrastructure:
           type: boolean
           default: false
-          description: True if qualifying new telecommunications infrastructure under Telecommunications Infrastructure (Relief from Non-Domestic Rates) Act 2018 / SSI 2019/111 (100% mandatory relief).
+          description: True if qualifying new telecommunications infrastructure under
+            Telecommunications Infrastructure (Relief from Non-Domestic Rates) Act
+            2018 / SSI 2019/111 (100% mandatory relief).
         is_charity_discretionary_top_up:
           type: boolean
           default: false
-          description: True if billing authority has awarded up to 20% discretionary top-up relief to a charity or CASC under LGFA 1988 s.47(2)(a) / 1962 Act s.4(5).
+          description: True if billing authority has awarded up to 20% discretionary
+            top-up relief to a charity or CASC under LGFA 1988 s.47(2)(a) / 1962 Act
+            s.4(5).
         is_renewable_energy_generation:
           type: boolean
           default: false
-          description: True if qualifying renewable energy generation project in Scotland under Non-Domestic Rates (Renewable Energy Generation Relief) (Scotland) Regulations 2010 (SSI 2010/336).
+          description: True if qualifying renewable energy generation project in Scotland
+            under Non-Domestic Rates (Renewable Energy Generation Relief) (Scotland)
+            Regulations 2010 (SSI 2010/336).
         is_higher_multiplier_excepted:
           type: boolean
           default: false
-          description: True if high-value hereditament (>£100k RV) in Wales qualifies for statutory exception from the higher multiplier, paying the standard multiplier (LGF(W)A 2024).
+          description: "True if high-value hereditament (>\xA3100k RV) in Wales qualifies\
+            \ for statutory exception from the higher multiplier, paying the standard\
+            \ multiplier (LGF(W)A 2024)."
         is_food_and_drink:
           type: boolean
           default: false
-          description: True if premises in Wales qualify for Food and Drink Hospitality Rates Relief (15%) under Welsh Government scheme rules from 2026/27.
+          description: True if premises in Wales qualify for Food and Drink Hospitality
+            Rates Relief (15%) under Welsh Government scheme rules from 2026/27.
         is_public_lavatory:
           type: boolean
           default: false
-          description: True if exclusively used as a public lavatory (100% mandatory statutory exemption under Non-Domestic Rating (Public Lavatories) Act 2021).
+          description: True if exclusively used as a public lavatory (100% mandatory
+            statutory exemption under Non-Domestic Rating (Public Lavatories) Act
+            2021).
         is_heat_network:
           type: boolean
           default: false
-          description: True if qualifying low-carbon district heating network hereditament (100% exemption under NDRA 2023 / SSI 2023/45).
+          description: True if qualifying low-carbon district heating network hereditament
+            (100% exemption under NDRA 2023 / SSI 2023/45).
         qualifying_improvement_rv_increment:
           type: number
           format: double
-          default: 0.00
-          description: NDRA 2023 certified qualifying improvement RV increment (G-factor excluded for 12 months).
+          default: 0.0
+          description: NDRA 2023 certified qualifying improvement RV increment (G-factor
+            excluded for 12 months).
         is_industrial_hereditament:
           type: boolean
           default: false
-          description: True if property is industrial or storage warehouse (qualifies for 6 months empty property exemption under SI 2008/386).
+          description: True if property is industrial or storage warehouse (qualifies
+            for 6 months empty property exemption under SI 2008/386).
         days_previously_unoccupied:
           type: integer
           nullable: true
@@ -659,49 +773,67 @@ components:
         is_artificial_avoidance_suspected:
           type: boolean
           default: false
-          description: Wales Section 63B artificial avoidance trigger under LGF(W)A 2024 (imposes statutory penalty).
+          description: Wales Section 63B artificial avoidance trigger under LGF(W)A
+            2024 (imposes statutory penalty).
         holiday_let_actual_days_let:
           type: integer
           nullable: true
-          description: Actual days let out in preceding 12 months (minimum 70 days in Scotland from 2022/23 under S.S.I. 2021/489; minimum 70 days in England from 2023/24 under S.I. 2022/217; minimum 70 days in Wales from 2010 under W.S.I. 2010/682 rising to 182 days from 2023/24 under W.S.I. 2022/563).
+          description: Actual days let out in preceding 12 months (minimum 70 days
+            in Scotland from 2022/23 under S.S.I. 2021/489; minimum 70 days in England
+            from 2023/24 under S.I. 2022/217; minimum 70 days in Wales from 2010 under
+            W.S.I. 2010/682 rising to 182 days from 2023/24 under W.S.I. 2022/563).
         holiday_let_days_available:
           type: integer
           nullable: true
-          description: Number of days commercially available for letting in preceding 12 months (minimum 140 days in England/Scotland, 252 days in Wales post-2023 under W.S.I. 2022/563).
+          description: Number of days commercially available for letting in preceding
+            12 months (minimum 140 days in England/Scotland, 252 days in Wales post-2023
+            under W.S.I. 2022/563).
         is_sbbs_tr_qualifying:
           type: boolean
           default: false
-          description: True if qualifying for Scottish Small Business Bonus Scheme Transitional Relief (SBBS TR) capping bill increases under SSI 2023/45.
+          description: True if qualifying for Scottish Small Business Bonus Scheme
+            Transitional Relief (SBBS TR) capping bill increases under SSI 2023/45.
         is_ssbr_qualifying:
           type: boolean
           default: false
-          description: True if qualifying for Supporting Small Business Relief (SSBR) in England capping annual increases to £600/£800 under LGFA 1988 s.47.
+          description: "True if qualifying for Supporting Small Business Relief (SSBR)\
+            \ in England capping annual increases to \xA3600/\xA3800 under LGFA 1988\
+            \ s.47."
         payment_installments_count:
           type: integer
           nullable: true
-          enum: [10, 12]
-          description: Statutory monthly installment schedule under Non-Domestic Rating (Collection and Enforcement) Regulations 1989 (SI 1989/1058, 10 installments default) or Local Government Act 2003 / SI 2014/466 (12 installments statutory right).
+          enum:
+          - 10
+          - 12
+          description: Statutory monthly installment schedule under Non-Domestic Rating
+            (Collection and Enforcement) Regulations 1989 (SI 1989/1058, 10 installments
+            default) or Local Government Act 2003 / SI 2014/466 (12 installments statutory
+            right).
         apply_transitional_relief:
           type: boolean
           nullable: true
           default: true
-          description: Whether to apply statutory transitional phasing relief calculation under transitional relief regulations. Defaults to true.
+          description: Whether to apply statutory transitional phasing relief calculation
+            under transitional relief regulations. Defaults to true.
         same_occupier_since_revaluation:
           type: boolean
           nullable: true
           default: true
-          description: True if hereditament has been occupied by the same ratepayer continuously since revaluation list date (required for Welsh transitional relief under W.S.I. 2022/1350 reg. 9(b) and W.S.I. 2025/1371 reg. 6(b)).
+          description: True if hereditament has been occupied by the same ratepayer
+            continuously since revaluation list date (required for Welsh transitional
+            relief under W.S.I. 2022/1350 reg. 9(b) and W.S.I. 2025/1371 reg. 6(b)).
         is_greater_london:
           type: boolean
           default: false
-          description: True if hereditament is located in Greater London, qualifying for higher small-band transitional relief threshold (£28,000 RV vs £20,000 outside London under S.I. 2022/1403 reg. 10(5)).
-
+          description: "True if hereditament is located in Greater London, qualifying\
+            \ for higher small-band transitional relief threshold (\xA328,000 RV vs\
+            \ \xA320,000 outside London under S.I. 2022/1403 reg. 10(5))."
     OccupancyPeriodInput:
       type: object
       required:
-        - start_date
-        - end_date
-        - occupancy_type
+      - start_date
+      - end_date
+      - occupancy_type
       properties:
         start_date:
           type: string
@@ -717,13 +849,12 @@ components:
           $ref: '#/components/schemas/QualifyingReliefFlags'
         part_occupied_apportionment:
           $ref: '#/components/schemas/PartOccupiedApportionment'
-
     LiabilityCalculationRequest:
       type: object
       required:
-        - party_type
-        - occupation_period
-        - hereditament
+      - party_type
+      - occupation_period
+      - hereditament
       properties:
         party_type:
           $ref: '#/components/schemas/PartyType'
@@ -741,18 +872,18 @@ components:
           items:
             $ref: '#/components/schemas/OccupancyPeriodInput'
           nullable: true
-          description: Optional list of granular multi-occupancy episodes taking precedence over the top-level occupation period.
+          description: Optional list of granular multi-occupancy episodes taking precedence
+            over the top-level occupation period.
         language:
           type: string
-          example: 'en'
+          example: en
           description: Preferred localization language (`en`, `cy`, `sco`, `gd`).
-
     SegmentPeriod:
       type: object
       required:
-        - start_date
-        - end_date
-        - days
+      - start_date
+      - end_date
+      - days
       properties:
         start_date:
           type: string
@@ -765,90 +896,85 @@ components:
         days:
           type: integer
           example: 366
-
     MultiplierInfo:
       type: object
       required:
-        - type
-        - rate
+      - type
+      - rate
       properties:
         type:
           type: string
-          example: 'STANDARD'
+          example: STANDARD
         rate:
           type: number
           format: double
-          example: 0.5120
-
+          example: 0.512
     TransitionalAdjustment:
       type: object
       required:
-        - type
-        - amount
+      - type
+      - amount
       properties:
         type:
           type: string
-          example: 'NONE'
+          example: NONE
         amount:
           type: number
           format: double
-          example: 0.00
-
+          example: 0.0
     ItemizedRelief:
       type: object
       required:
-        - relief_code
-        - relief_name
-        - statutory_authority
-        - discount_percentage
-        - amount_deducted
+      - relief_code
+      - relief_name
+      - statutory_authority
+      - discount_percentage
+      - amount_deducted
       properties:
         relief_code:
           type: string
-          example: 'SBRR_FULL'
+          example: SBRR_FULL
         relief_name:
           type: string
-          example: 'Small Business Rate Relief (100% Exemption)'
+          example: Small Business Rate Relief (100% Exemption)
         statutory_authority:
           type: string
-          example: 'LGFA 1988 s.43(4A) & NDRA 2023'
+          example: LGFA 1988 s.43(4A) & NDRA 2023
         discount_percentage:
           type: number
           format: double
-          example: 100.00
+          example: 100.0
         amount_deducted:
           type: number
           format: double
-          example: 5632.00
-
+          example: 5632.0
     StatutoryPenalty:
       type: object
       required:
-        - penalty_type
-        - statutory_authority
-        - calculation_formula
-        - amount
+      - penalty_type
+      - statutory_authority
+      - calculation_formula
+      - amount
       properties:
         penalty_type:
           type: string
-          example: 'WELSH_SECTION_63B_ARTIFICIAL_AVOIDANCE'
+          example: WELSH_SECTION_63B_ARTIFICIAL_AVOIDANCE
         statutory_authority:
           type: string
-          example: 'Local Government Finance (Wales) Act 2024 s.63B'
+          example: Local Government Finance (Wales) Act 2024 s.63B
         calculation_formula:
           type: string
-          example: '50% Surcharge on Net Chargeable Amount'
+          example: 50% Surcharge on Net Chargeable Amount
         amount:
           type: number
           format: double
-          example: 2816.00
-
+          example: 2816.0
     StatutoryInstallment:
       type: object
       required:
-        - installment_number
-        - due_date
-        - amount
+      - installment_number
+      - due_date
+      - amount
       properties:
         installment_number:
           type: integer
@@ -862,36 +988,35 @@ components:
         amount:
           type: number
           format: double
-          example: 563.20
-          description: Statutory apportioned installment amount (£ GBP).
-
+          example: 563.2
+          description: "Statutory apportioned installment amount (\xA3 GBP)."
     AnnualBillingSegment:
       type: object
       required:
-        - financial_year
-        - segment_period
-        - rateable_value
-        - multiplier_used
-        - gross_liability
-        - transitional_adjustment
-        - itemized_reliefs
-        - net_segment_payable
+      - financial_year
+      - segment_period
+      - rateable_value
+      - multiplier_used
+      - gross_liability
+      - transitional_adjustment
+      - itemized_reliefs
+      - net_segment_payable
       properties:
         financial_year:
           type: string
-          example: '2023/24'
+          example: 2023/24
         segment_period:
           $ref: '#/components/schemas/SegmentPeriod'
         rateable_value:
           type: number
           format: double
-          example: 11000.00
+          example: 11000.0
         multiplier_used:
           $ref: '#/components/schemas/MultiplierInfo'
         gross_liability:
           type: number
           format: double
-          example: 5632.00
+          example: 5632.0
         transitional_adjustment:
           $ref: '#/components/schemas/TransitionalAdjustment'
         itemized_reliefs:
@@ -901,7 +1026,7 @@ components:
         net_segment_payable:
           type: number
           format: double
-          example: 0.00
+          example: 0.0
         statutory_penalties:
           type: array
           items:
@@ -911,77 +1036,75 @@ components:
           nullable: true
           items:
             $ref: '#/components/schemas/StatutoryInstallment'
-          description: Schedule of statutory monthly installment payments apportioned over the billing segment under SI 1989/1058 or SI 2014/466.
+          description: Schedule of statutory monthly installment payments apportioned
+            over the billing segment under SI 1989/1058 or SI 2014/466.
         occupancy_type:
           $ref: '#/components/schemas/OccupancyType'
-
     SummaryFinancials:
       type: object
       required:
-        - total_gross_liability
-        - total_transitional_adjustments
-        - total_reliefs_and_discounts
-        - total_net_payable
-        - currency
+      - total_gross_liability
+      - total_transitional_adjustments
+      - total_reliefs_and_discounts
+      - total_net_payable
+      - currency
       properties:
         total_gross_liability:
           type: number
           format: double
-          example: 16896.00
+          example: 16896.0
         total_transitional_adjustments:
           type: number
           format: double
-          example: 0.00
+          example: 0.0
         total_reliefs_and_discounts:
           type: number
           format: double
-          example: 16896.00
+          example: 16896.0
         total_net_payable:
           type: number
           format: double
-          example: 0.00
+          example: 0.0
         total_statutory_penalties:
           type: number
           format: double
           nullable: true
-          example: 0.00
+          example: 0.0
         currency:
           type: string
-          example: 'GBP'
-
+          example: GBP
     ParameterVersionIds:
       type: object
       required:
-        - param_multiplier_version
-        - param_sbrr_version
-        - param_sector_relief_version
+      - param_multiplier_version
+      - param_sbrr_version
+      - param_sector_relief_version
       properties:
         param_multiplier_version:
           type: string
-          example: 'v2026.1'
+          example: v2026.1
         param_sbrr_version:
           type: string
-          example: 'v2026.1'
+          example: v2026.1
         param_sector_relief_version:
           type: string
-          example: 'v2026.2'
-
+          example: v2026.2
     LiabilityCalculationResponse:
       type: object
       required:
-        - calculation_id
-        - calculated_at
-        - parameter_version_ids
-        - jurisdiction
-        - occupation_period
-        - summary_financials
-        - annual_billing_segments
-        - calculation_narrative
+      - calculation_id
+      - calculated_at
+      - parameter_version_ids
+      - jurisdiction
+      - occupation_period
+      - summary_financials
+      - annual_billing_segments
+      - calculation_narrative
       properties:
         calculation_id:
           type: string
           format: uuid
-          example: 'e394017a-8b83-4a11-b27a-85d1e8ef7820'
+          example: e394017a-8b83-4a11-b27a-85d1e8ef7820
         calculated_at:
           type: string
           format: date-time
@@ -1000,59 +1123,61 @@ components:
             $ref: '#/components/schemas/AnnualBillingSegment'
         calculation_narrative:
           type: string
-          description: Comprehensive statutory legal audit narrative detailing calculation breakdown, statutory citations (LGFA 1988, NDRA 2023, LGF(W)A 2024, NDR(S)A 2020), formula apportionments, applied reliefs, and statutory audit justification for unawarded or disqualified reliefs across all supported languages (English, Welsh, Scots, Scottish Gaelic).
-
+          description: Comprehensive statutory legal audit narrative detailing calculation
+            breakdown, statutory citations (LGFA 1988, NDRA 2023, LGF(W)A 2024, NDR(S)A
+            2020), formula apportionments, applied reliefs, and statutory audit justification
+            for unawarded or disqualified reliefs across all supported languages (English,
+            Welsh, Scots, Scottish Gaelic).
     ParamReferenceCode:
       type: object
       required:
-        - category
-        - code
-        - label
-        - description
+      - category
+      - code
+      - label
+      - description
       properties:
         category:
           type: string
-          example: 'JURISDICTION'
+          example: JURISDICTION
         code:
           type: string
-          example: 'ENGLAND'
+          example: ENGLAND
         label:
           type: string
-          example: 'England'
+          example: England
         description:
           type: string
-          example: 'Statutory non-domestic rating under LGFA 1988 & NDRA 2023.'
+          example: Statutory non-domestic rating under LGFA 1988 & NDRA 2023.
         jurisdiction:
           type: string
           nullable: true
-          example: 'ENGLAND'
+          example: ENGLAND
         display_order:
           type: integer
           example: 1
-
     ParamMultiplier:
       type: object
       required:
-        - parameter_id
-        - financial_year
-        - jurisdiction
-        - multiplier_type
-        - rv_threshold_min
-        - multiplier_rate
-        - effective_from
-        - effective_to
+      - parameter_id
+      - financial_year
+      - jurisdiction
+      - multiplier_type
+      - rv_threshold_min
+      - multiplier_rate
+      - effective_from
+      - effective_to
       properties:
         parameter_id:
           type: string
-          example: 'm_eng_std_2024'
+          example: m_eng_std_2024
         financial_year:
           type: string
-          example: '2024/25'
+          example: 2024/25
         jurisdiction:
           $ref: '#/components/schemas/Jurisdiction'
         multiplier_type:
           type: string
-          example: 'STANDARD'
+          example: STANDARD
         rv_threshold_min:
           type: number
           format: double
@@ -1065,7 +1190,7 @@ components:
         multiplier_rate:
           type: number
           format: double
-          example: 0.5460
+          example: 0.546
         effective_from:
           type: string
           format: date
@@ -1074,40 +1199,39 @@ components:
           type: string
           format: date
           example: '2025-03-31'
-
     ParamSbrrSbbsThreshold:
       type: object
       required:
-        - parameter_id
-        - financial_year
-        - jurisdiction
-        - min_rv
-        - max_rv
-        - relief_percentage
-        - is_tapered
-        - effective_from
-        - effective_to
+      - parameter_id
+      - financial_year
+      - jurisdiction
+      - min_rv
+      - max_rv
+      - relief_percentage
+      - is_tapered
+      - effective_from
+      - effective_to
       properties:
         parameter_id:
           type: string
-          example: 'sbrr_eng_full_2024/25'
+          example: sbrr_eng_full_2024/25
         financial_year:
           type: string
-          example: '2024/25'
+          example: 2024/25
         jurisdiction:
           $ref: '#/components/schemas/Jurisdiction'
         min_rv:
           type: number
           format: double
-          example: 0.00
+          example: 0.0
         max_rv:
           type: number
           format: double
-          example: 12000.00
+          example: 12000.0
         relief_percentage:
           type: number
           format: double
-          example: 100.00
+          example: 100.0
         is_tapered:
           type: boolean
           example: false
@@ -1119,38 +1243,37 @@ components:
           type: string
           format: date
           example: '2025-03-31'
-
     ParamSectorRelief:
       type: object
       required:
-        - parameter_id
-        - financial_year
-        - jurisdiction
-        - relief_code
-        - discount_percentage
-        - effective_from
-        - effective_to
+      - parameter_id
+      - financial_year
+      - jurisdiction
+      - relief_code
+      - discount_percentage
+      - effective_from
+      - effective_to
       properties:
         parameter_id:
           type: string
-          example: 'sec_eng_rhl_2024'
+          example: sec_eng_rhl_2024
         financial_year:
           type: string
-          example: '2024/25'
+          example: 2024/25
         jurisdiction:
           $ref: '#/components/schemas/Jurisdiction'
         relief_code:
           type: string
-          example: 'RHL_2024'
+          example: RHL_2024
         discount_percentage:
           type: number
           format: double
-          example: 75.00
+          example: 75.0
         cash_cap_gbp:
           type: number
           format: double
           nullable: true
-          example: 110000.00
+          example: 110000.0
         effective_from:
           type: string
           format: date
@@ -1159,53 +1282,59 @@ components:
           type: string
           format: date
           example: '2025-03-31'
-
     ParamTransitionalCap:
       type: object
       required:
-        - parameter_id
-        - revaluation_list_year
-        - financial_year
-        - jurisdiction
-        - property_tier
-        - rv_threshold_min
-        - upward_cap_percentage
+      - parameter_id
+      - revaluation_list_year
+      - financial_year
+      - jurisdiction
+      - property_tier
+      - rv_threshold_min
+      - upward_cap_percentage
       properties:
         parameter_id:
           type: string
-          example: 'tc_eng_sm_2024'
+          example: tc_eng_sm_2024
         revaluation_list_year:
           type: integer
           example: 2023
         financial_year:
           type: string
-          example: '2024/25'
+          example: 2024/25
         jurisdiction:
           $ref: '#/components/schemas/Jurisdiction'
         property_tier:
           type: string
-          example: 'SMALL'
+          example: SMALL
         rv_threshold_min:
           type: number
           format: double
-          example: 0.00
+          example: 0.0
         rv_threshold_max:
           type: number
           format: double
           nullable: true
-          example: 20000.00
+          example: 20000.0
         upward_cap_percentage:
           type: number
           format: double
-          example: 10.00
-
+          example: 10.0
+        is_greater_london:
+          type: boolean
+          nullable: true
+          description: True if threshold applies exclusively within Greater London;
+            false if outside London; null if national.
     AllParametersResponse:
       type: object
       required:
-        - multipliers
-        - sbrr_thresholds
-        - sector_reliefs
-        - transitional_caps
+      - multipliers
+      - sbrr_thresholds
+      - sector_reliefs
+      - transitional_caps
+      - empty_property_thresholds
+      - letting_tests
+      - scheme_caps
       properties:
         multipliers:
           type: array
@@ -1223,23 +1352,143 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ParamTransitionalCap'
-
+        empty_property_thresholds:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParamEmptyPropertyThreshold'
+        letting_tests:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParamLettingTest'
+        scheme_caps:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParamSchemeCap'
     AppErrorResponse:
       type: object
       required:
-        - error
-        - message
+      - error
+      - message
       properties:
         error:
           type: string
           enum:
-            - INVALID_OCCUPATION_PERIOD
-            - OVERLAPPING_OCCUPATION_PERIODS
-            - PAYLOAD_DESERIALIZATION_ERROR
-          example: 'INVALID_OCCUPATION_PERIOD'
+          - INVALID_OCCUPATION_PERIOD
+          - OVERLAPPING_OCCUPATION_PERIODS
+          - PAYLOAD_DESERIALIZATION_ERROR
+          example: INVALID_OCCUPATION_PERIOD
           description: Machine-readable error code.
         message:
           type: string
-          example: 'Occupation end date (2023-01-01) cannot precede start date (2024-04-01)'
+          example: Occupation end date (2023-01-01) cannot precede start date (2024-04-01)
           description: Localized human-readable error narrative.
-
+    ParamEmptyPropertyThreshold:
+      type: object
+      required:
+      - parameter_id
+      - jurisdiction
+      - threshold_rv
+      - statutory_authority
+      - effective_from
+      - effective_to
+      properties:
+        parameter_id:
+          type: string
+          example: ept_eng_2017
+        jurisdiction:
+          $ref: '#/components/schemas/Jurisdiction'
+        threshold_rv:
+          type: number
+          format: double
+          example: 2900.0
+        statutory_authority:
+          type: string
+          example: LGFA 1988 s.45 / S.I. 2017/102 art. 4
+        effective_from:
+          type: string
+          format: date
+          example: '2017-04-01'
+        effective_to:
+          type: string
+          format: date
+          example: '2099-12-31'
+    ParamLettingTest:
+      type: object
+      required:
+      - parameter_id
+      - jurisdiction
+      - min_actual_let_days
+      - min_available_days
+      - statutory_authority
+      - effective_from
+      - effective_to
+      properties:
+        parameter_id:
+          type: string
+          example: let_wal_2023
+        jurisdiction:
+          $ref: '#/components/schemas/Jurisdiction'
+        min_actual_let_days:
+          type: integer
+          example: 182
+        min_available_days:
+          type: integer
+          example: 252
+        statutory_authority:
+          type: string
+          example: LGFA 1988 s.66(2BB) / W.S.I. 2022/563
+        effective_from:
+          type: string
+          format: date
+          example: '2023-04-01'
+        effective_to:
+          type: string
+          format: date
+          example: '2099-12-31'
+    ParamSchemeCap:
+      type: object
+      required:
+      - parameter_id
+      - scheme_code
+      - cap_value
+      - cap_unit
+      - statutory_authority
+      properties:
+        parameter_id:
+          type: string
+          example: cap_reset_eng_2024
+        scheme_code:
+          type: string
+          example: EMPTY_OCCUPIED_RESET
+        financial_year:
+          type: string
+          nullable: true
+          example: 2026/27
+        jurisdiction:
+          nullable: true
+          $ref: '#/components/schemas/Jurisdiction'
+        cap_value:
+          type: number
+          format: double
+          example: 91.0
+        secondary_cap_value:
+          type: number
+          format: double
+          nullable: true
+          example: null
+        cap_unit:
+          type: string
+          example: DAYS
+        statutory_authority:
+          type: string
+          example: NDRA 2023 s.15 / S.I. 2024/412
+        effective_from:
+          type: string
+          format: date
+          nullable: true
+          example: '2024-04-01'
+        effective_to:
+          type: string
+          format: date
+          nullable: true
+          example: '2099-12-31'
