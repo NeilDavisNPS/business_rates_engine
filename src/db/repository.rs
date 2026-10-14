@@ -106,6 +106,8 @@ pub struct ParamTransitionalCap {
     pub rv_threshold_min: Decimal,
     pub rv_threshold_max: Option<Decimal>,
     pub upward_cap_percentage: Decimal,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub is_greater_london: Option<bool>,
 }
 
 /// Represents an allowable statutory reference code and its legal description
@@ -224,10 +226,22 @@ impl ParameterRepository {
 
     /// Resolves the statutory transitional phasing cap factor under LGFA 1988 s.57A / NDRA 2023
     pub fn resolve_transitional_cap(&self, jurisdiction: Jurisdiction, financial_year: &str, rv: Decimal) -> Option<&ParamTransitionalCap> {
+        self.resolve_transitional_cap_ex(jurisdiction, financial_year, rv, false)
+    }
+
+    /// Resolves the statutory transitional phasing cap factor with optional Greater London threshold qualification (S.I. 2022/1403 reg. 10(5))
+    pub fn resolve_transitional_cap_ex(
+        &self,
+        jurisdiction: Jurisdiction,
+        financial_year: &str,
+        rv: Decimal,
+        is_greater_london: bool,
+    ) -> Option<&ParamTransitionalCap> {
         self.transitional_caps.iter()
             .find(|c| {
                 c.jurisdiction == jurisdiction 
                     && c.financial_year == financial_year 
+                    && (c.is_greater_london == Some(is_greater_london) || c.is_greater_london.is_none())
                     && rv >= c.rv_threshold_min 
                     && c.rv_threshold_max.is_none_or(|max| rv <= max)
             })
@@ -1069,7 +1083,7 @@ impl RepoData {
     }
 
     fn seed_transitional_caps(&mut self) {
-        let mut add = |id: &str, list_year: i32, fy: &str, jur: Jurisdiction, tier: &str, min: Decimal, max: Option<Decimal>, cap: Decimal| {
+        let mut add = |id: &str, list_year: i32, fy: &str, jur: Jurisdiction, tier: &str, min: Decimal, max: Option<Decimal>, cap: Decimal, is_london: Option<bool>| {
             self.transitional_caps.push(ParamTransitionalCap {
                 parameter_id: id.to_string(),
                 revaluation_list_year: list_year,
@@ -1079,11 +1093,12 @@ impl RepoData {
                 rv_threshold_min: min,
                 rv_threshold_max: max,
                 upward_cap_percentage: cap,
+                is_greater_london: is_london,
             });
         };
 
         // 1990 Revaluation List (1990/91 – 1994/95 under LGFA 1988)
-        // SI 1989/1358: Small <= £10,000 RV, Large > £10,000 RV
+        // SI 1989/1358: Small <= £10,000 RV (£15,000 in London), Large > £10,000 RV (£15,000 in London)
         let list_1990 = [
             ("1990/91", dec!(15.00), dec!(20.00)),
             ("1991/92", dec!(15.00), dec!(20.00)),
@@ -1094,13 +1109,20 @@ impl RepoData {
         for (fy, sm, lg) in list_1990 {
             for jur in [Jurisdiction::ENGLAND, Jurisdiction::WALES] {
                 let pfx = if jur == Jurisdiction::ENGLAND { "eng" } else { "wal" };
-                add(&format!("tc_{}_sm_{}", pfx, fy), 1990, fy, jur, "SMALL", dec!(0.00), Some(dec!(10000.00)), sm);
-                add(&format!("tc_{}_lg_{}", pfx, fy), 1990, fy, jur, "LARGE", dec!(10000.01), None, lg);
+                if jur == Jurisdiction::ENGLAND {
+                    add(&format!("tc_eng_sm_{}", fy), 1990, fy, jur, "SMALL", dec!(0.00), Some(dec!(10000.00)), sm, Some(false));
+                    add(&format!("tc_eng_lg_{}", fy), 1990, fy, jur, "LARGE", dec!(10000.01), None, lg, Some(false));
+                    add(&format!("tc_eng_sm_lon_{}", fy), 1990, fy, jur, "SMALL", dec!(0.00), Some(dec!(15000.00)), sm, Some(true));
+                    add(&format!("tc_eng_lg_lon_{}", fy), 1990, fy, jur, "LARGE", dec!(15000.01), None, lg, Some(true));
+                } else {
+                    add(&format!("tc_{}_sm_{}", pfx, fy), 1990, fy, jur, "SMALL", dec!(0.00), Some(dec!(10000.00)), sm, None);
+                    add(&format!("tc_{}_lg_{}", pfx, fy), 1990, fy, jur, "LARGE", dec!(10000.01), None, lg, None);
+                }
             }
         }
 
         // 1995 Revaluation List (1995/96 – 1999/00)
-        // SI 1994/3279: Small <= £10,000 RV, Large > £10,000 RV
+        // SI 1994/3279: Small <= £10,000 RV (£15,000 in London), Large > £10,000 RV (£15,000 in London)
         let list_1995 = [
             ("1995/96", dec!(10.00), dec!(20.00)),
             ("1996/97", dec!(10.00), dec!(20.00)),
@@ -1111,13 +1133,20 @@ impl RepoData {
         for (fy, sm, lg) in list_1995 {
             for jur in [Jurisdiction::ENGLAND, Jurisdiction::WALES] {
                 let pfx = if jur == Jurisdiction::ENGLAND { "eng" } else { "wal" };
-                add(&format!("tc_{}_sm_{}", pfx, fy), 1995, fy, jur, "SMALL", dec!(0.00), Some(dec!(10000.00)), sm);
-                add(&format!("tc_{}_lg_{}", pfx, fy), 1995, fy, jur, "LARGE", dec!(10000.01), None, lg);
+                if jur == Jurisdiction::ENGLAND {
+                    add(&format!("tc_eng_sm_{}", fy), 1995, fy, jur, "SMALL", dec!(0.00), Some(dec!(10000.00)), sm, Some(false));
+                    add(&format!("tc_eng_lg_{}", fy), 1995, fy, jur, "LARGE", dec!(10000.01), None, lg, Some(false));
+                    add(&format!("tc_eng_sm_lon_{}", fy), 1995, fy, jur, "SMALL", dec!(0.00), Some(dec!(15000.00)), sm, Some(true));
+                    add(&format!("tc_eng_lg_lon_{}", fy), 1995, fy, jur, "LARGE", dec!(15000.01), None, lg, Some(true));
+                } else {
+                    add(&format!("tc_{}_sm_{}", pfx, fy), 1995, fy, jur, "SMALL", dec!(0.00), Some(dec!(10000.00)), sm, None);
+                    add(&format!("tc_{}_lg_{}", pfx, fy), 1995, fy, jur, "LARGE", dec!(10000.01), None, lg, None);
+                }
             }
         }
 
         // 2000 Revaluation List (2000/01 – 2004/05)
-        // SI 1999/3379: Small <= £12,000 RV, Large > £12,000 RV
+        // SI 1999/3379: Small <= £12,000 RV (£18,000 in London), Large > £12,000 RV (£18,000 in London)
         let list_2000 = [
             ("2000/01", dec!(5.00), dec!(12.50)),
             ("2001/02", dec!(7.50), dec!(15.00)),
@@ -1128,8 +1157,15 @@ impl RepoData {
         for (fy, sm, lg) in list_2000 {
             for jur in [Jurisdiction::ENGLAND, Jurisdiction::WALES] {
                 let pfx = if jur == Jurisdiction::ENGLAND { "eng" } else { "wal" };
-                add(&format!("tc_{}_sm_{}", pfx, fy), 2000, fy, jur, "SMALL", dec!(0.00), Some(dec!(12000.00)), sm);
-                add(&format!("tc_{}_lg_{}", pfx, fy), 2000, fy, jur, "LARGE", dec!(12000.01), None, lg);
+                if jur == Jurisdiction::ENGLAND {
+                    add(&format!("tc_eng_sm_{}", fy), 2000, fy, jur, "SMALL", dec!(0.00), Some(dec!(12000.00)), sm, Some(false));
+                    add(&format!("tc_eng_lg_{}", fy), 2000, fy, jur, "LARGE", dec!(12000.01), None, lg, Some(false));
+                    add(&format!("tc_eng_sm_lon_{}", fy), 2000, fy, jur, "SMALL", dec!(0.00), Some(dec!(18000.00)), sm, Some(true));
+                    add(&format!("tc_eng_lg_lon_{}", fy), 2000, fy, jur, "LARGE", dec!(18000.01), None, lg, Some(true));
+                } else {
+                    add(&format!("tc_{}_sm_{}", pfx, fy), 2000, fy, jur, "SMALL", dec!(0.00), Some(dec!(12000.00)), sm, None);
+                    add(&format!("tc_{}_lg_{}", pfx, fy), 2000, fy, jur, "LARGE", dec!(12000.01), None, lg, None);
+                }
             }
         }
 
@@ -1142,8 +1178,10 @@ impl RepoData {
             ("2009/10", dec!(20.00), dec!(30.00)),
         ];
         for (fy, sm, lg) in list_2005 {
-            add(&format!("tc_eng_sm_{}", fy), 2005, fy, Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(15000.00)), sm);
-            add(&format!("tc_eng_lg_{}", fy), 2005, fy, Jurisdiction::ENGLAND, "LARGE", dec!(15000.01), None, lg);
+            add(&format!("tc_eng_sm_{}", fy), 2005, fy, Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(15000.00)), sm, Some(false));
+            add(&format!("tc_eng_lg_{}", fy), 2005, fy, Jurisdiction::ENGLAND, "LARGE", dec!(15000.01), None, lg, Some(false));
+            add(&format!("tc_eng_sm_lon_{}", fy), 2005, fy, Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(21500.00)), sm, Some(true));
+            add(&format!("tc_eng_lg_lon_{}", fy), 2005, fy, Jurisdiction::ENGLAND, "LARGE", dec!(21500.01), None, lg, Some(true));
         }
 
         // 2010 Revaluation List (2010/11 – 2016/17) — England only (SI 2009/3343)
@@ -1157,13 +1195,15 @@ impl RepoData {
             ("2016/17", dec!(15.00), dec!(25.00), dec!(25.00)),
         ];
         for (fy, sm, med, lg) in list_2010 {
-            add(&format!("tc_eng_sm_{}", fy), 2010, fy, Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(18000.00)), sm);
-            add(&format!("tc_eng_med_{}", fy), 2010, fy, Jurisdiction::ENGLAND, "MEDIUM", dec!(18000.01), Some(dec!(50000.00)), med);
-            add(&format!("tc_eng_lg_{}", fy), 2010, fy, Jurisdiction::ENGLAND, "LARGE", dec!(50000.01), None, lg);
+            add(&format!("tc_eng_sm_{}", fy), 2010, fy, Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(18000.00)), sm, Some(false));
+            add(&format!("tc_eng_med_{}", fy), 2010, fy, Jurisdiction::ENGLAND, "MEDIUM", dec!(18000.01), Some(dec!(100000.00)), med, Some(false));
+            add(&format!("tc_eng_sm_lon_{}", fy), 2010, fy, Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(25500.00)), sm, Some(true));
+            add(&format!("tc_eng_med_lon_{}", fy), 2010, fy, Jurisdiction::ENGLAND, "MEDIUM", dec!(25500.01), Some(dec!(100000.00)), med, Some(true));
+            add(&format!("tc_eng_lg_{}", fy), 2010, fy, Jurisdiction::ENGLAND, "LARGE", dec!(100000.01), None, lg, None);
         }
 
         // 2017 Revaluation List (2017/18 – 2022/23)
-        // SI 2016/1265: Small <= £20k, Medium <= £100k, Large > £100k
+        // SI 2016/1265: Small <= £20k (£28k London), Medium <= £100k, Large > £100k
         let list_2017 = [
             ("2017/18", dec!(5.00), dec!(12.50), dec!(42.00)),
             ("2018/19", dec!(7.50), dec!(17.50), dec!(32.00)),
@@ -1173,58 +1213,68 @@ impl RepoData {
             ("2022/23", dec!(15.00), dec!(25.00), dec!(16.00)),
         ];
         for (fy, sm, med, lg) in list_2017 {
-            add(&format!("tc_eng_sm_{}", fy), 2017, fy, Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), sm);
-            add(&format!("tc_eng_med_{}", fy), 2017, fy, Jurisdiction::ENGLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), med);
-            add(&format!("tc_eng_lg_{}", fy), 2017, fy, Jurisdiction::ENGLAND, "LARGE", dec!(100000.01), None, lg);
+            add(&format!("tc_eng_sm_{}", fy), 2017, fy, Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), sm, Some(false));
+            add(&format!("tc_eng_med_{}", fy), 2017, fy, Jurisdiction::ENGLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), med, Some(false));
+            add(&format!("tc_eng_sm_lon_{}", fy), 2017, fy, Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(28000.00)), sm, Some(true));
+            add(&format!("tc_eng_med_lon_{}", fy), 2017, fy, Jurisdiction::ENGLAND, "MEDIUM", dec!(28000.01), Some(dec!(100000.00)), med, Some(true));
+            add(&format!("tc_eng_lg_{}", fy), 2017, fy, Jurisdiction::ENGLAND, "LARGE", dec!(100000.01), None, lg, None);
         }
 
-        // 2023 Revaluation List — England (Non-Domestic Rating Chargeable Amounts Regs 2022)
+        // 2023 Revaluation List — England (Non-Domestic Rating Chargeable Amounts Regs 2022 / S.I. 2022/1403)
         // 2023/24: Small (+5%), Medium (+15%), Large (+30%)
-        add("tc_eng_sm_2023", 2023, "2023/24", Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(5.00));
-        add("tc_eng_med_2023", 2023, "2023/24", Jurisdiction::ENGLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(15.00));
-        add("tc_eng_lg_2023", 2023, "2023/24", Jurisdiction::ENGLAND, "LARGE", dec!(100000.01), None, dec!(30.00));
+        add("tc_eng_sm_2023", 2023, "2023/24", Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(5.00), Some(false));
+        add("tc_eng_med_2023", 2023, "2023/24", Jurisdiction::ENGLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(15.00), Some(false));
+        add("tc_eng_sm_lon_2023", 2023, "2023/24", Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(28000.00)), dec!(5.00), Some(true));
+        add("tc_eng_med_lon_2023", 2023, "2023/24", Jurisdiction::ENGLAND, "MEDIUM", dec!(28000.01), Some(dec!(100000.00)), dec!(15.00), Some(true));
+        add("tc_eng_lg_2023", 2023, "2023/24", Jurisdiction::ENGLAND, "LARGE", dec!(100000.01), None, dec!(30.00), None);
 
         // 2024/25: Small (+10%), Medium (+25%), Large (+40%)
-        add("tc_eng_sm_2024", 2023, "2024/25", Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(10.00));
-        add("tc_eng_med_2024", 2023, "2024/25", Jurisdiction::ENGLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(25.00));
-        add("tc_eng_lg_2024", 2023, "2024/25", Jurisdiction::ENGLAND, "LARGE", dec!(100000.01), None, dec!(40.00));
+        add("tc_eng_sm_2024", 2023, "2024/25", Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(10.00), Some(false));
+        add("tc_eng_med_2024", 2023, "2024/25", Jurisdiction::ENGLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(25.00), Some(false));
+        add("tc_eng_sm_lon_2024", 2023, "2024/25", Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(28000.00)), dec!(10.00), Some(true));
+        add("tc_eng_med_lon_2024", 2023, "2024/25", Jurisdiction::ENGLAND, "MEDIUM", dec!(28000.01), Some(dec!(100000.00)), dec!(25.00), Some(true));
+        add("tc_eng_lg_2024", 2023, "2024/25", Jurisdiction::ENGLAND, "LARGE", dec!(100000.01), None, dec!(40.00), None);
 
         // 2025/26: Small (+25%), Medium (+40%), Large (+55%)
-        add("tc_eng_sm_2025", 2023, "2025/26", Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(25.00));
-        add("tc_eng_med_2025", 2023, "2025/26", Jurisdiction::ENGLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(40.00));
-        add("tc_eng_lg_2025", 2023, "2025/26", Jurisdiction::ENGLAND, "LARGE", dec!(100000.01), None, dec!(55.00));
+        add("tc_eng_sm_2025", 2023, "2025/26", Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(25.00), Some(false));
+        add("tc_eng_med_2025", 2023, "2025/26", Jurisdiction::ENGLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(40.00), Some(false));
+        add("tc_eng_sm_lon_2025", 2023, "2025/26", Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(28000.00)), dec!(25.00), Some(true));
+        add("tc_eng_med_lon_2025", 2023, "2025/26", Jurisdiction::ENGLAND, "MEDIUM", dec!(28000.01), Some(dec!(100000.00)), dec!(40.00), Some(true));
+        add("tc_eng_lg_2025", 2023, "2025/26", Jurisdiction::ENGLAND, "LARGE", dec!(100000.01), None, dec!(55.00), None);
 
         // 2026 Revaluation List (NDRA 2023 3-year cycle) — England 2026/27: Small (+5%), Medium (+15%), Large (+30%)
-        add("tc_eng_sm_2026", 2026, "2026/27", Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(5.00));
-        add("tc_eng_med_2026", 2026, "2026/27", Jurisdiction::ENGLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(15.00));
-        add("tc_eng_lg_2026", 2026, "2026/27", Jurisdiction::ENGLAND, "LARGE", dec!(100000.01), None, dec!(30.00));
+        add("tc_eng_sm_2026", 2026, "2026/27", Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(5.00), Some(false));
+        add("tc_eng_med_2026", 2026, "2026/27", Jurisdiction::ENGLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(15.00), Some(false));
+        add("tc_eng_sm_lon_2026", 2026, "2026/27", Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(28000.00)), dec!(5.00), Some(true));
+        add("tc_eng_med_lon_2026", 2026, "2026/27", Jurisdiction::ENGLAND, "MEDIUM", dec!(28000.01), Some(dec!(100000.00)), dec!(15.00), Some(true));
+        add("tc_eng_lg_2026", 2026, "2026/27", Jurisdiction::ENGLAND, "LARGE", dec!(100000.01), None, dec!(30.00), None);
 
         // Wales Transitional Relief (Local Government Finance (Wales) Act 2024)
-        add("tc_wal_sm_2026", 2026, "2026/27", Jurisdiction::WALES, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(10.00));
-        add("tc_wal_med_2026", 2026, "2026/27", Jurisdiction::WALES, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(25.00));
-        add("tc_wal_lg_2026", 2026, "2026/27", Jurisdiction::WALES, "LARGE", dec!(100000.01), None, dec!(40.00));
+        add("tc_wal_sm_2026", 2026, "2026/27", Jurisdiction::WALES, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(10.00), None);
+        add("tc_wal_med_2026", 2026, "2026/27", Jurisdiction::WALES, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(25.00), None);
+        add("tc_wal_lg_2026", 2026, "2026/27", Jurisdiction::WALES, "LARGE", dec!(100000.01), None, dec!(40.00), None);
 
         // 2023 Revaluation List — Scotland (The Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2023 / SSI 2023/31)
         // 2023/24: Small (+12.5%), Medium (+25%), Large (+37.5%)
-        add("tc_sco_sm_2023", 2023, "2023/24", Jurisdiction::SCOTLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(12.50));
-        add("tc_sco_med_2023", 2023, "2023/24", Jurisdiction::SCOTLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(25.00));
-        add("tc_sco_lg_2023", 2023, "2023/24", Jurisdiction::SCOTLAND, "LARGE", dec!(100000.01), None, dec!(37.50));
+        add("tc_sco_sm_2023", 2023, "2023/24", Jurisdiction::SCOTLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(12.50), None);
+        add("tc_sco_med_2023", 2023, "2023/24", Jurisdiction::SCOTLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(25.00), None);
+        add("tc_sco_lg_2023", 2023, "2023/24", Jurisdiction::SCOTLAND, "LARGE", dec!(100000.01), None, dec!(37.50), None);
 
         // 2024/25: Small (+25%), Medium (+50%), Large (+75%)
-        add("tc_sco_sm_2024", 2023, "2024/25", Jurisdiction::SCOTLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(25.00));
-        add("tc_sco_med_2024", 2023, "2024/25", Jurisdiction::SCOTLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(50.00));
-        add("tc_sco_lg_2024", 2023, "2024/25", Jurisdiction::SCOTLAND, "LARGE", dec!(100000.01), None, dec!(75.00));
+        add("tc_sco_sm_2024", 2023, "2024/25", Jurisdiction::SCOTLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(25.00), None);
+        add("tc_sco_med_2024", 2023, "2024/25", Jurisdiction::SCOTLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(50.00), None);
+        add("tc_sco_lg_2024", 2023, "2024/25", Jurisdiction::SCOTLAND, "LARGE", dec!(100000.01), None, dec!(75.00), None);
 
         // 2025/26: Small (+37.5%), Medium (+75%), Large (+112.5%)
-        add("tc_sco_sm_2025", 2023, "2025/26", Jurisdiction::SCOTLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(37.50));
-        add("tc_sco_med_2025", 2023, "2025/26", Jurisdiction::SCOTLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(75.00));
-        add("tc_sco_lg_2025", 2023, "2025/26", Jurisdiction::SCOTLAND, "LARGE", dec!(100000.01), None, dec!(112.50));
+        add("tc_sco_sm_2025", 2023, "2025/26", Jurisdiction::SCOTLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(37.50), None);
+        add("tc_sco_med_2025", 2023, "2025/26", Jurisdiction::SCOTLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(75.00), None);
+        add("tc_sco_lg_2025", 2023, "2025/26", Jurisdiction::SCOTLAND, "LARGE", dec!(100000.01), None, dec!(112.50), None);
 
         // 2026 Revaluation List — Scotland (The Non-Domestic Rates (Transitional Relief) (Scotland) Regs 2026 (SSI 2026/70) reg. 9)
         // 2026/27: Small (+15.00%, X=1.150), Medium (+30.00%, X=1.300), Large (+50.00%, X=1.500)
-        add("tc_sco_sm_2026", 2026, "2026/27", Jurisdiction::SCOTLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(15.00));
-        add("tc_sco_med_2026", 2026, "2026/27", Jurisdiction::SCOTLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(30.00));
-        add("tc_sco_lg_2026", 2026, "2026/27", Jurisdiction::SCOTLAND, "LARGE", dec!(100000.01), None, dec!(50.00));
+        add("tc_sco_sm_2026", 2026, "2026/27", Jurisdiction::SCOTLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), dec!(15.00), None);
+        add("tc_sco_med_2026", 2026, "2026/27", Jurisdiction::SCOTLAND, "MEDIUM", dec!(20000.01), Some(dec!(100000.00)), dec!(30.00), None);
+        add("tc_sco_lg_2026", 2026, "2026/27", Jurisdiction::SCOTLAND, "LARGE", dec!(100000.01), None, dec!(50.00), None);
     }
 
     fn seed_reference_codes(&mut self) {

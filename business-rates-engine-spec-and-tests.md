@@ -45,7 +45,7 @@ The calculation engine's business logic, zero-hardcoding parameter tables, and s
 45:   - [**The Non-Domestic Rates (Transitional Relief) (Scotland) Regulations 2017 (S.S.I. 2017/85)**](https://www.legislation.gov.uk/ssi/2017/85/contents/made) — 2017 Revaluation List transitional relief capping hospitality and renewable energy hereditaments in Scotland.
 46: - **England**:
 47:   - [**The Non-Domestic Rating (Chargeable Amounts) (England) Regulations 2026**](https://www.legislation.gov.uk/uksi) — 2026 Revaluation List upward transitional phasing caps: Small (+5%), Medium (+15%), Large (+30%) under LGFA 1988 s.57A / NDRA 2023.
-48:   - [**The Non-Domestic Rating (Chargeable Amounts) (England) Regulations 2022 (S.I. 2022/1263)**](https://www.legislation.gov.uk/uksi/2022/1263/contents/made) — 2023 Revaluation List upward phasing caps: Small (5%/15%/25%), Medium (15%/25%/40%), and Large (30%/40%/55%).
+48:   - [**The Non-Domestic Rating (Chargeable Amounts) (England) Regulations 2022 (S.I. 2022/1403)**](https://www.legislation.gov.uk/uksi/2022/1403/contents/made) (revoking S.I. 2022/1263) — 2023 Revaluation List upward phasing caps: Small (5%/15%/25%), Medium (15%/25%/40%), and Large (30%/40%/55%); regulation 10(5) defines Small hereditaments as $\text{RV} \le £28,000$ in Greater London and $\le £20,000$ outside Greater London.
 49:   - [**The Non-Domestic Rating (Chargeable Amounts) (England) Regulations 2016 (S.I. 2016/1265)**](https://www.legislation.gov.uk/uksi/2016/1265/contents/made) — 2017 Revaluation List upward and downward transitional phasing percentages.
 50:   - [**The Non-Domestic Rating (Chargeable Amounts) (England) Regulations 2009 (S.I. 2009/3178)**](https://www.legislation.gov.uk/uksi/2009/3178/contents/made) — 2010 Revaluation List transitional phasing caps.
 51:   - [**The Non-Domestic Rating (Chargeable Amounts) (England) Regulations 2004 (S.I. 2004/3312)**](https://www.legislation.gov.uk/uksi/2004/3312/contents/made) — 2005 Revaluation List transitional phasing caps.
@@ -577,9 +577,9 @@ The in-memory parameter repository and statutory documentation are exposed direc
 
 ## 4. Test Cases Specification & Scenario Fixtures
 
-### Test Suite Overview (148 Passing Integration Tests)
+### Test Suite Overview (149 Passing Integration Tests)
 
-The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **148 automated integration tests**:
+The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **149 automated integration tests**:
 
 - **Suite A: Canonical Multi-Jurisdiction Scenario Fixture Tests (Scenarios 1–11)** ([`tests/integration_tests/suite_a_scenarios.rs`](tests/integration_tests/suite_a_scenarios.rs) — 11 tests):
   - `test_scenario_1_england_sbrr_and_rhl_multi_year` (`scenario_1_sbrr_rhl_england.json`): Multi-year slicing (2025/26 & 2026/27), SBRR linear taper, England 2026/27 RHL expiration verification, and Transitional Relief caps.
@@ -629,7 +629,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_licenses_endpoints`: Validates `/licenses` (HTML interface styled with unified `/assets/app.css` under CSP), `/licenses.md` (raw Markdown attribution document), and `/api/v1/licenses?format=md` query routing.
   - `test_health_check_endpoints`: Validates both root `/health` and `/api/v1/health` return HTTP 200 with OWASP security headers, subsystem health checks (`engine_api: pass`, `parameters_repository: pass`, `frontend_bundle: pass`), and deployment build metadata (`version`, `commit_hash`, `build_number`, `build_timestamp`).
 
-- **Suite E: English Multipliers, Transitional Phasing, Grace Periods & SSBR** ([`tests/integration_tests/suite_e_england_schemes.rs`](tests/integration_tests/suite_e_england_schemes.rs) — 20 tests):
+- **Suite E: English Multipliers, Transitional Phasing, Grace Periods & SSBR** ([`tests/integration_tests/suite_e_england_schemes.rs`](tests/integration_tests/suite_e_england_schemes.rs) — 21 tests):
   - `test_england_2026_five_multipliers_rhl_vs_non_rhl`: Verifies Autumn Budget 2024 / NDRA 2023 five-multiplier regime in England for 2026/27 (38.2p, 43.2p, 43.0p, 48.0p, 50.8p).
   - `test_england_sbrr_second_property_grace_period`: Verifies statutory 12-month grace period on primary hereditament when taking on an additional hereditament (S.I. 2017/411 art. 3(4) under LGFA 1988 s.43(4B)).
   - `test_statutory_sbrr_england_linear_taper`: Exact mathematical formula verification for English £12k–£15k SBRR linear taper.
@@ -650,6 +650,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_empty_rate_free_period_is_calendar_months`: Verifies empty property rate-free periods are three / six calendar months under S.I. 2008/386 reg 4(a)-(b) & W.S.I. 2008/2499 reg 4(a)-(b) (90 days from 1 Dec, 91 from 1 Apr, 183 industrial from 1 Apr; Wales 92 days from 1 Nov).
   - `test_england_empty_property_historical_low_value_thresholds`: Validates historical English empty property low-value rateable value thresholds under S.I. 2008/386 reg 4(g) (£2,200 in 2008/09), S.I. 2008/3283 reg 2 (£15,000 in 2009/10), S.I. 2010/408 reg 2(2)(b) (£18,000 in 2010/11), S.I. 2010/408 reg 2(2)(a) (£2,600 in 2011/12–2016/17), and S.I. 2017/102 art 4 (£2,900 from 2017/18 onwards).
   - `test_statutory_installments_whole_pounds_si_1989_1058`: Verifies statutory instalment calculation under S.I. 1989/1058 Schedule 1 Part I para 1(4)-(5) where all instalments except the first are whole pounds ($A = C / D$ rounded to nearest pound) and the first instalment takes the balancing difference ($B = C - (D - 1) \times A$).
+  - `test_england_transitional_relief_greater_london_small_band_threshold_28000`: Validates Greater London small-band threshold (£28,000 RV vs £20,000 outside London) under S.I. 2022/1403 reg 10(5), awarding small-band cap (+5%) rather than medium-band (+15%) to an RV £25,000 London hereditament.
 
 - **Suite F: Welsh Multipliers, SBRR, Exemptions, Anti-Avoidance & Transitional Schemes** ([`tests/integration_tests/suite_f_wales_schemes.rs`](tests/integration_tests/suite_f_wales_schemes.rs) — 30 tests):
   - `test_wales_multiplier_2025_26_is_0568`: Validates Welsh uniform multiplier for 2025/26 is 0.568 under W.S.I. 2025/214.
@@ -759,7 +760,7 @@ To build, verify, and run the project:
 # 1. Compile the Svelte 5 frontend component framework with Vite
 ./build-frontend.sh
 
-# 2. Run the automated test suite (148 integration tests)
+# 2. Run the automated test suite (149 integration tests)
 cargo test --test integration_tests
 
 # 3. Start the HTTP API & Single-Page Application server (default port 8080)

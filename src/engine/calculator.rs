@@ -449,53 +449,69 @@ impl CalculationEngine {
                                     }
                                 }
                             }
-                        } else if let Some(cap) = self.repo.resolve_transitional_cap(req.hereditament.jurisdiction, &win.financial_year, rv) {
-                            let prev_is_retail = win.period_relief_flags.is_retail_premises || req.hereditament.scat_code == "225";
-                            let prev_mult = self.repo.resolve_multiplier_ex(
-                                req.hereditament.jurisdiction,
-                                &prev_fy,
-                                prev_rv,
-                                win.period_relief_flags.is_rhl_qualifying || prev_is_retail,
-                                prev_is_retail,
-                                win.period_relief_flags.is_higher_multiplier_excepted,
-                            )?;
-                            let base_liability_annual = if let Some(&prev_capped) = fy_capped_annual.get(&prev_fy) {
-                                prev_capped
-                            } else {
-                                let fy_start_year = win.financial_year.split('/').next()
-                                    .and_then(|y| y.parse::<i32>().ok())
-                                    .unwrap_or(0);
-                                if fy_start_year > cap.revaluation_list_year {
-                                    if let Some(list_start_date) = NaiveDate::from_ymd_opt(cap.revaluation_list_year, 3, 31) {
-                                        if let Some(list_start_rv) = self.resolve_previous_rv(&req.hereditament.rateable_value_history, list_start_date) {
-                                            let y0_fy = format!("{}/{:02}", cap.revaluation_list_year - 1, cap.revaluation_list_year % 100);
-                                            let y0_is_retail = win.period_relief_flags.is_retail_premises || req.hereditament.scat_code == "225";
-                                            let y0_mult = self.repo.resolve_multiplier_ex(
-                                                req.hereditament.jurisdiction,
-                                                &y0_fy,
-                                                list_start_rv,
-                                                win.period_relief_flags.is_rhl_qualifying || y0_is_retail,
-                                                y0_is_retail,
-                                                win.period_relief_flags.is_higher_multiplier_excepted,
-                                            )?;
-                                            let mut running = list_start_rv * y0_mult.rate;
-                                            for y in cap.revaluation_list_year..fy_start_year {
-                                                let loop_fy = format!("{}/{:02}", y, (y + 1) % 100);
-                                                if let Some(loop_cap) = self.repo.resolve_transitional_cap(req.hereditament.jurisdiction, &loop_fy, rv) {
-                                                    running = (running * (dec!(1.00) + loop_cap.upward_cap_percentage / dec!(100.00))).round_dp(2);
+                        } else {
+                            let is_london = win.period_relief_flags.is_greater_london;
+                            let reval_year = match win.financial_year.split('/').next().and_then(|y| y.parse::<i32>().ok()) {
+                                Some(y) if y >= 2026 => 2026,
+                                Some(y) if y >= 2023 => 2023,
+                                Some(y) if y >= 2017 => 2017,
+                                Some(y) if y >= 2010 => 2010,
+                                Some(y) if y >= 2005 => 2005,
+                                Some(y) if y >= 2000 => 2000,
+                                Some(y) if y >= 1995 => 1995,
+                                _ => 1990,
+                            };
+                            let list_start_date = NaiveDate::from_ymd_opt(reval_year, 4, 1).unwrap();
+                            let tier_rv = self.resolve_rv_for_date(&req.hereditament.rateable_value_history, list_start_date);
+                            let tier_rv = if tier_rv > dec!(0.00) { tier_rv } else { rv };
+
+                            if let Some(cap) = self.repo.resolve_transitional_cap_ex(req.hereditament.jurisdiction, &win.financial_year, tier_rv, is_london) {
+                                let prev_is_retail = win.period_relief_flags.is_retail_premises || req.hereditament.scat_code == "225";
+                                let prev_mult = self.repo.resolve_multiplier_ex(
+                                    req.hereditament.jurisdiction,
+                                    &prev_fy,
+                                    prev_rv,
+                                    win.period_relief_flags.is_rhl_qualifying || prev_is_retail,
+                                    prev_is_retail,
+                                    win.period_relief_flags.is_higher_multiplier_excepted,
+                                )?;
+                                let base_liability_annual = if let Some(&prev_capped) = fy_capped_annual.get(&prev_fy) {
+                                    prev_capped
+                                } else {
+                                    let fy_start_year = win.financial_year.split('/').next()
+                                        .and_then(|y| y.parse::<i32>().ok())
+                                        .unwrap_or(0);
+                                    if fy_start_year > cap.revaluation_list_year {
+                                        if let Some(list_start_date) = NaiveDate::from_ymd_opt(cap.revaluation_list_year, 3, 31) {
+                                            if let Some(list_start_rv) = self.resolve_previous_rv(&req.hereditament.rateable_value_history, list_start_date) {
+                                                let y0_fy = format!("{}/{:02}", cap.revaluation_list_year - 1, cap.revaluation_list_year % 100);
+                                                let y0_is_retail = win.period_relief_flags.is_retail_premises || req.hereditament.scat_code == "225";
+                                                let y0_mult = self.repo.resolve_multiplier_ex(
+                                                    req.hereditament.jurisdiction,
+                                                    &y0_fy,
+                                                    list_start_rv,
+                                                    win.period_relief_flags.is_rhl_qualifying || y0_is_retail,
+                                                    y0_is_retail,
+                                                    win.period_relief_flags.is_higher_multiplier_excepted,
+                                                )?;
+                                                let mut running = list_start_rv * y0_mult.rate;
+                                                for y in cap.revaluation_list_year..fy_start_year {
+                                                    let loop_fy = format!("{}/{:02}", y, (y + 1) % 100);
+                                                    if let Some(loop_cap) = self.repo.resolve_transitional_cap_ex(req.hereditament.jurisdiction, &loop_fy, tier_rv, is_london) {
+                                                        running = (running * (dec!(1.00) + loop_cap.upward_cap_percentage / dec!(100.00))).round_dp(2);
+                                                    }
                                                 }
+                                                running
+                                            } else {
+                                                prev_rv * prev_mult.rate
                                             }
-                                            running
                                         } else {
                                             prev_rv * prev_mult.rate
                                         }
                                     } else {
                                         prev_rv * prev_mult.rate
                                     }
-                                } else {
-                                    prev_rv * prev_mult.rate
-                                }
-                            };
+                                };
                             let cap_factor = if req.hereditament.jurisdiction == Jurisdiction::SCOTLAND
                                 && (win.financial_year == "2026/27" || win.financial_year == "2027/28" || win.financial_year == "2028/29")
                                 && req.hereditament.scat_code.trim() == "249"
@@ -521,6 +537,7 @@ impl CalculationEngine {
                     }
                 }
             }
+        }
             total_trans += segment_trans_relief;
 
             let chargeable_before_reliefs = gross_liability - segment_trans_relief;

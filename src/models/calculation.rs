@@ -126,6 +126,8 @@ pub struct QualifyingReliefFlags {
     pub apply_transitional_relief: Option<bool>,
     #[serde(default = "default_true_opt")]
     pub same_occupier_since_revaluation: Option<bool>,
+    #[serde(default)]
+    pub is_greater_london: bool,
 }
 
 fn default_true_opt() -> Option<bool> {

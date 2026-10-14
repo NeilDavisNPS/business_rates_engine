@@ -909,6 +909,11 @@
             "nullable": true,
             "default": true,
             "description": "True if hereditament has been occupied by the same ratepayer continuously since revaluation list date (required for Welsh transitional relief under W.S.I. 2022/1350 reg. 9(b) and W.S.I. 2025/1371 reg. 6(b))."
+          },
+          "is_greater_london": {
+            "type": "boolean",
+            "default": false,
+            "description": "True if hereditament is located in Greater London, qualifying for higher small-band transitional relief threshold (£28,000 RV vs £20,000 outside London under S.I. 2022/1403 reg. 10(5))."
           }
         }
       },

@@ -181,6 +181,8 @@
   "flag_tr_toggle_desc_wales": "Automatically caps revaluation bill increases exceeding £300 under W.S.I. 2025/1371 (67% relief in 2026/27, 34% in 2027/28). Uncheck to calculate unphased liability.",
   "flag_tr_toggle_desc_scotland": "Automatically caps revaluation bill increases under Scottish Transitional Relief Regulations. Uncheck to calculate unphased liability.",
   "flag_tr_toggle_desc_england": "Automatically caps revaluation bill increases (e.g. England 2026/27: +5% Small, +15% Medium, +30% Large under LGFA 1988 s.57A / NDRA 2023). Uncheck to calculate unphased liability.",
+  "flag_greater_london_title": "Greater London Location",
+  "flag_greater_london_desc": "Hereditament is located within Greater London, applying higher transitional small-band thresholds (£28,000 RV vs £20,000 outside London under S.I. 2022/1403 reg. 10(5)).",
   "flag_same_occupier_title": "Same Occupier Since Revaluation (Wales)",
   "flag_same_occupier_desc": "Qualifies under W.S.I. 2022/1350 reg. 9(b) / W.S.I. 2025/1371 reg. 6(b). Must be the same ratepayer on 31 March and relevant day.",
   "flag_ssbr_title": "Supporting Small Business Relief (SSBR)",

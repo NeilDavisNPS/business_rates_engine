@@ -914,3 +914,54 @@ fn test_statutory_installments_whole_pounds_si_1989_1058() {
     }
 }
 
+#[test]
+fn test_england_transitional_relief_greater_london_small_band_threshold_28000() {
+    // Reproduction for Issue #54.
+    // Under S.I. 2022/1403 reg 10(5), a hereditament in Greater London with RV <= £28,000
+    // is a small hereditament (upward cap +5% in 2023/24).
+    // Outside London, the small band threshold is <= £20,000.
+    // For RV £15,000 (2022/23) rising to £25,000 (2023 list):
+    // In Greater London, £25,000 is small (cap +5%):
+    // Base liability = 15,000 x 0.499 = £7,485.00; capped = 7,485.00 x 1.05 = £7,859.25.
+    // Outside London, £25,000 is medium (cap +15%):
+    // Capped = 7,485.00 x 1.15 = £8,607.75.
+    let engine = CalculationEngine::new(ParameterRepository::new_seeded());
+    let calc = |is_london: bool| {
+        let json = serde_json::json!({
+            "party_type": "CORPORATE",
+            "occupation_period": {
+                "start_date": "2023-04-01",
+                "end_date": "2024-03-31"
+            },
+            "hereditament": {
+                "jurisdiction": "ENGLAND",
+                "scat_code": "091",
+                "rateable_value_history": [
+                    {
+                        "effective_from": "2017-04-01",
+                        "effective_to": "2023-03-31",
+                        "rateable_value": 15000
+                    },
+                    {
+                        "effective_from": "2023-04-01",
+                        "effective_to": null,
+                        "rateable_value": 25000
+                    }
+                ]
+            },
+            "occupancy_type": "OCCUPIED",
+            "qualifying_relief_flags": {
+                "apply_transitional_relief": true,
+                "is_greater_london": is_london
+            }
+        });
+        let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+        let resp = engine.calculate(request);
+        resp.summary_financials.total_net_payable
+    };
+
+    assert_eq!(calc(true), dec!(7859.25), "Greater London RV £25,000 qualifies as small (5% cap)");
+    assert_eq!(calc(false), dec!(8607.75), "Outside London RV £25,000 is medium (15% cap)");
+}
+
+
