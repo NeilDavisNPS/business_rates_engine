@@ -1057,8 +1057,22 @@ impl RepoData {
             // Greater London (S.I. 2012/148 art 3(1)(b))
             add(&format!("m_eng_sm_lon_{}", fy), fy, Jurisdiction::ENGLAND, "SMALL_BUSINESS", dec!(0.00), Some(dec!(25499.00)), sm, Some(true), s, e);
             add(&format!("m_eng_st_lon_{}", fy), fy, Jurisdiction::ENGLAND, "STANDARD", dec!(25500.00), None, st, Some(true), s, e);
-            // Scotland (standard multiplier)
-            add(&format!("m_sco_{}", fy), fy, Jurisdiction::SCOTLAND, "STANDARD", dec!(0.00), None, sm, None, s, e);
+        }
+
+        // Scotland Multipliers 2010/11 – 2016/17 (Local Government (Scotland) Act 1975 s.7B):
+        // Basic poundage for RV <= £35,000, and Large Business Supplement (LBS) for RV > £35,000
+        let lbs_2010_scotland = [
+            ("2010/11", dec!(0.407), dec!(0.414), "2010-04-01", "2011-03-31"), // SSI 2010/38 (0.7p supplement > £35k)
+            ("2011/12", dec!(0.426), dec!(0.433), "2011-04-01", "2012-03-31"), // SSI 2011/26 (0.7p supplement > £35k)
+            ("2012/13", dec!(0.450), dec!(0.458), "2012-04-01", "2013-03-31"), // SSI 2012/28 (0.8p supplement > £35k)
+            ("2013/14", dec!(0.462), dec!(0.471), "2013-04-01", "2014-03-31"), // SSI 2013/37 (0.9p supplement > £35k)
+            ("2014/15", dec!(0.471), dec!(0.482), "2014-04-01", "2015-03-31"), // SSI 2014/40 (1.1p supplement > £35k)
+            ("2015/16", dec!(0.480), dec!(0.493), "2015-04-01", "2016-03-31"), // SSI 2015/48 (1.3p supplement > £35k)
+            ("2016/17", dec!(0.484), dec!(0.510), "2016-04-01", "2017-03-31"), // SSI 2016/59 (2.6p supplement > £35k)
+        ];
+        for (fy, basic, higher, s, e) in lbs_2010_scotland {
+            add(&format!("m_sco_b_{}", fy), fy, Jurisdiction::SCOTLAND, "BASIC", dec!(0.00), Some(dec!(35000.00)), basic, None, s, e);
+            add(&format!("m_sco_h_{}", fy), fy, Jurisdiction::SCOTLAND, "HIGHER", dec!(35000.01), None, higher, None, s, e);
         }
 
         // Wales Multipliers 2005/06 – 2016/17 (Official StatsWales single uniform multiplier)
@@ -1082,20 +1096,42 @@ impl RepoData {
 
         // 2017–2022 lists
         let list_2017 = [
-            ("2017/18", dec!(0.466), dec!(0.479), dec!(0.499), dec!(0.466), "2017-04-01", "2018-03-31"),
-            ("2018/19", dec!(0.480), dec!(0.493), dec!(0.514), dec!(0.480), "2018-04-01", "2019-03-31"),
-            ("2019/20", dec!(0.491), dec!(0.504), dec!(0.526), dec!(0.490), "2019-04-01", "2020-03-31"),
-            ("2020/21", dec!(0.499), dec!(0.512), dec!(0.535), dec!(0.498), "2020-04-01", "2021-03-31"),
-            ("2021/22", dec!(0.499), dec!(0.512), dec!(0.535), dec!(0.490), "2021-04-01", "2022-03-31"),
-            ("2022/23", dec!(0.499), dec!(0.512), dec!(0.535), dec!(0.498), "2022-04-01", "2023-03-31"),
+            ("2017/18", dec!(0.466), dec!(0.479), dec!(0.499), "2017-04-01", "2018-03-31"),
+            ("2018/19", dec!(0.480), dec!(0.493), dec!(0.514), "2018-04-01", "2019-03-31"),
+            ("2019/20", dec!(0.491), dec!(0.504), dec!(0.526), "2019-04-01", "2020-03-31"),
+            ("2020/21", dec!(0.499), dec!(0.512), dec!(0.535), "2020-04-01", "2021-03-31"),
+            ("2021/22", dec!(0.499), dec!(0.512), dec!(0.535), "2021-04-01", "2022-03-31"),
+            ("2022/23", dec!(0.499), dec!(0.512), dec!(0.535), "2022-04-01", "2023-03-31"),
         ];
 
-        for (fy, eng_sm, eng_st, wal, sco, s, e) in list_2017 {
+        for (fy, eng_sm, eng_st, wal, s, e) in list_2017 {
             add(&format!("m_eng_sm_{}", fy), fy, Jurisdiction::ENGLAND, "SMALL_BUSINESS", dec!(0.00), Some(dec!(50999.00)), eng_sm, None, s, e);
             add(&format!("m_eng_st_{}", fy), fy, Jurisdiction::ENGLAND, "STANDARD", dec!(51000.00), None, eng_st, None, s, e);
             add(&format!("m_wal_{}", fy), fy, Jurisdiction::WALES, "STANDARD", dec!(0.00), None, wal, None, s, e);
-            add(&format!("m_sco_{}", fy), fy, Jurisdiction::SCOTLAND, "BASIC", dec!(0.00), Some(dec!(51000.00)), sco, None, s, e);
         }
+
+        // Scotland 2017/18 – 2019/20 (Threshold £51,000, 2.6p Large Business Supplement):
+        add("m_sco_b_2017", "2017/18", Jurisdiction::SCOTLAND, "BASIC", dec!(0.00), Some(dec!(51000.00)), dec!(0.466), None, "2017-04-01", "2018-03-31");
+        add("m_sco_h_2017", "2017/18", Jurisdiction::SCOTLAND, "HIGHER", dec!(51000.01), None, dec!(0.492), None, "2017-04-01", "2018-03-31");
+
+        add("m_sco_b_2018", "2018/19", Jurisdiction::SCOTLAND, "BASIC", dec!(0.00), Some(dec!(51000.00)), dec!(0.480), None, "2018-04-01", "2019-03-31");
+        add("m_sco_h_2018", "2018/19", Jurisdiction::SCOTLAND, "HIGHER", dec!(51000.01), None, dec!(0.506), None, "2018-04-01", "2019-03-31");
+
+        add("m_sco_b_2019", "2019/20", Jurisdiction::SCOTLAND, "BASIC", dec!(0.00), Some(dec!(51000.00)), dec!(0.490), None, "2019-04-01", "2020-03-31");
+        add("m_sco_h_2019", "2019/20", Jurisdiction::SCOTLAND, "HIGHER", dec!(51000.01), None, dec!(0.516), None, "2019-04-01", "2020-03-31");
+
+        // Scotland 2020/21 – 2022/23 (3-Tier Property Rates: Basic <= £51k, Intermediate £51k–£95k, Higher > £95k):
+        add("m_sco_b_2020", "2020/21", Jurisdiction::SCOTLAND, "BASIC", dec!(0.00), Some(dec!(51000.00)), dec!(0.498), None, "2020-04-01", "2021-03-31");
+        add("m_sco_i_2020", "2020/21", Jurisdiction::SCOTLAND, "INTERMEDIATE", dec!(51000.01), Some(dec!(95000.00)), dec!(0.511), None, "2020-04-01", "2021-03-31");
+        add("m_sco_h_2020", "2020/21", Jurisdiction::SCOTLAND, "HIGHER", dec!(95000.01), None, dec!(0.524), None, "2020-04-01", "2021-03-31");
+
+        add("m_sco_b_2021", "2021/22", Jurisdiction::SCOTLAND, "BASIC", dec!(0.00), Some(dec!(51000.00)), dec!(0.490), None, "2021-04-01", "2022-03-31");
+        add("m_sco_i_2021", "2021/22", Jurisdiction::SCOTLAND, "INTERMEDIATE", dec!(51000.01), Some(dec!(95000.00)), dec!(0.503), None, "2021-04-01", "2022-03-31");
+        add("m_sco_h_2021", "2021/22", Jurisdiction::SCOTLAND, "HIGHER", dec!(95000.01), None, dec!(0.516), None, "2021-04-01", "2022-03-31");
+
+        add("m_sco_b_2022", "2022/23", Jurisdiction::SCOTLAND, "BASIC", dec!(0.00), Some(dec!(51000.00)), dec!(0.498), None, "2022-04-01", "2023-03-31");
+        add("m_sco_i_2022", "2022/23", Jurisdiction::SCOTLAND, "INTERMEDIATE", dec!(51000.01), Some(dec!(95000.00)), dec!(0.511), None, "2022-04-01", "2023-03-31");
+        add("m_sco_h_2022", "2022/23", Jurisdiction::SCOTLAND, "HIGHER", dec!(95000.01), None, dec!(0.524), None, "2022-04-01", "2023-03-31");
 
         // 2023/24
         add("m_eng_sm_2023", "2023/24", Jurisdiction::ENGLAND, "SMALL_BUSINESS", dec!(0.00), Some(dec!(50999.00)), dec!(0.499), None, "2023-04-01", "2024-03-31");

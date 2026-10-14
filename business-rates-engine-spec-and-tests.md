@@ -610,9 +610,9 @@ The in-memory parameter repository and statutory documentation are exposed direc
 
 ## 4. Test Cases Specification & Scenario Fixtures
 
-### Test Suite Overview (158 Passing Integration Tests)
+### Test Suite Overview (159 Passing Integration Tests)
 
-The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **158 automated integration tests**:
+The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **159 automated integration tests**:
 
 - **Suite A: Canonical Multi-Jurisdiction Scenario Fixture Tests (Scenarios 1–11)** ([`tests/integration_tests/suite_a_scenarios.rs`](tests/integration_tests/suite_a_scenarios.rs) — 11 tests):
   - `test_scenario_1_england_sbrr_and_rhl_multi_year` (`scenario_1_sbrr_rhl_england.json`): Multi-year slicing (2025/26 & 2026/27), SBRR linear taper, England 2026/27 RHL expiration verification, and Transitional Relief caps.
@@ -723,7 +723,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_sbrr_taper_uses_statutory_e_divisor_wales`: Validates Welsh SBRR taper chargeable amount $(A \times M) / E$ where $E = 6000 / (\text{RV} - 6000)$ to 3 decimal places under W.S.I. 2017/1229 art. 11(3).
   - `test_wales_2026_has_no_fictitious_upward_caps_in_transitional_caps`: Validates absence of fictitious upward caps for Wales 2026 in transitional caps repository, confirming W.S.I. 2025/1371 operates exclusively as a share-of-increase scheme (67%/34%) published under scheme caps.
 
-- **Suite G: Scottish Property Rates, SBBS Tapers, 40% Hospitality & Transitional Relief** ([`tests/integration_tests/suite_g_scotland_schemes.rs`](tests/integration_tests/suite_g_scotland_schemes.rs) — 20 tests):
+- **Suite G: Scottish Property Rates, SBBS Tapers, 40% Hospitality & Transitional Relief** ([`tests/integration_tests/suite_g_scotland_schemes.rs`](tests/integration_tests/suite_g_scotland_schemes.rs) — 21 tests):
   - `test_scotland_2026_multipliers_basic_intermediate_higher`: Validates 2026/27 rates: Basic 0.481, Intermediate 0.535, Higher 0.548 (S.S.I. 2026/39).
   - `test_scotland_sbbs_taper_band_12k_to_15k`: Verifies linear taper between 100% and 25% for RV £12k–£15k under S.S.I. 2026/68 reg 3(3).
   - `test_scotland_sbbs_taper_band_15k_to_20k`: Verifies linear taper between 25% and 0% for RV £15k–£20k under S.S.I. 2026/68 reg 3(3).
@@ -744,6 +744,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_scotland_2025_26_intermediate_and_higher_multipliers`: Validates 2025/26 Intermediate (0.554) and Higher (0.568) property rates under S.S.I. 2025/37 and S.S.I. 2025/38 regs 5(4) & 6(4).
   - `test_scotland_empty_property_2018_rules_90_percent_after_initial_period`: Validates S.S.I. 2018/77 reg 2 empty property rules for 2018/19–2022/23 (50% for 3 months then 90% payable; industrial 100% exempt for 6 months then 90% payable).
   - `test_scotland_sbbs_2023_onward_published_thresholds_have_both_tapers`: Validates published SBBS threshold parameters for Scotland 2023/24 onward include 100% full relief band (£0–£12k), 100%->25% linear taper band (£12k–£15k, is_tapered: true), and 25%->0% linear taper band (£15k–£20k, is_tapered: true) under S.S.I. 2023/31 and S.S.I. 2026/68 reg 3(3).
+  - `test_scotland_large_business_supplement_and_property_rates_historical`: Validates Scottish Large Business Supplement (LBS) for properties exceeding statutory thresholds (> £35k from 2010/11 to 2016/17; > £51k from 2017/18 to 2019/20) and Intermediate/Higher Property Rates for 2020/21–2022/23 under Local Government (Scotland) Act 1975 s.7B, S.S.I. 2010/38, S.S.I. 2014/40, S.S.I. 2018/76, and S.S.I. 2021/63.
 
 - **Suite H: Cross-Jurisdictional Reliefs, Lifespans, Holiday Lets & Empty Property** ([`tests/integration_tests/suite_h_cross_jurisdictional.rs`](tests/integration_tests/suite_h_cross_jurisdictional.rs) — 23 tests):
   - `test_statutory_heat_network_exemption`: NDRA 2023 s.2 100% heat network discount.
@@ -802,7 +803,7 @@ To build, verify, and run the project:
 # 1. Compile the Svelte 5 frontend component framework with Vite
 ./build-frontend.sh
 
-# 2. Run the automated test suite (158 integration tests)
+# 2. Run the automated test suite (159 integration tests)
 cargo test --test integration_tests
 
 # 3. Start the HTTP API & Single-Page Application server (default port 8080)

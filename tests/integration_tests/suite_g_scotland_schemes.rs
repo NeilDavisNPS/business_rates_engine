@@ -1079,4 +1079,119 @@ fn test_scotland_sbbs_2023_onward_published_thresholds_have_both_tapers() {
     }
 }
 
+#[tokio::test]
+async fn test_scotland_large_business_supplement_and_property_rates_historical() {
+    let app = create_test_app();
+
+    // 1. SCO-LBS-2018/19-200000: Scotland 2018/19 at RV £200,000 -> 48.0p + 2.6p supplement = 50.6p (HIGHER)
+    let payload_2018 = serde_json::json!({
+        "party_type": "CORPORATE",
+        "occupation_period": {
+            "start_date": "2018-04-01",
+            "end_date": "2019-03-31"
+        },
+        "hereditament": {
+            "jurisdiction": "SCOTLAND",
+            "scat_code": "091",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2005-04-01",
+                    "effective_to": null,
+                    "rateable_value": 200000.0
+                }
+            ]
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": false
+        }
+    });
+    let req1 = Request::builder()
+        .uri("/api/v1/calculate-liability")
+        .method("POST")
+        .header(header::CONTENT_TYPE, "application/json")
+        .body(Body::from(serde_json::to_vec(&payload_2018).unwrap()))
+        .unwrap();
+    let res1 = app.clone().oneshot(req1).await.unwrap();
+    assert_eq!(res1.status(), StatusCode::OK);
+    let body1: Value = serde_json::from_str(&body_to_string(res1.into_body()).await).unwrap();
+    let seg1 = &body1["annual_billing_segments"][0];
+    assert_eq!(seg1["multiplier_used"]["rate"], 0.506, "2018/19 RV £200,000 must pay 50.6p (48.0p + 2.6p LBS)");
+    assert_eq!(seg1["multiplier_used"]["type"], "HIGHER");
+    assert_eq!(seg1["gross_liability"], 101200.0);
+
+    // 2. SCO-LBS-2014/15-40000: Scotland 2014/15 at RV £40,000 (above £35k) -> 47.1p + 1.1p = 48.2p (HIGHER)
+    let payload_2014 = serde_json::json!({
+        "party_type": "CORPORATE",
+        "occupation_period": {
+            "start_date": "2014-04-01",
+            "end_date": "2015-03-31"
+        },
+        "hereditament": {
+            "jurisdiction": "SCOTLAND",
+            "scat_code": "091",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2005-04-01",
+                    "effective_to": null,
+                    "rateable_value": 40000.0
+                }
+            ]
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": false
+        }
+    });
+    let req2 = Request::builder()
+        .uri("/api/v1/calculate-liability")
+        .method("POST")
+        .header(header::CONTENT_TYPE, "application/json")
+        .body(Body::from(serde_json::to_vec(&payload_2014).unwrap()))
+        .unwrap();
+    let res2 = app.clone().oneshot(req2).await.unwrap();
+    assert_eq!(res2.status(), StatusCode::OK);
+    let body2: Value = serde_json::from_str(&body_to_string(res2.into_body()).await).unwrap();
+    let seg2 = &body2["annual_billing_segments"][0];
+    assert_eq!(seg2["multiplier_used"]["rate"], 0.482, "2014/15 RV £40,000 must pay 48.2p (47.1p + 1.1p LBS)");
+    assert_eq!(seg2["multiplier_used"]["type"], "HIGHER");
+
+    // 3. SCO-IPR-2021/22-80000: Scotland 2021/22 at RV £80,000 -> Intermediate Property Rate 50.3p (INTERMEDIATE)
+    let payload_2021 = serde_json::json!({
+        "party_type": "CORPORATE",
+        "occupation_period": {
+            "start_date": "2021-04-01",
+            "end_date": "2022-03-31"
+        },
+        "hereditament": {
+            "jurisdiction": "SCOTLAND",
+            "scat_code": "091",
+            "rateable_value_history": [
+                {
+                    "effective_from": "2005-04-01",
+                    "effective_to": null,
+                    "rateable_value": 80000.0
+                }
+            ]
+        },
+        "occupancy_type": "OCCUPIED",
+        "qualifying_relief_flags": {
+            "apply_transitional_relief": false
+        }
+    });
+    let req3 = Request::builder()
+        .uri("/api/v1/calculate-liability")
+        .method("POST")
+        .header(header::CONTENT_TYPE, "application/json")
+        .body(Body::from(serde_json::to_vec(&payload_2021).unwrap()))
+        .unwrap();
+    let res3 = app.clone().oneshot(req3).await.unwrap();
+    assert_eq!(res3.status(), StatusCode::OK);
+    let body3: Value = serde_json::from_str(&body_to_string(res3.into_body()).await).unwrap();
+    let seg3 = &body3["annual_billing_segments"][0];
+    assert_eq!(seg3["multiplier_used"]["rate"], 0.503, "2021/22 RV £80,000 must pay Intermediate Property Rate 50.3p");
+    assert_eq!(seg3["multiplier_used"]["type"], "INTERMEDIATE");
+}
+
+
 
