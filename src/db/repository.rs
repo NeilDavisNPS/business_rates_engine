@@ -1350,13 +1350,14 @@ impl RepoData {
 
         // 2017 Revaluation List (2017/18 – 2022/23)
         // SI 2016/1265: Small <= £20k (£28k London), Medium <= £100k, Large > £100k
+        // Schedule Table 1: Large cap 2017/18: 42%, 2018/19: 32%, 2019/20: 49%, 2020/21: 16%, 2021/22: 6%; SI 2022/339 extends to 2022/23 at 6%
         let list_2017 = [
             ("2017/18", dec!(5.00), dec!(12.50), dec!(42.00)),
             ("2018/19", dec!(7.50), dec!(17.50), dec!(32.00)),
             ("2019/20", dec!(10.00), dec!(20.00), dec!(49.00)),
             ("2020/21", dec!(15.00), dec!(25.00), dec!(16.00)),
-            ("2021/22", dec!(15.00), dec!(25.00), dec!(16.00)),
-            ("2022/23", dec!(15.00), dec!(25.00), dec!(16.00)),
+            ("2021/22", dec!(15.00), dec!(25.00), dec!(6.00)),
+            ("2022/23", dec!(15.00), dec!(25.00), dec!(6.00)),
         ];
         for (fy, sm, med, lg) in list_2017 {
             add(&format!("tc_eng_sm_{}", fy), 2017, fy, Jurisdiction::ENGLAND, "SMALL", dec!(0.00), Some(dec!(20000.00)), sm, Some(false));

@@ -555,3 +555,29 @@ async fn test_historical_transitional_phasing_2017_list_revaluation() {
     assert_eq!(seg.transitional_adjustment.amount, dec!(15390.80));
     assert_eq!(seg.net_segment_payable, dec!(56459.20));
 }
+
+#[tokio::test]
+async fn test_england_2017_list_transitional_relief_large_cap_2021_22_is_6_percent() {
+    // Reproduction for Issue #63:
+    // Non-Domestic Rating (Chargeable Amounts) (England) Regulations 2016 (S.I. 2016/1265),
+    // Schedule Table 1: Upward limit for large hereditaments (> £100,000 RV) in 2021/22 is 6.0%, not 16.0%.
+    let repo = ParameterRepository::new_seeded();
+    let cap_2021 = repo
+        .all_transitional_caps()
+        .iter()
+        .find(|c| {
+            c.jurisdiction == Jurisdiction::ENGLAND
+                && c.revaluation_list_year == 2017
+                && c.financial_year == "2021/22"
+                && c.property_tier == "LARGE"
+        })
+        .expect("Expected 2021/22 LARGE transitional cap for England 2017 list");
+
+    assert_eq!(
+        cap_2021.upward_cap_percentage,
+        dec!(6.00),
+        "S.I. 2016/1265 large property cap for 2021/22 must be 6.00%, got {}",
+        cap_2021.upward_cap_percentage
+    );
+}
+

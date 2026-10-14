@@ -549,7 +549,7 @@ pub struct ParameterRepository {
   - **2023 List (W.S.I. 2022/1350)**: 67% relief in 2023/24 and 34% relief in 2024/25 on net bill increases exceeding £300; requires continuous occupation by same ratepayer (Reg 9(b)).
   - **2017 List (W.S.I. 2016/1247)**: Small Business Transitional Relief for ratepayers receiving SBRR on 31 March 2017 (75% in 2017/18, 50% in 2018/19, 25% in 2019/20 on increases over £100).
   - **2005 & 2010 Lists**: Wales did not operate general transitional phasing schemes.
-- **2017 Revaluation List (England)**: Historical upward and downward statutory phasing percentages.
+- **2017 Revaluation List (England)**: Historical upward statutory phasing percentages under S.I. 2016/1265 and S.I. 2022/339 (Small 5%/7.5%/10%/15%/15%/15%, Medium 12.5%/17.5%/20%/25%/25%/25%, Large 42%/32%/49%/16%/6%/6%).
 
 #### 5. Empty Property Low-Value Thresholds (`ParamEmptyPropertyThreshold`)
 - Pre-seeded statutory low-value rateable value exemption thresholds across all lists (1990–2027) for England, Wales, and Scotland:
@@ -613,9 +613,9 @@ The in-memory parameter repository and statutory documentation are exposed direc
 
 ## 4. Test Cases Specification & Scenario Fixtures
 
-### Test Suite Overview (152 Passing Integration Tests)
+### Test Suite Overview (153 Passing Integration Tests)
 
-The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **152 automated integration tests**:
+The test suite is modularly organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 statutory test suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by the main test runner in [`tests/integration_tests.rs`](tests/integration_tests.rs). It rigorously validates statutory calculations, multi-occupancy slicing, i18n, parameter endpoints, Scalar documentation, third-party licenses, and web security across **153 automated integration tests**:
 
 - **Suite A: Canonical Multi-Jurisdiction Scenario Fixture Tests (Scenarios 1–11)** ([`tests/integration_tests/suite_a_scenarios.rs`](tests/integration_tests/suite_a_scenarios.rs) — 11 tests):
   - `test_scenario_1_england_sbrr_and_rhl_multi_year` (`scenario_1_sbrr_rhl_england.json`): Multi-year slicing (2025/26 & 2026/27), SBRR linear taper, England 2026/27 RHL expiration verification, and Transitional Relief caps.
@@ -777,7 +777,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_owasp_secure_headers_on_error_and_unauthorized_responses`: Verifies OWASP security headers on 422/404 error responses.
   - `test_static_assets_served_with_correct_content_types`: CSS and Vite assets served with proper MIME types; unmapped static asset paths return 404.
 
-- **Suite J: Historical Statutory Parameters & Revaluations (1990–2022)** ([`tests/integration_tests/suite_j_historical.rs`](tests/integration_tests/suite_j_historical.rs) — 10 tests):
+- **Suite J: Historical Statutory Parameters & Revaluations (1990–2022)** ([`tests/integration_tests/suite_j_historical.rs`](tests/integration_tests/suite_j_historical.rs) — 11 tests):
   - `test_historical_calculation_1990_91_inaugural_nndr`: Validates inaugural non-domestic rating calculation under LGFA 1988 (1990/91) with zero SBRR discount.
   - `test_historical_transitional_phasing_1991_92`: Validates 1991/92 revaluation year 2 transitional upward cap (+15%) based on 1990/91 baseline.
   - `test_historical_transitional_phasing_1993_94`: Validates 1993/94 revaluation upward cap (+15%) under SI 1989/1358 based on 1992/93 baseline.
@@ -788,6 +788,7 @@ The test suite is modularly organized under [`tests/integration_tests/`](tests/i
   - `test_historical_transitional_phasing_2000_list`: Validates 2000/01 revaluation upward cap (+12.5%) under SI 1999/3379.
   - `test_historical_welsh_transitional_relief_2017_list`: Validates 2017/18 Welsh small business transitional relief (75% phasing) under W.S.I. 2016/1247.
   - `test_historical_transitional_phasing_2017_list_revaluation`: Verifies 2017/18 large property revaluation upward cap (+42%) under SI 2016/1265.
+  - `test_england_2017_list_transitional_relief_large_cap_2021_22_is_6_percent`: Validates 2021/22 and 2022/23 large property upward phasing cap of 6% under S.I. 2016/1265 Schedule Table 1 and S.I. 2022/339 reg 2.
 
 ---
 
