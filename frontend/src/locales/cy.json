@@ -316,6 +316,12 @@
           "url": "https://www.legislation.gov.uk/uksi/2022/1263/contents/made",
           "title": "Rheoliadau Ardrethu Annomestig (Symiau y Gellir eu Codi) (Lloegr) 2022 (O.S. 2022/1263)",
           "primary": false
+        },
+        {
+          "key": "OS 2026/81 (Rhyddhad Trosiannol 2026)",
+          "url": "https://www.legislation.gov.uk/uksi/2026/81/contents/made",
+          "title": "Rheoliadau Ardrethu Annomestig (Symiau y Gellir eu Codi) (Lloegr) 2026 (O.S. 2026/81)",
+          "primary": false
         }
       ],
       "currentRegimeSummary": {
@@ -442,8 +448,8 @@
           "years": "2026/27 – 2028/29",
           "multipliers": "5 Lluosydd: Busnes Bach RHL (38.2c), Safonol RHL (43.0c), Bach Di-RHL (43.2c), Safonol Di-RHL (48.0c), Gwerth Uchel (50.8c)",
           "sbrr": "Lluosyddion stryd fawr is parhaol yn disodli rhyddhad RHL dros dro. 100% SBRR hyd at £12k GA. Cap SSBR £800 yn 2026/27.",
-          "transition": "Capiau trosiannol ar i fyny; Rhyddhad Gwella 12 mis (ffactor G 100% o dan O.S. 2024/22); eithriad Rhwydweithiau Gwres 100%",
-          "statute": "NDRA 2023 / O.S. 2024/22 / Rhestrau Ardrethu 2026"
+          "transition": "Capiau trosiannol ar i fyny (+5%/+15%/+30%); atodiad pontio 1c (O.S. 2026/81 rh. 16); Rhyddhad Gwella 12 mis (O.S. 2024/22); Rhwydweithiau Gwres",
+          "statute": "NDRA 2023 / O.S. 2026/81 / O.S. 2024/22"
         }
       ]
     },

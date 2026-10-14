@@ -309,7 +309,7 @@ impl CalculationEngine {
             let is_retail = win.period_relief_flags.is_retail_premises || req.hereditament.scat_code == "225";
             let is_rhl = win.period_relief_flags.is_rhl_qualifying || is_retail;
             let is_higher_excepted = win.period_relief_flags.is_higher_multiplier_excepted;
-            let mult = self.repo.resolve_multiplier_ex(
+            let mut mult = self.repo.resolve_multiplier_ex(
                 req.hereditament.jurisdiction,
                 &win.financial_year,
                 rv,
@@ -321,8 +321,7 @@ impl CalculationEngine {
             let days_dec = Decimal::from(win.period.days);
             let year_days_dec = Decimal::from(win.year_days);
 
-            let gross_liability = ((rv * mult.rate) / year_days_dec * days_dec).round_dp(2);
-            total_gross += gross_liability;
+            let mut gross_liability = ((rv * mult.rate) / year_days_dec * days_dec).round_dp(2);
 
             // Transitional Phasing Calculation (LGFA 1988 s.57A / s.58 / NDR Chargeable Amounts Regs)
             let mut transitional_adj = TransitionalAdjustment {
@@ -538,6 +537,38 @@ impl CalculationEngine {
                 }
             }
         }
+
+            // Transitional Relief Supplement (TRS) — England 2026/27 (S.I. 2026/81 reg. 16)
+            // Under S.I. 2026/81 reg. 16, for a defined hereditament (in the list on 31 March 2026 and each day since)
+            // in England for the relevant year beginning on 1st April 2026 where regulation 12 (transitional relief)
+            // does NOT apply, and neither heat networks, public lavatories, rural, nor charitable relief applies,
+            // multiplier M is replaced by (M + RS) in charging formulas, where RS = 0.010 (1p).
+            if req.hereditament.jurisdiction == Jurisdiction::ENGLAND
+                && win.financial_year == "2026/27"
+                && win.period_relief_flags.apply_transitional_relief.unwrap_or(true)
+                && segment_trans_relief == dec!(0.00)
+            {
+                let prev_rv_on_reval = self.resolve_rv_for_date(
+                    &req.hereditament.rateable_value_history,
+                    NaiveDate::from_ymd_opt(2026, 3, 31).unwrap(),
+                );
+                let is_defined_hereditament = prev_rv_on_reval > dec!(0.00) && rv > dec!(0.00);
+                let is_charity = req.party_type == PartyType::CHARITY
+                    || req.party_type == PartyType::CASC
+                    || win.period_relief_flags.is_charitable_purposes;
+                let is_exempt_from_supplement = is_charity
+                    || win.period_relief_flags.is_heat_network
+                    || win.period_relief_flags.is_public_lavatory
+                    || win.period_relief_flags.is_rural_settlement;
+
+                if is_defined_hereditament && !is_exempt_from_supplement {
+                    let rs = dec!(0.010);
+                    mult.rate += rs;
+                    gross_liability = ((rv * mult.rate) / year_days_dec * days_dec).round_dp(2);
+                }
+            }
+
+            total_gross += gross_liability;
             total_trans += segment_trans_relief;
 
             let chargeable_before_reliefs = gross_liability - segment_trans_relief;

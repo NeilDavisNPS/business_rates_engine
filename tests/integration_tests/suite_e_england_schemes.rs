@@ -964,4 +964,88 @@ fn test_england_transitional_relief_greater_london_small_band_threshold_28000() 
     assert_eq!(calc(false), dec!(8607.75), "Outside London RV £25,000 is medium (15% cap)");
 }
 
+#[tokio::test]
+async fn test_england_2026_transitional_supplement() {
+    // Reproduction for Issue #55:
+    // Under S.I. 2026/81 reg 16, for a defined hereditament (in the list on 31 March 2026 and each day since)
+    // in England for 2026/27 where regulation 12 (transitional relief) does NOT apply,
+    // and neither heat networks, public lavatories, rural, nor charitable relief applies,
+    // multiplier M is replaced by (M + RS) in charging formulas, where RS = 0.010 (1p).
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    let request = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2027, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::ENGLAND,
+            scat_code: "091".to_string(),
+            rateable_value_history: vec![
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                    effective_to: Some(NaiveDate::from_ymd_opt(2026, 3, 31).unwrap()),
+                    rateable_value: dec!(40000.00),
+                },
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(40000.00),
+                },
+            ],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            apply_transitional_relief: Some(true),
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+
+    let response = engine.calculate(request.clone());
+    let seg = &response.annual_billing_segments[0];
+
+    // England small business multiplier for RV £40,000 is 0.432.
+    // Base liability in 2025/26 was 40,000 * 0.499 = £19,960.
+    // 2026/27 upward cap is 15% (medium band) -> capped liability is £22,954.
+    // Since gross liability at 0.432 (£17,280) is below capped liability (£22,954),
+    // regulation 12 does NOT apply (no transitional relief awarded).
+    // Therefore, regulation 16 applies: M becomes (M + RS) = 0.432 + 0.010 = 0.442.
+    // Gross and net liability must be £40,000 * 0.442 = £17,680.00.
+    assert_eq!(seg.multiplier_used.rate, dec!(0.442));
+    assert_eq!(seg.gross_liability, dec!(17680.00));
+    assert_eq!(seg.net_segment_payable, dec!(17680.00));
+
+    // 2. Charity exemption under S.I. 2026/81 reg 16(1)(c):
+    // Paragraph 2 of Schedule 4ZB to the Act (charitable rate relief) excludes reg 16.
+    // Multiplier remains M = 0.432 (no TRS 1p supplement).
+    // Gross = 40,000 * 0.432 = £17,280; 80% mandatory relief = £13,824; net = £3,456.00.
+    let mut charity_req = request.clone();
+    charity_req.party_type = PartyType::CHARITY;
+    let charity_resp = engine.calculate(charity_req);
+    let charity_seg = &charity_resp.annual_billing_segments[0];
+    assert_eq!(charity_seg.multiplier_used.rate, dec!(0.432));
+    assert_eq!(charity_seg.gross_liability, dec!(17280.00));
+    assert_eq!(charity_seg.net_segment_payable, dec!(3456.00));
+
+    // 3. New property created on 1 April 2026 (not a defined hereditament under reg 5(2)):
+    // Shown only from 1 April 2026, so not in list on 31 March 2026 -> no TRS 1p supplement.
+    let mut new_req = request.clone();
+    new_req.hereditament.rateable_value_history = vec![
+        RvEntry {
+            effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+            effective_to: None,
+            rateable_value: dec!(40000.00),
+        },
+    ];
+    let new_resp = engine.calculate(new_req);
+    let new_seg = &new_resp.annual_billing_segments[0];
+    assert_eq!(new_seg.multiplier_used.rate, dec!(0.432));
+    assert_eq!(new_seg.gross_liability, dec!(17280.00));
+    assert_eq!(new_seg.net_segment_payable, dec!(17280.00));
+}
+
 

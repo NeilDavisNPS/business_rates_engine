@@ -23,6 +23,7 @@
   "occupancy_type": "OCCUPIED",
   "qualifying_relief_flags": {
     "is_small_business_sole_property": true,
-    "is_rhl_qualifying": true
+    "is_rhl_qualifying": true,
+    "apply_transitional_relief": false
   }
 }

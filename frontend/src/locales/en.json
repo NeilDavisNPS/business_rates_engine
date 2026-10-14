@@ -316,6 +316,12 @@
           "url": "https://www.legislation.gov.uk/uksi/2022/1263/contents/made",
           "title": "The Non-Domestic Rating (Chargeable Amounts) (England) Regulations 2022 (S.I. 2022/1263)",
           "primary": false
+        },
+        {
+          "key": "SI 2026/81 (Transitional Relief 2026)",
+          "url": "https://www.legislation.gov.uk/uksi/2026/81/contents/made",
+          "title": "The Non-Domestic Rating (Chargeable Amounts) (England) Regulations 2026 (S.I. 2026/81)",
+          "primary": false
         }
       ],
       "currentRegimeSummary": {
@@ -442,8 +448,8 @@
           "years": "2026/27 – 2028/29",
           "multipliers": "5 Multipliers: Small Business RHL (38.2p), Standard RHL (43.0p), Small Non-RHL (43.2p), Standard Non-RHL (48.0p), High-Value (50.8p)",
           "sbrr": "Permanent lower high-street multipliers replace temporary RHL relief. 100% SBRR up to £12k RV. SSBR £800 cap in 2026/27.",
-          "transition": "Upward transitional caps; 12-month Improvement Relief (100% G-factor under S.I. 2024/22); 100% Heat Networks exemption",
-          "statute": "NDRA 2023 / S.I. 2024/22 / Rating Lists 2026"
+          "transition": "Upward transitional caps (+5%/+15%/+30%); 1p transitional supplement (S.I. 2026/81 reg 16); 12-month Improvement Relief (S.I. 2024/22); Heat Networks",
+          "statute": "NDRA 2023 / S.I. 2026/81 / S.I. 2024/22"
         }
       ]
     },

@@ -316,6 +316,12 @@
           "url": "https://www.legislation.gov.uk/uksi/2022/1263/contents/made",
           "title": "Riaghailtean Reataichean Neo-Dhachaigheil (Suimean Ri Phàigheadh) (Sasainn) 2022 (S.I. 2022/1263)",
           "primary": false
+        },
+        {
+          "key": "SI 2026/81 (Faochadh Gluasaid 2026)",
+          "url": "https://www.legislation.gov.uk/uksi/2026/81/contents/made",
+          "title": "Riaghailtean Luachadh Neo-Dachaigheil (Suimean Ri Phàigheadh) (Sasainn) 2026 (S.I. 2026/81)",
+          "primary": false
         }
       ],
       "currentRegimeSummary": {
@@ -442,8 +448,8 @@
           "years": "2026/27 – 2028/29",
           "multipliers": "5 Iomadachaidhean: Gnìomhachas Beag RHL (38.2sg), Coitcheann RHL (43.0sg), Beag Neo-RHL (43.2sg), Coitcheann Neo-RHL (48.0sg), Àrd-Luach (50.8sg)",
           "sbrr": "Iomadachaidhean prìomh shràid nas ìsle maireannach a' dol an àite faochadh RHL sealach. 100% SBRR suas gu £12k LR. Crìoch SSBR £800 ann an 2026/27.",
-          "transition": "Crìochan eadar-amail àrdachaidh; Faochadh Leasachaidh 12 mìosan (factar G 100% fo S.I. 2024/22); saoradh Lìonraidhean Teas 100%",
-          "statute": "NDRA 2023 / S.I. 2024/22 / Liostaichean Reataichean 2026"
+          "transition": "Cupan gluasaid suas (+5%/+15%/+30%); leasachadh gluasaid 1sg (S.I. 2026/81 riagh. 16); Faochadh Leasachaidh 12 mìosan (S.I. 2024/22); Lìonraidhean Teasa",
+          "statute": "NDRA 2023 / S.I. 2026/81 / S.I. 2024/22"
         }
       ]
     },

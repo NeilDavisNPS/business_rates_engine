@@ -316,6 +316,12 @@
           "url": "https://www.legislation.gov.uk/uksi/2022/1263/contents/made",
           "title": "The Non-Domestic Rating (Chargeable Amounts) (England) Regulations 2022 (S.I. 2022/1263)",
           "primary": false
+        },
+        {
+          "key": "SI 2026/81 (Transitional Relief 2026)",
+          "url": "https://www.legislation.gov.uk/uksi/2026/81/contents/made",
+          "title": "The Non-Domestic Rating (Chargeable Amounts) (England) Regulations 2026 (S.I. 2026/81)",
+          "primary": false
         }
       ],
       "currentRegimeSummary": {
@@ -442,8 +448,8 @@
           "years": "2026/27 – 2028/29",
           "multipliers": "5 Multipliers: Smaw Business RHL (38.2p), Standard RHL (43.0p), Smaw Non-RHL (43.2p), Standard Non-RHL (48.0p), Hie-Value (50.8p)",
           "sbrr": "Permanent lawer hie-street multipliers replace temporary RHL relief. 100% SBRR up tae £12k RV. SSBR £800 cap in 2026/27.",
-          "transition": "Upwaird transitional caps; 12-month Improvement Relief (100% G-factor unner S.I. 2024/22); 100% Heat Networks exemption",
-          "statute": "NDRA 2023 / S.I. 2024/22 / Rating Leests 2026"
+          "transition": "Upwaird transitional caps (+5%/+15%/+30%); 1p transitional supplement (S.I. 2026/81 reg 16); 12-month Improvement Relief (S.I. 2024/22); Heat Networks",
+          "statute": "NDRA 2023 / S.I. 2026/81 / S.I. 2024/22"
         }
       ]
     },
