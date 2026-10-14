@@ -653,6 +653,32 @@
             "default": false,
             "description": "True if hereditament qualifies for the 12-month small business second property grace period under SI 2017/411 art. 3(4)."
           },
+          "is_small_business_second_property": {
+            "type": "boolean",
+            "default": false,
+            "description": "True if hereditament is a second qualifying small business property in Wales under W.S.I. 2017/1229 art. 12."
+          },
+          "is_small_business_multiple_properties": {
+            "type": "boolean",
+            "default": false,
+            "description": "True if the ratepayer occupies multiple non-domestic properties in Scotland under SBBS reg. 4 multiple-property rules (SSI 2023/34 / SSI 2026/68)."
+          },
+          "small_business_cumulative_rv": {
+            "type": "number",
+            "format": "double",
+            "nullable": true,
+            "description": "Cumulative rateable value across all occupied hereditaments in Scotland, subject to the £35,000 statutory cap under SBBS reg. 4."
+          },
+          "is_registered_childcare": {
+            "type": "boolean",
+            "default": false,
+            "description": "True if premises in Wales are registered as day childcare premises with CIW qualifying for 100% SBRR up to £100k RV under W.S.I. 2017/1229 art. 5."
+          },
+          "is_post_office": {
+            "type": "boolean",
+            "default": false,
+            "description": "True if hereditament in Wales operates as a post office qualifying for 100% SBRR up to £9k RV and 50% between £9,001 and £12k RV under W.S.I. 2017/1229 art. 4."
+          },
           "is_charitable_purposes": {
             "type": "boolean",
             "default": false,
@@ -663,6 +689,11 @@
             "default": false,
             "description": "True if property qualifies under Retail, Hospitality and Leisure scheme criteria."
           },
+          "is_hospitality_premises": {
+            "type": "boolean",
+            "default": false,
+            "description": "True if premises qualify as hospitality (hotel, pub, restaurant, café, live music venue) under Schedule 1A of SSI 2026/69 / SSI 2026/135 for 40% relief in Scotland."
+          },
           "is_retail_premises": {
             "type": "boolean",
             "default": false,
@@ -672,6 +703,16 @@
             "type": "boolean",
             "default": false,
             "description": "True if hereditament is located on a Scottish island designated under Islands (Scotland) Act 2018 (qualifying for 100% island relief / RHL)."
+          },
+          "is_scottish_remote_mainland": {
+            "type": "boolean",
+            "default": false,
+            "description": "True if situated in Cape Wrath, Knoydart or Scoraig qualifying for 100% relief under SSI 2026/69 reg. 5."
+          },
+          "has_short_term_let_licence": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "Whether a short-term let licence is held under Civic Government (Scotland) Act 1982 / SSI 2022/86, required for Scottish self-catering RHL relief and 15% transitional cap."
           },
           "is_rural_settlement": {
             "type": "boolean",
@@ -692,6 +733,16 @@
             "type": "boolean",
             "default": false,
             "description": "True if qualifying renewable energy generation project in Scotland under Non-Domestic Rates (Renewable Energy Generation Relief) (Scotland) Regulations 2010 (SSI 2010/336)."
+          },
+          "is_higher_multiplier_excepted": {
+            "type": "boolean",
+            "default": false,
+            "description": "True if high-value hereditament (>£100k RV) in Wales qualifies for statutory exception from the higher multiplier, paying the standard multiplier (LGF(W)A 2024)."
+          },
+          "is_food_and_drink": {
+            "type": "boolean",
+            "default": false,
+            "description": "True if premises in Wales qualify for Food and Drink Hospitality Rates Relief (15%) under Welsh Government scheme rules from 2026/27."
           },
           "is_public_lavatory": {
             "type": "boolean",
@@ -729,6 +780,11 @@
             "nullable": true,
             "description": "Actual days let out in the preceding 12 months (Scotland self-catering 70/140 day statutory test)."
           },
+          "holiday_let_days_available": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Number of days commercially available for letting in preceding 12 months (minimum 140 days in England/Scotland, 252 days in Wales post-2023 under W.S.I. 2022/563)."
+          },
           "is_sbbs_tr_qualifying": {
             "type": "boolean",
             "default": false,
@@ -753,6 +809,12 @@
             "nullable": true,
             "default": true,
             "description": "Whether to apply statutory transitional phasing relief calculation under transitional relief regulations. Defaults to true."
+          },
+          "same_occupier_since_revaluation": {
+            "type": "boolean",
+            "nullable": true,
+            "default": true,
+            "description": "True if hereditament has been occupied by the same ratepayer continuously since revaluation list date (required for Welsh transitional relief under W.S.I. 2022/1350 reg. 9(b) and W.S.I. 2025/1371 reg. 6(b))."
           }
         }
       },

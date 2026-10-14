@@ -85,3 +85,33 @@ Before committing any changes:
 4. **i18n & Externalisation Audit**:
    - Verify zero hardcoded strings were introduced in `.svelte` or `.rs` files.
    - Verify key parity across `frontend/src/locales/{en,cy,sco,gd}.json` (no missing keys).
+5. **Documentation & OpenAPI Specification Audit**:
+   - Verify that all newly cited legislation, Acts of Parliament, statutory instruments (SIs, SSIs, WSIs), regulations, and new tests are recorded in `business-rates-engine-spec-and-tests.md`.
+   - Verify that `docs/openapi.json` and `docs/openapi.yaml` accurately document any new domain interface fields, request/response models, or relief flags.
+
+---
+
+## 4. GitHub Issue Resolution Workflow
+
+Whenever investigating, fixing, or resolving an issue raised on GitHub against this project, you MUST strictly adhere to the following sequence:
+
+1. **Review Statutory & Legislative Context**:
+   - Thoroughly review the issue description, including any relevant legislation, Acts of Parliament (e.g. LGFA 1988, NDRA 2023), statutory instruments (SIs), or devolved Scottish/Welsh regulations.
+2. **Dispute / Explanation Protocol**:
+   - If you do not agree with the issue based on statutory provisions or engine architecture, update the GitHub issue with a clear, evidenced explanation citing the relevant legislation or rationale before taking any code action.
+3. **Reproduce via Failing Test Case**:
+   - If you agree with the issue, first create a failing test case in `tests/integration_tests.rs` (or the relevant frontend test suite) that explicitly reproduces and demonstrates the reported issue.
+4. **Implement the Fix**:
+   - Fix the issue in the code, ensuring strict adherence to WCAG AAA accessibility, text externalisation (i18n), and zero-hardcoding standards.
+5. **Verify the Failing Test Passes**:
+   - Re-run the specific test case created in Step 3 to confirm that the issue is resolved and the test now passes cleanly.
+6. **Review Documentation, Specifications & OpenAPI Interfaces**:
+   - Review and update all documentation before committing the fix.
+   - Ensure that any citations, legislation, statutory instruments (SIs, SSIs, WSIs), regulations, and newly created tests are added to `business-rates-engine-spec-and-tests.md`.
+   - Ensure the OpenAPI documents (`docs/openapi.json` and `docs/openapi.yaml`) are updated synchronously with any changes to the interfaces, data models, or relief flags.
+7. **Run Full Test Suite (Zero Regressions)**:
+   - Run the complete test suite (`cargo test`, `cargo clippy --all-targets -- -D warnings`, `npm run check`, `npm run build`) to confirm there are no regression issues.
+8. **Commit the Fix Referencing the Issue**:
+   - Commit the fix referencing the GitHub issue number in the commit message (e.g. `fix: ... (fixes #123)`). Always obtain explicit user confirmation before committing.
+9. **Batched Push Policy**:
+   - If multiple issues are being fixed in a batch or session, commit each fix individually, but only push to GitHub once ALL of the targeted issues have been completely fixed and verified.
