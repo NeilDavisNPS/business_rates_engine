@@ -1661,7 +1661,12 @@ impl RepoData {
         add("MULTIPLIER_TYPE", "HIGHER", "Higher Multiplier (Scotland / Wales)", "Higher statutory multiplier for properties exceeding £100k RV in Scotland and Wales.", None, 7);
         add("MULTIPLIER_TYPE", "BASIC", "Basic Property Rate", "Baseline non-domestic rate for properties up to £51,000 RV in Scotland under Non-Domestic Rates (Scotland) Act 2020.", Some("SCOTLAND"), 8);
         add("MULTIPLIER_TYPE", "INTERMEDIATE", "Intermediate Property Rate", "Intermediate property rate for properties £51,001 to £100,000 RV in Scotland under Non-Domestic Rates (Scotland) Act 2020.", Some("SCOTLAND"), 9);
+        // Local Government Finance (Wales) Act 2024 / Devolved Provisional Multipliers 2027/28
+        add("MULTIPLIER_TYPE", "RETAIL_PROVISIONAL", "Welsh Retail Multiplier (Provisional)", "Provisional lower statutory multiplier for small retail premises under £51k RV in Wales for 2027/28.", Some("WALES"), 10);
+        add("MULTIPLIER_TYPE", "STANDARD_PROVISIONAL", "Standard Multiplier (Provisional)", "Provisional baseline non-domestic rating multiplier for 2027/28.", None, 11);
+        add("MULTIPLIER_TYPE", "HIGHER_PROVISIONAL", "Higher Multiplier (Wales, Provisional)", "Provisional higher statutory multiplier for properties exceeding £100k RV in Wales for 2027/28.", Some("WALES"), 12);
     }
+
 
     fn seed_empty_property_thresholds(&mut self) {
         let mut add = |id: &str, jur: Jurisdiction, threshold: Decimal, auth: &str, start: &str, end: &str| {

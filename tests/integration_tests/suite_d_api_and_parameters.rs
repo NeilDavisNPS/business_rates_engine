@@ -781,3 +781,25 @@ async fn test_openapi_contract_alignment_and_strict_deserialization() {
     );
 }
 
+#[tokio::test]
+async fn test_issue_70_every_seeded_multiplier_type_has_reference_code() {
+    // Issue #70: Every multiplier_type used in seeded parameters must have a corresponding MULTIPLIER_TYPE reference code
+    let repo = ParameterRepository::new_seeded();
+    let ref_codes = repo.reference_codes_by_category("MULTIPLIER_TYPE");
+    let available_codes: std::collections::HashSet<&str> = ref_codes.iter().map(|c| c.code.as_str()).collect();
+
+    for m in repo.all_multipliers() {
+        assert!(
+            available_codes.contains(m.multiplier_type.as_str()),
+            "Multiplier type '{}' in parameter '{}' must have an entry in MULTIPLIER_TYPE reference codes",
+            m.multiplier_type,
+            m.parameter_id
+        );
+    }
+
+    assert!(available_codes.contains("RETAIL_PROVISIONAL"));
+    assert!(available_codes.contains("STANDARD_PROVISIONAL"));
+    assert!(available_codes.contains("HIGHER_PROVISIONAL"));
+}
+
+
