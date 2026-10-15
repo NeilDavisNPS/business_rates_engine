@@ -25,7 +25,7 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y pkg-config libssl-dev && rm -rf /var/lib/apt/lists/*
 
-COPY Cargo.toml Cargo.lock ./
+COPY Cargo.toml Cargo.lock build.rs ./
 # Pre-build dependencies for caching
 RUN mkdir -p src && echo "fn main() {}" > src/main.rs && echo "" > src/lib.rs && cargo build --release && rm -rf src
 
@@ -35,6 +35,11 @@ COPY templates ./templates
 COPY locales ./locales
 COPY THIRD_PARTY_LICENSES.md ./
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
+
+# Build metadata (no .git in the build context, so build.rs reads these instead)
+ARG COMMIT_HASH=dev
+ARG BUILD_NUMBER=0
+ENV COMMIT_HASH=${COMMIT_HASH} BUILD_NUMBER=${BUILD_NUMBER}
 
 RUN touch src/main.rs src/lib.rs && cargo build --release
 

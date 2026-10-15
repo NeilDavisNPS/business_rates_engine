@@ -3,23 +3,27 @@ use std::process::Command;
 fn main() {
     println!("cargo:rerun-if-changed=.git/HEAD");
     println!("cargo:rerun-if-changed=.git/index");
+    println!("cargo:rerun-if-env-changed=COMMIT_HASH");
+    println!("cargo:rerun-if-env-changed=BUILD_NUMBER");
 
-    let commit_hash = Command::new("git")
+    let from_env = |key: &str| std::env::var(key).ok().filter(|s| !s.is_empty());
+
+    let commit_hash = from_env("COMMIT_HASH").or_else(|| Command::new("git")
         .args(["rev-parse", "--short", "HEAD"])
         .output()
         .ok()
         .and_then(|o| String::from_utf8(o.stdout).ok())
         .map(|s| s.trim().to_string())
-        .filter(|s| !s.is_empty())
+        .filter(|s| !s.is_empty()))
         .unwrap_or_else(|| "dev".to_string());
 
-    let build_number = Command::new("git")
+    let build_number = from_env("BUILD_NUMBER").or_else(|| Command::new("git")
         .args(["rev-list", "--count", "HEAD"])
         .output()
         .ok()
         .and_then(|o| String::from_utf8(o.stdout).ok())
         .map(|s| s.trim().to_string())
-        .filter(|s| !s.is_empty())
+        .filter(|s| !s.is_empty()))
         .unwrap_or_else(|| "0".to_string());
 
     let build_timestamp = chrono::Utc::now().to_rfc3339();
