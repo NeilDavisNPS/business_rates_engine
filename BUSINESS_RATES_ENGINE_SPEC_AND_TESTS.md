@@ -59,25 +59,23 @@ flowchart TD
     API --> Engine
 ```
 
-#### Key Technical Decisions & Choices:
+#### Key Technical Capabilities:
 1. **Frontend Architecture**:
    - Built with Svelte 5 runes (`$state`, `$derived`) and TypeScript.
    - Compiled via `./build-frontend.sh` into `frontend/dist/`.
-2. **REST API Access**:
-   - Endpoints are accessible as a public service without authentication requirements.
+2. **Public REST API**:
+   - Endpoints are accessible as a public service without requiring authentication tokens or API keys.
 3. **Four-Language Internationalization (i18n)**:
    - Supports **English (`en`)**, **Welsh (`cy`)**, **Scots (`sco`)**, and **Scottish Gaelic (`gd`)**.
    - Language is negotiated dynamically: Request body `"language"` > Query parameter `?lang=` > `Accept-Language` header > Default `en`.
-4. **Decoupled Calculation Contract**:
-   - Informational metadata fields (`liable_party_id`, `uarn`, street addresses) are decoupled from the statutory calculation core.
-5. **Multi-Occupancy Section 44A Support**:
+4. **Multi-Occupancy Section 44A Support**:
    - Supports multiple occupancy periods (`OCCUPIED`, `UNOCCUPIED`, `PART_OCCUPIED`) in a single calculation request.
    - Handles statutory occupation reset rules ($\ge 91$ days in England post-April 2024; $\ge 42$ days in Wales/Scotland) and Section 44A apportionments.
-6. **OpenAPI 3.1.0 & Self-Hosted Scalar Reference**:
+5. **OpenAPI 3.1.0 & Self-Hosted Scalar Reference**:
    - OpenAPI 3.1.0 specification stored in [`docs/openapi.yaml`](docs/openapi.yaml) and [`docs/openapi.json`](docs/openapi.json), served at `/api/v1/openapi.json` and `/api/v1/openapi.yaml`.
    - Interactive documentation served at `/docs` rendered via [`templates/scalar.html`](templates/scalar.html) using self-hosted `/assets/scalar.js`, supporting query parameter templating (`title`, `spec_url`, `theme`, `layout`).
-7. **Unified REST API Routes**:
-   - REST endpoints are grouped under `/api/v1/` (`/calculate-liability`, `/reference-codes`, `/parameters/*`, `/openapi.*`).
+6. **API Versioning & Routing**:
+   - REST endpoints are organized under `/api/v1/` (`/calculate-liability`, `/reference-codes`, `/parameters/*`, `/openapi.*`).
 
 ---
 
@@ -120,8 +118,6 @@ The engine implements multilingual support via [`src/i18n.rs`](src/i18n.rs) and 
 ---
 
 ### 2.4 Core Calculation Engine Contract (`POST /api/v1/calculate-liability`)
-
-> **Calculation Route:** All liability calculations are handled by `POST /api/v1/calculate-liability`.
 
 #### Multi-Occupancy Request Payload Schema
 ```json
@@ -368,7 +364,7 @@ The in-memory parameter repository and documentation are exposed via REST endpoi
 
 ### Test Suite Overview (136 Passing Integration Tests)
 
-The test suite is organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 modular suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by [`tests/integration_tests.rs`](tests/integration_tests.rs). All tests run against statutory assertions with 0 mock approximations:
+The test suite is organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 modular suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by [`tests/integration_tests.rs`](tests/integration_tests.rs). All tests run against authoritative statutory assertions:
 
 | Suite | Module / File | Tests | Statutory Coverage Domain & Key Validations |
 |---|---|---|---|
