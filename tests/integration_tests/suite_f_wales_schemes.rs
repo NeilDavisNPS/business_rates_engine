@@ -655,89 +655,45 @@ fn test_welsh_artificial_avoidance_penalty_charged_once_across_segments() {
 }
 
 #[tokio::test]
-async fn test_wales_petrol_station_qualifies_for_rhl_2023_24_75_percent() {
+async fn test_wales_petrol_station_qualifies_for_rhl_2023_to_2025() {
     let repo = ParameterRepository::new_seeded();
     let engine = CalculationEngine::new(repo);
 
-    let json = serde_json::json!({
-        "party_type": "CORPORATE",
-        "hereditament": {
-            "jurisdiction": "WALES",
-            "scat_code": "211",
-            "rateable_value_history": [
-                {
-                    "effective_from": "2023-04-01",
-                    "effective_to": null,
-                    "rateable_value": 50000.00
-                }
-            ]
-        },
-        "occupation_period": {
-            "start_date": "2023-04-01",
-            "end_date": "2024-03-31"
-        },
-        "occupancy_type": "OCCUPIED",
-        "qualifying_relief_flags": {
-            "is_rhl_qualifying": true
-        }
-    });
+    let run_ps = |year_start: &str, year_end: &str| {
+        let json = serde_json::json!({
+            "party_type": "CORPORATE",
+            "hereditament": {
+                "jurisdiction": "WALES",
+                "scat_code": "211",
+                "rateable_value_history": [
+                    { "effective_from": "2023-04-01", "effective_to": null, "rateable_value": 50000.00 }
+                ]
+            },
+            "occupation_period": { "start_date": year_start, "end_date": year_end },
+            "occupancy_type": "OCCUPIED",
+            "qualifying_relief_flags": { "is_rhl_qualifying": true }
+        });
+        let req: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+        engine.calculate(req)
+    };
 
-    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
-    let response = engine.calculate(request);
-    let seg = &response.annual_billing_segments[0];
-    
-    // Multiplier 2023/24 in Wales is 0.535 -> Gross = 50000 * 0.535 = 26750.00
-    assert_eq!(seg.multiplier_used.rate, dec!(0.535));
-    assert_eq!(seg.gross_liability, dec!(26750.00));
-    
-    // 2023/24 RLHRR is 75% -> 75% of 26750.00 = 20062.50
-    let rhl = seg.itemized_reliefs.iter().find(|r| r.relief_code == "RHL_WALES_2023");
-    assert!(rhl.is_some(), "Petrol filling station (SCAT 211) in Wales must receive RLHRR in 2023/24");
-    assert_eq!(rhl.unwrap().amount_deducted, dec!(20062.50));
-    assert_eq!(seg.net_segment_payable, dec!(6687.50));
-}
+    // 1. 2023/24 in Wales: Multiplier 0.535, Gross £26,750, 75% relief = £20,062.50, Net = £6,687.50
+    let res_23 = run_ps("2023-04-01", "2024-03-31");
+    let seg_23 = &res_23.annual_billing_segments[0];
+    assert_eq!(seg_23.multiplier_used.rate, dec!(0.535));
+    assert_eq!(seg_23.gross_liability, dec!(26750.00));
+    let rhl_23 = seg_23.itemized_reliefs.iter().find(|r| r.relief_code == "RHL_WALES_2023").unwrap();
+    assert_eq!(rhl_23.amount_deducted, dec!(20062.50));
+    assert_eq!(seg_23.net_segment_payable, dec!(6687.50));
 
-#[tokio::test]
-async fn test_wales_petrol_station_qualifies_for_rhl_2024_25_40_percent() {
-    let repo = ParameterRepository::new_seeded();
-    let engine = CalculationEngine::new(repo);
-
-    let json = serde_json::json!({
-        "party_type": "CORPORATE",
-        "hereditament": {
-            "jurisdiction": "WALES",
-            "scat_code": "211",
-            "rateable_value_history": [
-                {
-                    "effective_from": "2024-04-01",
-                    "effective_to": null,
-                    "rateable_value": 50000.00
-                }
-            ]
-        },
-        "occupation_period": {
-            "start_date": "2024-04-01",
-            "end_date": "2025-03-31"
-        },
-        "occupancy_type": "OCCUPIED",
-        "qualifying_relief_flags": {
-            "is_rhl_qualifying": true
-        }
-    });
-
-    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
-    let response = engine.calculate(request);
-    let seg = &response.annual_billing_segments[0];
-    
-    // Multiplier 2024/25 in Wales is 0.562 -> Gross = 50000 * 0.562 = 28100.00
-    assert_eq!(seg.multiplier_used.rate, dec!(0.562));
-    assert_eq!(seg.gross_liability, dec!(28100.00));
-    
-    // 2024/25 RLHRR is 40% -> 40% of 28100.00 = 11240.00
-    let rhl = seg.itemized_reliefs.iter().find(|r| r.relief_code == "RHL_WALES_2024");
-    assert!(rhl.is_some(), "Petrol filling station (SCAT 211) in Wales must receive RLHRR in 2024/25");
-    assert_eq!(rhl.unwrap().amount_deducted, dec!(11240.00));
-    assert_eq!(seg.net_segment_payable, dec!(16860.00));
+    // 2. 2024/25 in Wales: Multiplier 0.562, Gross £28,100, 40% relief = £11,240.00, Net = £16,860.00
+    let res_24 = run_ps("2024-04-01", "2025-03-31");
+    let seg_24 = &res_24.annual_billing_segments[0];
+    assert_eq!(seg_24.multiplier_used.rate, dec!(0.562));
+    assert_eq!(seg_24.gross_liability, dec!(28100.00));
+    let rhl_24 = seg_24.itemized_reliefs.iter().find(|r| r.relief_code == "RHL_WALES_2024").unwrap();
+    assert_eq!(rhl_24.amount_deducted, dec!(11240.00));
+    assert_eq!(seg_24.net_segment_payable, dec!(16860.00));
 }
 
 #[tokio::test]
@@ -813,189 +769,105 @@ async fn test_sector_relief_wales_2026_food_drink_hospitality() {
 }
 
 #[tokio::test]
-async fn test_wales_holiday_let_excluded_from_2026_27_food_drink_relief() {
+async fn test_wales_food_and_drink_relief_sector_exclusions() {
     let repo = ParameterRepository::new_seeded();
     let engine = CalculationEngine::new(repo);
 
-    let json = serde_json::json!({
-        "party_type": "CORPORATE",
-        "hereditament": {
-            "jurisdiction": "WALES",
-            "scat_code": "249",
-            "rateable_value_history": [
-                {
-                    "effective_from": "2026-04-01",
-                    "effective_to": null,
-                    "rateable_value": 50000.00
-                }
-            ]
-        },
-        "occupation_period": {
-            "start_date": "2026-04-01",
-            "end_date": "2027-03-31"
-        },
-        "occupancy_type": "OCCUPIED",
-        "qualifying_relief_flags": {
-            "is_rhl_qualifying": true,
-            "apply_transitional_relief": false
-        }
-    });
+    let run_exclusion = |scat: &str, is_retail: bool| {
+        let json = serde_json::json!({
+            "party_type": "CORPORATE",
+            "hereditament": {
+                "jurisdiction": "WALES",
+                "scat_code": scat,
+                "rateable_value_history": [
+                    { "effective_from": "2026-04-01", "effective_to": null, "rateable_value": 30000.00 }
+                ]
+            },
+            "occupation_period": { "start_date": "2026-04-01", "end_date": "2027-03-31" },
+            "occupancy_type": "OCCUPIED",
+            "qualifying_relief_flags": {
+                "is_retail_premises": is_retail,
+                "is_rhl_qualifying": true,
+                "apply_transitional_relief": false
+            }
+        });
+        let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+        engine.calculate(request)
+    };
 
-    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
-    let response = engine.calculate(request);
-    let seg = &response.annual_billing_segments[0];
-    
-    // SCAT 249 is holiday accommodation, excluded from Food & Drink Hospitality relief
+    // 1. Holiday accommodation (SCAT 249): excluded from 2026/27 Food & Drink Hospitality relief
+    let res_hol = run_exclusion("249", false);
     assert!(
-        !seg.itemized_reliefs.iter().any(|r| r.relief_code.starts_with("RHL")),
+        !res_hol.annual_billing_segments[0].itemized_reliefs.iter().any(|r| r.relief_code.starts_with("RHL")),
         "Holiday let (SCAT 249) in Wales must NOT receive 2026/27 Food and Drink Hospitality relief"
     );
-    assert_eq!(seg.net_segment_payable, dec!(25100.00)); // 50000 * 0.502
-}
 
-#[tokio::test]
-async fn test_wales_retail_shop_on_retail_multiplier_excluded_from_2026_27_food_drink_relief() {
-    let repo = ParameterRepository::new_seeded();
-    let engine = CalculationEngine::new(repo);
-
-    let json = serde_json::json!({
-        "party_type": "CORPORATE",
-        "hereditament": {
-            "jurisdiction": "WALES",
-            "scat_code": "225",
-            "rateable_value_history": [
-                {
-                    "effective_from": "2026-04-01",
-                    "effective_to": null,
-                    "rateable_value": 30000.00
-                }
-            ]
-        },
-        "occupation_period": {
-            "start_date": "2026-04-01",
-            "end_date": "2027-03-31"
-        },
-        "occupancy_type": "OCCUPIED",
-        "qualifying_relief_flags": {
-            "is_retail_premises": true,
-            "is_rhl_qualifying": true,
-            "apply_transitional_relief": false
-        }
-    });
-
-    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
-    let response = engine.calculate(request);
-    let seg = &response.annual_billing_segments[0];
-    
-    // Retail shop pays retail multiplier 0.350
-    assert_eq!(seg.multiplier_used.rate, dec!(0.350));
-    assert_eq!(seg.multiplier_used.multiplier_type, "RETAIL");
-    
-    // Properties subject to the retail multiplier must not receive Food and Drink relief
+    // 2. Retail shop (SCAT 225 on retail multiplier 0.350): excluded from Food & Drink Hospitality relief
+    let res_ret = run_exclusion("225", true);
+    let seg_ret = &res_ret.annual_billing_segments[0];
+    assert_eq!(seg_ret.multiplier_used.rate, dec!(0.350));
+    assert_eq!(seg_ret.multiplier_used.multiplier_type, "RETAIL");
     assert!(
-        !seg.itemized_reliefs.iter().any(|r| r.relief_code.starts_with("RHL")),
+        !seg_ret.itemized_reliefs.iter().any(|r| r.relief_code.starts_with("RHL")),
         "Properties subject to Welsh retail multiplier must NOT receive Food & Drink Hospitality relief"
     );
 }
 
 #[tokio::test]
-async fn test_wales_transitional_relief_2026_year_1_67_percent() {
+async fn test_wales_transitional_relief_2026_and_2027_phasing() {
     let repo = ParameterRepository::new_seeded();
     let engine = CalculationEngine::new(repo);
 
-    // Baseline 2025/26: RV £4,000 * 0.568 = £2,272.00
-    // 2026/27: RV £10,000 * 0.502 = £5,020.00
-    // Increase = £5,020.00 - £2,272.00 = £2,748.00 (> £300 statutory threshold)
-    // Year 1 (2026/27) Welsh TR = 67% of £2,748.00 = £1,841.16 (W.S.I. 2025/1371)
-    let req = LiabilityCalculationRequest {
-        party_type: PartyType::CORPORATE,
-        occupation_period: DateRange {
-            start_date: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
-            end_date: NaiveDate::from_ymd_opt(2027, 3, 31).unwrap(),
-        },
-        hereditament: HereditamentInput {
-            jurisdiction: Jurisdiction::WALES,
-            scat_code: "096".to_string(),
-            rateable_value_history: vec![
-                RvEntry {
-                    effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
-                    effective_to: Some(NaiveDate::from_ymd_opt(2026, 3, 31).unwrap()),
-                    rateable_value: dec!(4000.00),
-                },
-                RvEntry {
-                    effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
-                    effective_to: None,
-                    rateable_value: dec!(10000.00),
-                },
-            ],
-        },
-        occupancy_type: OccupancyType::OCCUPIED,
-        qualifying_relief_flags: QualifyingReliefFlags {
-            apply_transitional_relief: Some(true),
-            is_small_business_sole_property: false,
-            ..Default::default()
-        },
-        occupancy_periods: None,
-        language: None,
+    let run_tr_year = |start: &str, end: &str| {
+        let req = LiabilityCalculationRequest {
+            party_type: PartyType::CORPORATE,
+            occupation_period: DateRange {
+                start_date: NaiveDate::parse_from_str(start, "%Y-%m-%d").unwrap(),
+                end_date: NaiveDate::parse_from_str(end, "%Y-%m-%d").unwrap(),
+            },
+            hereditament: HereditamentInput {
+                jurisdiction: Jurisdiction::WALES,
+                scat_code: "096".to_string(),
+                rateable_value_history: vec![
+                    RvEntry {
+                        effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
+                        effective_to: Some(NaiveDate::from_ymd_opt(2026, 3, 31).unwrap()),
+                        rateable_value: dec!(4000.00),
+                    },
+                    RvEntry {
+                        effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+                        effective_to: None,
+                        rateable_value: dec!(10000.00),
+                    },
+                ],
+            },
+            occupancy_type: OccupancyType::OCCUPIED,
+            qualifying_relief_flags: QualifyingReliefFlags {
+                apply_transitional_relief: Some(true),
+                is_small_business_sole_property: false,
+                ..Default::default()
+            },
+            occupancy_periods: None,
+            language: None,
+        };
+        engine.calculate(req)
     };
 
-    let res = engine.calculate(req);
-    let seg = &res.annual_billing_segments[0];
+    // 1. Year 1 (2026/27): 67% relief on £2,748 excess over £300 threshold = £1,841.16 relief, Net = £3,178.84
+    let res_y1 = run_tr_year("2026-04-01", "2027-03-31");
+    let seg_y1 = &res_y1.annual_billing_segments[0];
+    assert_eq!(seg_y1.gross_liability, dec!(5020.00));
+    assert_eq!(seg_y1.transitional_adjustment.adjustment_type, "RELIEF");
+    assert_eq!(seg_y1.transitional_adjustment.amount, dec!(1841.16));
+    assert_eq!(seg_y1.net_segment_payable, dec!(3178.84));
 
-    assert_eq!(seg.gross_liability, dec!(5020.00));
-    assert_eq!(seg.transitional_adjustment.adjustment_type, "RELIEF");
-    assert_eq!(seg.transitional_adjustment.amount, dec!(1841.16));
-    assert_eq!(seg.net_segment_payable, dec!(3178.84));
-}
-
-#[tokio::test]
-async fn test_wales_transitional_relief_2027_year_2_34_percent() {
-    let repo = ParameterRepository::new_seeded();
-    let engine = CalculationEngine::new(repo);
-
-    // Baseline 2025/26: RV £4,000 * 0.568 = £2,272.00
-    // 2027/28: RV £10,000 * 0.502 = £5,020.00
-    // Increase = £5,020.00 - £2,272.00 = £2,748.00 (> £300 statutory threshold)
-    // Year 2 (2027/28) Welsh TR = 34% of £2,748.00 = £934.32 (W.S.I. 2025/1371)
-    let req = LiabilityCalculationRequest {
-        party_type: PartyType::CORPORATE,
-        occupation_period: DateRange {
-            start_date: NaiveDate::from_ymd_opt(2027, 4, 1).unwrap(),
-            end_date: NaiveDate::from_ymd_opt(2028, 3, 31).unwrap(),
-        },
-        hereditament: HereditamentInput {
-            jurisdiction: Jurisdiction::WALES,
-            scat_code: "096".to_string(),
-            rateable_value_history: vec![
-                RvEntry {
-                    effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
-                    effective_to: Some(NaiveDate::from_ymd_opt(2026, 3, 31).unwrap()),
-                    rateable_value: dec!(4000.00),
-                },
-                RvEntry {
-                    effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
-                    effective_to: None,
-                    rateable_value: dec!(10000.00),
-                },
-            ],
-        },
-        occupancy_type: OccupancyType::OCCUPIED,
-        qualifying_relief_flags: QualifyingReliefFlags {
-            apply_transitional_relief: Some(true),
-            is_small_business_sole_property: false,
-            ..Default::default()
-        },
-        occupancy_periods: None,
-        language: None,
-    };
-
-    let res = engine.calculate(req);
-    let seg = &res.annual_billing_segments[0];
-
-    assert_eq!(seg.gross_liability, dec!(5020.00));
-    assert_eq!(seg.transitional_adjustment.adjustment_type, "RELIEF");
-    assert_eq!(seg.transitional_adjustment.amount, dec!(934.32));
-    assert_eq!(seg.net_segment_payable, dec!(4085.68));
+    // 2. Year 2 (2027/28): 34% relief on £2,748 excess = £934.32 relief, Net = £4,085.68
+    let res_y2 = run_tr_year("2027-04-01", "2028-03-31");
+    let seg_y2 = &res_y2.annual_billing_segments[0];
+    assert_eq!(seg_y2.gross_liability, dec!(5020.00));
+    assert_eq!(seg_y2.transitional_adjustment.adjustment_type, "RELIEF");
+    assert_eq!(seg_y2.transitional_adjustment.amount, dec!(934.32));
+    assert_eq!(seg_y2.net_segment_payable, dec!(4085.68));
 }
 
 #[tokio::test]
@@ -1357,87 +1229,50 @@ async fn test_wales_2017_list_no_small_business_relief_gets_zero_transitional_re
 }
 
 #[tokio::test]
-async fn test_wales_2005_list_no_transitional_relief() {
+async fn test_wales_2005_and_2010_lists_no_transitional_relief() {
     let repo = ParameterRepository::new_seeded();
     let engine = CalculationEngine::new(repo);
 
-    // Reproduction for Issue #23: Wales had no transitional relief scheme for the 2005 rating list
-    let json = serde_json::json!({
-        "party_type": "CORPORATE",
-        "hereditament": {
-            "jurisdiction": "WALES",
-            "scat_code": "096",
-            "rateable_value_history": [
-                {
-                    "effective_from": "2000-04-01",
-                    "effective_to": "2005-03-31",
-                    "rateable_value": 20000.00
-                },
-                {
-                    "effective_from": "2005-04-01",
-                    "effective_to": null,
-                    "rateable_value": 40000.00
-                }
-            ]
-        },
-        "occupation_period": {
-            "start_date": "2005-04-01",
-            "end_date": "2006-03-31"
-        },
-        "occupancy_type": "OCCUPIED",
-        "qualifying_relief_flags": {
-            "apply_transitional_relief": true
-        }
-    });
+    // Reproduction for Issue #23: Wales had no transitional relief scheme for the 2005 and 2010 rating lists
+    for (prev_start, prev_end, curr_start, curr_end) in [
+        ("2000-04-01", "2005-03-31", "2005-04-01", "2006-03-31"),
+        ("2005-04-01", "2010-03-31", "2010-04-01", "2011-03-31"),
+    ] {
+        let json = serde_json::json!({
+            "party_type": "CORPORATE",
+            "hereditament": {
+                "jurisdiction": "WALES",
+                "scat_code": "096",
+                "rateable_value_history": [
+                    {
+                        "effective_from": prev_start,
+                        "effective_to": prev_end,
+                        "rateable_value": 20000.00
+                    },
+                    {
+                        "effective_from": curr_start,
+                        "effective_to": null,
+                        "rateable_value": 40000.00
+                    }
+                ]
+            },
+            "occupation_period": {
+                "start_date": curr_start,
+                "end_date": curr_end
+            },
+            "occupancy_type": "OCCUPIED",
+            "qualifying_relief_flags": {
+                "apply_transitional_relief": true
+            }
+        });
 
-    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
-    let response = engine.calculate(request);
-    let seg = &response.annual_billing_segments[0];
+        let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+        let response = engine.calculate(request);
+        let seg = &response.annual_billing_segments[0];
 
-    assert_eq!(seg.transitional_adjustment.amount, dec!(0.00));
-    assert_eq!(seg.transitional_adjustment.adjustment_type, "NONE");
-}
-
-#[tokio::test]
-async fn test_wales_2010_list_no_transitional_relief() {
-    let repo = ParameterRepository::new_seeded();
-    let engine = CalculationEngine::new(repo);
-
-    // Reproduction for Issue #23: Wales had no transitional relief scheme for the 2010 rating list
-    let json = serde_json::json!({
-        "party_type": "CORPORATE",
-        "hereditament": {
-            "jurisdiction": "WALES",
-            "scat_code": "096",
-            "rateable_value_history": [
-                {
-                    "effective_from": "2005-04-01",
-                    "effective_to": "2010-03-31",
-                    "rateable_value": 20000.00
-                },
-                {
-                    "effective_from": "2010-04-01",
-                    "effective_to": null,
-                    "rateable_value": 40000.00
-                }
-            ]
-        },
-        "occupation_period": {
-            "start_date": "2010-04-01",
-            "end_date": "2011-03-31"
-        },
-        "occupancy_type": "OCCUPIED",
-        "qualifying_relief_flags": {
-            "apply_transitional_relief": true
-        }
-    });
-
-    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
-    let response = engine.calculate(request);
-    let seg = &response.annual_billing_segments[0];
-
-    assert_eq!(seg.transitional_adjustment.amount, dec!(0.00));
-    assert_eq!(seg.transitional_adjustment.adjustment_type, "NONE");
+        assert_eq!(seg.transitional_adjustment.amount, dec!(0.00));
+        assert_eq!(seg.transitional_adjustment.adjustment_type, "NONE");
+    }
 }
 
 #[test]

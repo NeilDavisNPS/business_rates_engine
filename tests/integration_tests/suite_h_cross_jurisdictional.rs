@@ -35,83 +35,7 @@ use business_rates_engine::i18n::Language;
 use business_rates_engine::error::AppError;
 
 #[tokio::test]
-async fn test_statutory_heat_network_exemption() {
-    let repo = ParameterRepository::new_mock();
-    let engine = CalculationEngine::new(repo);
-
-    let request = LiabilityCalculationRequest {
-        party_type: PartyType::CORPORATE,
-        occupation_period: DateRange {
-            start_date: NaiveDate::from_ymd_opt(2025, 4, 1).unwrap(),
-            end_date: NaiveDate::from_ymd_opt(2026, 3, 31).unwrap(),
-        },
-        hereditament: HereditamentInput {
-            jurisdiction: Jurisdiction::ENGLAND,
-            scat_code: "096".to_string(),
-            rateable_value_history: vec![RvEntry {
-                effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
-                effective_to: None,
-                rateable_value: dec!(40000.00),
-            }],
-        },
-        occupancy_type: OccupancyType::OCCUPIED,
-        qualifying_relief_flags: QualifyingReliefFlags {
-            is_heat_network: true,
-            ..Default::default()
-        },
-        occupancy_periods: None,
-        language: None,
-    };
-
-    let response = engine.calculate(request);
-    let seg = &response.annual_billing_segments[0];
-    let heat_relief = seg.itemized_reliefs.iter().find(|r| r.relief_code == "HEAT_NETWORK");
-    assert!(heat_relief.is_some());
-    let r = heat_relief.unwrap();
-    assert_eq!(r.statutory_authority, "Non-Domestic Rating Act 2023 s.2");
-    assert_eq!(r.discount_percentage, dec!(100.00));
-    assert_eq!(seg.net_segment_payable, dec!(0.00));
-}
-
-#[tokio::test]
-async fn test_heat_network_relief_not_granted_before_1_april_2024() {
-    let repo = ParameterRepository::new_seeded();
-    let engine = CalculationEngine::new(repo);
-
-    let json = serde_json::json!({
-        "party_type": "CORPORATE",
-        "hereditament": {
-            "jurisdiction": "ENGLAND",
-            "scat_code": "096",
-            "rateable_value_history": [
-                {
-                    "effective_from": "2023-04-01",
-                    "effective_to": null,
-                    "rateable_value": 40000.00
-                }
-            ]
-        },
-        "occupation_period": {
-            "start_date": "2023-04-01",
-            "end_date": "2024-03-31"
-        },
-        "occupancy_type": "OCCUPIED",
-        "qualifying_relief_flags": {
-            "is_heat_network": true
-        }
-    });
-
-    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
-    let response = engine.calculate(request);
-    let seg = &response.annual_billing_segments[0];
-    assert!(
-        !seg.itemized_reliefs.iter().any(|r| r.relief_code == "HEAT_NETWORK"),
-        "Heat network relief must not be granted before 1 April 2024"
-    );
-}
-
-#[tokio::test]
-async fn test_heat_network_relief_not_granted_on_or_after_1_april_2035() {
+async fn test_statutory_heat_network_relief_temporal_window_2024_to_2035() {
     let repo = ParameterRepository::new_seeded().with_additional_multiplier(
         business_rates_engine::db::repository::ParamMultiplier {
             parameter_id: "m_eng_test_2035".to_string(),
@@ -128,36 +52,39 @@ async fn test_heat_network_relief_not_granted_on_or_after_1_april_2035() {
     );
     let engine = CalculationEngine::new(repo);
 
-    let json = serde_json::json!({
-        "party_type": "CORPORATE",
-        "hereditament": {
-            "jurisdiction": "ENGLAND",
-            "scat_code": "096",
-            "rateable_value_history": [
-                {
-                    "effective_from": "2023-04-01",
-                    "effective_to": null,
-                    "rateable_value": 40000.00
-                }
-            ]
-        },
-        "occupation_period": {
-            "start_date": "2035-04-01",
-            "end_date": "2036-03-31"
-        },
-        "occupancy_type": "OCCUPIED",
-        "qualifying_relief_flags": {
-            "is_heat_network": true
-        }
-    });
+    let run_heat = |start: &str, end: &str| {
+        let json = serde_json::json!({
+            "party_type": "CORPORATE",
+            "hereditament": {
+                "jurisdiction": "ENGLAND",
+                "scat_code": "096",
+                "rateable_value_history": [
+                    { "effective_from": "2023-04-01", "effective_to": null, "rateable_value": 40000.00 }
+                ]
+            },
+            "occupation_period": { "start_date": start, "end_date": end },
+            "occupancy_type": "OCCUPIED",
+            "qualifying_relief_flags": { "is_heat_network": true }
+        });
+        let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+        engine.calculate(request)
+    };
 
-    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
-    let response = engine.calculate(request);
-    let seg = &response.annual_billing_segments[0];
-    assert!(
-        !seg.itemized_reliefs.iter().any(|r| r.relief_code == "HEAT_NETWORK"),
-        "Heat network relief must not be granted on or after 1 April 2035"
-    );
+    // 1. In-window (2025/26): 100% relief awarded under NDRA 2023 s.2
+    let res_active = run_heat("2025-04-01", "2026-03-31");
+    let seg_active = &res_active.annual_billing_segments[0];
+    let heat_relief = seg_active.itemized_reliefs.iter().find(|r| r.relief_code == "HEAT_NETWORK").unwrap();
+    assert_eq!(heat_relief.statutory_authority, "Non-Domestic Rating Act 2023 s.2");
+    assert_eq!(heat_relief.discount_percentage, dec!(100.00));
+    assert_eq!(seg_active.net_segment_payable, dec!(0.00));
+
+    // 2. Pre-window (2023/24): relief must not be granted before 1 April 2024
+    let res_pre = run_heat("2023-04-01", "2024-03-31");
+    assert!(!res_pre.annual_billing_segments[0].itemized_reliefs.iter().any(|r| r.relief_code == "HEAT_NETWORK"));
+
+    // 3. Post-window (2035/36): relief must not be granted on or after 1 April 2035
+    let res_post = run_heat("2035-04-01", "2036-03-31");
+    assert!(!res_post.annual_billing_segments[0].itemized_reliefs.iter().any(|r| r.relief_code == "HEAT_NETWORK"));
 }
 
 #[tokio::test]
@@ -233,44 +160,7 @@ async fn test_ndra_2023_reliefs_granted_in_wales_from_2024() {
 }
 
 #[tokio::test]
-async fn test_improvement_relief_not_granted_before_1_april_2024() {
-    let repo = ParameterRepository::new_seeded();
-    let engine = CalculationEngine::new(repo);
-
-    let json = serde_json::json!({
-        "party_type": "CORPORATE",
-        "hereditament": {
-            "jurisdiction": "ENGLAND",
-            "scat_code": "249",
-            "rateable_value_history": [
-                {
-                    "effective_from": "2023-04-01",
-                    "effective_to": null,
-                    "rateable_value": 30000.00
-                }
-            ]
-        },
-        "occupation_period": {
-            "start_date": "2023-04-01",
-            "end_date": "2024-03-31"
-        },
-        "occupancy_type": "OCCUPIED",
-        "qualifying_relief_flags": {
-            "qualifying_improvement_rv_increment": 5000.00
-        }
-    });
-
-    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
-    let response = engine.calculate(request);
-    let seg = &response.annual_billing_segments[0];
-    assert!(
-        !seg.itemized_reliefs.iter().any(|r| r.relief_code == "IMPROVEMENT_G_FACTOR"),
-        "Improvement relief must not be granted before 1 April 2024"
-    );
-}
-
-#[tokio::test]
-async fn test_improvement_relief_not_granted_on_or_after_1_april_2029() {
+async fn test_improvement_relief_statutory_window_2024_to_2029() {
     let repo = ParameterRepository::new_seeded().with_additional_multiplier(
         business_rates_engine::db::repository::ParamMultiplier {
             parameter_id: "m_eng_test_2029".to_string(),
@@ -287,34 +177,35 @@ async fn test_improvement_relief_not_granted_on_or_after_1_april_2029() {
     );
     let engine = CalculationEngine::new(repo);
 
-    let json = serde_json::json!({
-        "party_type": "CORPORATE",
-        "hereditament": {
-            "jurisdiction": "ENGLAND",
-            "scat_code": "249",
-            "rateable_value_history": [
-                {
-                    "effective_from": "2023-04-01",
-                    "effective_to": null,
-                    "rateable_value": 30000.00
-                }
-            ]
-        },
-        "occupation_period": {
-            "start_date": "2029-04-01",
-            "end_date": "2030-03-31"
-        },
-        "occupancy_type": "OCCUPIED",
-        "qualifying_relief_flags": {
-            "qualifying_improvement_rv_increment": 5000.00
-        }
-    });
+    let run_imp = |start: &str, end: &str| {
+        let json = serde_json::json!({
+            "party_type": "CORPORATE",
+            "hereditament": {
+                "jurisdiction": "ENGLAND",
+                "scat_code": "249",
+                "rateable_value_history": [
+                    { "effective_from": "2023-04-01", "effective_to": null, "rateable_value": 30000.00 }
+                ]
+            },
+            "occupation_period": { "start_date": start, "end_date": end },
+            "occupancy_type": "OCCUPIED",
+            "qualifying_relief_flags": { "qualifying_improvement_rv_increment": 5000.00 }
+        });
+        let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+        engine.calculate(request)
+    };
 
-    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
-    let response = engine.calculate(request);
-    let seg = &response.annual_billing_segments[0];
+    // 1. Before 1 April 2024: must not be granted (NDRA 2023 s.1 commencement)
+    let res_pre = run_imp("2023-04-01", "2024-03-31");
     assert!(
-        !seg.itemized_reliefs.iter().any(|r| r.relief_code == "IMPROVEMENT_G_FACTOR"),
+        !res_pre.annual_billing_segments[0].itemized_reliefs.iter().any(|r| r.relief_code == "IMPROVEMENT_G_FACTOR"),
+        "Improvement relief must not be granted before 1 April 2024"
+    );
+
+    // 2. On or after 1 April 2029: 5-year statutory scheme expires
+    let res_post = run_imp("2029-04-01", "2030-03-31");
+    assert!(
+        !res_post.annual_billing_segments[0].itemized_reliefs.iter().any(|r| r.relief_code == "IMPROVEMENT_G_FACTOR"),
         "Improvement relief must not be granted on or after 1 April 2029"
     );
 }
@@ -996,151 +887,53 @@ async fn test_self_catering_holiday_let_letting_days_test() {
 }
 
 #[tokio::test]
-async fn test_welsh_holiday_let_182_days_qualifies_post_2023() {
+async fn test_welsh_holiday_let_statutory_thresholds_pre_and_post_2023() {
     let repo = ParameterRepository::new_seeded();
     let engine = CalculationEngine::new(repo);
 
-    // Wales 2024/25 with 182 days actually let and 252 days available qualifies
-    let json = serde_json::json!({
-        "party_type": "CORPORATE",
-        "hereditament": {
-            "jurisdiction": "WALES",
-            "scat_code": "249",
-            "rateable_value_history": [
-                {
-                    "effective_from": "2023-04-01",
-                    "effective_to": null,
-                    "rateable_value": 20000.00
-                }
-            ]
-        },
-        "occupation_period": {
-            "start_date": "2024-04-01",
-            "end_date": "2025-03-31"
-        },
-        "occupancy_type": "OCCUPIED",
-        "qualifying_relief_flags": {
-            "holiday_let_actual_days_let": 182,
-            "holiday_let_days_available": 252
-        }
-    });
+    let run_wales = |start: &str, end: &str, let_days: Option<i64>, avail_days: Option<i64>| {
+        let json = serde_json::json!({
+            "party_type": "CORPORATE",
+            "hereditament": {
+                "jurisdiction": "WALES",
+                "scat_code": "249",
+                "rateable_value_history": [
+                    { "effective_from": "2017-04-01", "effective_to": null, "rateable_value": 20000.00 }
+                ]
+            },
+            "occupation_period": { "start_date": start, "end_date": end },
+            "occupancy_type": "OCCUPIED",
+            "qualifying_relief_flags": {
+                "holiday_let_actual_days_let": let_days,
+                "holiday_let_days_available": avail_days
+            }
+        });
+        let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
+        engine.calculate(request)
+    };
 
-    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
-    let response = engine.calculate(request);
-    let seg = &response.annual_billing_segments[0];
-    assert!(!seg.itemized_reliefs.iter().any(|r| r.relief_code == "COUNCIL_TAX_TRANSFER"), "182 days qualifies in Wales");
-    assert!(seg.net_segment_payable > dec!(0.00));
-}
+    // 1. Post-2023 (2024/25): 182 days actually let & 252 days available qualifies under W.S.I. 2022/563
+    let res1 = run_wales("2024-04-01", "2025-03-31", Some(182), Some(252));
+    let seg1 = &res1.annual_billing_segments[0];
+    assert!(!seg1.itemized_reliefs.iter().any(|r| r.relief_code == "COUNCIL_TAX_TRANSFER"), "182 days qualifies in Wales post-2023");
+    assert!(seg1.net_segment_payable > dec!(0.00));
 
-#[tokio::test]
-async fn test_welsh_holiday_let_70_days_disqualified_post_2023() {
-    let repo = ParameterRepository::new_seeded();
-    let engine = CalculationEngine::new(repo);
-
-    // Wales 2023/24 onwards requires >= 182 days actually let (LGFA 1988 s.66(2BB) / W.S.I. 2022/563)
-    // 100 days let is >= 70 (English threshold) but < 182 (Welsh threshold), so MUST be disqualified
-    let json = serde_json::json!({
-        "party_type": "CORPORATE",
-        "hereditament": {
-            "jurisdiction": "WALES",
-            "scat_code": "249",
-            "rateable_value_history": [
-                {
-                    "effective_from": "2023-04-01",
-                    "effective_to": null,
-                    "rateable_value": 20000.00
-                }
-            ]
-        },
-        "occupation_period": {
-            "start_date": "2024-04-01",
-            "end_date": "2025-03-31"
-        },
-        "occupancy_type": "OCCUPIED",
-        "qualifying_relief_flags": {
-            "holiday_let_actual_days_let": 100
-        }
-    });
-
-    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
-    let response = engine.calculate(request);
-    let seg = &response.annual_billing_segments[0];
-    assert_eq!(seg.net_segment_payable, dec!(0.00), "Disqualified holiday let must pay £0 NDR");
-    let transfer = seg.itemized_reliefs.iter().find(|r| r.relief_code == "COUNCIL_TAX_TRANSFER");
+    // 2. Post-2023 (2024/25): 100 days let (< 182) fails statutory threshold and transfers to Council Tax
+    let res2 = run_wales("2024-04-01", "2025-03-31", Some(100), None);
+    let seg2 = &res2.annual_billing_segments[0];
+    assert_eq!(seg2.net_segment_payable, dec!(0.00), "Disqualified holiday let must pay £0 NDR");
+    let transfer = seg2.itemized_reliefs.iter().find(|r| r.relief_code == "COUNCIL_TAX_TRANSFER");
     assert!(transfer.is_some(), "Must transfer to Council Tax under W.S.I. 2022/563");
     assert_eq!(transfer.unwrap().statutory_authority, "LGFA 1988 s.66(2BB) / W.S.I. 2022/563");
-}
 
-#[tokio::test]
-async fn test_welsh_holiday_let_70_days_qualifies_pre_2023() {
-    let repo = ParameterRepository::new_seeded();
-    let engine = CalculationEngine::new(repo);
+    // 3. Pre-2023 (2022/23): 70 days let qualified before 1 April 2023 (W.S.I. 2010/682)
+    let res3 = run_wales("2022-04-01", "2023-03-31", Some(70), None);
+    assert!(!res3.annual_billing_segments[0].itemized_reliefs.iter().any(|r| r.relief_code == "COUNCIL_TAX_TRANSFER"), "70 days qualified before 1 April 2023");
 
-    // Prior to 1 April 2023, Welsh threshold was 70 days actually let
-    let json = serde_json::json!({
-        "party_type": "CORPORATE",
-        "hereditament": {
-            "jurisdiction": "WALES",
-            "scat_code": "249",
-            "rateable_value_history": [
-                {
-                    "effective_from": "2017-04-01",
-                    "effective_to": null,
-                    "rateable_value": 20000.00
-                }
-            ]
-        },
-        "occupation_period": {
-            "start_date": "2022-04-01",
-            "end_date": "2023-03-31"
-        },
-        "occupancy_type": "OCCUPIED",
-        "qualifying_relief_flags": {
-            "holiday_let_actual_days_let": 70
-        }
-    });
-
-    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
-    let response = engine.calculate(request);
-    let seg = &response.annual_billing_segments[0];
-    assert!(!seg.itemized_reliefs.iter().any(|r| r.relief_code == "COUNCIL_TAX_TRANSFER"), "70 days qualified before 1 April 2023");
-}
-
-#[tokio::test]
-async fn test_welsh_holiday_let_availability_threshold_disqualification() {
-    let repo = ParameterRepository::new_seeded();
-    let engine = CalculationEngine::new(repo);
-
-    // In Wales post-2023, let for 200 days (>= 182) but only available for 200 days (< 252) -> Disqualified
-    let json = serde_json::json!({
-        "party_type": "CORPORATE",
-        "hereditament": {
-            "jurisdiction": "WALES",
-            "scat_code": "249",
-            "rateable_value_history": [
-                {
-                    "effective_from": "2023-04-01",
-                    "effective_to": null,
-                    "rateable_value": 20000.00
-                }
-            ]
-        },
-        "occupation_period": {
-            "start_date": "2024-04-01",
-            "end_date": "2025-03-31"
-        },
-        "occupancy_type": "OCCUPIED",
-        "qualifying_relief_flags": {
-            "holiday_let_actual_days_let": 200,
-            "holiday_let_days_available": 200
-        }
-    });
-
-    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
-    let response = engine.calculate(request);
-    let seg = &response.annual_billing_segments[0];
-    assert_eq!(seg.net_segment_payable, dec!(0.00));
-    assert!(seg.itemized_reliefs.iter().any(|r| r.relief_code == "COUNCIL_TAX_TRANSFER"));
+    // 4. Post-2023 (2024/25): 200 days let (>= 182) but only 200 days available (< 252 availability test) -> Disqualified
+    let res4 = run_wales("2024-04-01", "2025-03-31", Some(200), Some(200));
+    assert_eq!(res4.annual_billing_segments[0].net_segment_payable, dec!(0.00));
+    assert!(res4.annual_billing_segments[0].itemized_reliefs.iter().any(|r| r.relief_code == "COUNCIL_TAX_TRANSFER"));
 }
 
 #[tokio::test]

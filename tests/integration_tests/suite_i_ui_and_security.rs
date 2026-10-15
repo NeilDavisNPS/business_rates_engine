@@ -173,11 +173,12 @@ async fn test_ui_decommissioned_alias_routes_return_404() {
 // =========================================================================
 
 #[tokio::test]
-async fn test_owasp_secure_headers_on_api_json_response() {
+async fn test_owasp_secure_headers_on_api_and_error_responses() {
     let app = create_test_app();
     let req_fixture = load_fixture("scenario_1_sbrr_rhl_england.json");
     let json_body = serde_json::to_string(&req_fixture).unwrap();
 
+    // 1. API 200 OK response with OWASP security headers
     let req = Request::builder()
         .uri("/api/v1/calculate-liability")
         .method("POST")
@@ -186,7 +187,7 @@ async fn test_owasp_secure_headers_on_api_json_response() {
         .body(Body::from(json_body))
         .unwrap();
 
-    let res = app.oneshot(req).await.unwrap();
+    let res = app.clone().oneshot(req).await.unwrap();
     assert_eq!(res.status(), StatusCode::OK);
 
     let headers = res.headers();
@@ -200,13 +201,8 @@ async fn test_owasp_secure_headers_on_api_json_response() {
     assert_eq!(headers.get(header::STRICT_TRANSPORT_SECURITY).unwrap(), "max-age=31536000; includeSubDomains");
     assert_eq!(headers.get(header::REFERRER_POLICY).unwrap(), "strict-origin-when-cross-origin");
     assert_eq!(headers.get("permissions-policy").unwrap(), "camera=(), microphone=(), geolocation=(), payment=()");
-}
 
-#[tokio::test]
-async fn test_owasp_secure_headers_on_error_and_unauthorized_responses() {
-    let app = create_test_app();
-
-    // 1. Unauthenticated API returns 422 Unprocessable Entity on empty payload with OWASP headers
+    // 2. Unprocessable Entity 422 error response retains OWASP headers
     let req_err = Request::builder()
         .uri("/api/v1/calculate-liability")
         .method("POST")
@@ -220,7 +216,7 @@ async fn test_owasp_secure_headers_on_error_and_unauthorized_responses() {
     assert_eq!(res_err.headers().get(header::X_FRAME_OPTIONS).unwrap(), "DENY");
     assert!(res_err.headers().get(header::CONTENT_SECURITY_POLICY).is_some());
 
-    // 2. Public reference codes 200 response
+    // 3. Public reference codes 200 response
     let req_codes = Request::builder()
         .uri("/api/v1/reference-codes")
         .method("GET")

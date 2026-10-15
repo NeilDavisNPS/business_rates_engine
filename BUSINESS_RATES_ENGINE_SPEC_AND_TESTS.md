@@ -366,7 +366,7 @@ The in-memory parameter repository and documentation are exposed via REST endpoi
 
 ## 4. Test Cases Specification & Scenario Fixtures
 
-### Test Suite Overview (164 Passing Integration Tests)
+### Test Suite Overview (136 Passing Integration Tests)
 
 The test suite is organized under [`tests/integration_tests/`](tests/integration_tests/) across 10 modular suites (Suites A through J) plus shared helpers in [`tests/integration_tests/common.rs`](tests/integration_tests/common.rs), coordinated by [`tests/integration_tests.rs`](tests/integration_tests.rs). All tests run against statutory assertions with 0 mock approximations:
 
@@ -374,14 +374,14 @@ The test suite is organized under [`tests/integration_tests/`](tests/integration
 |---|---|---|---|
 | **Suite A** | [`tests/integration_tests/suite_a_scenarios.rs`](tests/integration_tests/suite_a_scenarios.rs) | 11 | Multi-jurisdiction scenario fixtures (Scenarios 1–11): SBRR/RHL multi-year slicing, SCAT 211 forecourt, G-factor certificates, 10/12 instalments, rural settlement, 80% mandatory charity relief. |
 | **Suite B** | [`tests/integration_tests/suite_b_multi_occupancy.rs`](tests/integration_tests/suite_b_multi_occupancy.rs) | 7 | Temporal billing slicing: mid-year RV alterations, continuous multi-occupancy arrays, overlapping period rejection, open-ended occupation default (2027-03-31), out-of-order prior empty days. |
-| **Suite C** | [`tests/integration_tests/suite_c_i18n.rs`](tests/integration_tests/suite_c_i18n.rs) | 13 | 4-nation statutory language parity (`en`, `cy`, `sco`, `gd`): audit narratives, localized relief titles, reference code resolution, localized 422/400 error payloads, header/body content negotiation. |
-| **Suite D** | [`tests/integration_tests/suite_d_api_and_parameters.rs`](tests/integration_tests/suite_d_api_and_parameters.rs) | 8 | REST API & parameters: `GET /api/v1/parameters`, `/health`, `/ready`, OpenAPI schema contract synchronization (`docs/openapi.{json,yaml}`), Scalar API docs `/docs`. |
-| **Suite E** | [`tests/integration_tests/suite_e_england_schemes.rs`](tests/integration_tests/suite_e_england_schemes.rs) | 27 | England rating schemes: 2026/27 5-multiplier regime (S.I. 2026/152), 2026 TR upward caps (+5%/+15%/+30%), London £28k / outside £20k boundary, SBRR linear taper ($E$ divisor), SSBR £600/£800 caps. |
-| **Suite F** | [`tests/integration_tests/suite_f_wales_schemes.rs`](tests/integration_tests/suite_f_wales_schemes.rs) | 25 | Wales rating schemes: 2026/27 3 multipliers (Retail 0.350, Standard 0.502, Higher 0.515), 2-year TR (67%/34% over £300 excess), 2026/27 Food & Drink 15% relief, artificial avoidance penalties (W.S.I. 2026/43). |
-| **Suite G** | [`tests/integration_tests/suite_g_scotland_schemes.rs`](tests/integration_tests/suite_g_scotland_schemes.rs) | 24 | Scotland rating schemes: 3 property rates (Basic 0.481, Intermediate 0.535, Higher 0.548), SBBS dual tapers (£12k–£15k–£20k) & multiple properties rules, 2026 RHL (15% mainland, 40% hospitality, 100% islands). |
-| **Suite H** | [`tests/integration_tests/suite_h_cross_jurisdictional.rs`](tests/integration_tests/suite_h_cross_jurisdictional.rs) | 24 | Cross-jurisdictional reliefs & lifespans: Heat Network (2024–2035), Improvement Relief (2024–2029), holiday lets actual letting tests (Scotland 70d, England 70d, Wales 70d pre-2023 / 182d post-2023), empty property. |
-| **Suite I** | [`tests/integration_tests/suite_i_ui_and_security.rs`](tests/integration_tests/suite_i_ui_and_security.rs) | 8 | Svelte 5 single-page application delivery: static asset serving, OWASP secure HTTP headers, strict Content Security Policy, ETag caching & 304 responses, Greater London UI toggle (`flag_is_greater_london`). |
-| **Suite J** | [`tests/integration_tests/suite_j_historical.rs`](tests/integration_tests/suite_j_historical.rs) | 15 | Historical rating revaluations (1990–2022): 1990 inaugural NNDR, historical transitional phasing (1991, 1993, 1995, 2000, 2017), SBRR evolution (pre-2005 0%, 2005 list 50%, 2010 list 100% doubled taper). |
+| **Suite C** | [`tests/integration_tests/suite_c_i18n.rs`](tests/integration_tests/suite_c_i18n.rs) | 10 | 4-nation statutory language parity (`en`, `cy`, `sco`, `gd`): audit narratives, localized relief titles, reference code resolution, localized 422/400 error payloads, header/body content negotiation. |
+| **Suite D** | [`tests/integration_tests/suite_d_api_and_parameters.rs`](tests/integration_tests/suite_d_api_and_parameters.rs) | 13 | REST API & parameters: `GET /api/v1/parameters`, `/health`, `/ready`, OpenAPI schema contract synchronization (`docs/openapi.{json,yaml}`), Scalar API docs `/docs`. |
+| **Suite E** | [`tests/integration_tests/suite_e_england_schemes.rs`](tests/integration_tests/suite_e_england_schemes.rs) | 20 | England rating schemes: 2026/27 5-multiplier regime (S.I. 2026/152), 2026 TR upward caps (+5%/+15%/+30%), London £28k / outside £20k boundary, SBRR linear taper ($E$ divisor), SSBR £600/£800 caps. |
+| **Suite F** | [`tests/integration_tests/suite_f_wales_schemes.rs`](tests/integration_tests/suite_f_wales_schemes.rs) | 27 | Wales rating schemes: 2026/27 3 multipliers (Retail 0.350, Standard 0.502, Higher 0.515), 2-year TR (67%/34% over £300 excess), 2026/27 Food & Drink 15% relief, artificial avoidance penalties (W.S.I. 2026/43). |
+| **Suite G** | [`tests/integration_tests/suite_g_scotland_schemes.rs`](tests/integration_tests/suite_g_scotland_schemes.rs) | 16 | Scotland rating schemes: 3 property rates (Basic 0.481, Intermediate 0.535, Higher 0.548), SBBS dual tapers (£12k–£15k–£20k) & multiple properties rules, 2026 RHL (15% mainland, 40% hospitality, 100% islands). |
+| **Suite H** | [`tests/integration_tests/suite_h_cross_jurisdictional.rs`](tests/integration_tests/suite_h_cross_jurisdictional.rs) | 18 | Cross-jurisdictional reliefs & lifespans: Heat Network (2024–2035), Improvement Relief (2024–2029), holiday lets actual letting tests (Scotland 70d, England 70d, Wales 70d pre-2023 / 182d post-2023), empty property. |
+| **Suite I** | [`tests/integration_tests/suite_i_ui_and_security.rs`](tests/integration_tests/suite_i_ui_and_security.rs) | 7 | Svelte 5 single-page application delivery: static asset serving, OWASP secure HTTP headers, strict Content Security Policy, ETag caching & 304 responses, Greater London UI toggle (`flag_is_greater_london`). |
+| **Suite J** | [`tests/integration_tests/suite_j_historical.rs`](tests/integration_tests/suite_j_historical.rs) | 7 | Historical rating revaluations (1990–2022): 1990 inaugural NNDR, historical transitional phasing (1991, 1993, 1995, 2000, 2017), SBRR evolution (pre-2005 0%, 2005 list 50%, 2010 list 100% doubled taper). |
 
 ---
 
@@ -393,7 +393,7 @@ To build, verify, and run the project:
 # 1. Build the Svelte 5 frontend with Vite
 ./build-frontend.sh
 
-# 2. Run the integration test suite (164 tests)
+# 2. Run the integration test suite (136 tests)
 cargo test --test integration_tests
 
 # 3. Start the HTTP server (default port 8080)

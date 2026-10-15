@@ -5,6 +5,8 @@
 #[allow(unused_imports)]
 use super::common::*;
 #[allow(unused_imports)]
+use rust_decimal::Decimal;
+#[allow(unused_imports)]
 use rust_decimal_macros::dec;
 #[allow(unused_imports)]
 use chrono::NaiveDate;
@@ -78,154 +80,85 @@ async fn test_historical_calculation_1990_91_inaugural_nndr() {
 }
 
 #[tokio::test]
-async fn test_historical_transitional_phasing_1991_92() {
-    let repo = ParameterRepository::new_mock();
+async fn test_historical_transitional_phasing_1990_to_2000_lists() {
+    let repo = ParameterRepository::new_seeded();
     let engine = CalculationEngine::new(repo);
 
-    // 1991/92: Small property (RV £8,000 <= £10,000 under SI 1989/1358)
-    // Previous year (1990/91) RV = £5,000, multiplier = 0.348. Base = 5000 * 0.348 = 1740.00
-    // 1991/92 Small upward cap = +15% (factor 1.15). Capped = 1740.00 * 1.15 = 2001.00
-    // 1991/92 England multiplier = 0.386. Gross = 8000 * 0.386 = 3088.00
-    // Transitional relief = 3088.00 - 2001.00 = 1087.00
-    // Net payable = 2001.00
-    let request = LiabilityCalculationRequest {
-        party_type: PartyType::CORPORATE,
-        occupation_period: DateRange {
-            start_date: NaiveDate::from_ymd_opt(1991, 4, 1).unwrap(),
-            end_date: NaiveDate::from_ymd_opt(1992, 3, 31).unwrap(),
-        },
-        hereditament: HereditamentInput {
-            jurisdiction: Jurisdiction::ENGLAND,
-            scat_code: "096".to_string(),
-            rateable_value_history: vec![
-                RvEntry {
-                    effective_from: NaiveDate::from_ymd_opt(1990, 4, 1).unwrap(),
-                    effective_to: Some(NaiveDate::from_ymd_opt(1991, 3, 31).unwrap()),
-                    rateable_value: dec!(5000.00),
-                },
-                RvEntry {
-                    effective_from: NaiveDate::from_ymd_opt(1991, 4, 1).unwrap(),
-                    effective_to: None,
-                    rateable_value: dec!(8000.00),
-                },
-            ],
-        },
-        occupancy_type: OccupancyType::OCCUPIED,
-        qualifying_relief_flags: QualifyingReliefFlags::default(),
-        occupancy_periods: None,
-        language: None,
+    let run_tr = |start: &str, end: &str, old_from: &str, old_to: &str, old_rv: Decimal, new_from: &str, new_rv: Decimal| {
+        let req = LiabilityCalculationRequest {
+            party_type: PartyType::CORPORATE,
+            occupation_period: DateRange {
+                start_date: NaiveDate::parse_from_str(start, "%Y-%m-%d").unwrap(),
+                end_date: NaiveDate::parse_from_str(end, "%Y-%m-%d").unwrap(),
+            },
+            hereditament: HereditamentInput {
+                jurisdiction: Jurisdiction::ENGLAND,
+                scat_code: "096".to_string(),
+                rateable_value_history: vec![
+                    RvEntry {
+                        effective_from: NaiveDate::parse_from_str(old_from, "%Y-%m-%d").unwrap(),
+                        effective_to: Some(NaiveDate::parse_from_str(old_to, "%Y-%m-%d").unwrap()),
+                        rateable_value: old_rv,
+                    },
+                    RvEntry {
+                        effective_from: NaiveDate::parse_from_str(new_from, "%Y-%m-%d").unwrap(),
+                        effective_to: None,
+                        rateable_value: new_rv,
+                    },
+                ],
+            },
+            occupancy_type: OccupancyType::OCCUPIED,
+            qualifying_relief_flags: QualifyingReliefFlags {
+                apply_transitional_relief: Some(true),
+                ..Default::default()
+            },
+            occupancy_periods: None,
+            language: None,
+        };
+        engine.calculate(req)
     };
 
-    let response = engine.calculate(request);
-    let seg = &response.annual_billing_segments[0];
-    assert_eq!(seg.financial_year, "1991/92");
-    assert_eq!(seg.gross_liability, dec!(3088.00));
-    assert_eq!(seg.transitional_adjustment.adjustment_type, "RELIEF");
-    assert_eq!(seg.transitional_adjustment.amount, dec!(1087.00));
-    assert_eq!(seg.net_segment_payable, dec!(2001.00));
+    // 1. 1991/92 (SI 1989/1358): Small property (RV £8,000 <= £10,000). 15% cap on £1,740 base = £2,001.00
+    let res_91 = run_tr("1991-04-01", "1992-03-31", "1990-04-01", "1991-03-31", dec!(5000.00), "1991-04-01", dec!(8000.00));
+    let seg_91 = &res_91.annual_billing_segments[0];
+    assert_eq!(seg_91.financial_year, "1991/92");
+    assert_eq!(seg_91.gross_liability, dec!(3088.00));
+    assert_eq!(seg_91.transitional_adjustment.adjustment_type, "RELIEF");
+    assert_eq!(seg_91.transitional_adjustment.amount, dec!(1087.00));
+    assert_eq!(seg_91.net_segment_payable, dec!(2001.00));
+
+    // 2. 1993/94: Small property (RV £9,000 <= £10,000). 15% cap on £2,436 base = £2,801.40
+    let res_93 = run_tr("1993-04-01", "1994-03-31", "1990-04-01", "1993-03-31", dec!(6000.00), "1993-04-01", dec!(9000.00));
+    let seg_93 = &res_93.annual_billing_segments[0];
+    assert_eq!(seg_93.gross_liability, dec!(3744.00));
+    assert_eq!(seg_93.transitional_adjustment.adjustment_type, "RELIEF");
+    assert_eq!(seg_93.transitional_adjustment.amount, dec!(942.60));
+    assert_eq!(seg_93.net_segment_payable, dec!(2801.40));
+
+    // 3. 1995/96 Revaluation (SI 1994/3279): Large property (> £10,000 RV). 20% cap on £3,384 base = £4,060.80
+    let res_95 = run_tr("1995-04-01", "1996-03-31", "1990-04-01", "1995-03-31", dec!(8000.00), "1995-04-01", dec!(15000.00));
+    let seg_95 = &res_95.annual_billing_segments[0];
+    assert_eq!(seg_95.gross_liability, dec!(6480.00));
+    assert_eq!(seg_95.transitional_adjustment.adjustment_type, "RELIEF");
+    assert_eq!(seg_95.transitional_adjustment.amount, dec!(2419.20));
+    assert_eq!(seg_95.net_segment_payable, dec!(4060.80));
+
+    // 4. 2000/01 List Revaluation (SI 1999/3379): Small property (RV £8,000 <= £12,000). 5% cap on £1,956 base = £2,053.80
+    let res_00 = run_tr("2000-04-01", "2001-03-31", "1995-04-01", "2000-03-31", dec!(4000.00), "2000-04-01", dec!(8000.00));
+    let seg_00 = &res_00.annual_billing_segments[0];
+    assert_eq!(seg_00.gross_liability, dec!(3328.00));
+    assert_eq!(seg_00.transitional_adjustment.adjustment_type, "RELIEF");
+    assert_eq!(seg_00.transitional_adjustment.amount, dec!(1274.20));
+    assert_eq!(seg_00.net_segment_payable, dec!(2053.80));
 }
 
 #[tokio::test]
-async fn test_historical_transitional_phasing_1993_94() {
+async fn test_historical_sbrr_pre_2005_and_2005_list_evolution() {
     let repo = ParameterRepository::new_mock();
     let engine = CalculationEngine::new(repo);
 
-    // 1993/94: Small property (RV £9,000 <= £10,000)
-    // Previous year (1992/93) RV = £6,000, 1992/93 multiplier = 0.406
-    // Base annual liability = 6000 * 0.406 = 2436.00
-    // 1993/94 Small upward cap = +15% (factor 1.15)
-    // Capped liability = 2436.00 * 1.15 = 2801.40
-    // 1993/94 multiplier = 0.416. Gross = 9000 * 0.416 = 3744.00
-    // Transitional relief = 3744.00 - 2801.40 = 942.60
-    let request = LiabilityCalculationRequest {
-        party_type: PartyType::CORPORATE,
-        occupation_period: DateRange {
-            start_date: NaiveDate::from_ymd_opt(1993, 4, 1).unwrap(),
-            end_date: NaiveDate::from_ymd_opt(1994, 3, 31).unwrap(),
-        },
-        hereditament: HereditamentInput {
-            jurisdiction: Jurisdiction::ENGLAND,
-            scat_code: "091".to_string(),
-            rateable_value_history: vec![
-                RvEntry {
-                    effective_from: NaiveDate::from_ymd_opt(1990, 4, 1).unwrap(),
-                    effective_to: Some(NaiveDate::from_ymd_opt(1993, 3, 31).unwrap()),
-                    rateable_value: dec!(6000.00),
-                },
-                RvEntry {
-                    effective_from: NaiveDate::from_ymd_opt(1993, 4, 1).unwrap(),
-                    effective_to: None,
-                    rateable_value: dec!(9000.00),
-                },
-            ],
-        },
-        occupancy_type: OccupancyType::OCCUPIED,
-        qualifying_relief_flags: QualifyingReliefFlags::default(),
-        occupancy_periods: None,
-        language: None,
-    };
-
-    let response = engine.calculate(request);
-    let seg = &response.annual_billing_segments[0];
-    assert_eq!(seg.gross_liability, dec!(3744.00));
-    assert_eq!(seg.transitional_adjustment.adjustment_type, "RELIEF");
-    assert_eq!(seg.transitional_adjustment.amount, dec!(942.60));
-    assert_eq!(seg.net_segment_payable, dec!(2801.40));
-}
-
-#[tokio::test]
-async fn test_historical_transitional_phasing_1995_list_revaluation() {
-    let repo = ParameterRepository::new_mock();
-    let engine = CalculationEngine::new(repo);
-
-    // 1995/96 Revaluation (SI 1994/3279): Large property (> £10,000 RV)
-    // 1994/95 RV = £8,000, 1994/95 multiplier = 0.423. Base = 8000 * 0.423 = 3384.00
-    // 1995/96 Large upward cap = +20% (factor 1.20). Capped = 3384.00 * 1.20 = 4060.80
-    // 1995/96 RV = £15,000, multiplier = 0.432. Gross = 15000 * 0.432 = 6480.00
-    // Transitional relief = 6480.00 - 4060.80 = 2419.20
-    let request = LiabilityCalculationRequest {
-        party_type: PartyType::CORPORATE,
-        occupation_period: DateRange {
-            start_date: NaiveDate::from_ymd_opt(1995, 4, 1).unwrap(),
-            end_date: NaiveDate::from_ymd_opt(1996, 3, 31).unwrap(),
-        },
-        hereditament: HereditamentInput {
-            jurisdiction: Jurisdiction::ENGLAND,
-            scat_code: "096".to_string(),
-            rateable_value_history: vec![
-                RvEntry {
-                    effective_from: NaiveDate::from_ymd_opt(1990, 4, 1).unwrap(),
-                    effective_to: Some(NaiveDate::from_ymd_opt(1995, 3, 31).unwrap()),
-                    rateable_value: dec!(8000.00),
-                },
-                RvEntry {
-                    effective_from: NaiveDate::from_ymd_opt(1995, 4, 1).unwrap(),
-                    effective_to: None,
-                    rateable_value: dec!(15000.00),
-                },
-            ],
-        },
-        occupancy_type: OccupancyType::OCCUPIED,
-        qualifying_relief_flags: QualifyingReliefFlags::default(),
-        occupancy_periods: None,
-        language: None,
-    };
-
-    let response = engine.calculate(request);
-    let seg = &response.annual_billing_segments[0];
-    assert_eq!(seg.gross_liability, dec!(6480.00));
-    assert_eq!(seg.transitional_adjustment.adjustment_type, "RELIEF");
-    assert_eq!(seg.transitional_adjustment.amount, dec!(2419.20));
-    assert_eq!(seg.net_segment_payable, dec!(4060.80));
-}
-
-#[tokio::test]
-async fn test_historical_sbrr_pre_2005_returns_no_relief() {
-    let repo = ParameterRepository::new_mock();
-    let engine = CalculationEngine::new(repo);
-
-    // In 2003/04 (pre-2005), SBRR did not exist in primary legislation (enacted by LGA 2003 s.61).
-    let request = LiabilityCalculationRequest {
+    // 1. Pre-2005 (2003/04): SBRR did not exist in primary legislation (enacted by LGA 2003 s.61).
+    let req_pre = LiabilityCalculationRequest {
         party_type: PartyType::INDIVIDUAL,
         occupation_period: DateRange {
             start_date: NaiveDate::from_ymd_opt(2003, 4, 1).unwrap(),
@@ -248,24 +181,14 @@ async fn test_historical_sbrr_pre_2005_returns_no_relief() {
         occupancy_periods: None,
         language: None,
     };
+    let res_pre = engine.calculate(req_pre);
+    let seg_pre = &res_pre.annual_billing_segments[0];
+    assert_eq!(seg_pre.rateable_value, dec!(4000.00));
+    assert_eq!(seg_pre.gross_liability, dec!(1776.00));
+    assert!(!seg_pre.itemized_reliefs.iter().any(|r| r.relief_code == "SBRR"));
+    assert_eq!(seg_pre.net_segment_payable, dec!(1776.00));
 
-    let response = engine.calculate(request);
-    let seg = &response.annual_billing_segments[0];
-
-    // Multiplier for England 2003/04 is 0.444. Gross = 4000 * 0.444 = 1776.00
-    assert_eq!(seg.rateable_value, dec!(4000.00));
-    assert_eq!(seg.gross_liability, dec!(1776.00));
-    assert!(!seg.itemized_reliefs.iter().any(|r| r.relief_code == "SBRR"));
-    assert_eq!(seg.net_segment_payable, dec!(1776.00));
-}
-
-#[tokio::test]
-async fn test_historical_sbrr_2005_list_england_full_and_taper() {
-    let repo = ParameterRepository::new_mock();
-    let engine = CalculationEngine::new(repo);
-
-    // 2007/08 England: Small Business multiplier = 0.441
-    // Full relief test: RV £4,000 (max relief in 2005 list was 50% up to £5,000 under SI 2004/3315)
+    // 2. 2005 List (2007/08 England): Full relief test on RV £4,000 (max 50% under SI 2004/3315)
     let req_full = LiabilityCalculationRequest {
         party_type: PartyType::INDIVIDUAL,
         occupation_period: DateRange {
@@ -289,7 +212,6 @@ async fn test_historical_sbrr_2005_list_england_full_and_taper() {
         occupancy_periods: None,
         language: None,
     };
-
     let res_full = engine.calculate(req_full);
     let seg_full = &res_full.annual_billing_segments[0];
     assert_eq!(seg_full.gross_liability, dec!(1764.00));
@@ -299,8 +221,7 @@ async fn test_historical_sbrr_2005_list_england_full_and_taper() {
     assert_eq!(seg_full.net_segment_payable, dec!(882.00));
     assert_eq!(r_full.statutory_authority, "LGFA 1988 s.43(4B) / SI 2004/3315");
 
-    // Taper test: RV £7,500 (taper from 50% to 0% between £5,001 and £10,000)
-    // Formula: (10,000 - 7,500) / 4999.99 * 50 = 25.00%
+    // 3. 2005 List Taper: RV £7,500 (taper from 50% to 0% between £5,001 and £10,000)
     let req_tap = LiabilityCalculationRequest {
         party_type: PartyType::INDIVIDUAL,
         occupation_period: DateRange {
@@ -324,7 +245,6 @@ async fn test_historical_sbrr_2005_list_england_full_and_taper() {
         occupancy_periods: None,
         language: None,
     };
-
     let res_tap = engine.calculate(req_tap);
     let seg_tap = &res_tap.annual_billing_segments[0];
     assert_eq!(seg_tap.gross_liability, dec!(3307.50));
@@ -407,56 +327,6 @@ async fn test_historical_sbrr_2010_list_england_and_scotland() {
     assert_eq!(seg_sco.net_segment_payable, dec!(2475.00));
 }
 
-#[tokio::test]
-async fn test_historical_transitional_phasing_2000_list() {
-    let repo = ParameterRepository::new_seeded();
-    let engine = CalculationEngine::new(repo);
-
-    // 2000 List Revaluation (SI 1999/3379)
-    // England 1999/00: RV £4,000 * 0.489 = £1,956.00
-    // 2000/01: RV £8,000 (Small <= £12,000). Multiplier 0.416. Gross = 8,000 * 0.416 = £3,328.00.
-    // Small upward cap = 5.00%. Capped base = 1,956.00 * 1.05 = £2,053.80.
-    // Transitional relief = £3,328.00 - £2,053.80 = £1,274.20.
-    // Net = £2,053.80.
-    let req = LiabilityCalculationRequest {
-        party_type: PartyType::CORPORATE,
-        occupation_period: DateRange {
-            start_date: NaiveDate::from_ymd_opt(2000, 4, 1).unwrap(),
-            end_date: NaiveDate::from_ymd_opt(2001, 3, 31).unwrap(),
-        },
-        hereditament: HereditamentInput {
-            jurisdiction: Jurisdiction::ENGLAND,
-            scat_code: "096".to_string(),
-            rateable_value_history: vec![
-                RvEntry {
-                    effective_from: NaiveDate::from_ymd_opt(1995, 4, 1).unwrap(),
-                    effective_to: Some(NaiveDate::from_ymd_opt(2000, 3, 31).unwrap()),
-                    rateable_value: dec!(4000.00),
-                },
-                RvEntry {
-                    effective_from: NaiveDate::from_ymd_opt(2000, 4, 1).unwrap(),
-                    effective_to: None,
-                    rateable_value: dec!(8000.00),
-                },
-            ],
-        },
-        occupancy_type: OccupancyType::OCCUPIED,
-        qualifying_relief_flags: QualifyingReliefFlags {
-            apply_transitional_relief: Some(true),
-            ..Default::default()
-        },
-        occupancy_periods: None,
-        language: None,
-    };
-
-    let res = engine.calculate(req);
-    let seg = &res.annual_billing_segments[0];
-
-    assert_eq!(seg.gross_liability, dec!(3328.00));
-    assert_eq!(seg.transitional_adjustment.adjustment_type, "RELIEF");
-    assert_eq!(seg.transitional_adjustment.amount, dec!(1274.20));
-    assert_eq!(seg.net_segment_payable, dec!(2053.80));
-}
 
 #[tokio::test]
 async fn test_historical_welsh_transitional_relief_2017_list() {
@@ -554,15 +424,11 @@ async fn test_historical_transitional_phasing_2017_list_revaluation() {
     assert_eq!(seg.transitional_adjustment.adjustment_type, "RELIEF");
     assert_eq!(seg.transitional_adjustment.amount, dec!(15390.80));
     assert_eq!(seg.net_segment_payable, dec!(56459.20));
-}
 
-#[tokio::test]
-async fn test_england_2017_list_transitional_relief_large_cap_2021_22_is_6_percent() {
     // Reproduction for Issue #63:
-    // Non-Domestic Rating (Chargeable Amounts) (England) Regulations 2016 (S.I. 2016/1265),
-    // Schedule Table 1: Upward limit for large hereditaments (> £100,000 RV) in 2021/22 is 6.0%, not 16.0%.
-    let repo = ParameterRepository::new_seeded();
-    let cap_2021 = repo
+    // S.I. 2016/1265 Sched Table 1: Upward limit for large hereditaments (> £100,000 RV) in 2021/22 is 6.00%
+    let repo_seeded = ParameterRepository::new_seeded();
+    let cap_2021 = repo_seeded
         .all_transitional_caps()
         .iter()
         .find(|c| {

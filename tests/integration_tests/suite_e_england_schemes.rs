@@ -151,11 +151,12 @@ async fn test_statutory_sbrr_england_linear_taper() {
 }
 
 #[tokio::test]
-async fn test_suite_7_transitional_phasing_relief_cap() {
+async fn test_suite_7_transitional_phasing_relief_cap_and_no_relief_under_cap() {
     let repo = ParameterRepository::new_seeded();
     let engine = CalculationEngine::new(repo);
 
-    let request = LiabilityCalculationRequest {
+    // Case 1: Exceeds cap (RV £10k -> £30k) under 2023 Revaluation List Medium property cap (+15%)
+    let req_over = LiabilityCalculationRequest {
         party_type: PartyType::CORPORATE,
         occupation_period: DateRange {
             start_date: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
@@ -183,22 +184,15 @@ async fn test_suite_7_transitional_phasing_relief_cap() {
         language: None,
     };
 
-    let response = engine.calculate(request);
-    let seg = &response.annual_billing_segments[0];
+    let res_over = engine.calculate(req_over);
+    let seg_over = &res_over.annual_billing_segments[0];
+    assert_eq!(seg_over.transitional_adjustment.adjustment_type, "RELIEF");
+    assert_eq!(seg_over.transitional_adjustment.amount, dec!(9231.50));
+    assert_eq!(res_over.summary_financials.total_transitional_adjustments, dec!(9231.50));
+    assert!(res_over.calculation_narrative.contains("Transitional Adjustment [RELIEF]"));
 
-    // Capped under 2023 Revaluation List Medium property cap (+15% for £20k < RV <= £100k)
-    assert_eq!(seg.transitional_adjustment.adjustment_type, "RELIEF");
-    assert_eq!(seg.transitional_adjustment.amount, dec!(9231.50));
-    assert_eq!(response.summary_financials.total_transitional_adjustments, dec!(9231.50));
-    assert!(response.calculation_narrative.contains("Transitional Adjustment [RELIEF]"));
-}
-
-#[tokio::test]
-async fn test_suite_7_transitional_relief_none_when_under_cap() {
-    let repo = ParameterRepository::new_seeded();
-    let engine = CalculationEngine::new(repo);
-
-    let request = LiabilityCalculationRequest {
+    // Case 2: Under cap (RV £20k -> £20.5k) -> Adjustment type NONE, amount £0.00
+    let req_under = LiabilityCalculationRequest {
         party_type: PartyType::CORPORATE,
         occupation_period: DateRange {
             start_date: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
@@ -226,12 +220,11 @@ async fn test_suite_7_transitional_relief_none_when_under_cap() {
         language: None,
     };
 
-    let response = engine.calculate(request);
-    let seg = &response.annual_billing_segments[0];
-
-    assert_eq!(seg.transitional_adjustment.adjustment_type, "NONE");
-    assert_eq!(seg.transitional_adjustment.amount, dec!(0.00));
-    assert_eq!(response.summary_financials.total_transitional_adjustments, dec!(0.00));
+    let res_under = engine.calculate(req_under);
+    let seg_under = &res_under.annual_billing_segments[0];
+    assert_eq!(seg_under.transitional_adjustment.adjustment_type, "NONE");
+    assert_eq!(seg_under.transitional_adjustment.amount, dec!(0.00));
+    assert_eq!(res_under.summary_financials.total_transitional_adjustments, dec!(0.00));
 }
 
 #[tokio::test]
@@ -397,95 +390,54 @@ fn test_transitional_relief_preserved_when_occupation_starts_partway_through_yea
 }
 
 #[tokio::test]
-async fn test_england_supporting_small_business_relief_2023_cap_600() {
+async fn test_england_supporting_small_business_relief_2023_and_2026_caps() {
     let repo = ParameterRepository::new_seeded();
     let engine = CalculationEngine::new(repo);
 
-    let request = LiabilityCalculationRequest {
-        party_type: PartyType::CORPORATE,
-        occupation_period: DateRange {
-            start_date: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
-            end_date: NaiveDate::from_ymd_opt(2024, 3, 31).unwrap(),
-        },
-        hereditament: HereditamentInput {
-            jurisdiction: Jurisdiction::ENGLAND,
-            scat_code: "249".to_string(),
-            rateable_value_history: vec![
-                RvEntry {
-                    effective_from: NaiveDate::from_ymd_opt(2020, 4, 1).unwrap(),
-                    effective_to: Some(NaiveDate::from_ymd_opt(2023, 3, 31).unwrap()),
-                    rateable_value: dec!(10000.00),
-                },
-                RvEntry {
-                    effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
-                    effective_to: None,
-                    rateable_value: dec!(16000.00),
-                },
-            ],
-        },
-        occupancy_type: OccupancyType::OCCUPIED,
-        qualifying_relief_flags: QualifyingReliefFlags {
-            is_small_business_sole_property: true,
-            is_ssbr_qualifying: true,
-            ..Default::default()
-        },
-        occupancy_periods: None,
-        language: None,
-    };
+    for (start_yr, end_yr, prev_start, prev_end, curr_start, expected_cap) in [
+        (2023, 2024, (2020, 4, 1), (2023, 3, 31), (2023, 4, 1), dec!(600.00)),
+        (2026, 2027, (2023, 4, 1), (2026, 3, 31), (2026, 4, 1), dec!(800.00)),
+    ] {
+        let request = LiabilityCalculationRequest {
+            party_type: PartyType::CORPORATE,
+            occupation_period: DateRange {
+                start_date: NaiveDate::from_ymd_opt(start_yr, 4, 1).unwrap(),
+                end_date: NaiveDate::from_ymd_opt(end_yr, 3, 31).unwrap(),
+            },
+            hereditament: HereditamentInput {
+                jurisdiction: Jurisdiction::ENGLAND,
+                scat_code: "249".to_string(),
+                rateable_value_history: vec![
+                    RvEntry {
+                        effective_from: NaiveDate::from_ymd_opt(prev_start.0, prev_start.1, prev_start.2).unwrap(),
+                        effective_to: Some(NaiveDate::from_ymd_opt(prev_end.0, prev_end.1, prev_end.2).unwrap()),
+                        rateable_value: dec!(10000.00),
+                    },
+                    RvEntry {
+                        effective_from: NaiveDate::from_ymd_opt(curr_start.0, curr_start.1, curr_start.2).unwrap(),
+                        effective_to: None,
+                        rateable_value: dec!(16000.00),
+                    },
+                ],
+            },
+            occupancy_type: OccupancyType::OCCUPIED,
+            qualifying_relief_flags: QualifyingReliefFlags {
+                is_small_business_sole_property: true,
+                is_ssbr_qualifying: true,
+                ..Default::default()
+            },
+            occupancy_periods: None,
+            language: None,
+        };
 
-    let response = engine.calculate(request);
-    let seg = &response.annual_billing_segments[0];
+        let response = engine.calculate(request);
+        let seg = &response.annual_billing_segments[0];
 
-    let ssbr = seg.itemized_reliefs.iter().find(|r| r.relief_code == "SSBR");
-    assert!(ssbr.is_some(), "Expected SSBR to be awarded in 2023/24");
-    assert_eq!(ssbr.unwrap().relief_name, "Supporting Small Business Relief");
-    assert_eq!(seg.net_segment_payable, dec!(600.00));
-}
-
-#[tokio::test]
-async fn test_england_supporting_small_business_relief_2026_cap_800() {
-    let repo = ParameterRepository::new_seeded();
-    let engine = CalculationEngine::new(repo);
-
-    let request = LiabilityCalculationRequest {
-        party_type: PartyType::CORPORATE,
-        occupation_period: DateRange {
-            start_date: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
-            end_date: NaiveDate::from_ymd_opt(2027, 3, 31).unwrap(),
-        },
-        hereditament: HereditamentInput {
-            jurisdiction: Jurisdiction::ENGLAND,
-            scat_code: "249".to_string(),
-            rateable_value_history: vec![
-                RvEntry {
-                    effective_from: NaiveDate::from_ymd_opt(2023, 4, 1).unwrap(),
-                    effective_to: Some(NaiveDate::from_ymd_opt(2026, 3, 31).unwrap()),
-                    rateable_value: dec!(10000.00),
-                },
-                RvEntry {
-                    effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
-                    effective_to: None,
-                    rateable_value: dec!(16000.00),
-                },
-            ],
-        },
-        occupancy_type: OccupancyType::OCCUPIED,
-        qualifying_relief_flags: QualifyingReliefFlags {
-            is_small_business_sole_property: true,
-            is_ssbr_qualifying: true,
-            ..Default::default()
-        },
-        occupancy_periods: None,
-        language: None,
-    };
-
-    let response = engine.calculate(request);
-    let seg = &response.annual_billing_segments[0];
-
-    let ssbr = seg.itemized_reliefs.iter().find(|r| r.relief_code == "SSBR");
-    assert!(ssbr.is_some(), "Expected SSBR to be awarded in 2026/27");
-    assert_eq!(ssbr.unwrap().relief_name, "Supporting Small Business Relief");
-    assert_eq!(seg.net_segment_payable, dec!(800.00));
+        let ssbr = seg.itemized_reliefs.iter().find(|r| r.relief_code == "SSBR");
+        assert!(ssbr.is_some(), "Expected SSBR to be awarded for {}/{}", start_yr, end_yr % 100);
+        assert_eq!(ssbr.unwrap().relief_name, "Supporting Small Business Relief");
+        assert_eq!(seg.net_segment_payable, expected_cap);
+    }
 }
 
 #[test]
@@ -541,11 +493,12 @@ fn test_ssbr_compounds_into_year_2() {
 }
 
 #[test]
-fn test_ssbr_not_awarded_for_new_property_without_baseline() {
+fn test_ssbr_ineligibility_conditions() {
     let repo = ParameterRepository::new_mock();
     let engine = CalculationEngine::new(repo);
 
-    let json = serde_json::json!({
+    // Condition 1: New property without 31 March 2023 baseline bill must not receive SSBR
+    let json_new = serde_json::json!({
         "party_type": "CORPORATE",
         "hereditament": {
             "jurisdiction": "ENGLAND",
@@ -568,23 +521,15 @@ fn test_ssbr_not_awarded_for_new_property_without_baseline() {
         }
     });
 
-    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
-    let response = engine.calculate(request);
+    let req_new: LiabilityCalculationRequest = serde_json::from_value(json_new).unwrap();
+    let res_new = engine.calculate(req_new);
+    let seg_new = &res_new.annual_billing_segments[0];
+    assert!(!seg_new.itemized_reliefs.iter().any(|r| r.relief_code == "SSBR"), "New property without 31 March 2023 bill must not receive SSBR");
+    assert_eq!(seg_new.gross_liability, dec!(19960.00));
+    assert_eq!(seg_new.net_segment_payable, dec!(19960.00));
 
-    assert_eq!(response.annual_billing_segments.len(), 1);
-    let seg = &response.annual_billing_segments[0];
-
-    assert!(!seg.itemized_reliefs.iter().any(|r| r.relief_code == "SSBR"), "New property without 31 March 2023 bill must not receive SSBR");
-    assert_eq!(seg.gross_liability, dec!(19960.00));
-    assert_eq!(seg.net_segment_payable, dec!(19960.00));
-}
-
-#[test]
-fn test_ssbr_not_awarded_to_charities() {
-    let repo = ParameterRepository::new_mock();
-    let engine = CalculationEngine::new(repo);
-
-    let json = serde_json::json!({
+    // Condition 2: Charities must not receive SSBR
+    let json_charity = serde_json::json!({
         "party_type": "CHARITY",
         "hereditament": {
             "jurisdiction": "ENGLAND",
@@ -612,11 +557,10 @@ fn test_ssbr_not_awarded_to_charities() {
         }
     });
 
-    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
-    let response = engine.calculate(request);
-
-    let seg = &response.annual_billing_segments[0];
-    assert!(!seg.itemized_reliefs.iter().any(|r| r.relief_code == "SSBR"), "Charity must not receive SSBR");
+    let req_charity: LiabilityCalculationRequest = serde_json::from_value(json_charity).unwrap();
+    let res_charity = engine.calculate(req_charity);
+    let seg_charity = &res_charity.annual_billing_segments[0];
+    assert!(!seg_charity.itemized_reliefs.iter().any(|r| r.relief_code == "SSBR"), "Charity must not receive SSBR");
 }
 
 #[tokio::test]
@@ -669,49 +613,10 @@ async fn test_sector_relief_england_2025_vs_2026() {
 }
 
 #[test]
-fn test_england_multiplier_2025_26_standard_is_0555() {
-    // Reproduction for Issue #48
-    // LGFA 1988 Sched 7 para A4 & S.I. 2024/1321:
-    // Small business multiplier is frozen at 49.9p (0.499).
-    // Standard multiplier is uprated by CPI (1.7%) from 0.546 to 0.555 (55.5p).
-    let engine = CalculationEngine::new(business_rates_engine::db::repository::ParameterRepository::new_seeded());
-    let json = serde_json::json!({
-        "party_type": "CORPORATE",
-        "occupation_period": {
-            "start_date": "2025-04-01",
-            "end_date": "2026-03-31"
-        },
-        "hereditament": {
-            "jurisdiction": "ENGLAND",
-            "scat_code": "091",
-            "rateable_value_history": [
-                {
-                    "effective_from": "2023-04-01",
-                    "effective_to": null,
-                    "rateable_value": 60000.00
-                }
-            ]
-        },
-        "occupancy_type": "OCCUPIED",
-        "qualifying_relief_flags": {
-            "apply_transitional_relief": false
-        }
-    });
-
-    let request: LiabilityCalculationRequest = serde_json::from_value(json).unwrap();
-    let resp = engine.calculate(request);
-    let seg = &resp.annual_billing_segments[0];
-    assert_eq!(seg.multiplier_used.rate, dec!(0.555));
-    assert_eq!(seg.multiplier_used.multiplier_type, "STANDARD");
-    assert_eq!(seg.gross_liability, dec!(33300.00));
-}
-
-#[test]
-fn test_england_small_business_multiplier_boundary_at_51000() {
-    // Reproduction for Issue #49
-    // S.I. 2017/102 art. 2: condition is rateable value "is not more than £50,999".
-    // S.I. 2026/152 regs 3-5: small business multipliers apply where "A is less than £51,000",
-    // standard multipliers apply where "A is £51,000 or more".
+fn test_england_multiplier_boundaries_and_rates_2024_to_2027() {
+    // Reproduction for Issue #48 & Issue #49:
+    // - LGFA 1988 Sched 7 para A4 & S.I. 2024/1321: Standard multiplier uprated to 0.555 for 2025/26.
+    // - S.I. 2017/102 art. 2 & S.I. 2026/152 regs 3-5: £51,000 boundary between small business and standard multipliers.
     let engine = CalculationEngine::new(business_rates_engine::db::repository::ParameterRepository::new_seeded());
 
     let calc = |start: &str, end: &str, rv: f64, rhl: bool| {
@@ -736,21 +641,28 @@ fn test_england_small_business_multiplier_boundary_at_51000() {
         (
             resp.annual_billing_segments[0].multiplier_used.rate,
             resp.annual_billing_segments[0].multiplier_used.multiplier_type.clone(),
+            resp.annual_billing_segments[0].gross_liability,
         )
     };
 
-    // 1. England 2024/25 at RV £51,000 pays standard multiplier 0.546 (not small business 0.499)
-    let (rate_2024, type_2024) = calc("2024-04-01", "2025-03-31", 51000.0, false);
+    // 1. England 2025/26 at RV £60,000 pays standard multiplier 0.555 (gross £33,300)
+    let (rate_2025, type_2025, gross_2025) = calc("2025-04-01", "2026-03-31", 60000.0, false);
+    assert_eq!(rate_2025, dec!(0.555));
+    assert_eq!(type_2025, "STANDARD");
+    assert_eq!(gross_2025, dec!(33300.00));
+
+    // 2. England 2024/25 at RV £51,000 pays standard multiplier 0.546 (not small business 0.499)
+    let (rate_2024, type_2024, _) = calc("2024-04-01", "2025-03-31", 51000.0, false);
     assert_eq!(rate_2024, dec!(0.546));
     assert_eq!(type_2024, "STANDARD");
 
-    // 2. England 2026/27 at RV £51,000 pays standard multiplier 0.480 (not small business 0.432)
-    let (rate_2026, type_2026) = calc("2026-04-01", "2027-03-31", 51000.0, false);
+    // 3. England 2026/27 at RV £51,000 pays standard multiplier 0.480 (not small business 0.432)
+    let (rate_2026, type_2026, _) = calc("2026-04-01", "2027-03-31", 51000.0, false);
     assert_eq!(rate_2026, dec!(0.480));
     assert_eq!(type_2026, "STANDARD");
 
-    // 3. England 2026/27 RHL at RV £51,000 pays standard RHL multiplier 0.430 (not small business RHL 0.382)
-    let (rate_2026_rhl, type_2026_rhl) = calc("2026-04-01", "2027-03-31", 51000.0, true);
+    // 4. England 2026/27 RHL at RV £51,000 pays standard RHL multiplier 0.430 (not small business RHL 0.382)
+    let (rate_2026_rhl, type_2026_rhl, _) = calc("2026-04-01", "2027-03-31", 51000.0, true);
     assert_eq!(rate_2026_rhl, dec!(0.430));
     assert_eq!(type_2026_rhl, "STANDARD_RHL");
 }

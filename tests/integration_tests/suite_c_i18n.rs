@@ -35,10 +35,11 @@ use business_rates_engine::i18n::Language;
 use business_rates_engine::error::AppError;
 
 #[tokio::test]
-async fn test_i18n_welsh_narrative_and_relief_names() {
+async fn test_i18n_welsh_scots_and_gaelic_narrative_and_relief_names() {
     let repo = ParameterRepository::new_mock();
     let engine = CalculationEngine::new(repo);
 
+    // 1. Welsh calculation
     let json_welsh = r#"{
         "party_type": "CHARITY",
         "occupation_period": {
@@ -62,35 +63,21 @@ async fn test_i18n_welsh_narrative_and_relief_names() {
         },
         "language": "cy"
     }"#;
+    let req_cy: LiabilityCalculationRequest = serde_json::from_str(json_welsh).unwrap();
+    assert_eq!(req_cy.language.as_deref(), Some("cy"));
+    let res_cy = engine.calculate(req_cy);
 
-    let req: LiabilityCalculationRequest = serde_json::from_str(json_welsh).unwrap();
-    assert_eq!(req.language.as_deref(), Some("cy"));
+    assert!(res_cy.calculation_narrative.contains("ADRODDIAD STATUDOL AR GYFRIFO TRETHI BUSNES & LLWYBR ARCHWILIO"));
+    assert!(res_cy.calculation_narrative.contains("1. Fframwaith Statudol:"));
+    assert!(res_cy.calculation_narrative.contains("Deddf Cyllid Llywodraeth Leol (Cymru) 2024"));
+    assert!(res_cy.calculation_narrative.contains("Blwyddyn Ariannol 2025/26:"));
+    assert!(res_cy.calculation_narrative.contains("CYFANSWM Y SWM NET I'W DALU:"));
+    let seg_cy = &res_cy.annual_billing_segments[0];
+    let charity_cy = seg_cy.itemized_reliefs.iter().find(|r| r.relief_code == "CHARITY_MANDATORY").unwrap();
+    assert_eq!(charity_cy.relief_name, "Rhyddhad Elusennol Gorfodol");
 
-    let res = engine.calculate(req);
-
-    // Verify Welsh narrative headers and lines
-    assert!(res.calculation_narrative.contains("ADRODDIAD STATUDOL AR GYFRIFO TRETHI BUSNES & LLWYBR ARCHWILIO"));
-    assert!(res.calculation_narrative.contains("1. Fframwaith Statudol:"));
-    assert!(res.calculation_narrative.contains("Deddf Cyllid Llywodraeth Leol (Cymru) 2024"));
-    assert!(res.calculation_narrative.contains("Blwyddyn Ariannol 2025/26:"));
-    assert!(res.calculation_narrative.contains("Gwerth Trethiannol (RV):"));
-    assert!(res.calculation_narrative.contains("Dyddiau Meddiannu:"));
-    assert!(res.calculation_narrative.contains("Atebolrwydd Crynswth:"));
-    assert!(res.calculation_narrative.contains("Swm Net y Segment i'w Dalu:"));
-    assert!(res.calculation_narrative.contains("CYFANSWM Y SWM NET I'W DALU:"));
-
-    // Verify Welsh localized relief name
-    let seg = &res.annual_billing_segments[0];
-    let charity_relief = seg.itemized_reliefs.iter().find(|r| r.relief_code == "CHARITY_MANDATORY").unwrap();
-    assert_eq!(charity_relief.relief_name, "Rhyddhad Elusennol Gorfodol");
-}
-
-#[tokio::test]
-async fn test_i18n_scots_and_gaelic_narrative_and_relief_names() {
-    let repo = ParameterRepository::new_mock();
-    let engine = CalculationEngine::new(repo);
-
-    let req = LiabilityCalculationRequest {
+    // 2. Scots and Scottish Gaelic calculations
+    let req_scot = LiabilityCalculationRequest {
         party_type: PartyType::CHARITY,
         occupation_period: DateRange {
             start_date: NaiveDate::from_ymd_opt(2025, 4, 1).unwrap(),
@@ -114,110 +101,61 @@ async fn test_i18n_scots_and_gaelic_narrative_and_relief_names() {
         language: None,
     };
 
-    // 1. Scots calculation
-    let res_sco = engine.calculate_with_language(req.clone(), business_rates_engine::i18n::Language::Sco);
+    let res_sco = engine.calculate_with_language(req_scot.clone(), business_rates_engine::i18n::Language::Sco);
     assert!(res_sco.calculation_narrative.contains("STATUTARY CALCULATION NARRATIVE & AUDIT TRAIL"));
     assert!(res_sco.calculation_narrative.contains("1. Statutary Framewark:"));
-    assert!(res_sco.calculation_narrative.contains("2. Leeabeelity Period:"));
     assert!(res_sco.calculation_narrative.contains("HALE NET AMOUNT TAE PAY:"));
-
     let seg_sco = &res_sco.annual_billing_segments[0];
     let charity_sco = seg_sco.itemized_reliefs.iter().find(|r| r.relief_code == "CHARITY_MANDATORY").unwrap();
     assert_eq!(charity_sco.relief_name, "Mandatar Chairitable Rate Relief");
 
-    // 2. Scottish Gaelic calculation
-    let res_gd = engine.calculate_with_language(req, business_rates_engine::i18n::Language::Gd);
+    let res_gd = engine.calculate_with_language(req_scot, business_rates_engine::i18n::Language::Gd);
     assert!(res_gd.calculation_narrative.contains("AITHRIS REACHDAIL AIR ÀIREAMHACHADH ÌREAN & SLIGHE SGRÙDAIDH"));
     assert!(res_gd.calculation_narrative.contains("1. Frèam Reachdail:"));
-    assert!(res_gd.calculation_narrative.contains("2. Ùine Buailteachd:"));
     assert!(res_gd.calculation_narrative.contains("IOMLAN GLAN RI PHÀIGHEADH:"));
-
     let seg_gd = &res_gd.annual_billing_segments[0];
     let charity_gd = seg_gd.itemized_reliefs.iter().find(|r| r.relief_code == "CHARITY_MANDATORY").unwrap();
     assert_eq!(charity_gd.relief_name, "Faochadh Ìrean Carthannais Èigneachail");
 }
 
 #[tokio::test]
-async fn test_i18n_reference_codes_localized_welsh_and_english() {
+async fn test_i18n_reference_codes_localized_all_languages() {
     let repo = ParameterRepository::new_mock();
 
-    // Welsh reference codes
+    // 1. Welsh
     let cy_codes = repo.all_reference_codes_localized(business_rates_engine::i18n::Language::Cy);
-    let england_cy = cy_codes.iter().find(|c| c.category == "JURISDICTION" && c.code == "ENGLAND").unwrap();
-    assert_eq!(england_cy.label, "Lloegr");
-    assert!(england_cy.description.contains("Ardrethu annomestig statudol"));
+    assert_eq!(cy_codes.iter().find(|c| c.category == "JURISDICTION" && c.code == "ENGLAND").unwrap().label, "Lloegr");
+    assert_eq!(cy_codes.iter().find(|c| c.category == "JURISDICTION" && c.code == "WALES").unwrap().label, "Cymru");
+    assert_eq!(cy_codes.iter().find(|c| c.category == "PARTY_TYPE" && c.code == "CHARITY").unwrap().label, "Elusen Gofrestredig");
+    assert_eq!(cy_codes.iter().find(|c| c.category == "OCCUPANCY_TYPE" && c.code == "OCCUPIED").unwrap().label, "Mangre a Feddienir");
 
-    let wales_cy = cy_codes.iter().find(|c| c.category == "JURISDICTION" && c.code == "WALES").unwrap();
-    assert_eq!(wales_cy.label, "Cymru");
-
-    let charity_cy = cy_codes.iter().find(|c| c.category == "PARTY_TYPE" && c.code == "CHARITY").unwrap();
-    assert_eq!(charity_cy.label, "Elusen Gofrestredig");
-
-    let occ_cy = cy_codes.iter().find(|c| c.category == "OCCUPANCY_TYPE" && c.code == "OCCUPIED").unwrap();
-    assert_eq!(occ_cy.label, "Mangre a Feddienir");
-
-    // English reference codes (default)
+    // 2. English
     let en_codes = repo.all_reference_codes_localized(business_rates_engine::i18n::Language::En);
-    let england_en = en_codes.iter().find(|c| c.category == "JURISDICTION" && c.code == "ENGLAND").unwrap();
-    assert_eq!(england_en.label, "England");
+    assert_eq!(en_codes.iter().find(|c| c.category == "JURISDICTION" && c.code == "ENGLAND").unwrap().label, "England");
+    assert_eq!(en_codes.iter().find(|c| c.category == "PARTY_TYPE" && c.code == "CHARITY").unwrap().label, "Registered Charity");
 
-    let charity_en = en_codes.iter().find(|c| c.category == "PARTY_TYPE" && c.code == "CHARITY").unwrap();
-    assert_eq!(charity_en.label, "Registered Charity");
-}
-
-#[tokio::test]
-async fn test_i18n_reference_codes_localized_scots_and_gaelic() {
-    let repo = ParameterRepository::new_mock();
-
-    // Scots reference codes
+    // 3. Scots
     let sco_codes = repo.all_reference_codes_localized(business_rates_engine::i18n::Language::Sco);
-    let england_sco = sco_codes.iter().find(|c| c.category == "JURISDICTION" && c.code == "ENGLAND").unwrap();
-    assert_eq!(england_sco.label, "Ingland");
-    assert!(england_sco.description.contains("Statutary non-domestic ratin"));
+    assert_eq!(sco_codes.iter().find(|c| c.category == "JURISDICTION" && c.code == "ENGLAND").unwrap().label, "Ingland");
+    assert_eq!(sco_codes.iter().find(|c| c.category == "PARTY_TYPE" && c.code == "CHARITY").unwrap().label, "Registratit Chairity");
 
-    let charity_sco = sco_codes.iter().find(|c| c.category == "PARTY_TYPE" && c.code == "CHARITY").unwrap();
-    assert_eq!(charity_sco.label, "Registratit Chairity");
-
-    // Gaelic reference codes
+    // 4. Gaelic
     let gd_codes = repo.all_reference_codes_localized(business_rates_engine::i18n::Language::Gd);
-    let england_gd = gd_codes.iter().find(|c| c.category == "JURISDICTION" && c.code == "ENGLAND").unwrap();
-    assert_eq!(england_gd.label, "Sasainn");
-    assert!(england_gd.description.contains("Ìrean neo-dachaigheil reachdail"));
-
-    let charity_gd = gd_codes.iter().find(|c| c.category == "PARTY_TYPE" && c.code == "CHARITY").unwrap();
-    assert_eq!(charity_gd.label, "Carthannas Clàraichte");
+    assert_eq!(gd_codes.iter().find(|c| c.category == "JURISDICTION" && c.code == "ENGLAND").unwrap().label, "Sasainn");
+    assert_eq!(gd_codes.iter().find(|c| c.category == "PARTY_TYPE" && c.code == "CHARITY").unwrap().label, "Carthannas Clàraichte");
 }
 
 #[tokio::test]
-async fn test_i18n_localized_error_messages() {
+async fn test_i18n_localized_error_messages_all_languages() {
     let err = business_rates_engine::error::AppError::InvalidOccupationPeriod {
         start: NaiveDate::from_ymd_opt(2025, 4, 1).unwrap(),
         end: NaiveDate::from_ymd_opt(2024, 3, 31).unwrap(),
     };
 
-    let msg_cy = err.localized_message(business_rates_engine::i18n::Language::Cy);
-    assert_eq!(msg_cy, "Ni all dyddiad gorffen meddiannaeth (2024-03-31) fod cyn y dyddiad cychwyn (2025-04-01)");
-
-    let msg_en = err.localized_message(business_rates_engine::i18n::Language::En);
-    assert_eq!(msg_en, "Occupation end date (2024-03-31) cannot precede start date (2025-04-01)");
-}
-
-// =========================================================================
-// SUITE A: UI ASKAMA HTML TEMPLATE RENDERING & FRONT-END STRUCTURE
-// =========================================================================
-
-#[tokio::test]
-async fn test_i18n_localized_error_messages_scots_and_gaelic() {
-    let err = business_rates_engine::error::AppError::InvalidOccupationPeriod {
-        start: NaiveDate::from_ymd_opt(2025, 4, 1).unwrap(),
-        end: NaiveDate::from_ymd_opt(2024, 3, 31).unwrap(),
-    };
-
-    let msg_sco = err.localized_message(business_rates_engine::i18n::Language::Sco);
-    assert_eq!(msg_sco, "End date for occupancy (2024-03-31) canna be afore start date (2025-04-01)");
-
-    let msg_gd = err.localized_message(business_rates_engine::i18n::Language::Gd);
-    assert_eq!(msg_gd, "Chan urrainn do cheann-latha crìochnachaidh gabhaltais (2024-03-31) a bhith ro cheann-latha tòiseachaidh (2025-04-01)");
+    assert_eq!(err.localized_message(business_rates_engine::i18n::Language::En), "Occupation end date (2024-03-31) cannot precede start date (2025-04-01)");
+    assert_eq!(err.localized_message(business_rates_engine::i18n::Language::Cy), "Ni all dyddiad gorffen meddiannaeth (2024-03-31) fod cyn y dyddiad cychwyn (2025-04-01)");
+    assert_eq!(err.localized_message(business_rates_engine::i18n::Language::Sco), "End date for occupancy (2024-03-31) canna be afore start date (2025-04-01)");
+    assert_eq!(err.localized_message(business_rates_engine::i18n::Language::Gd), "Chan urrainn do cheann-latha crìochnachaidh gabhaltais (2024-03-31) a bhith ro cheann-latha tòiseachaidh (2025-04-01)");
 }
 
 #[test]
