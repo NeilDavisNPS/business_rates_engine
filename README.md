@@ -24,7 +24,7 @@
 # 1. Build the Svelte 5 frontend bundle
 ./build-frontend.sh
 
-# 2. Run the integration test suite (161 passing tests)
+# 2. Run the integration test suite (164 passing tests)
 cargo test
 
 # 3. Start the application server (http://localhost:8080)
@@ -36,5 +36,6 @@ cargo run
 ## Documentation
 
 - **[Installation & Running Guide (INSTALL_AND_RUN.md)](INSTALL_AND_RUN.md)** — Installation, development workflow, cURL examples, and deployment guide.
-- **[Specification, Test Cases & Source Index (business-rates-engine-spec-and-tests.md)](business-rates-engine-spec-and-tests.md)** — Statutory architecture, software requirements, parameter repository specification, test case breakdowns, and legal citations.
+- **[Statutory Source Index (STATUTORY_SOURCES.md)](STATUTORY_SOURCES.md)** — Authoritative inventory of primary rating acts, devolved statutory instruments (SIs/SSIs/WSIs), and VOA rating manuals across England, Wales, and Scotland (1990–2027).
+- **[Specification & Test Cases (BUSINESS_RATES_ENGINE_SPEC_AND_TESTS.md)](BUSINESS_RATES_ENGINE_SPEC_AND_TESTS.md)** — Software architecture, requirements, parameter repository specification, test cases (Suites A–J), and calculation algorithms.
 - **[Third-Party Software Licenses (THIRD_PARTY_LICENSES.md)](THIRD_PARTY_LICENSES.md)** — Attribution notices, software licenses, and third-party dependencies incorporated into the engine.

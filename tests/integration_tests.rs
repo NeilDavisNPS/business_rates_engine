@@ -1,7 +1,7 @@
 //! Business Rates Calculation Engine - Integration Test Runner
 //!
 //! Organized into 10 statutory test suites (Suites A through J) directly matching
-//! the statutory specifications in business-rates-engine-spec-and-tests.md.
+//! the statutory specifications in BUSINESS_RATES_ENGINE_SPEC_AND_TESTS.md.
 
 #[path = "integration_tests/common.rs"]
 mod common;
