@@ -359,3 +359,24 @@ async fn test_static_assets_etag_cache_control_and_version_busting() {
     assert!(scalar_body_304.is_empty(), "304 response body must be empty for scalar.js");
 }
 
+#[tokio::test]
+async fn test_issue_72_ui_bundle_contains_greater_london_flag() {
+    // Issue #72: The UI frontend bundle must include the Greater London input control and state bindings
+    let app = create_test_app();
+    let req = Request::builder()
+        .uri("/assets/app.js")
+        .method("GET")
+        .body(Body::empty())
+        .unwrap();
+
+    let res = app.oneshot(req).await.unwrap();
+    assert_eq!(res.status(), StatusCode::OK);
+    let js_body = body_to_string(res.into_body()).await;
+
+    assert!(
+        js_body.contains("flag_is_greater_london") && js_body.contains("is_greater_london"),
+        "The compiled frontend bundle must contain the flag_is_greater_london element and is_greater_london property"
+    );
+}
+
+

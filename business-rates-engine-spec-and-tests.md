@@ -776,6 +776,7 @@ The test suite is organized under [`tests/integration_tests/`](tests/integration
   - `test_owasp_secure_headers_on_error_and_unauthorized_responses`: Verifies OWASP security headers on 422/404 error responses.
   - `test_static_assets_served_with_correct_content_types`: CSS and Vite assets served with proper MIME types; unmapped static asset paths return 404.
   - `test_static_assets_etag_cache_control_and_version_busting`: Validates runtime ETag generation, 304 Not Modified conditional responses on matching If-None-Match, immutable Cache-Control on version-tagged assets, and dynamic ?v= cache busting for app.js, app.css, and scalar.js.
+  - `test_issue_72_ui_bundle_contains_greater_london_flag`: Asserts that the compiled Svelte 5 single-page application bundle includes the `flag_is_greater_london` control and reactive `is_greater_london` store binding (S.I. 2026/81 reg. 10(5) / S.I. 2022/1403 reg. 10(5)).
 
 - **Suite J: Historical Statutory Parameters & Revaluations (1990–2022)** ([`tests/integration_tests/suite_j_historical.rs`](tests/integration_tests/suite_j_historical.rs) — 12 tests):
   - `test_historical_calculation_1990_91_inaugural_nndr`: Validates inaugural non-domestic rating calculation under LGFA 1988 (1990/91) with zero SBRR discount.

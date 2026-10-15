@@ -59,7 +59,9 @@ export interface QualifyingReliefFlags {
   payment_installments_count?: number;
   apply_transitional_relief?: boolean;
   same_occupier_since_revaluation?: boolean;
+  is_greater_london?: boolean;
 }
+
 
 export interface OccupancyPeriodInput {
   start_date: string;

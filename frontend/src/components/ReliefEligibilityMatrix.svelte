@@ -352,7 +352,7 @@
 
       <!-- Supporting Small Business Relief (SSBR) (England only - LGFA 1988 s.47) -->
       {#if calcStore.jurisdiction === 'ENGLAND'}
-        <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-purple-200 bg-purple-50/40 hover:bg-purple-50 cursor-pointer transition-colors">
+        <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-purple-200 bg-purple-50/40 hover:bg-purple-50 cursor-pointer transition-colors min-h-[44px]">
           <input
             id="flag_is_ssbr_qualifying"
             name="is_ssbr_qualifying"
@@ -369,6 +369,28 @@
           </div>
         </label>
       {/if}
+
+      <!-- Greater London Location (England only - S.I. 2026/81 reg 10(5) / S.I. 2022/1403 reg 10(5) / LGFA 1988 Sched 7 para 4) -->
+      {#if calcStore.jurisdiction === 'ENGLAND'}
+        <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-blue-200 bg-blue-50/40 hover:bg-blue-50 cursor-pointer transition-colors min-h-[44px]">
+          <input
+            id="flag_is_greater_london"
+            name="is_greater_london"
+            type="checkbox"
+            aria-label="{calcStore.t.flag_greater_london_title}: {calcStore.t.flag_greater_london_desc}"
+            bind:checked={calcStore.qualifyingReliefFlags.is_greater_london}
+            onchange={onFlagChange}
+            class="mt-0.5 rounded text-blue-600 focus:ring-blue-500 focus-visible:ring-2 focus-visible:ring-offset-2"
+          />
+          <div>
+            <span class="text-xs font-bold text-blue-950 block">{calcStore.t.flag_greater_london_title}</span>
+            <span class="text-[11px] text-blue-950">
+              {calcStore.t.flag_greater_london_desc}
+            </span>
+          </div>
+        </label>
+      {/if}
+
 
       <!-- Retail, Hospitality & Leisure / Food & Drink Hospitality (All nations) -->
       <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
