@@ -671,6 +671,7 @@ The test suite is organized under [`tests/integration_tests/`](tests/integration
   - `test_transitional_relief_preserved_when_occupation_starts_partway_through_year`: Ensures transitional relief cap is preserved when occupation commences mid-year.
   - `test_england_supporting_small_business_relief_2023_cap_600`: Verifies SSBR under LGFA 1988 s.47 capping net bill increase to £600/year in 2023/24 for ratepayers losing SBRR.
   - `test_england_supporting_small_business_relief_2026_cap_800`: Verifies SSBR under LGFA 1988 s.47 capping net bill increase to £800/year in 2026/27.
+  - `test_issue_71_ssb_caps_increase_on_bill_after_rhl`: Verifies that for hereditaments losing RHL relief under the 2026 revaluation in England, SSBR correctly establishes the baseline net bill taking into account RHL relief (40% discount) in payment at 31/03/2026, and caps net liability increases to the greater of £800 or the transitional relief percentage cap (+15% for medium band under S.I. 2026/81 reg. 10).
   - `test_ssbr_compounds_into_year_2`: Confirms SSBR cap compounds into year 2 on top of the preceding year's capped bill.
   - `test_ssbr_not_awarded_for_new_property_without_baseline`: Validates SSBR is not awarded to new properties lacking a prior-year baseline.
   - `test_ssbr_not_awarded_to_charities`: Validates SSBR cannot be awarded to charities receiving mandatory charitable relief.

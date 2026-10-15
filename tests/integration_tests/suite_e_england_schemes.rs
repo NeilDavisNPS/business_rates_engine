@@ -1164,4 +1164,64 @@ async fn test_england_small_business_multiplier_threshold_pre_2017() {
     assert_eq!(seg_lon["multiplier_used"]["rate"], 0.480);
 }
 
+#[tokio::test]
+async fn test_issue_71_ssb_caps_increase_on_bill_after_rhl() {
+    // Issue #71: In England 2026/27, a property losing RHL relief with SSBR
+    // 31/03/2026 RV = 45,000 (RHL 40% in payment -> 2025/26 net bill £13,473.00)
+    // 01/04/2026 RV = 75,000
+    // Gross 2026/27: £75,000 * 0.430 = £32,250.00
+    // TR relief: Medium band (+15%): BL = £22,455.00 * 1.15 = £25,823.25. TR deduction = £6,426.75.
+    // Chargeable before SSBR = £25,823.25.
+    // SSBR cap: max(£13,473 + £800, £13,473 * 1.15) = £15,493.95.
+    // SSBR deduction = £25,823.25 - £15,493.95 = £10,329.30.
+    // Net payable = £15,493.95.
+    let repo = ParameterRepository::new_seeded();
+    let engine = CalculationEngine::new(repo);
+
+    let request = LiabilityCalculationRequest {
+        party_type: PartyType::CORPORATE,
+        occupation_period: DateRange {
+            start_date: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2027, 3, 31).unwrap(),
+        },
+        hereditament: HereditamentInput {
+            jurisdiction: Jurisdiction::ENGLAND,
+            scat_code: "225".to_string(), // Retail shop
+            rateable_value_history: vec![
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2024, 4, 1).unwrap(),
+                    effective_to: Some(NaiveDate::from_ymd_opt(2026, 3, 31).unwrap()),
+                    rateable_value: dec!(45000.00),
+                },
+                RvEntry {
+                    effective_from: NaiveDate::from_ymd_opt(2026, 4, 1).unwrap(),
+                    effective_to: None,
+                    rateable_value: dec!(75000.00),
+                },
+            ],
+        },
+        occupancy_type: OccupancyType::OCCUPIED,
+        qualifying_relief_flags: QualifyingReliefFlags {
+            is_rhl_qualifying: true,
+            is_ssbr_qualifying: true,
+            apply_transitional_relief: Some(true),
+            ..Default::default()
+        },
+        occupancy_periods: None,
+        language: None,
+    };
+
+    let response = engine.calculate(request);
+    let seg = &response.annual_billing_segments[0];
+
+    assert_eq!(seg.financial_year, "2026/27");
+    assert_eq!(seg.gross_liability, dec!(32250.00));
+    assert_eq!(seg.transitional_adjustment.amount, dec!(6426.75));
+
+    let ssbr = seg.itemized_reliefs.iter().find(|r| r.relief_code == "SSBR").expect("SSBR must be awarded");
+    assert_eq!(ssbr.amount_deducted, dec!(10329.30));
+    assert_eq!(seg.net_segment_payable, dec!(15493.95));
+}
+
+
 

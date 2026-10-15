@@ -923,13 +923,61 @@ impl CalculationEngine {
                                             flags.is_higher_multiplier_excepted,
                                             flags.is_greater_london,
                                         )?;
+                                        // Prior year baseline liability under LGFA 1988 s.47 (Supporting Small Business Scheme guidance):
+                                        // Baseline is calculated on 31 March immediately preceding the scheme start year (e.g. 31/03/2026 for 2026 list).
+                                        // Baseline net bill takes into account all reliefs in payment on that day:
+                                        // 1. SBRR discount (if small business sole property under LGFA 1988 s.43(4B))
+                                        // 2. Rural settlement relief (if rural settlement under LGFA 1988 s.43(6B))
+                                        // 3. Retail, Hospitality & Leisure (RHL) relief (if qualifying, e.g. 40% in England 2025/26 under LGFA 1988 s.47)
                                         let base_gross = base_rv * base_mult.rate;
-                                        let base_sbrr_pct = self.repo.resolve_sbrr(Jurisdiction::ENGLAND, &base_y0_fy, base_rv)
-                                            .map(|r| r.discount_percentage)
-                                            .unwrap_or(dec!(0.00));
-                                        let base_net_annual = (base_gross * (dec!(1.00) - (base_sbrr_pct / dec!(100.00)))).round_dp(2);
+                                        let mut base_after_relief = base_gross;
+                                        if flags.is_rural_settlement {
+                                            base_after_relief = dec!(0.00);
+                                        } else {
+                                            let base_sbrr_pct = self.repo.resolve_sbrr(Jurisdiction::ENGLAND, &base_y0_fy, base_rv)
+                                                .map(|r| r.discount_percentage)
+                                                .unwrap_or(dec!(0.00));
+                                            if base_sbrr_pct > dec!(0.00) {
+                                                let base_sbrr = (base_gross * (base_sbrr_pct / dec!(100.00))).round_dp(2);
+                                                base_after_relief = (base_after_relief - base_sbrr).max(dec!(0.00));
+                                            }
+                                        }
+
+                                        if flags.is_rhl_qualifying && base_after_relief > dec!(0.00) {
+                                            if let Some(rhl) = self.repo.resolve_sector_relief_for_date(
+                                                Jurisdiction::ENGLAND,
+                                                &base_y0_fy,
+                                                true,
+                                                false,
+                                                false,
+                                                Some(baseline_date),
+                                            ) {
+                                                let rhl_disc = (base_after_relief * (rhl.discount_percentage / dec!(100.00))).round_dp(2);
+                                                base_after_relief = (base_after_relief - rhl_disc).max(dec!(0.00));
+                                            }
+                                        }
+
+                                        let base_net_annual = base_after_relief;
                                         let years_elapsed = Decimal::from((fy_start_year - scheme_start_year + 1).max(1));
-                                        let max_annual_bill = base_net_annual + (ssbr.annual_cap * years_elapsed);
+
+                                        // Statutory / Scheme Annual Capping Increase:
+                                        // - 2023 Scheme: Flat cap of £600 per year (LGFA 1988 s.47)
+                                        // - 2026 Scheme: Greater of £800 annual increase or the Transitional Relief percentage cap
+                                        //   under S.I. 2026/81 reg. 10 (Small 5%, Medium 15%, Large 30%)
+                                        let allowable_increase = if scheme_start_year >= 2026 {
+                                            let tr_cap_pct = self.repo.resolve_transitional_cap_ex(
+                                                Jurisdiction::ENGLAND,
+                                                &win.financial_year,
+                                                rv,
+                                                flags.is_greater_london,
+                                            ).map(|c| c.upward_cap_percentage).unwrap_or(dec!(0.00));
+                                            let tr_increase = (base_net_annual * (tr_cap_pct / dec!(100.00))).round_dp(2);
+                                            (ssbr.annual_cap * years_elapsed).max(tr_increase)
+                                        } else {
+                                            ssbr.annual_cap * years_elapsed
+                                        };
+
+                                        let max_annual_bill = base_net_annual + allowable_increase;
                                         let segment_max_bill = ((max_annual_bill / year_days_dec) * days_dec).round_dp(2);
 
                                         let current_net_before_ssbr = chargeable_before_reliefs - segment_relief_total;
